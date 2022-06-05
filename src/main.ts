@@ -1,11 +1,29 @@
-import {App, ButtonComponent, Editor, MarkdownView, Modal, Notice, Plugin, PluginSettingTab, Setting} from 'obsidian';
+import {addIcon, App, Editor, MarkdownView, Modal, Notice, Plugin} from 'obsidian';
 import {TranslatorSettingsTab} from "./settings";
-import {LanguageCode} from "iso-639-1";
+import ISO6391, {LanguageCode} from "iso-639-1";
 
-// Remember to rename these classes and interfaces!
+
+// Import all the locale data for the supported languages of Obsidian
+// FIXME: Large filesize, can this be loaded on demand?
+import '@formatjs/intl-displaynames/polyfill'
+import "./language_locales";
+
+
+// import {shouldPolyfill} from '@formatjs/intl-displaynames/should-polyfill'
+// Import the locale data for the currently set display language for Obsidian
+// export async function polyfillLocale(locale: string) {
+// 	const unsupportedLocale = shouldPolyfill(locale)
+// 	// This locale is already loaded in, should not polyfill
+// 	if (!unsupportedLocale) {
+// 		return
+// 	}
+// 	// Load the polyfill first BEFORE loading data
+// 	await import('@formatjs/intl-displaynames/polyfill-force')
+// 	await import(`@formatjs/intl-displaynames/locale-data/${unsupportedLocale}.js`)
+// }
+
 
 interface TranslatorPluginSettings {
-	all_languages: Map<LanguageCode, string>;
 	selected_languages: Array<any>;
 	available_languages: Array<any>;
 	use_spellchecker_languages: boolean;
@@ -13,18 +31,33 @@ interface TranslatorPluginSettings {
 }
 
 const DEFAULT_SETTINGS: TranslatorPluginSettings = {
-	all_languages: new Map(),
 	selected_languages: ['en', 'fr', 'nl'],
 	available_languages: ['en', 'fr', 'nl'],
 	use_spellchecker_languages: false,
 	display_language: 'display',
 }
-
 export default class TranslatorPlugin extends Plugin {
 	settings: TranslatorPluginSettings;
+	current_language: string;
+	all_languages: Map<LanguageCode, string> = new Map();
+	locales = ISO6391.getAllCodes();
+
+	//@ts-ignore (Included with polyfill)
+	localised_names: Intl.DisplayNames;
 
 	async onload() {
 		await this.loadSettings();
+
+		this.current_language = await this.fixLanguageCode(window.localStorage.getItem('language') || 'en-US');
+		await this.updateLocalisation();
+
+		// Fetch icon list from github
+		const iconList: Record<string, string>[] = await (await fetch('https://raw.githubusercontent.com/Fevol/obsidian-translate/master/src/assets/icons.json')).json();
+
+		// Load icons into Obsidian
+		for (const [id, icon] of Object.entries(iconList)) {
+			addIcon(id, icon);
+		}
 
 		// This creates an icon in the left ribbon.
 		const ribbonIconEl = this.addRibbonIcon('dice', 'Sample Plugin', (evt: MouseEvent) => {
@@ -107,7 +140,40 @@ export default class TranslatorPlugin extends Plugin {
 		await this.saveData(this.settings);
 	}
 
+	async fixLanguageCode(code: string) {
+		switch (code) {
+			case "tam":
+				return "ta";
+			case "cz":
+				return "cs";
+			default:
+				// FIXME: intl-displaynames doesn't support the "zh-TW" or "pt-BR" locales
+				return code.split("-")[0];
+		}
+	}
+
+	async updateLocalisation() {
+		// @ts-ignore
+		this.localised_names = new Intl.DisplayNames([this.current_language], {type: 'language'});
+
+		// Get correct names for all available locales
+		this.updateLanguageNames();
+
+	}
+
+	updateLanguageNames(): void {
+		// For every locale in all languages, update the name based on the currently selected language display setting
+		for (let locale of this.locales) {
+			if (this.settings.display_language === "local") {
+				this.all_languages.set(locale, ISO6391.getNativeName(locale));
+			} else if (this.settings.display_language === "display") {
+				this.all_languages.set(locale, this.localised_names.of(locale));
+			}
+		}
+	}
+
 }
+
 
 class SampleModal extends Modal {
 	constructor(app: App) {

@@ -1,12 +1,11 @@
-import {App, ButtonComponent, DropdownComponent, PluginSettingTab, Setting} from "obsidian";
+import {App, ButtonComponent, DropdownComponent, PluginSettingTab, Setting, setIcon} from "obsidian";
 import type TranslatorPlugin from "./main";
-import ISO6391, {LanguageCode} from "iso-639-1";
+import {LanguageCode} from "iso-639-1";
 
-// TODO: Intl package is not supported, so we need to use the ISO 639-1 code or polyfill
-// This makes the names of the languages appear in the display language
-// const displayNames = new Intl.DisplayNames(['en'], {type: 'region'});
-
-const locales = ISO6391.getAllCodes();
+// There is currently no way to catch when the display language of Obsidian is being changed, as it is not reactive
+// (add current display language to app.json?)
+// So 'display languages' setting will only be applied correctly when the program is fully restarted or when
+// the language display name setting is changed.
 
 // Settings page for the plugin
 export class TranslatorSettingsTab extends PluginSettingTab {
@@ -17,18 +16,11 @@ export class TranslatorSettingsTab extends PluginSettingTab {
 	constructor(app: App, plugin: TranslatorPlugin) {
 		super(app, plugin);
 		this.plugin = plugin;
-		for (const locale of locales) {
-			this.plugin.settings.all_languages.set(locale, ISO6391.getName(locale));
-		}
-
 	}
 
-	display(): void {
+	async display(): Promise<void> {
 		const {containerEl} = this;
-
 		containerEl.empty();
-
-		this.updateLanguageNames();
 
 		let select_languages = new Setting(this.containerEl)
 			.setName("Translator languages")
@@ -41,7 +33,6 @@ export class TranslatorSettingsTab extends PluginSettingTab {
 
 		select_languages.addDropdown((dropdown) => {
 			this.language_selection = dropdown;
-
 			this.updateLanguageSelection();
 
 			dropdown.onChange(async (code) => {
@@ -78,7 +69,7 @@ export class TranslatorSettingsTab extends PluginSettingTab {
 						}))];
 
 						this.plugin.settings.available_languages = spellchecker_languages.filter((code: LanguageCode) => {
-							return this.plugin.settings.all_languages.has(code);
+							return this.plugin.all_languages.has(code);
 						});
 					} else {
 						this.plugin.settings.available_languages = this.plugin.settings.selected_languages;
@@ -95,39 +86,52 @@ export class TranslatorSettingsTab extends PluginSettingTab {
 				dropdown.addOption("display", 'Display Language');
 				dropdown.addOption("local", 'Localised Language');
 				dropdown.onChange((value) => {
+					// Obsidian's current display language is updated internally when this setting is changed
+					// (will not be updated when the display language is changed)
+					const updated_lang = window.localStorage.getItem('language') || 'en';
+					if (updated_lang !== this.plugin.current_language) {
+						this.plugin.updateLocalisation();
+					}
+
 					this.plugin.settings.display_language = value;
 					this.plugin.saveSettings();
-					this.updateLanguageNames();
+
+					this.plugin.updateLanguageNames();
 					this.updateLanguageView();
 					this.updateLanguageSelection();
 				});
 				dropdown.setValue(this.plugin.settings.display_language);
 			});
 
-		new Setting(this.containerEl)
-			.setName("Translation Service")
-			.addDropdown((dropdown) => {
-				dropdown.addOption("googleTranslate", 'Google Translate');
+		let translation_services = new Setting(this.containerEl)
+			.setName("Translation Service");
+
+
+		const translation_services_list = [
+			{label: "Google Translate", value: "google-translate"},
+			{label: "Deepl", value: "deepl"},
+			{label: "Bing Translator", value: "bing-translator"},
+			{label: "Yandex Translate", value: "yandex-translate"},
+			{label: "Libre Translate", value: "libre-translate"},
+		];
+
+		let translation_services_dropdown = translation_services.controlEl.createEl("select", {cls: "dropdown"});
+
+		for (const service of translation_services_list) {
+			let option = translation_services_dropdown.createEl("option", {
+				value: service.value,
+				text: service.label,
 			});
-
-	}
-
-	updateLanguageNames(): void {
-		// For every locale in all languages, update the name based on the currently selected language display setting
-		for (let locale of this.plugin.settings.all_languages.keys()) {
-			if (this.plugin.settings.display_language === "local") {
-				this.plugin.settings.all_languages.set(locale, ISO6391.getNativeName(locale));
-			} else if (this.plugin.settings.display_language === "display") {
-				this.plugin.settings.all_languages.set(locale, ISO6391.getName(locale));
-			}
 		}
+
+
 	}
 
 	updateLanguageView(): void {
 		this.language_view.empty();
 
 		const languages = Array.from(this.plugin.settings.available_languages).map((code) => {
-			return [code, this.plugin.settings.all_languages.get(code)];
+			return [code, this.plugin.all_languages.get(code)];
 		}).sort((a, b) => {
 			return a[1].localeCompare(b[1]);
 		});
@@ -135,7 +139,7 @@ export class TranslatorSettingsTab extends PluginSettingTab {
 
 		for (let [code, lang] of languages) {
 			let lang_el = this.language_view.createEl('span', {
-				text: this.plugin.settings.all_languages.get(code),
+				text: this.plugin.all_languages.get(code),
 				cls: 'setting-hotkey'
 			});
 			if (!this.plugin.settings.use_spellchecker_languages) {
@@ -161,9 +165,9 @@ export class TranslatorSettingsTab extends PluginSettingTab {
 
 		// Filter from all languages the ones that are not selected
 
-		const languages: [string, string][] = [...this.plugin.settings.all_languages.entries()]
-			.filter((code) => {
-				return !this.plugin.settings.available_languages.includes(code);
+		const languages: [string, string][] = [...this.plugin.all_languages.entries()]
+			.filter((a) => {
+				return !this.plugin.settings.available_languages.includes(a[0]);
 			}).sort((a, b) => {
 				return a[1].localeCompare(b[1])
 			});
