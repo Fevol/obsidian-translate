@@ -1,0 +1,28 @@
+{
+	"name": "obsidian-translator",
+	"version": "0.0.1",
+	"description": "Provides a translation modal for obsidian",
+	"main": "main.js",
+	"scripts": {
+		"dev": "node esbuild.config.mjs",
+		"build": "tsc -noEmit -skipLibCheck && node esbuild.config.mjs production",
+		"version": "node version-bump.mjs && git add manifest.json versions.json"
+	},
+	"keywords": [],
+	"author": "Fevol",
+	"license": "MIT",
+	"devDependencies": {
+		"@types/node": "^16.11.6",
+		"@typescript-eslint/eslint-plugin": "^5.2.0",
+		"@typescript-eslint/parser": "^5.2.0",
+		"builtin-modules": "^3.2.0",
+		"esbuild": "0.13.12",
+		"obsidian": "latest",
+		"tslib": "2.3.1",
+		"typescript": "4.4.4",
+		"esbuild-sass-plugin": "^2.2.6"
+	},
+	"dependencies": {
+		"iso-639-1": "^2.1.14"
+	}
+}
