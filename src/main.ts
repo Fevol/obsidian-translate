@@ -5,15 +5,17 @@ import {LanguageCode} from "iso-639-1";
 // Remember to rename these classes and interfaces!
 
 interface TranslatorPluginSettings {
-	selected_languages: Set<any>;
-	available_languages: Set<any>;
+	all_languages: Map<LanguageCode, string>;
+	selected_languages: Array<any>;
+	available_languages: Array<any>;
 	use_spellchecker_languages: boolean;
 	display_language: string;
 }
 
 const DEFAULT_SETTINGS: TranslatorPluginSettings = {
-	selected_languages: new Set<LanguageCode>(['en', 'fr', 'nl']),
-	available_languages: new Set<LanguageCode>(['en', 'fr', 'nl']),
+	all_languages: new Map(),
+	selected_languages: ['en', 'fr', 'nl'],
+	available_languages: ['en', 'fr', 'nl'],
 	use_spellchecker_languages: false,
 	display_language: 'display',
 }
@@ -92,11 +94,19 @@ export default class TranslatorPlugin extends Plugin {
 
 	async loadSettings() {
 		this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData());
+		await this.saveSettings();
 	}
 
 	async saveSettings() {
 		await this.saveData(this.settings);
+		console.log('Saving settings', this.settings);
 	}
+
+	async savePartialSettings(changedOptions: (settings: TranslatorPluginSettings) => Partial<TranslatorPluginSettings>) {
+		this.settings = Object.assign({}, this.settings, changedOptions(this.settings));
+		await this.saveData(this.settings);
+	}
+
 }
 
 class SampleModal extends Modal {
