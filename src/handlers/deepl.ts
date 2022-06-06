@@ -1,35 +1,26 @@
 import {DummyTranslate} from "./dummy-translate";
 
 export class Deepl extends DummyTranslate {
-	constructor() {
+	api_key: string;
+
+	constructor(api_key: string) {
 		super();
+		this.api_key = api_key;
 	}
 
-	async detect(text: string): Promise<string> {
-		// Send request to Deepl Translate API
-		const result = await fetch("https://api.deepl.com/v2/detect", {
+	async validate() {
+		// FIXME: Two different API endpoints are used: free and paid.
+		const result = await fetch("https://api.deepl.com/v2/languages", {
 			method: "POST",
 			body: JSON.stringify({
-				text: [text]
+				auth_key: this.api_key,
+				source_lang: "en"
 			}),
-			headers: {"Content-Type": "application/json", "Ocp-Apim-Subscription-Key": "b9f1c0c1b6c64b8d8f2c2d9e9b2c2f9"}
+			headers: {
+				"Content-Type": "application/json"
+			}
 		});
-		const data = await result.json();
-		return data[0].language;
+		return result.ok;
 	}
 
-	async translate(text: string, from: string, to: string): Promise<string> {
-		// Send request to Deepl Translate API
-		const result = await fetch("https://api.deepl.com/v2/translate", {
-			method: "POST",
-			body: JSON.stringify({
-				text: [text],
-				source_lang: from,
-				target_lang: to
-			}),
-			headers: {"Content-Type": "application/json", "Ocp-Apim-Subscription-Key": "b9f1c0c1b6c64b8d8f2c2d9e9b2c2f9"}
-		});
-		const data = await result.json();
-		return data[0].translations[0].text;
-	}
 }

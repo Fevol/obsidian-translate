@@ -2,6 +2,10 @@ import {addIcon, App, Editor, MarkdownView, Modal, Notice, Plugin} from 'obsidia
 
 import {TranslatorSettingsTab} from "./settings";
 import {TranslatorView, TRANSLATOR_VIEW_ID} from "./view";
+import {TranslatorPluginSettings} from "./types";
+import {ICONS, DEFAULT_SETTINGS} from "./constants";
+import {DummyTranslate, BingTranslator, GoogleTranslate, Deepl, LibreTranslate, YandexTranslate} from "./handlers";
+
 
 import ISO6391, {LanguageCode} from "iso-639-1";
 
@@ -10,7 +14,6 @@ import ISO6391, {LanguageCode} from "iso-639-1";
 // FIXME: Large filesize, can this be loaded on demand?
 import '@formatjs/intl-displaynames/polyfill'
 import "./language_locales";
-import {Obj} from "tern";
 
 
 // import {shouldPolyfill} from '@formatjs/intl-displaynames/should-polyfill'
@@ -27,68 +30,12 @@ import {Obj} from "tern";
 // }
 
 
-interface TranslatorPluginSettings {
-	selected_languages: Array<any>;
-	available_languages: Array<any>;
-	use_spellchecker_languages: boolean;
-	display_language: string;
-	language_from: string;
-	language_to: string;
-	translation_service: string;
-	service_settings: APIServiceProviders;
-}
-
-interface APIServiceProviders {
-	google_translate: APIServiceSettings;
-	bing_translator: APIServiceSettings;
-	yandex_translate: APIServiceSettings;
-	libre_translate: APIServiceSettings;
-	deepl: APIServiceSettings;
-}
-
-interface APIServiceSettings {
-	api_key: string;
-	host: string | null;
-}
-
-const DEFAULT_SETTINGS: TranslatorPluginSettings = {
-	// Selected languages are stored such that when toggling between syncing spellchecker languages will preserve the user selection
-	selected_languages: ['en', 'fr', 'nl'],
-	// The actual languages that are available for translation
-	available_languages: ['en', 'fr', 'nl'],
-	use_spellchecker_languages: false,
-	display_language: 'display',
-	language_from: '',
-	language_to: '',
-	translation_service: 'google_translate',
-	service_settings: {
-		google_translate: {
-			api_key: "",
-			host: null,
-		},
-		bing_translator: {
-			api_key: "",
-			host: null
-		},
-		yandex_translate: {
-			api_key: "",
-			host: null
-		},
-		libre_translate: {
-			api_key: null,
-			host: "https://libretranslate.com/",
-		},
-		deepl: {
-			api_key: "",
-			host: null,
-		}
-	},
-}
 export default class TranslatorPlugin extends Plugin {
 	settings: TranslatorPluginSettings;
 	current_language: string;
 	all_languages: Map<LanguageCode, string> = new Map();
 	locales = ISO6391.getAllCodes();
+	translator: DummyTranslate;
 
 	//@ts-ignore (Included with polyfill)
 	localised_names: Intl.DisplayNames;
@@ -98,68 +45,16 @@ export default class TranslatorPlugin extends Plugin {
 
 		this.current_language = await this.fixLanguageCode(window.localStorage.getItem('language') || 'en-US');
 		await this.updateLocalisation();
+		await this.setupTranslationService();
 
 		// ------------------  Load in custom icons  ------------------
 
-		// Fetch icon list from github
-		const iconList: Record<string, string>[] = await (await fetch('https://raw.githubusercontent.com/Fevol/obsidian-translate/master/src/assets/icons.json')).json();
-
 		// Load icons into Obsidian
-		for (const [id, icon] of Object.entries(iconList)) {
+		for (const [id, icon] of Object.entries(ICONS)) {
 			addIcon(id, icon);
 		}
 
 		// ------------------------------------------------------------
-
-		// This creates an icon in the left ribbon.
-		// const ribbonIconEl = this.addRibbonIcon('dice', 'Sample Plugin', (evt: MouseEvent) => {
-		// 	// Called when the user clicks the icon.
-		// 	new Notice('This is a notice!');
-		// });
-		// // Perform additional things with the ribbon
-		// ribbonIconEl.addClass('my-plugin-ribbon-class');
-
-		// // This adds a status bar item to the bottom of the app. Does not work on mobile apps.
-		// const statusBarItemEl = this.addStatusBarItem();
-		// statusBarItemEl.setText('Status Bar Text');
-
-		// // This adds a simple command that can be triggered anywhere
-		// this.addCommand({
-		// 	id: 'open-sample-modal-simple',
-		// 	name: 'Open sample modal (simple)',
-		// 	callback: () => {
-		// 		new SampleModal(this.app).open();
-		// 	}
-		// });
-
-		// // This adds an editor command that can perform some operation on the current editor instance
-		// this.addCommand({
-		// 	id: 'sample-editor-command',
-		// 	name: 'Sample editor command',
-		// 	editorCallback: (editor: Editor, view: MarkdownView) => {
-		// 		console.log(editor.getSelection());
-		// 		editor.replaceSelection('Sample Editor Command');
-		// 	}
-		// });
-		// This adds a complex command that can check whether the current state of the app allows execution of the command
-		// this.addCommand({
-		// 	id: 'open-sample-modal-complex',
-		// 	name: 'Open sample modal (complex)',
-		// 	checkCallback: (checking: boolean) => {
-		// 		// Conditions to check
-		// 		const markdownView = this.app.workspace.getActiveViewOfType(MarkdownView);
-		// 		if (markdownView) {
-		// 			// If checking is true, we're simply "checking" if the command can be run.
-		// 			// If checking is false, then we want to actually perform the operation.
-		// 			if (!checking) {
-		// 				new SampleModal(this.app).open();
-		// 			}
-		//
-		// 			// This command will only show up in Command Palette when the check function returns true
-		// 			return true;
-		// 		}
-		// 	}
-		// });
 
 		// This adds a settings tab so the user can configure various aspects of the plugin
 		this.addSettingTab(new TranslatorSettingsTab(this.app, this));
@@ -173,15 +68,6 @@ export default class TranslatorPlugin extends Plugin {
 			this.activateTranslatorView();
 		});
 
-
-		// // If the plugin hooks up any global DOM events (on parts of the app that doesn't belong to this plugin)
-		// // Using this function will automatically remove the event listener when this plugin is disabled.
-		// this.registerDomEvent(document, 'click', (evt: MouseEvent) => {
-		// 	console.log('click', evt);
-		// });
-
-		// // When registering intervals, this function will automatically clear the interval when the plugin is disabled.
-		// this.registerInterval(window.setInterval(() => console.log('setInterval'), 5 * 60 * 1000));
 	}
 
 	async activateTranslatorView() {
@@ -196,6 +82,34 @@ export default class TranslatorPlugin extends Plugin {
 			this.app.workspace.getLeavesOfType(TRANSLATOR_VIEW_ID)[0]
 		);
 	}
+
+	// ----------------  Set up translation service  ----------------
+	async setupTranslationService() {
+		switch (this.settings.translation_service) {
+			case 'google_translate':
+				this.translator = new GoogleTranslate(this.settings.service_settings.google_translate.api_key);
+				break;
+			case 'libre_translate':
+				this.translator = new LibreTranslate(this.settings.service_settings.libre_translate.host);
+				break;
+			default:
+				this.translator = new DummyTranslate();
+		}
+	}
+
+	// --------------------------------------------------------------
+
+
+	// ---------------- Translator wrapper functions ----------------
+	async translate(text: string) {
+		if (this.settings.language_to === this.settings.language_from) {
+			return text;
+		}
+		return await this.translator.translate(text, this.settings.language_from, this.settings.language_to);
+	}
+
+	// --------------------------------------------------------------
+
 
 	// ------------------  Process language codes  ------------------
 	async fixLanguageCode(code: string) {

@@ -3,55 +3,87 @@
 import {DummyTranslate} from "./dummy-translate";
 
 export class GoogleTranslate extends DummyTranslate {
-	constructor() {
+	api_key: string;
+
+	constructor(api_key: string) {
 		super();
+		this.api_key = api_key;
+	}
+
+	async validate() {
+		const result = await fetch("https://translation.googleapis.com/language/translate/v2/languages", {
+			method: "POST",
+			body: JSON.stringify({
+				key: this.api_key,
+				q: "en"
+			}),
+			headers: {
+				"Content-Type": "application/json"
+			}
+		});
+		return result.ok;
 	}
 
 	async detect(text: string): Promise<string> {
-		// Send request to Google Translate API
-		const result = await fetch("https://translate.googleapis.com/translate_a/single", {
+		const result = await fetch("https://translation.googleapis.com/language/translate/v2/detect", {
 			method: "POST",
 			body: JSON.stringify({
-				q: text,
-				client: "gtx",
-				sl: "auto",
-				tl: "auto"
+				key: this.api_key,
 			}),
-			headers: {"Content-Type": "application/json"}
+			headers: {
+				"Content-Type": "application/json",
+			}
 		});
 		const data = await result.json();
-		return data[2][0][0];
+		return data.data.detections[0].language;
 	}
 
 	async translate(text: string, from: string, to: string): Promise<string> {
-		// Send request to Google Translate API
-		const result = await fetch("https://translate.googleapis.com/translate_a/single", {
+		const result = await fetch("https://translation.googleapis.com/language/translate/v2", {
 			method: "POST",
 			body: JSON.stringify({
-				q: text,
-				client: "gtx",
-				sl: from,
-				tl: to
+				key: this.api_key,
+				source: from,
+				target: to,
+				q: [text]
 			}),
-			headers: {"Content-Type": "application/json"}
+			headers: {
+				"Content-Type": "application/json",
+			}
 		});
 		const data = await result.json();
-		return data[0][0][0];
+		return data.data.translations[0].translatedText;
 	}
 
 	async auto_translate(text: string, to: string): Promise<Object> {
-		// Send request to Google Translate API
-		const result = await fetch("https://translate.googleapis.com/translate_a/single", {
+		const result = await fetch("https://translation.googleapis.com/language/translate/v2", {
 			method: "POST",
 			body: JSON.stringify({
-				q: text,
-				client: "gtx",
-				sl: "auto",
-				tl: to
+				key: this.api_key,
+				source: "auto",
+				target: to,
+				q: [text]
 			}),
-			headers: {"Content-Type": "application/json"}
+			headers: {
+				"Content-Type": "application/json",
+			}
 		});
 		const data = await result.json();
-		return data;
+		return {text: data.data.translations[0].translatedText, predict: null};
+	}
+
+	async get_languages(): Promise<string[]> {
+		const result = await fetch("https://translation.googleapis.com/language/translate/v2/languages", {
+			method: "POST",
+			body: JSON.stringify({
+				key: this.api_key,
+				target: "en"
+			}),
+			headers: {
+				"Content-Type": "application/json",
+			}
+		});
+		const data = await result.json();
+		return data.data.languages.map((language: { language: any; }) => language.language);
 	}
 }

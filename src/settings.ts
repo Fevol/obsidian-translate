@@ -135,13 +135,12 @@ export class TranslatorSettingsTab extends PluginSettingTab {
 				}
 				dropdown.onChange((value) => {
 					this.plugin.settings.translation_service = value;
+					this.plugin.setupTranslationService();
 					this.plugin.saveSettings();
 					document.dispatchEvent(new CustomEvent('translation-service-changed'));
 
 					// Reveal correspondings settings tab for the selected service
 					this.showServiceSettings(value);
-
-
 				});
 				dropdown.setValue(this.plugin.settings.translation_service);
 			});
@@ -166,6 +165,7 @@ export class TranslatorSettingsTab extends PluginSettingTab {
 						// @ts-ignore
 						this.plugin.settings.service_settings[service].api_key = value;
 						this.plugin.saveSettings();
+						this.plugin.setupTranslationService();
 					});
 				}).then(setting => {
 				//@ts-ignore
@@ -224,9 +224,13 @@ export class TranslatorSettingsTab extends PluginSettingTab {
 					// @ts-ignore
 					textbox.setValue(this.plugin.settings.service_settings[service].host);
 					textbox.onChange((value) => {
+						if (value.endsWith('/'))
+							value = value.slice(0, -1);
+
 						// @ts-ignore
 						this.plugin.settings.service_settings[service].host = value;
 						this.plugin.saveSettings();
+						this.plugin.setupTranslationService();
 					});
 				}).then(setting => {
 				//@ts-ignore
