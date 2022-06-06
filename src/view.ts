@@ -66,7 +66,7 @@ export class TranslatorView extends ItemView {
 		});
 		right_column.createEl("textarea", {cls: "translator-textarea"})
 
-		this.service_used = container.createDiv({'cls': 'translator-service-text'});
+		this.service_used = container.createDiv({'cls': 'translator-service-text icon-text'});
 		await this.updateTooltip();
 
 		document.addEventListener("translation-service-changed", () => {
@@ -122,7 +122,7 @@ export class TranslatorView extends ItemView {
 		this.service_used.empty();
 		let icon = this.service_used.createDiv();
 		setIcon(icon, this.plugin.settings.translation_service);
-		let span = this.service_used.createDiv({cls: '', text: `Using ${this.plugin.settings.translation_service.replace('-', ' ')}`});
+		let span = this.service_used.createDiv({cls: '', text: `Using ${this.plugin.settings.translation_service.replace('_', ' ')}`});
 
 		this.updateSelection(this.left_select, "from");
 		this.updateSelection(this.right_select, "to");

@@ -35,16 +35,54 @@ interface TranslatorPluginSettings {
 	language_from: string;
 	language_to: string;
 	translation_service: string;
+	service_settings: APIServiceProviders;
+}
+
+interface APIServiceProviders {
+	google_translate: APIServiceSettings;
+	bing_translator: APIServiceSettings;
+	yandex_translate: APIServiceSettings;
+	libre_translate: APIServiceSettings;
+	deepl: APIServiceSettings;
+}
+
+interface APIServiceSettings {
+	api_key: string;
+	host: string | null;
 }
 
 const DEFAULT_SETTINGS: TranslatorPluginSettings = {
+	// Selected languages are stored such that when toggling between syncing spellchecker languages will preserve the user selection
 	selected_languages: ['en', 'fr', 'nl'],
+	// The actual languages that are available for translation
 	available_languages: ['en', 'fr', 'nl'],
 	use_spellchecker_languages: false,
 	display_language: 'display',
 	language_from: '',
 	language_to: '',
-	translation_service: 'google-translate',
+	translation_service: 'google_translate',
+	service_settings: {
+		google_translate: {
+			api_key: "",
+			host: null,
+		},
+		bing_translator: {
+			api_key: "",
+			host: null
+		},
+		yandex_translate: {
+			api_key: "",
+			host: null
+		},
+		libre_translate: {
+			api_key: null,
+			host: "https://libretranslate.com/",
+		},
+		deepl: {
+			api_key: "",
+			host: null,
+		}
+	},
 }
 export default class TranslatorPlugin extends Plugin {
 	settings: TranslatorPluginSettings;

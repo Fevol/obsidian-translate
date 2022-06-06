@@ -1,15 +1,23 @@
 import {App, ButtonComponent, DropdownComponent, PluginSettingTab, setIcon, Setting} from "obsidian";
 import type TranslatorPlugin from "./main";
 import {LanguageCode} from "iso-639-1";
+import {toTitleCase} from "./util";
 
 
-const translation_services_list = [
-	{label: "Google Translate", value: "google-translate"},
-	{label: "Deepl", value: "deepl"},
-	{label: "Bing Translator", value: "bing-translator"},
-	{label: "Yandex Translate", value: "yandex-translate"},
-	{label: "Libre Translate", value: "libre-translate"},
-];
+const translation_services_list = {
+	"google_translate": {
+		request_key: "https://cloud.google.com/translate/docs/setup",
+	},
+	"bing_translator": {
+		request_key: "https://www.microsoft.com/en-us/translator/business/translator-api/",
+	},
+	"yandex_translate": {
+		request_key: "https://yandex.com/dev/translate/",
+	},
+	"deepl": {
+		request_key: "https://www.deepl.com/pro-api?cta=header-pro-api/",
+	}
+}
 
 // There is currently no way to catch when the display language of Obsidian is being changed, as it is not reactive
 // (add current display language to app.json?)
@@ -20,6 +28,7 @@ export class TranslatorSettingsTab extends PluginSettingTab {
 	plugin: TranslatorPlugin;
 	language_view: HTMLElement;
 	language_selection: DropdownComponent;
+	service_settings: HTMLElement;
 
 	constructor(app: App, plugin: TranslatorPlugin) {
 		super(app, plugin);
@@ -117,16 +126,75 @@ export class TranslatorSettingsTab extends PluginSettingTab {
 		let translation_services = new Setting(this.containerEl)
 			.setName("Translation Service")
 			.addDropdown(async (dropdown) => {
-				translation_services_list.forEach((service) => {
-					dropdown.addOption(service.value, service.label);
-				});
+				for (const service of Object.keys(translation_services_list)) {
+					dropdown.addOption(service, toTitleCase(service.replace('_', ' ')));
+				}
 				dropdown.onChange((value) => {
 					this.plugin.settings.translation_service = value;
 					this.plugin.saveSettings();
 					document.dispatchEvent(new CustomEvent('translation-service-changed'));
+
+					// Reveal correspondings settings tab for the selected service
+					this.showServiceSettings(value);
+
+
 				});
 				dropdown.setValue(this.plugin.settings.translation_service);
 			});
+		this.service_settings = containerEl.createDiv();
+		this.showServiceSettings(this.plugin.settings.translation_service);
+	}
+
+	showServiceSettings(service: string) {
+		this.service_settings.empty();
+
+		this.service_settings.createEl('h2', {text: `${toTitleCase(service.replace('_', ' '))} Settings`});
+
+		// @ts-ignore
+		if (this.plugin.settings.service_settings[service].api_key !== null) {
+			new Setting(this.service_settings)
+				.setName('API Key')
+				.setDesc('Enter a valid API key')
+				.addText((textbox) => {
+					// @ts-ignore
+					textbox.setValue(this.plugin.settings.service_settings[service].api_key);
+					textbox.onChange((value) => {
+						// @ts-ignore
+						this.plugin.settings.service_settings[service].api_key = value;
+						this.plugin.saveSettings();
+					});
+				}).then(setting => {
+				//@ts-ignore
+				const info = translation_services_list[service]
+				if ('request_key' in info) {
+					setting.descEl.createEl('br');
+					let href = setting.descEl.createEl('a', {
+						cls: 'icon-text',
+						href: info.request_key,
+					})
+					let icon = href.createDiv();
+					setIcon(icon, 'info', 15);
+					href.createEl('span', {text: 'Setup for API Key can be found here'});
+				}
+			});
+		}
+
+		// If host in settings is not null, show the host setting
+		// @ts-ignore
+		if (this.plugin.settings.service_settings[service].host !== null) {
+			new Setting(this.service_settings)
+				.setName('Host')
+				.setDesc('Enter the URL of the translation service')
+				.addText((textbox) => {
+					// @ts-ignore
+					textbox.setValue(this.plugin.settings.service_settings[service].host);
+					textbox.onChange((value) => {
+						// @ts-ignore
+						this.plugin.settings.service_settings[service].host = value;
+						this.plugin.saveSettings();
+					});
+				});
+		}
 	}
 
 	updateLanguageView(): void {

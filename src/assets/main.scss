@@ -40,15 +40,18 @@
 	margin-top: 8px;
 }
 
-.translator-service-text {
+.icon-text {
 	display: flex;
+	align-items: center;
+}
+
+.icon-text > * {
+	display: flex;
+	margin-right: 4px;
+}
+
+.translator-service-text {
 	text-transform: capitalize;
 	font-style: italic;
 	filter: brightness(0.5);
-	align-items: center;
 }
-.translator-service-text > * {
-	display: flex;
-	margin-right: 2px;
-}
-
