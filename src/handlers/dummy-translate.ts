@@ -1,3 +1,6 @@
+import {Obj} from "tern";
+import {KeyedObject} from "../types";
+
 export class DummyTranslate {
 	constructor() {
 	}
@@ -12,11 +15,11 @@ export class DummyTranslate {
 		return null;
 	}
 
-	async translate(text: string, from: string, to: string): Promise<string> {
+	async translate(text: string, from: string, to: string): Promise<KeyedObject> {
 		// Perfect translation
-		return text;
+		return {translation: text};
 	}
-	
+
 	async auto_translate(text: string, to: string): Promise<Object> {
 		// Still have no clue what I'm supposed to do with this
 		return {text: text, predict: null};

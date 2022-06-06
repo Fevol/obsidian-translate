@@ -21,3 +21,7 @@ export interface APIServiceSettings {
 	api_key: string;
 	host: string | null;
 }
+
+export interface KeyedObject {
+	[key: string]: any
+}

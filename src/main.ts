@@ -101,11 +101,17 @@ export default class TranslatorPlugin extends Plugin {
 
 
 	// ---------------- Translator wrapper functions ----------------
-	async translate(text: string) {
-		if (this.settings.language_to === this.settings.language_from) {
+	async translate(text: string, select: HTMLSelectElement) {
+		if (this.settings.language_to === this.settings.language_from || !/[a-zA-Z]/g.test(text)) {
 			return text;
 		}
-		return await this.translator.translate(text, this.settings.language_from, this.settings.language_to);
+
+		let return_values = await this.translator.translate(text, this.settings.language_from, this.settings.language_to);
+
+		if (this.settings.language_from === "auto") {
+			select.childNodes[0].textContent = `Detect Language (${return_values.detected_language})`;
+		}
+		return return_values.translation;
 	}
 
 	// --------------------------------------------------------------

@@ -1,6 +1,7 @@
 // Import plugin settings
 
 import {DummyTranslate} from "./dummy-translate";
+import {KeyedObject} from "../types";
 
 export class GoogleTranslate extends DummyTranslate {
 	api_key: string;
@@ -38,7 +39,7 @@ export class GoogleTranslate extends DummyTranslate {
 		return data.data.detections[0].language;
 	}
 
-	async translate(text: string, from: string, to: string): Promise<string> {
+	async translate(text: string, from: string, to: string): Promise<KeyedObject> {
 		const result = await fetch("https://translation.googleapis.com/language/translate/v2", {
 			method: "POST",
 			body: JSON.stringify({

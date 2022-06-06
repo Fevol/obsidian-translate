@@ -42,13 +42,13 @@ export class TranslatorView extends ItemView {
 			this.plugin.settings.language_from = this.left_select.value;
 			this.plugin.saveSettings();
 
-			output_field.value = await this.plugin.translate(input_field.value);
+			output_field.value = await this.plugin.translate(input_field.value, this.left_select);
 		});
 
 		// TODO: Make the field resizable (save data)
 		let input_field = left_column.createEl("textarea", {cls: "translator-textarea"})
 		input_field.addEventListener("input", async () => {
-			output_field.value = await this.plugin.translate(input_field.value);
+			output_field.value = await this.plugin.translate(input_field.value, this.left_select);
 		});
 
 		let center_column = container.createDiv({'cls': 'translator-button-container'});
@@ -70,7 +70,7 @@ export class TranslatorView extends ItemView {
 		this.right_select.addEventListener("change", async () => {
 			this.plugin.settings.language_to = this.right_select.value;
 			this.plugin.saveSettings();
-			output_field.value = await this.plugin.translate(input_field.value);
+			output_field.value = await this.plugin.translate(input_field.value, this.left_select);
 		});
 		let output_field = right_column.createEl("textarea", {cls: "translator-textarea"})
 
@@ -79,7 +79,7 @@ export class TranslatorView extends ItemView {
 
 		document.addEventListener("translation-service-changed", async () => {
 			this.updateTooltip();
-			output_field.value = await this.plugin.translate(input_field.value);
+			output_field.value = await this.plugin.translate(input_field.value, this.left_select);
 		});
 
 		document.addEventListener("updated-language-selection", () => {
@@ -98,11 +98,16 @@ export class TranslatorView extends ItemView {
 
 	updateSelection(dropdown: HTMLSelectElement, side: string) {
 		dropdown.empty();
-		const languages = Array.from(this.plugin.settings.available_languages).map((code) => {
+		let languages = Array.from(this.plugin.settings.available_languages).map((code) => {
 			return [code, this.plugin.all_languages.get(code)];
 		}).sort((a, b) => {
 			return a[1].localeCompare(b[1]);
 		});
+
+		if (side === "from") {
+			// Add the default language to the top of the list
+			languages.unshift(['auto', 'Detect Language']);
+		}
 
 		for (const [locale, name] of languages) {
 			let option = dropdown.createEl("option", {

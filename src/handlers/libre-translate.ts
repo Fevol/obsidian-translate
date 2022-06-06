@@ -1,4 +1,5 @@
 import {DummyTranslate} from "./dummy-translate";
+import {KeyedObject} from "../types";
 
 export class LibreTranslate extends DummyTranslate {
 	host: string;
@@ -20,7 +21,7 @@ export class LibreTranslate extends DummyTranslate {
 		return data;
 	}
 
-	async translate(text: string, from: string, to: string): Promise<string> {
+	async translate(text: string, from: string, to: string): Promise<KeyedObject> {
 		const result = await fetch(`${this.host}/translate`, {
 			method: "POST",
 			body: JSON.stringify({
@@ -32,7 +33,10 @@ export class LibreTranslate extends DummyTranslate {
 		});
 
 		const data = await result.json();
-		return data.translatedText;
+		if (from === "auto")
+			return {translation: data.translatedText, detected_language: data.detectedLanguage.language};
+		else
+			return {translation: data.translatedText};
 	}
 
 	async auto_translate(text: string, to: string): Promise<Object> {

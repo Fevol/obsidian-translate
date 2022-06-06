@@ -184,7 +184,7 @@ export class TranslatorSettingsTab extends PluginSettingTab {
 						href.createEl('span', {text: 'Setup for API Key can be found here'});
 					}
 				});
-			let api_icon = apiKeyField.controlEl.createDiv({cls: 'rounded-icon'})
+			// let api_icon = apiKeyField.controlEl.createDiv({cls: 'rounded-icon'})
 			this.checkValidityOfField(apiKeyField, 'API Key', '', () => {
 				return this.plugin.translator.validate();
 			});
@@ -230,36 +230,44 @@ export class TranslatorSettingsTab extends PluginSettingTab {
 	}
 
 	checkValidityOfField(field: Setting, field_name: string, field_description: string, validation_function: () => Promise<boolean>) {
-		let api_icon = field.controlEl.createDiv({cls: 'rounded-icon'})
-		setIcon(api_icon, 'question-mark-glyph', 15);
+		// let api_icon = field.controlEl.createDiv({cls: 'rounded-icon'})
+		// setIcon(api_icon, 'question-mark-glyph', 15);
 
-		let testkey = new Setting(this.service_settings)
-			.setName(`Test the ${field_name}`)
+		// let testkey = new Setting(this.service_settings)
+		// 	.setName(`Test the ${field_name}`)
+		//
+		// if (field_description !== null) {
+		// 	testkey.setDesc(field_description);
+		// }
 
-		if (field_description !== null) {
-			testkey.setDesc(field_description);
-		}
+		let testbutton = createEl('button', { cls: 'icon-text'});
+		// Add testbutton as first element of field's controlEl
+		field.controlEl.insertBefore(testbutton, field.controlEl.firstChild);
 
-		let testbutton = testkey.controlEl.createEl('button', {cls: 'icon-text'})
 		let icon = testbutton.createDiv();
 		setIcon(icon, 'question-mark-glyph', 15);
 		testbutton.createEl('span', {text: 'Test'});
 
 		testbutton.addEventListener('click', async () => {
-			api_icon.empty();
+			// api_icon.empty();
+			icon.empty();
+			testbutton.style.backgroundColor = '';
+			icon.createDiv({cls: 'spinner'})
+
+			let valid = await validation_function();
 			icon.empty();
 
-			if (await validation_function()) {
-				new Notice(`[STUB] ${toTitleCase(field_name)} is valid`);
+			if (valid) {
+				new Notice(`${toTitleCase(field_name)} is valid`);
 				setIcon(icon, 'check', 15);
-				setIcon(api_icon, 'check', 15);
-				api_icon.style.backgroundColor = 'darkgreen';
+				// setIcon(api_icon, 'check', 15);
+				// api_icon.style.backgroundColor = 'darkgreen';
 				testbutton.style.backgroundColor = 'darkgreen';
 			} else {
-				new Notice(`[STUB] ${toTitleCase(field_name)} is not valid`);
+				new Notice(`${toTitleCase(field_name)} is not valid`);
 				setIcon(icon, 'cross', 15);
-				setIcon(api_icon, 'cross', 15);
-				api_icon.style.backgroundColor = 'darkred';
+				// setIcon(api_icon, 'cross', 15);
+				// api_icon.style.backgroundColor = 'darkred';
 				testbutton.style.backgroundColor = 'darkred';
 			}
 		})
