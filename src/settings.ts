@@ -1,27 +1,27 @@
-import {App, ButtonComponent, DropdownComponent, Notice, PluginSettingTab, setIcon, Setting} from "obsidian";
+import {App, DropdownComponent, Notice, PluginSettingTab, setIcon, Setting} from "obsidian";
 import type TranslatorPlugin from "./main";
 import {LanguageCode} from "iso-639-1";
 import {toTitleCase} from "./util";
-import {randomInt} from "crypto";
+import {APIServiceProviders} from "./types";
 
-
-const translation_services_list = {
-	"google_translate": {
+const translation_services_list: { [key: string]: any } = {
+	google_translate: {
 		request_key: "https://cloud.google.com/translate/docs/setup",
 	},
-	"bing_translator": {
+	bing_translator: {
 		request_key: "https://www.microsoft.com/en-us/translator/business/translator-api/",
 	},
-	"yandex_translate": {
+	yandex_translate: {
 		request_key: "https://yandex.com/dev/translate/",
 	},
-	"deepl": {
+	deepl: {
 		request_key: "https://www.deepl.com/pro-api?cta=header-pro-api/",
 	},
-	"libre_translate": {
+	libre_translate: {
 		local_host: "https://github.com/LibreTranslate/LibreTranslate",
 	}
 }
+
 
 // There is currently no way to catch when the display language of Obsidian is being changed, as it is not reactive
 // (add current display language to app.json?)
@@ -151,102 +151,118 @@ export class TranslatorSettingsTab extends PluginSettingTab {
 	showServiceSettings(service: string) {
 		this.service_settings.empty();
 
-		this.service_settings.createEl('h2', {text: `${toTitleCase(service.replace('_', ' '))} Settings`});
 
+		let title = this.service_settings.createEl('h2', {cls: 'icon-text'});
+		title.style.justifyContent = 'center';
 		// @ts-ignore
-		if (this.plugin.settings.service_settings[service].api_key !== null) {
+		setIcon(title, this.plugin.settings.translation_service, 22);
+		title.createDiv({text: `${toTitleCase(service.replace('_', ' '))} Settings`});
+
+
+		let service_data = this.plugin.settings.service_settings[service as keyof APIServiceProviders]
+		if (service_data.api_key !== null) {
 			let apiKeyField = new Setting(this.service_settings)
 				.setName('API Key')
 				.setDesc('Enter a valid API key')
 				.addText((textbox) => {
-					// @ts-ignore
-					textbox.setValue(this.plugin.settings.service_settings[service].api_key);
+					textbox.setValue(service_data.api_key);
 					textbox.onChange((value) => {
-						// @ts-ignore
-						this.plugin.settings.service_settings[service].api_key = value;
+						service_data.api_key = value;
 						this.plugin.saveSettings();
 						this.plugin.setupTranslationService();
 					});
 				}).then(setting => {
-				//@ts-ignore
-				const info = translation_services_list[service]
-				if ('request_key' in info) {
-					setting.descEl.createEl('br');
-					let href = setting.descEl.createEl('a', {
-						cls: 'icon-text',
-						href: info.request_key,
-					})
-					let icon = href.createDiv();
-					setIcon(icon, 'info', 15);
-					href.createEl('span', {text: 'Setup for API Key can be found here'});
-				}
-			});
+					const info = translation_services_list[service]
+					if ('request_key' in info) {
+						setting.descEl.createEl('br');
+						let href = setting.descEl.createEl('a', {
+							cls: 'icon-text',
+							href: info.request_key,
+						})
+						let icon = href.createDiv();
+						setIcon(icon, 'info', 15);
+						href.createEl('span', {text: 'Setup for API Key can be found here'});
+					}
+				});
 			let api_icon = apiKeyField.controlEl.createDiv({cls: 'rounded-icon'})
-			setIcon(api_icon, 'question-mark-glyph', 15);
-
-			let testkey = new Setting(this.service_settings)
-				.setName('Test the API key')
-
-			let testbutton = testkey.controlEl.createEl('button', {cls: 'icon-text'})
-			let icon = testbutton.createDiv();
-			setIcon(icon, 'question-mark-glyph', 15);
-			testbutton.createEl('span', {text: 'Test'});
-
-			testbutton.addEventListener('click', async () => {
-				// let test = await this.plugin.translate('Test', 'en', 'en');
-				// TODO: Add stub for translation service and run test
-				api_icon.empty();
-				icon.empty();
-
-				if (Math.random() > 0.5) {
-					new Notice('[STUB] API key is valid');
-					setIcon(icon, 'check', 15);
-					setIcon(api_icon, 'check', 15);
-					api_icon.style.backgroundColor = 'darkgreen';
-					testbutton.style.backgroundColor = 'darkgreen';
-				} else {
-					new Notice('[STUB] API key is invalid');
-					setIcon(icon, 'cross', 15);
-					setIcon(api_icon, 'cross', 15);
-					api_icon.style.backgroundColor = 'darkred';
-					testbutton.style.backgroundColor = 'darkred';
-				}
-			})
+			this.checkValidityOfField(apiKeyField, 'API Key', '', () => {
+				return this.plugin.translator.validate();
+			});
 		}
 
 		// If host in settings is not null, show the host setting
-		// @ts-ignore
-		if (this.plugin.settings.service_settings[service].host !== null) {
-			new Setting(this.service_settings)
+		if (service_data.host !== null) {
+			let hostField = new Setting(this.service_settings)
 				.setName('Host')
 				.setDesc('Enter the URL of the translation service')
 				.addText((textbox) => {
-					// @ts-ignore
-					textbox.setValue(this.plugin.settings.service_settings[service].host);
+					textbox.setValue(service_data.host);
 					textbox.onChange((value) => {
 						if (value.endsWith('/'))
 							value = value.slice(0, -1);
 
-						// @ts-ignore
-						this.plugin.settings.service_settings[service].host = value;
+						// this.plugin.settings.service_settings[value as keyof APIServiceProviders].host = value;
+						service_data.host = value;
 						this.plugin.saveSettings();
 						this.plugin.setupTranslationService();
 					});
 				}).then(setting => {
-				//@ts-ignore
-				const info = translation_services_list[service]
-				if ('local_host' in info) {
-					setting.descEl.createEl('br');
-					let href = setting.descEl.createEl('a', {
-						cls: 'icon-text',
-						href: info.local_host,
-					})
-					let icon = href.createDiv();
-					setIcon(icon, 'info', 15);
-					href.createEl('span', {text: 'You can host this service locally'});
-				}
+					const info = translation_services_list[service]
+					if ('local_host' in info) {
+						setting.descEl.createEl('br');
+						let href = setting.descEl.createEl('a', {
+							cls: 'icon-text',
+							href: info.local_host,
+						})
+						let icon = href.createDiv();
+						setIcon(icon, 'info', 15);
+						href.createEl('span', {text: 'You can host this service locally'});
+					}
+				});
+			this.checkValidityOfField(hostField, 'host', '', async () => {
+				return fetch(service_data.host, ).then(response => {
+					return response.ok;
+				}).catch(() => {
+					return false;
+				});
 			});
 		}
+	}
+
+	checkValidityOfField(field: Setting, field_name: string, field_description: string, validation_function: () => Promise<boolean>) {
+		let api_icon = field.controlEl.createDiv({cls: 'rounded-icon'})
+		setIcon(api_icon, 'question-mark-glyph', 15);
+
+		let testkey = new Setting(this.service_settings)
+			.setName(`Test the ${field_name}`)
+
+		if (field_description !== null) {
+			testkey.setDesc(field_description);
+		}
+
+		let testbutton = testkey.controlEl.createEl('button', {cls: 'icon-text'})
+		let icon = testbutton.createDiv();
+		setIcon(icon, 'question-mark-glyph', 15);
+		testbutton.createEl('span', {text: 'Test'});
+
+		testbutton.addEventListener('click', async () => {
+			api_icon.empty();
+			icon.empty();
+
+			if (await validation_function()) {
+				new Notice(`[STUB] ${toTitleCase(field_name)} is valid`);
+				setIcon(icon, 'check', 15);
+				setIcon(api_icon, 'check', 15);
+				api_icon.style.backgroundColor = 'darkgreen';
+				testbutton.style.backgroundColor = 'darkgreen';
+			} else {
+				new Notice(`[STUB] ${toTitleCase(field_name)} is not valid`);
+				setIcon(icon, 'cross', 15);
+				setIcon(api_icon, 'cross', 15);
+				api_icon.style.backgroundColor = 'darkred';
+				testbutton.style.backgroundColor = 'darkred';
+			}
+		})
 	}
 
 	updateLanguageView(): void {

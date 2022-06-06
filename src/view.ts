@@ -45,6 +45,7 @@ export class TranslatorView extends ItemView {
 			output_field.value = await this.plugin.translate(input_field.value);
 		});
 
+		// TODO: Make the field resizable (save data)
 		let input_field = left_column.createEl("textarea", {cls: "translator-textarea"})
 		input_field.addEventListener("input", async () => {
 			output_field.value = await this.plugin.translate(input_field.value);
@@ -76,8 +77,9 @@ export class TranslatorView extends ItemView {
 		this.service_used = container.createDiv({'cls': 'translator-service-text icon-text'});
 		await this.updateTooltip();
 
-		document.addEventListener("translation-service-changed", () => {
+		document.addEventListener("translation-service-changed", async () => {
 			this.updateTooltip();
+			output_field.value = await this.plugin.translate(input_field.value);
 		});
 
 		document.addEventListener("updated-language-selection", () => {

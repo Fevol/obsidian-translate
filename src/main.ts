@@ -2,7 +2,7 @@ import {addIcon, App, Editor, MarkdownView, Modal, Notice, Plugin} from 'obsidia
 
 import {TranslatorSettingsTab} from "./settings";
 import {TranslatorView, TRANSLATOR_VIEW_ID} from "./view";
-import {TranslatorPluginSettings} from "./types";
+import {APIServiceProviders, APIServiceSettings, TranslatorPluginSettings} from "./types";
 import {ICONS, DEFAULT_SETTINGS} from "./constants";
 import {DummyTranslate, BingTranslator, GoogleTranslate, Deepl, LibreTranslate, YandexTranslate} from "./handlers";
 
