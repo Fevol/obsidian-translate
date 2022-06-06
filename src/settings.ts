@@ -1,13 +1,21 @@
-import {App, ButtonComponent, DropdownComponent, PluginSettingTab, Setting, setIcon} from "obsidian";
+import {App, ButtonComponent, DropdownComponent, PluginSettingTab, setIcon, Setting} from "obsidian";
 import type TranslatorPlugin from "./main";
 import {LanguageCode} from "iso-639-1";
+
+
+const translation_services_list = [
+	{label: "Google Translate", value: "google-translate"},
+	{label: "Deepl", value: "deepl"},
+	{label: "Bing Translator", value: "bing-translator"},
+	{label: "Yandex Translate", value: "yandex-translate"},
+	{label: "Libre Translate", value: "libre-translate"},
+];
 
 // There is currently no way to catch when the display language of Obsidian is being changed, as it is not reactive
 // (add current display language to app.json?)
 // So 'display languages' setting will only be applied correctly when the program is fully restarted or when
 // the language display name setting is changed.
 
-// Settings page for the plugin
 export class TranslatorSettingsTab extends PluginSettingTab {
 	plugin: TranslatorPlugin;
 	language_view: HTMLElement;
@@ -41,10 +49,12 @@ export class TranslatorSettingsTab extends PluginSettingTab {
 					// Add language to list of selected languages (persistent)
 					this.plugin.settings.selected_languages.push(code);
 					this.plugin.settings.available_languages.push(code);
+
 					await this.plugin.saveSettings();
 
 					this.updateLanguageSelection();
 					this.updateLanguageView();
+					document.dispatchEvent(new CustomEvent('updated-language-selection'));
 				}
 			});
 		});
@@ -56,10 +66,8 @@ export class TranslatorSettingsTab extends PluginSettingTab {
 				toggle.onChange(async (value) => {
 					select_languages.setDisabled(value);
 					this.plugin.settings.use_spellchecker_languages = value;
-					await this.plugin.saveSettings();
 
 					if (value) {
-						this.plugin.settings.selected_languages = this.plugin.settings.available_languages;
 						// FIXME: Spellcheck languages are only synced when the toggle is switched on (do this in startup?)
 						// Remove all dialects from the locales and keep the unique languages
 						// @ts-ignore (app.vault.config exists)
@@ -72,10 +80,12 @@ export class TranslatorSettingsTab extends PluginSettingTab {
 							return this.plugin.all_languages.has(code);
 						});
 					} else {
-						this.plugin.settings.available_languages = this.plugin.settings.selected_languages;
+						this.plugin.settings.available_languages = [...this.plugin.settings.selected_languages];
 					}
+
 					await this.plugin.saveSettings();
 					this.updateLanguageView();
+					document.dispatchEvent(new CustomEvent('updated-language-selection'));
 				});
 			});
 
@@ -99,32 +109,24 @@ export class TranslatorSettingsTab extends PluginSettingTab {
 					this.plugin.updateLanguageNames();
 					this.updateLanguageView();
 					this.updateLanguageSelection();
+					document.dispatchEvent(new CustomEvent('updated-language-selection'));
 				});
 				dropdown.setValue(this.plugin.settings.display_language);
 			});
 
 		let translation_services = new Setting(this.containerEl)
-			.setName("Translation Service");
-
-
-		const translation_services_list = [
-			{label: "Google Translate", value: "google-translate"},
-			{label: "Deepl", value: "deepl"},
-			{label: "Bing Translator", value: "bing-translator"},
-			{label: "Yandex Translate", value: "yandex-translate"},
-			{label: "Libre Translate", value: "libre-translate"},
-		];
-
-		let translation_services_dropdown = translation_services.controlEl.createEl("select", {cls: "dropdown"});
-
-		for (const service of translation_services_list) {
-			let option = translation_services_dropdown.createEl("option", {
-				value: service.value,
-				text: service.label,
+			.setName("Translation Service")
+			.addDropdown(async (dropdown) => {
+				translation_services_list.forEach((service) => {
+					dropdown.addOption(service.value, service.label);
+				});
+				dropdown.onChange((value) => {
+					this.plugin.settings.translation_service = value;
+					this.plugin.saveSettings();
+					document.dispatchEvent(new CustomEvent('translation-service-changed'));
+				});
+				dropdown.setValue(this.plugin.settings.translation_service);
 			});
-		}
-
-
 	}
 
 	updateLanguageView(): void {
@@ -143,10 +145,8 @@ export class TranslatorSettingsTab extends PluginSettingTab {
 				cls: 'setting-hotkey'
 			});
 			if (!this.plugin.settings.use_spellchecker_languages) {
-				let remove_button = lang_el.createEl('span', {
-					// Poor man's x-mark
-					text: 'x'
-				});
+				let remove_button = lang_el.createDiv();
+				setIcon(remove_button, 'cross');
 				remove_button.addClass('setting-hotkey-icon')
 
 				remove_button.addEventListener('click', async () => {
@@ -155,6 +155,7 @@ export class TranslatorSettingsTab extends PluginSettingTab {
 					await this.plugin.saveSettings();
 					this.updateLanguageView();
 					this.updateLanguageSelection();
+					document.dispatchEvent(new CustomEvent('updated-language-selection'));
 				});
 			}
 		}

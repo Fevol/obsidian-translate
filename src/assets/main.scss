@@ -1,3 +1,54 @@
-.removeable-button {
-	margin-right: 8px;
+// TODO: Improve flex to allow multiple grid layouts based on the side panel width and height
+//  (e.g.: <200px = (FIELD) (BUTTON) (FIELD), 200px > ... > 400px = (FIELD, FIELD) (BUTTON), >400px (FIELD, BUTTON, FIELD)
+.translator-view {
+	display: flex;
+	flex-direction: column;
 }
+
+.translator-column {
+	display: flex;
+	flex-direction: column;
+	flex: 1;
+}
+
+.translator-button-container {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+
+.translator-button {
+	border-radius: 100%;
+	width: 50px;
+	height: 50px;
+	filter: brightness(1.2);
+	display: grid !important;
+	justify-content: center;
+	align-content: center;
+}
+
+.translator-textarea {
+	width: 100%;
+	min-height: 140px;
+	margin: 4px;
+	flex: 1;
+}
+
+.translator-select {
+	width: 100%;
+	margin: 4px;
+	margin-top: 8px;
+}
+
+.translator-service-text {
+	display: flex;
+	text-transform: capitalize;
+	font-style: italic;
+	filter: brightness(0.5);
+	align-items: center;
+}
+.translator-service-text > * {
+	display: flex;
+	margin-right: 2px;
+}
+
