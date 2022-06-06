@@ -1,7 +1,8 @@
-import {App, ButtonComponent, DropdownComponent, PluginSettingTab, setIcon, Setting} from "obsidian";
+import {App, ButtonComponent, DropdownComponent, Notice, PluginSettingTab, setIcon, Setting} from "obsidian";
 import type TranslatorPlugin from "./main";
 import {LanguageCode} from "iso-639-1";
 import {toTitleCase} from "./util";
+import {randomInt} from "crypto";
 
 
 const translation_services_list = {
@@ -16,6 +17,9 @@ const translation_services_list = {
 	},
 	"deepl": {
 		request_key: "https://www.deepl.com/pro-api?cta=header-pro-api/",
+	},
+	"libre_translate": {
+		local_host: "https://github.com/LibreTranslate/LibreTranslate",
 	}
 }
 
@@ -152,7 +156,7 @@ export class TranslatorSettingsTab extends PluginSettingTab {
 
 		// @ts-ignore
 		if (this.plugin.settings.service_settings[service].api_key !== null) {
-			new Setting(this.service_settings)
+			let apiKeyField = new Setting(this.service_settings)
 				.setName('API Key')
 				.setDesc('Enter a valid API key')
 				.addText((textbox) => {
@@ -177,6 +181,37 @@ export class TranslatorSettingsTab extends PluginSettingTab {
 					href.createEl('span', {text: 'Setup for API Key can be found here'});
 				}
 			});
+			let api_icon = apiKeyField.controlEl.createDiv({cls: 'rounded-icon'})
+			setIcon(api_icon, 'question-mark-glyph', 15);
+
+			let testkey = new Setting(this.service_settings)
+				.setName('Test the API key')
+
+			let testbutton = testkey.controlEl.createEl('button', {cls: 'icon-text'})
+			let icon = testbutton.createDiv();
+			setIcon(icon, 'question-mark-glyph', 15);
+			testbutton.createEl('span', {text: 'Test'});
+
+			testbutton.addEventListener('click', async () => {
+				// let test = await this.plugin.translate('Test', 'en', 'en');
+				// TODO: Add stub for translation service and run test
+				api_icon.empty();
+				icon.empty();
+
+				if (Math.random() > 0.5) {
+					new Notice('[STUB] API key is valid');
+					setIcon(icon, 'check', 15);
+					setIcon(api_icon, 'check', 15);
+					api_icon.style.backgroundColor = 'darkgreen';
+					testbutton.style.backgroundColor = 'darkgreen';
+				} else {
+					new Notice('[STUB] API key is invalid');
+					setIcon(icon, 'cross', 15);
+					setIcon(api_icon, 'cross', 15);
+					api_icon.style.backgroundColor = 'darkred';
+					testbutton.style.backgroundColor = 'darkred';
+				}
+			})
 		}
 
 		// If host in settings is not null, show the host setting
@@ -193,7 +228,20 @@ export class TranslatorSettingsTab extends PluginSettingTab {
 						this.plugin.settings.service_settings[service].host = value;
 						this.plugin.saveSettings();
 					});
-				});
+				}).then(setting => {
+				//@ts-ignore
+				const info = translation_services_list[service]
+				if ('local_host' in info) {
+					setting.descEl.createEl('br');
+					let href = setting.descEl.createEl('a', {
+						cls: 'icon-text',
+						href: info.local_host,
+					})
+					let icon = href.createDiv();
+					setIcon(icon, 'info', 15);
+					href.createEl('span', {text: 'You can host this service locally'});
+				}
+			});
 		}
 	}
 

@@ -50,6 +50,16 @@
 	margin-right: 4px;
 }
 
+.rounded-icon {
+	border-radius: 100%;
+	width: 20px;
+	height: 20px;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	margin-left: 8px;
+}
+
 .translator-service-text {
 	text-transform: capitalize;
 	font-style: italic;
