@@ -3,24 +3,8 @@ import type TranslatorPlugin from "./main";
 import {LanguageCode} from "iso-639-1";
 import {toTitleCase} from "./util";
 import {APIServiceProviders} from "./types";
+import {TRANSLATION_SERVICES_INFO} from "./constants";
 
-const translation_services_list: { [key: string]: any } = {
-	google_translate: {
-		request_key: "https://cloud.google.com/translate/docs/setup",
-	},
-	bing_translator: {
-		request_key: "https://www.microsoft.com/en-us/translator/business/translator-api/",
-	},
-	yandex_translate: {
-		request_key: "https://yandex.com/dev/translate/",
-	},
-	deepl: {
-		request_key: "https://www.deepl.com/pro-api?cta=header-pro-api/",
-	},
-	libre_translate: {
-		local_host: "https://github.com/LibreTranslate/LibreTranslate",
-	}
-}
 
 
 // There is currently no way to catch when the display language of Obsidian is being changed, as it is not reactive
@@ -45,7 +29,7 @@ export class TranslatorSettingsTab extends PluginSettingTab {
 
 		let select_languages = new Setting(this.containerEl)
 			.setName("Translator languages")
-			.setDesc("Choose the languages to be included in the translation selection")
+			.setDesc("Choose languages to include in translator selection")
 
 
 		this.language_view = select_languages.controlEl.createDiv({cls: 'setting-command-hotkeys'});
@@ -130,14 +114,14 @@ export class TranslatorSettingsTab extends PluginSettingTab {
 		let translation_services = new Setting(this.containerEl)
 			.setName("Translation Service")
 			.addDropdown(async (dropdown) => {
-				for (const service of Object.keys(translation_services_list)) {
+				for (const service of Object.keys(TRANSLATION_SERVICES_INFO)) {
 					dropdown.addOption(service, toTitleCase(service.replace('_', ' ')));
 				}
 				dropdown.onChange((value) => {
 					this.plugin.settings.translation_service = value;
 					this.plugin.setupTranslationService();
 					this.plugin.saveSettings();
-					document.dispatchEvent(new CustomEvent('translation-service-changed'));
+					document.dispatchEvent(new CustomEvent('switched-translation-service'));
 
 					// Reveal correspondings settings tab for the selected service
 					this.showServiceSettings(value);
@@ -154,7 +138,6 @@ export class TranslatorSettingsTab extends PluginSettingTab {
 
 		let title = this.service_settings.createEl('h2', {cls: 'icon-text'});
 		title.style.justifyContent = 'center';
-		// @ts-ignore
 		setIcon(title, this.plugin.settings.translation_service, 22);
 		title.createDiv({text: `${toTitleCase(service.replace('_', ' '))} Settings`});
 
@@ -166,13 +149,14 @@ export class TranslatorSettingsTab extends PluginSettingTab {
 				.setDesc('Enter a valid API key')
 				.addText((textbox) => {
 					textbox.setValue(service_data.api_key);
-					textbox.onChange((value) => {
+					textbox.onChange(async (value) => {
 						service_data.api_key = value;
-						this.plugin.saveSettings();
-						this.plugin.setupTranslationService();
+						await this.plugin.saveSettings();
+						await this.plugin.setupTranslationService();
+						document.dispatchEvent(new CustomEvent('updated-translation-service'));
 					});
 				}).then(setting => {
-					const info = translation_services_list[service]
+					const info = TRANSLATION_SERVICES_INFO[service]
 					if ('request_key' in info) {
 						setting.descEl.createEl('br');
 						let href = setting.descEl.createEl('a', {
@@ -184,7 +168,6 @@ export class TranslatorSettingsTab extends PluginSettingTab {
 						href.createEl('span', {text: 'Setup for API Key can be found here'});
 					}
 				});
-			// let api_icon = apiKeyField.controlEl.createDiv({cls: 'rounded-icon'})
 			this.checkValidityOfField(apiKeyField, 'API Key', '', () => {
 				return this.plugin.translator.validate();
 			});
@@ -197,17 +180,17 @@ export class TranslatorSettingsTab extends PluginSettingTab {
 				.setDesc('Enter the URL of the translation service')
 				.addText((textbox) => {
 					textbox.setValue(service_data.host);
-					textbox.onChange((value) => {
+					textbox.onChange(async (value) => {
 						if (value.endsWith('/'))
 							value = value.slice(0, -1);
 
-						// this.plugin.settings.service_settings[value as keyof APIServiceProviders].host = value;
 						service_data.host = value;
-						this.plugin.saveSettings();
-						this.plugin.setupTranslationService();
+						await this.plugin.saveSettings();
+						await this.plugin.setupTranslationService();
+						document.dispatchEvent(new CustomEvent('updated-translation-service'));
 					});
 				}).then(setting => {
-					const info = translation_services_list[service]
+					const info = TRANSLATION_SERVICES_INFO[service]
 					if ('local_host' in info) {
 						setting.descEl.createEl('br');
 						let href = setting.descEl.createEl('a', {
@@ -220,25 +203,32 @@ export class TranslatorSettingsTab extends PluginSettingTab {
 					}
 				});
 			this.checkValidityOfField(hostField, 'host', '', async () => {
-				return fetch(service_data.host, ).then(response => {
+				return fetch(service_data.host).then(response => {
 					return response.ok;
 				}).catch(() => {
 					return false;
 				});
 			});
 		}
+
+		// Add toggle for enabling/disabling automatic translation
+		let auto_translation_toggle = new Setting(this.service_settings)
+			.setName('Automatic Translation')
+			.setDesc('Translate text as it is being typed')
+			.addToggle((toggle) => {
+				toggle.setValue(service_data.auto_translate);
+				toggle.onChange(async (value) => {
+					service_data.auto_translate = value;
+					await this.plugin.saveSettings();
+					document.dispatchEvent(new CustomEvent('toggled-auto-translate'));
+					document.dispatchEvent(new CustomEvent('updated-translation-service'));
+				});
+			});
+		auto_translation_toggle.descEl.createEl('br');
+		auto_translation_toggle.descEl.createSpan({cls: 'warning-text', text: "⚠ May quickly use up the API's character quota"});
 	}
 
 	checkValidityOfField(field: Setting, field_name: string, field_description: string, validation_function: () => Promise<boolean>) {
-		// let api_icon = field.controlEl.createDiv({cls: 'rounded-icon'})
-		// setIcon(api_icon, 'question-mark-glyph', 15);
-
-		// let testkey = new Setting(this.service_settings)
-		// 	.setName(`Test the ${field_name}`)
-		//
-		// if (field_description !== null) {
-		// 	testkey.setDesc(field_description);
-		// }
 
 		let testbutton = createEl('button', { cls: 'icon-text'});
 		// Add testbutton as first element of field's controlEl
@@ -249,26 +239,24 @@ export class TranslatorSettingsTab extends PluginSettingTab {
 		testbutton.createEl('span', {text: 'Test'});
 
 		testbutton.addEventListener('click', async () => {
-			// api_icon.empty();
 			icon.empty();
-			testbutton.style.backgroundColor = '';
 			icon.createDiv({cls: 'spinner'})
+
+			// Keep only first class of testbutton
+			testbutton.removeClass('translator-success');
+			testbutton.removeClass('translator-error');
 
 			let valid = await validation_function();
 			icon.empty();
 
 			if (valid) {
+				testbutton.addClass('translator-success');
 				new Notice(`${toTitleCase(field_name)} is valid`);
 				setIcon(icon, 'check', 15);
-				// setIcon(api_icon, 'check', 15);
-				// api_icon.style.backgroundColor = 'darkgreen';
-				testbutton.style.backgroundColor = 'darkgreen';
 			} else {
+				testbutton.addClass('translator-error');
 				new Notice(`${toTitleCase(field_name)} is not valid`);
 				setIcon(icon, 'cross', 15);
-				// setIcon(api_icon, 'cross', 15);
-				// api_icon.style.backgroundColor = 'darkred';
-				testbutton.style.backgroundColor = 'darkred';
 			}
 		})
 	}
@@ -289,9 +277,8 @@ export class TranslatorSettingsTab extends PluginSettingTab {
 				cls: 'setting-hotkey'
 			});
 			if (!this.plugin.settings.use_spellchecker_languages) {
-				let remove_button = lang_el.createDiv();
-				setIcon(remove_button, 'cross');
-				remove_button.addClass('setting-hotkey-icon')
+				let remove_button = lang_el.createEl('span', {cls: 'setting-hotkey-icon'});
+				setIcon(remove_button, 'cross', 8);
 
 				remove_button.addEventListener('click', async () => {
 					this.plugin.settings.selected_languages.remove(code);

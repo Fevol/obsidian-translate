@@ -88,3 +88,21 @@
 	}
 }
 
+.translator-success {
+	background-color: var(--background-modifier-success) !important;
+}
+
+.translator-error {
+	background-color: var(--background-modifier-error) !important;}
+
+.translator-error > * {
+	color: var(--text-on-accent);
+}
+
+.warning-text {
+	color: var(--text-error);
+}
+
+.hide-element {
+	display: none !important;
+}

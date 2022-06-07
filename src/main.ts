@@ -1,9 +1,9 @@
 import {addIcon, App, Editor, MarkdownView, Modal, Notice, Plugin} from 'obsidian';
 
 import {TranslatorSettingsTab} from "./settings";
-import {TranslatorView, TRANSLATOR_VIEW_ID} from "./view";
+import {TranslatorView} from "./view";
 import {APIServiceProviders, APIServiceSettings, TranslatorPluginSettings} from "./types";
-import {ICONS, DEFAULT_SETTINGS} from "./constants";
+import {ICONS, DEFAULT_SETTINGS, TRANSLATOR_VIEW_ID} from "./constants";
 import {DummyTranslate, BingTranslator, GoogleTranslate, Deepl, LibreTranslate, YandexTranslate} from "./handlers";
 
 
@@ -33,6 +33,8 @@ import "./language_locales";
 export default class TranslatorPlugin extends Plugin {
 	settings: TranslatorPluginSettings;
 	current_language: string;
+	detected_language: string;
+
 	all_languages: Map<LanguageCode, string> = new Map();
 	locales = ISO6391.getAllCodes();
 	translator: DummyTranslate;
@@ -109,8 +111,10 @@ export default class TranslatorPlugin extends Plugin {
 		let return_values = await this.translator.translate(text, this.settings.language_from, this.settings.language_to);
 
 		if (this.settings.language_from === "auto") {
-			select.childNodes[0].textContent = `Detect Language (${return_values.detected_language})`;
+			select.childNodes[0].textContent = `Detect Language (${this.all_languages.get(return_values.detected_language)})`;
+			this.detected_language = return_values.detected_language;
 		}
+
 		return return_values.translation;
 	}
 

@@ -20,6 +20,7 @@ export interface APIServiceProviders {
 export interface APIServiceSettings {
 	api_key: string;
 	host: string | null;
+	auto_translate: boolean;
 }
 
 export interface KeyedObject {

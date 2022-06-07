@@ -1,8 +1,8 @@
 import {ItemView, WorkspaceLeaf, App, setIcon} from "obsidian";
 import TranslatorPlugin from "./main";
-import {Arr} from "tern";
-
-export const TRANSLATOR_VIEW_ID = "translator-view";
+import {TRANSLATOR_VIEW_ID} from "./constants";
+import {APIServiceProviders} from "./types";
+import {getKeyValue} from "./util";
 
 export class TranslatorView extends ItemView {
 	app: App;
@@ -35,27 +35,44 @@ export class TranslatorView extends ItemView {
 		container.empty();
 		container.addClass("translator-view");
 
+
+		// ----------------------------------  Left Column  ----------------------------------
 		let left_column = container.createDiv({'cls': 'translator-column'});
 
 		this.left_select = left_column.createEl("select", {cls: "dropdown translator-select"});
 		this.left_select.addEventListener("change", async () => {
+			this.left_select.childNodes[0].textContent = 'Detect Language';
 			this.plugin.settings.language_from = this.left_select.value;
 			this.plugin.saveSettings();
 
-			output_field.value = await this.plugin.translate(input_field.value, this.left_select);
+			if (this.plugin.settings.service_settings[this.plugin.settings.translation_service as keyof APIServiceProviders].auto_translate) {
+				output_field.value = await this.plugin.translate(input_field.value, this.left_select);
+			}
 		});
 
 		// TODO: Make the field resizable (save data)
 		let input_field = left_column.createEl("textarea", {cls: "translator-textarea"})
+		// TODO: Event should only be triggered when the user is done typing (?) (count delay)
 		input_field.addEventListener("input", async () => {
-			output_field.value = await this.plugin.translate(input_field.value, this.left_select);
+			if (this.plugin.settings.service_settings[this.plugin.settings.translation_service as keyof APIServiceProviders].auto_translate) {
+				output_field.value = await this.plugin.translate(input_field.value, this.left_select);
+			}
 		});
+		// -----------------------------------------------------------------------------------
 
+
+
+		// ------------------  Center Column (Switch Languages, Translate)  ------------------
 		let center_column = container.createDiv({'cls': 'translator-button-container'});
 
 		let switch_btn = center_column.createEl('button', {cls: "translator-button"});
 		setIcon(switch_btn, 'switch', 20);
 		switch_btn.addEventListener("click", () => {
+			if (this.left_select.value === 'auto') {
+				this.left_select.value = this.plugin.detected_language;
+				this.left_select.childNodes[0].textContent = 'Detect Language';
+			}
+
 			[this.left_select.value, this.right_select.value] = [this.right_select.value, this.left_select.value];
 			[input_field.value, output_field.value] = [output_field.value, input_field.value];
 
@@ -64,22 +81,44 @@ export class TranslatorView extends ItemView {
 			this.plugin.saveSettings();
 		});
 
+		let translate_btn = center_column.createEl('button', {cls: "translator-button"});
+		setIcon(translate_btn, 'translate', 20);
+		translate_btn.addEventListener("click", async () => {
+			output_field.value = await this.plugin.translate(input_field.value, this.left_select);
+		});
+
+		// If auto translate is disabled, the button will not be displayed
+		let auto_translate = this.plugin.settings.service_settings[this.plugin.settings.translation_service as keyof APIServiceProviders].auto_translate;
+		translate_btn.classList.toggle("hide-element", auto_translate);
+
+		// -----------------------------------------------------------------------------------
+
+
+
+		// ----------------------------------  Right Column  ---------------------------------
 		let right_column = container.createDiv({'cls': 'translator-column'});
 
 		this.right_select = right_column.createEl("select", {cls: "dropdown translator-select"});
 		this.right_select.addEventListener("change", async () => {
 			this.plugin.settings.language_to = this.right_select.value;
-			this.plugin.saveSettings();
-			output_field.value = await this.plugin.translate(input_field.value, this.left_select);
+			await this.plugin.saveSettings();
+			if (this.plugin.settings.service_settings[this.plugin.settings.translation_service as keyof APIServiceProviders].auto_translate) {
+				output_field.value = await this.plugin.translate(input_field.value, this.left_select);
+			}
 		});
 		let output_field = right_column.createEl("textarea", {cls: "translator-textarea"})
+		output_field.setAttribute("readonly", "true");
+		// -----------------------------------------------------------------------------------
+
 
 		this.service_used = container.createDiv({'cls': 'translator-service-text icon-text'});
 		await this.updateTooltip();
 
-		document.addEventListener("translation-service-changed", async () => {
+		document.addEventListener("switched-translation-service", async () => {
 			this.updateTooltip();
-			output_field.value = await this.plugin.translate(input_field.value, this.left_select);
+			if (this.plugin.settings.service_settings[this.plugin.settings.translation_service as keyof APIServiceProviders].auto_translate) {
+				output_field.value = await this.plugin.translate(input_field.value, this.left_select);
+			}
 		});
 
 		document.addEventListener("updated-language-selection", () => {
@@ -92,6 +131,21 @@ export class TranslatorView extends ItemView {
 			this.updateSelection(this.left_select, "from");
 			this.updateSelection(this.right_select, "to");
 			this.plugin.saveSettings();
+		});
+
+		document.addEventListener("updated-translation-service", async () => {
+			if (this.plugin.settings.service_settings[this.plugin.settings.translation_service as keyof APIServiceProviders].auto_translate) {
+				output_field.value = await this.plugin.translate(input_field.value, this.left_select);
+			}
+		});
+
+		document.addEventListener("toggled-auto-translate", async () => {
+			// Hide the translate button if auto translate is enabled
+			let auto_translate = this.plugin.settings.service_settings[this.plugin.settings.translation_service as keyof APIServiceProviders].auto_translate;
+			translate_btn.classList.toggle("hide-element", auto_translate);
+			if (auto_translate) {
+				output_field.value = await this.plugin.translate(input_field.value, this.left_select);
+			}
 		});
 	}
 

@@ -1,4 +1,4 @@
-import { TranslatorPluginSettings} from "./types";
+import {TranslatorPluginSettings} from "./types";
 
 // Add list of icons
 export const ICONS = {
@@ -24,22 +24,49 @@ export const DEFAULT_SETTINGS: TranslatorPluginSettings = {
 		google_translate: {
 			api_key: "",
 			host: null,
+			auto_translate: false,
 		},
 		bing_translator: {
 			api_key: "",
-			host: null
+			host: null,
+			auto_translate: false,
 		},
 		yandex_translate: {
 			api_key: "",
-			host: null
+			host: null,
+			auto_translate: false,
 		},
 		libre_translate: {
 			api_key: null,
 			host: "https://libretranslate.com",
+			auto_translate: false,
 		},
 		deepl: {
 			api_key: "",
 			host: null,
+			auto_translate: false,
 		}
 	},
 }
+
+
+export const TRANSLATION_SERVICES_INFO: { [key: string]: any } = {
+	google_translate: {
+		request_key: "https://cloud.google.com/translate/docs/setup",
+	},
+	bing_translator: {
+		request_key: "https://www.microsoft.com/en-us/translator/business/translator-api/",
+	},
+	yandex_translate: {
+		request_key: "https://yandex.com/dev/translate/",
+	},
+	deepl: {
+		request_key: "https://www.deepl.com/pro-api?cta=header-pro-api/",
+	},
+	libre_translate: {
+		local_host: "https://github.com/LibreTranslate/LibreTranslate",
+	}
+}
+
+
+export const TRANSLATOR_VIEW_ID = "translator-view";
