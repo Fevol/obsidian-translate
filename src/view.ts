@@ -122,10 +122,10 @@ export class TranslatorView extends ItemView {
 		});
 
 		document.addEventListener("updated-language-selection", () => {
-			if (!this.plugin.settings.available_languages.contains(this.plugin.settings.language_to))
+			if (!this.plugin.available_languages.contains(this.plugin.settings.language_to))
 				this.plugin.settings.language_to = '';
 
-			if (!this.plugin.settings.available_languages.contains(this.plugin.settings.language_from))
+			if (!this.plugin.available_languages.contains(this.plugin.settings.language_from))
 				this.plugin.settings.language_from = '';
 
 			this.updateSelection(this.left_select, "from");
@@ -152,7 +152,7 @@ export class TranslatorView extends ItemView {
 
 	updateSelection(dropdown: HTMLSelectElement, side: string) {
 		dropdown.empty();
-		let languages = Array.from(this.plugin.settings.available_languages).map((code) => {
+		let languages = Array.from(this.plugin.available_languages).map((code) => {
 			return [code, this.plugin.all_languages.get(code)];
 		}).sort((a, b) => {
 			return a[1].localeCompare(b[1]);
@@ -176,11 +176,11 @@ export class TranslatorView extends ItemView {
 
 		if (initial_value) {
 			dropdown.value = initial_value;
-		} else if (this.plugin.settings.available_languages.length === 1 || !opposite_value) {
-			dropdown.value = this.plugin.settings.available_languages[0];
+		} else if (this.plugin.available_languages.length === 1 || !opposite_value) {
+			dropdown.value = this.plugin.available_languages[0];
 		} else {
-			dropdown.value = this.plugin.settings.available_languages[
-				this.plugin.settings.available_languages[0] === opposite_value ? 1 : 0];
+			dropdown.value = this.plugin.available_languages[
+				this.plugin.available_languages[0] === opposite_value ? 1 : 0];
 		}
 		// @ts-ignore (Again, should be alright)
 		this.plugin.settings[`language_${side}`] = dropdown.value;

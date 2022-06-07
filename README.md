@@ -4,13 +4,13 @@
 
 ## Services overview
 
-| Translation Service     | Supported | Free                                    | Preserves Formatting | Notes                 |
-|-------------------------|-----------|-----------------------------------------|----------------------|-----------------------|
-| Google Translate        | ❌         | ✅ *(0.5M characters **per month**)* ¹ ² | ✅                    |                       |
-| Deepl                   | ❌         | ✅  *(0.5M characters **per month**)* ¹  | ✅                    |                       |
-| Yandex Translate        | ❌         | ✅ *(5M characters)* ¹                   | ✅                    |                       |
-| Libre Translate         | ✅         | ✅                                       | ❌                    | Can be hosted locally |
-| Bing Translator (Azure) | ❌         | ✅  *(2M characters **per month**)*      | ✅                    |                       |
+| Translation Service     | Supported | Free                                    | Preserves Formatting | Languages | Notes                 |
+|-------------------------|-----------|-----------------------------------------|----------------------|-----------|-----------------------|
+| Google Translate        | ❌         | ✅ *(0.5M characters **per month**)* ¹ ² | ✅                    | 109       |                       |
+| Deepl                   | ❌         | ✅  *(0.5M characters **per month**)* ¹  | ✅                    | 28        |                       |
+| Yandex Translate        | ❌         | ✅ *(5M characters)* ¹                   | ✅                    | 93        |                       |
+| Libre Translate         | ✅         | ✅                                       | ❌                    | 30        | Can be hosted locally |
+| Bing Translator (Azure) | ❌         | ✅  *(2M characters **per month**)*      | ✅                    | 111       |                       |
 
 _¹ Requires a valid credit card to sign up for a free API key_<br>
 _² Free 300$ credit when signing up (valid for three months)_<br> 

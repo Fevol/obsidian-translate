@@ -36,6 +36,8 @@ export default class TranslatorPlugin extends Plugin {
 	detected_language: string;
 
 	all_languages: Map<LanguageCode, string> = new Map();
+	available_languages: any[] = [];
+
 	locales = ISO6391.getAllCodes();
 	translator: DummyTranslate;
 
@@ -52,9 +54,8 @@ export default class TranslatorPlugin extends Plugin {
 		// ------------------  Load in custom icons  ------------------
 
 		// Load icons into Obsidian
-		for (const [id, icon] of Object.entries(ICONS)) {
+		for (const [id, icon] of Object.entries(ICONS))
 			addIcon(id, icon);
-		}
 
 		// ------------------------------------------------------------
 

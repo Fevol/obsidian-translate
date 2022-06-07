@@ -10,7 +10,7 @@ export class LibreTranslate extends DummyTranslate {
 	}
 
 	async detect(text: string): Promise<string> {
-		const result = await fetch(`{this.host}/detect`, {
+		const result = await fetch(`${this.host}/detect`, {
 			method: "POST",
 			body: JSON.stringify({
 				q: text
@@ -40,7 +40,7 @@ export class LibreTranslate extends DummyTranslate {
 	}
 
 	async auto_translate(text: string, to: string): Promise<Object> {
-		const result = await fetch(`{this.host}/translate`, {
+		const result = await fetch(`${this.host}/translate`, {
 			method: "POST",
 			body: JSON.stringify({
 				q: text,
@@ -54,8 +54,8 @@ export class LibreTranslate extends DummyTranslate {
 	}
 
 	async get_languages(): Promise<string[]> {
-		const result = await fetch(`{this.host}/languages`);
+		const result = await fetch(`${this.host}/languages`);
 		const data = await result.json();
-		return data;
+		return Array.from(data).map((x: any) => {return x.code});
 	}
 }

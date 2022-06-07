@@ -14,10 +14,10 @@ export const ICONS = {
 
 export const DEFAULT_SETTINGS: TranslatorPluginSettings = {
 	// Selected languages are stored such that when toggling between syncing spellchecker languages will preserve the user selection
+	//FIXME: Temporary default, should be either empty or display language initially?
 	selected_languages: ['en', 'fr', 'nl'],
-	// The actual languages that are available for translation
-	available_languages: ['en', 'fr', 'nl'],
 	use_spellchecker_languages: false,
+	filter_service_languages: false,
 	display_language: 'display',
 	language_from: '',
 	language_to: '',
@@ -27,26 +27,57 @@ export const DEFAULT_SETTINGS: TranslatorPluginSettings = {
 			api_key: "",
 			host: null,
 			auto_translate: false,
+			available_languages: [
+				'af', 'am', 'ar', 'az', 'be', 'bg', 'bn', 'bs', 'ca', 'ceb', 'co', 'cs', 'cy', 'da', 'de', 'el', 'en',
+				'eo', 'es', 'et', 'eu', 'fa', 'fi', 'fr', 'fy', 'ga', 'gd', 'gl', 'gu', 'ha', 'haw', 'he', 'hi', 'hmn',
+				'hr', 'ht', 'hu', 'hy', 'id', 'ig', 'is', 'it', 'ja', 'jv', 'ka', 'kk', 'km', 'kn', 'ko', 'ku', 'ky',
+				'la', 'lb', 'lo', 'lt', 'lv', 'mg', 'mi', 'mk', 'ml', 'mn', 'mr', 'ms', 'mt', 'my', 'ne', 'nl', 'no',
+				'ny', 'or', 'pa', 'pl', 'ps', 'pt', 'ro', 'ru', 'rw', 'sd', 'si', 'sk', 'sl', 'sm', 'sn', 'so', 'sq',
+				'sr', 'st', 'su', 'sv', 'sw', 'ta', 'te', 'tg', 'th', 'tk', 'tl', 'tr', 'tt', 'ug', 'uk', 'ur', 'uz',
+				'vi', 'xh', 'yi', 'yo', 'zh', 'zh-TW', 'zu'
+			]
 		},
 		bing_translator: {
 			api_key: "",
 			host: null,
 			auto_translate: false,
+			available_languages: [
+				'af', 'am', 'ar', 'as', 'az', 'ba', 'bg', 'bn', 'bo', 'bs', 'ca', 'cs', 'cy', 'da', 'de', 'dv', 'el',
+				'en', 'es', 'et', 'eu', 'fa', 'fi', 'fil', 'fj', 'fo', 'fr', 'fr-ca', 'ga', 'gl', 'gu', 'he', 'hi',
+				'hr', 'hsb', 'ht', 'hu', 'hy', 'id', 'ikt', 'is', 'it', 'iu', 'iu-Latn', 'ja', 'ka', 'kk', 'km', 'kmr',
+				'kn', 'ko', 'ku', 'ky', 'lo', 'lt', 'lv', 'lzh', 'mg', 'mi', 'mk', 'ml', 'mn-Cyrl', 'mn-Mong', 'mr',
+				'ms', 'mt', 'mww', 'my', 'nb', 'ne', 'nl', 'or', 'otq', 'pa', 'pl', 'prs', 'ps', 'pt', 'pt-pt', 'ro',
+				'ru', 'sk', 'sl', 'sm', 'so', 'sq', 'sr-Cyrl', 'sr-Latn', 'sv', 'sw', 'ta', 'te', 'th', 'ti', 'tk',
+				'tlh-Latn', 'tlh-Piqd', 'to', 'tr', 'tt', 'ty', 'ug', 'uk', 'ur', 'uz', 'vi', 'yua', 'yue', 'zh-Hans',
+				'zh-Hant', 'zu'
+			]
 		},
 		yandex_translate: {
 			api_key: "",
 			host: null,
 			auto_translate: false,
+			available_languages: [
+				'af', 'am', 'ar', 'az', 'ba', 'be', 'bg', 'bn', 'bs', 'ca', 'ceb', 'cs', 'cy', 'da', 'de', 'el', 'en',
+				'eo', 'es', 'et', 'eu', 'fa', 'fi', 'fr', 'ga', 'gd', 'gl', 'gu', 'he', 'hi', 'hr', 'ht', 'hu', 'hy',
+				'id', 'is', 'it', 'ja', 'jv', 'ka', 'kk', 'km', 'kn', 'ko', 'ky', 'la', 'lb', 'lo', 'lt', 'lv', 'mg',
+				'mhr', 'mi', 'mk', 'ml', 'mn', 'mr', 'mrj', 'ms', 'mt', 'my', 'ne', 'nl', 'no', 'pa', 'pap', 'pl',
+				'pt', 'ro', 'ru', 'si', 'sk', 'sl', 'sq', 'sr', 'su', 'sv', 'sw', 'ta', 'te', 'tg', 'th', 'tl',
+				'tr', 'tt', 'udm', 'uk', 'ur', 'uz', 'vi', 'xh', 'yi', 'zh'
+			]
 		},
 		libre_translate: {
 			api_key: null,
 			host: "https://libretranslate.com",
 			auto_translate: false,
+			available_languages: ['ar', 'az', 'cs', 'da', 'de', 'el', 'en', 'eo', 'es', 'fa', 'fi', 'fr', 'ga', 'he',
+				'hi', 'hu', 'id', 'it', 'ja', 'ko', 'nl', 'pl', 'pt', 'ru', 'sk', 'sv', 'tr', 'uk', 'vi', 'zh']
 		},
 		deepl: {
 			api_key: "",
 			host: null,
 			auto_translate: false,
+			available_languages: ['bg', 'cs', 'da', 'de', 'el', 'en-gb', 'en-us', 'es', 'et', 'fi', 'fr', 'hu', 'id',
+				'it', 'ja', 'lt', 'lv', 'nl', 'pl', 'pt-br', 'pt-pt', 'ro', 'ru', 'sk', 'sl', 'sv', 'tr', 'zh']
 		}
 	},
 }

@@ -1,7 +1,7 @@
 export interface TranslatorPluginSettings {
 	selected_languages: Array<any>;
-	available_languages: Array<any>;
 	use_spellchecker_languages: boolean;
+	filter_service_languages: boolean;
 	display_language: string;
 	language_from: string;
 	language_to: string;
@@ -21,6 +21,7 @@ export interface APIServiceSettings {
 	api_key: string;
 	host: string | null;
 	auto_translate: boolean;
+	available_languages: Array<string>;
 }
 
 export interface KeyedObject {
