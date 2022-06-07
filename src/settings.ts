@@ -16,19 +16,18 @@ export class TranslatorSettingsTab extends PluginSettingTab {
 	language_view: HTMLElement;
 	language_selection: DropdownComponent;
 	service_settings: HTMLElement;
-	service_data: APIServiceSettings;
 	spellchecker_languages: string[];
 
 	constructor(app: App, plugin: TranslatorPlugin) {
 		super(app, plugin);
 		this.plugin = plugin;
-		this.plugin.available_languages = this.plugin.settings.use_spellchecker_languages ? this.spellchecker_languages : this.plugin.settings.selected_languages;
-		this.service_data = this.plugin.settings.service_settings[this.plugin.settings.translation_service as keyof APIServiceProviders]
+		this.plugin.settings_page = this;
 
 		// @ts-ignore
 		this.spellchecker_languages = [...new Set(this.app.vault.config.spellcheckLanguages.map((x) => {
 			return x.split('-')[0];
 		}))]
+		this.updateAvailableLanguages();
 	}
 
 	async display(): Promise<void> {
@@ -51,13 +50,7 @@ export class TranslatorSettingsTab extends PluginSettingTab {
 				// If not default, or language was already selected, add it to the list
 				if (code !== "default" && !this.plugin.settings.selected_languages.includes(code)) {
 					// Add language to list of selected languages (persistent)
-					this.plugin.settings.selected_languages.push(code);
-
-					await this.plugin.saveSettings();
-
-					this.updateLanguageSelection();
-					this.updateLanguageView();
-					document.dispatchEvent(new CustomEvent('updated-language-selection'));
+					this.plugin.settings_listener.selected_languages.push(code);
 				}
 			});
 		});
@@ -69,13 +62,7 @@ export class TranslatorSettingsTab extends PluginSettingTab {
 
 				toggle.onChange(async (value) => {
 					select_languages.setDisabled(value);
-					this.plugin.settings.use_spellchecker_languages = value;
-
-					this.plugin.available_languages = value ? this.spellchecker_languages : this.plugin.settings.selected_languages;
-
-					await this.plugin.saveSettings();
-					this.updateLanguageView();
-					document.dispatchEvent(new CustomEvent('updated-language-selection'));
+					this.plugin.settings_listener.use_spellchecker_languages = value;
 				});
 			});
 
@@ -85,10 +72,10 @@ export class TranslatorSettingsTab extends PluginSettingTab {
 			.addToggle((toggle) => {
 				toggle.setValue(this.plugin.settings.filter_service_languages);
 				toggle.onChange(async (value) => {
-					this.plugin.settings.filter_service_languages = value;
-					await this.plugin.saveSettings();
-					this.updateLanguageSelection();
-					this.updateLanguageView();
+					this.plugin.settings_listener.filter_service_languages = value;
+					// await this.plugin.saveSettings();
+					// this.updateLanguageSelection();
+					// this.updateLanguageView();
 				});
 			})
 
@@ -99,20 +86,7 @@ export class TranslatorSettingsTab extends PluginSettingTab {
 				dropdown.addOption("display", 'Display Language');
 				dropdown.addOption("local", 'Localised Language');
 				dropdown.onChange((value) => {
-					// Obsidian's current display language is updated internally when this setting is changed
-					// (will not be updated when the display language is changed)
-					const updated_lang = window.localStorage.getItem('language') || 'en';
-					if (updated_lang !== this.plugin.current_language) {
-						this.plugin.updateLocalisation();
-					}
-
-					this.plugin.settings.display_language = value;
-					this.plugin.saveSettings();
-
-					this.plugin.updateLanguageNames();
-					this.updateLanguageView();
-					this.updateLanguageSelection();
-					document.dispatchEvent(new CustomEvent('updated-language-selection'));
+					this.plugin.settings_listener.display_language = value;
 				});
 				dropdown.setValue(this.plugin.settings.display_language);
 			});
@@ -124,20 +98,7 @@ export class TranslatorSettingsTab extends PluginSettingTab {
 					dropdown.addOption(service, toTitleCase(service.replace('_', ' ')));
 				}
 				dropdown.onChange((value) => {
-					this.plugin.settings.translation_service = value;
-					this.plugin.setupTranslationService();
-					this.plugin.saveSettings();
-					this.service_data = this.plugin.settings.service_settings[value as keyof APIServiceProviders]
-
-					if (this.plugin.settings.filter_service_languages) {
-						this.updateLanguageSelection();
-						this.updateLanguageView();
-					}
-
-					document.dispatchEvent(new CustomEvent('switched-translation-service'));
-
-					// Reveal correspondings settings tab for the selected service
-					this.showServiceSettings(value);
+					this.plugin.settings_listener.translation_service = value;
 				});
 				dropdown.setValue(this.plugin.settings.translation_service);
 			});
@@ -153,17 +114,14 @@ export class TranslatorSettingsTab extends PluginSettingTab {
 		setIcon(title, this.plugin.settings.translation_service, 22);
 		title.createDiv({text: `${toTitleCase(service.replace('_', ' '))} Settings`});
 
-		if (this.service_data.api_key !== null) {
+		if (this.plugin.service_data.api_key !== null) {
 			let apiKeyField = new Setting(this.service_settings)
 				.setName('API Key')
 				.setDesc('Enter a valid API key')
 				.addText((textbox) => {
-					textbox.setValue(this.service_data.api_key);
+					textbox.setValue(this.plugin.service_data.api_key);
 					textbox.onChange(async (value) => {
-						this.service_data.api_key = value;
-						await this.plugin.saveSettings();
-						await this.plugin.setupTranslationService();
-						document.dispatchEvent(new CustomEvent('updated-translation-service'));
+						this.plugin.settings_listener.service_settings[service].api_key = value;
 					});
 				}).then(setting => {
 					const info = TRANSLATION_SERVICES_INFO[service]
@@ -184,20 +142,17 @@ export class TranslatorSettingsTab extends PluginSettingTab {
 		}
 
 		// If host in settings is not null, show the host setting
-		if (this.service_data.host !== null) {
+		if (this.plugin.service_data.host !== null) {
 			let hostField = new Setting(this.service_settings)
 				.setName('Host')
 				.setDesc('Enter the URL of the translation service')
 				.addText((textbox) => {
-					textbox.setValue(this.service_data.host);
+					textbox.setValue(this.plugin.service_data.host);
 					textbox.onChange(async (value) => {
 						if (value.endsWith('/'))
 							value = value.slice(0, -1);
 
-						this.service_data.host = value;
-						await this.plugin.saveSettings();
-						await this.plugin.setupTranslationService();
-						document.dispatchEvent(new CustomEvent('updated-translation-service'));
+						this.plugin.settings_listener.service_settings[service].host = value;
 					});
 				}).then(setting => {
 					const info = TRANSLATION_SERVICES_INFO[service]
@@ -213,7 +168,7 @@ export class TranslatorSettingsTab extends PluginSettingTab {
 					}
 				});
 			this.checkValidityOfField(hostField, 'host', '', async () => {
-				return fetch(this.service_data.host).then(response => {
+				return fetch(this.plugin.service_data.host).then(response => {
 					return response.ok;
 				}).catch(() => {
 					return false;
@@ -226,12 +181,9 @@ export class TranslatorSettingsTab extends PluginSettingTab {
 			.setName('Automatic Translation')
 			.setDesc('Translate text as it is being typed')
 			.addToggle((toggle) => {
-				toggle.setValue(this.service_data.auto_translate);
+				toggle.setValue(this.plugin.service_data.auto_translate);
 				toggle.onChange(async (value) => {
-					this.service_data.auto_translate = value;
-					await this.plugin.saveSettings();
-					document.dispatchEvent(new CustomEvent('toggled-auto-translate'));
-					document.dispatchEvent(new CustomEvent('updated-translation-service'));
+					this.plugin.settings_listener.service_settings[service].auto_translate = value;
 				});
 			});
 		auto_translation_toggle.descEl.createEl('br');
@@ -252,8 +204,7 @@ export class TranslatorSettingsTab extends PluginSettingTab {
 				button.setIcon('switch');
 				button.onClick(async () => {
 					try {
-						this.service_data.available_languages = await this.plugin.translator.get_languages();
-						this.plugin.saveSettings();
+						this.plugin.settings_listener.service_settings[service].available_languages = await this.plugin.translator.get_languages();
 						new Notice('Language selection updated');
 					} catch (e) {
 						new Notice('Failed to fetch languages, check host or API key');
@@ -297,20 +248,21 @@ export class TranslatorSettingsTab extends PluginSettingTab {
 		})
 	}
 
+	updateAvailableLanguages(): void {
+		this.plugin.available_languages = this.plugin.settings.use_spellchecker_languages ? this.spellchecker_languages : this.plugin.settings.selected_languages;
+		if (this.plugin.settings.filter_service_languages) {
+			this.plugin.available_languages = this.plugin.available_languages.filter((a) => {
+				return this.plugin.service_data.available_languages.contains(a);
+			});
+		}
+	}
+
 	updateLanguageView(): void {
 		this.language_view.empty();
 
 		let languages = Array.from(this.plugin.available_languages).map((code) => {
 			return [code, this.plugin.all_languages.get(code)];
-		});
-
-		if (this.plugin.settings.filter_service_languages) {
-			languages = languages.filter((a) => {
-				return this.service_data.available_languages.contains(a[0]);
-			});
-		}
-
-		languages = languages.sort((a, b) => {
+		}).sort((a, b) => {
 			return a[1].localeCompare(b[1]);
 		});
 
@@ -325,11 +277,7 @@ export class TranslatorSettingsTab extends PluginSettingTab {
 				setIcon(remove_button, 'cross', 8);
 
 				remove_button.addEventListener('click', async () => {
-					this.plugin.settings.selected_languages.remove(code);
-					await this.plugin.saveSettings();
-					this.updateLanguageView();
-					this.updateLanguageSelection();
-					document.dispatchEvent(new CustomEvent('updated-language-selection'));
+					this.plugin.settings_listener.selected_languages.remove(code);
 				});
 			}
 		}
@@ -346,7 +294,7 @@ export class TranslatorSettingsTab extends PluginSettingTab {
 
 		if (this.plugin.settings.filter_service_languages) {
 			languages = languages.filter((a) => {
-				return this.service_data.available_languages.contains(a[0]);
+				return this.plugin.service_data.available_languages.includes(a[0]);
 			});
 		}
 
@@ -360,6 +308,5 @@ export class TranslatorSettingsTab extends PluginSettingTab {
 			this.language_selection.addOption(code[0], code[1]);
 		});
 	}
-
 }
 

@@ -23,6 +23,8 @@
 		"esbuild-sass-plugin": "^2.2.6"
 	},
 	"dependencies": {
-		"iso-639-1": "^2.1.14"
+		"@formatjs/intl-displaynames": "^6.0.2",
+		"iso-639-1": "^2.1.14",
+		"observable-slim": "^0.1.6"
 	}
 }
