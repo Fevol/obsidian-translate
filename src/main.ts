@@ -79,6 +79,7 @@ export default class TranslatorPlugin extends Plugin {
 		// Implements (admittedly primitive) reactivity for the settings, settings page or view gets updated when internal settings change
 		this.settings_listener = ObservableSlim.create(this.settings, false, async function(changes) {
 			if (changes[0].type === "update") {
+				await self.saveSettings();
 				let key = changes[0].currentPath.split(".")[0];
 				let value = changes[0].newValue;
 				switch (key) {
@@ -107,6 +108,7 @@ export default class TranslatorPlugin extends Plugin {
 						self.service_data = self.settings.service_settings[value as keyof APIServiceProviders]
 
 						if (self.settings.filter_service_languages) {
+							self.settings_page.updateAvailableLanguages();
 							self.settings_page.updateLanguageSelection();
 							self.settings_page.updateLanguageView();
 						}
@@ -165,6 +167,8 @@ export default class TranslatorPlugin extends Plugin {
 
 					case "selected_languages":
 						console.log("Selected languages changed");
+						// FIXME: Wasteful? Heck yes. Try to find a better way to do this.
+						self.available_languages = self.settings.use_spellchecker_languages ? self.settings_page.spellchecker_languages : self.settings.selected_languages;
 						self.settings_page.updateLanguageSelection();
 						self.settings_page.updateLanguageView();
 						self.view_page.updateLanguageSelection();
@@ -179,11 +183,12 @@ export default class TranslatorPlugin extends Plugin {
 
 					case "filter_service_languages":
 						console.log("Filter service languages changed");
+						self.settings_page.updateAvailableLanguages();
 						self.settings_page.updateLanguageSelection();
 						self.settings_page.updateLanguageView();
+						self.view_page.updateLanguageSelection();
 						break;
 				}
-				await self.saveSettings();
 			}
 		});
 		// --------------------------------------------------------------------

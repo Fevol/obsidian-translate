@@ -73,9 +73,6 @@ export class TranslatorSettingsTab extends PluginSettingTab {
 				toggle.setValue(this.plugin.settings.filter_service_languages);
 				toggle.onChange(async (value) => {
 					this.plugin.settings_listener.filter_service_languages = value;
-					// await this.plugin.saveSettings();
-					// this.updateLanguageSelection();
-					// this.updateLanguageView();
 				});
 			})
 

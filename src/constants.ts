@@ -41,6 +41,7 @@ export const DEFAULT_SETTINGS: TranslatorPluginSettings = {
 			api_key: "",
 			host: null,
 			auto_translate: false,
+			// FIXME: Account for dialects
 			available_languages: [
 				'af', 'am', 'ar', 'as', 'az', 'ba', 'bg', 'bn', 'bo', 'bs', 'ca', 'cs', 'cy', 'da', 'de', 'dv', 'el',
 				'en', 'es', 'et', 'eu', 'fa', 'fi', 'fil', 'fj', 'fo', 'fr', 'fr-ca', 'ga', 'gl', 'gu', 'he', 'hi',
@@ -76,6 +77,7 @@ export const DEFAULT_SETTINGS: TranslatorPluginSettings = {
 			api_key: "",
 			host: null,
 			auto_translate: false,
+			// FIXME: Account for dialects
 			available_languages: ['bg', 'cs', 'da', 'de', 'el', 'en-gb', 'en-us', 'es', 'et', 'fi', 'fr', 'hu', 'id',
 				'it', 'ja', 'lt', 'lv', 'nl', 'pl', 'pt-br', 'pt-pt', 'ro', 'ru', 'sk', 'sl', 'sv', 'tr', 'zh']
 		}

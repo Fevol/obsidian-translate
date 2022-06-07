@@ -121,7 +121,6 @@ export class TranslatorView extends ItemView {
 
 		this.updateSelection(this.left_select, "from");
 		this.updateSelection(this.right_select, "to");
-		this.plugin.saveSettings();
 	}
 
 	updateSelection(dropdown: HTMLSelectElement, side: string) {
