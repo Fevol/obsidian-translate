@@ -1,6 +1,6 @@
 import {ItemView, WorkspaceLeaf, App, setIcon} from "obsidian";
 import TranslatorPlugin from "./main";
-import {TRANSLATOR_VIEW_ID} from "./constants";
+import {ICONS, TRANSLATOR_VIEW_ID, TRANSLATION_SERVICES_INFO} from "./constants";
 import {APIServiceProviders} from "./types";
 import {getKeyValue} from "./util";
 
@@ -111,7 +111,7 @@ export class TranslatorView extends ItemView {
 		// -----------------------------------------------------------------------------------
 
 
-		this.service_used = container.createDiv({'cls': 'translator-service-text icon-text'});
+		this.service_used = container.createDiv({'cls': 'translator-service-text'});
 		await this.updateTooltip();
 
 		document.addEventListener("switched-translation-service", async () => {
@@ -188,16 +188,43 @@ export class TranslatorView extends ItemView {
 
 	async updateTooltip() {
 		this.service_used.empty();
-		let icon = this.service_used.createDiv();
+
+		let icon_container = this.service_used.createDiv({'cls': 'icon-text'});
+
+		let icon = icon_container.createDiv();
+
 		setIcon(icon, this.plugin.settings.translation_service);
-		let span = this.service_used.createDiv({
+		let span = icon_container.createEl('a',{
 			cls: '',
-			text: `Using ${this.plugin.settings.translation_service.replace('_', ' ')}`
+			text: `Using ${this.plugin.settings.translation_service.replace('_', ' ')}`,
+			href: TRANSLATION_SERVICES_INFO[this.plugin.settings.translation_service].url
 		});
 
 		this.updateSelection(this.left_select, "from");
 		this.updateSelection(this.right_select, "to");
 		await this.plugin.saveSettings();
+
+		if ('attribution' in TRANSLATION_SERVICES_INFO[this.plugin.settings.translation_service]) {
+			let attribution_icon = this.service_used.createDiv();
+
+			// @ts-ignore
+			attribution_icon.innerHTML = ICONS[TRANSLATION_SERVICES_INFO[this.plugin.settings.translation_service].attribution];
+
+			// Get the icon from service_used
+			let attribution = attribution_icon.children[0];
+
+			// Scale the icon by a factor of 1.5
+			let width: number, height: number;
+			[width, height] = attribution.getAttribute("viewBox").split(" ").splice(2).map((x) => parseInt(x));
+
+			let scaleX = 160 / width,
+				scaleY = 40 / height;
+			let scale = Math.min(scaleX, scaleY);
+
+			attribution.setAttribute("width", (width * scale).toString());
+			attribution.setAttribute("height", (height * scale).toString());
+
+		}
 	}
 
 	async onClose() {
