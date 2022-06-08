@@ -39,20 +39,6 @@ export class LibreTranslate extends DummyTranslate {
 			return {translation: data.translatedText};
 	}
 
-	async auto_translate(text: string, to: string): Promise<Object> {
-		const result = await fetch(`${this.host}/translate`, {
-			method: "POST",
-			body: JSON.stringify({
-				q: text,
-				source: "auto",
-				target: to
-			}),
-			headers: {"Content-Type": "application/json"}
-		});
-		const data = await result.json();
-		return {text: data.translatedText, predict: null};
-	}
-
 	async get_languages(): Promise<string[]> {
 		const result = await fetch(`${this.host}/languages`);
 		const data = await result.json();

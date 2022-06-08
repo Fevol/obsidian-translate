@@ -10,7 +10,7 @@
 | Deepl                   | ❌         | ✅  *(0.5M characters **per month**)* ¹  | ✅                    | 28        |                       |
 | Yandex Translate        | ❌         | ✅ *(5M characters)* ¹                   | ✅                    | 93        |                       |
 | Libre Translate         | ✅         | ✅                                       | ❌                    | 30        | Can be hosted locally |
-| Bing Translator (Azure) | ❌         | ✅  *(2M characters **per month**)*      | ✅                    | 111       |                       |
+| Bing Translator (Azure) | ✅         | ✅  *(2M characters **per month**)*      | ✅                    | 111       |                       |
 
 _¹ Requires a valid credit card to sign up for a free API key_<br>
 _² Free 300$ credit when signing up (valid for three months)_<br> 

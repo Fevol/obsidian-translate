@@ -2,7 +2,10 @@ import {Obj} from "tern";
 import {KeyedObject} from "../types";
 
 export class DummyTranslate {
+	failure_count: number;
+
 	constructor() {
+		this.failure_count = 0;
 	}
 
 	async validate() {
@@ -18,11 +21,6 @@ export class DummyTranslate {
 	async translate(text: string, from: string, to: string): Promise<KeyedObject> {
 		// Perfect translation
 		return {translation: text};
-	}
-
-	async auto_translate(text: string, to: string): Promise<Object> {
-		// Still have no clue what I'm supposed to do with this
-		return {text: text, predict: null};
 	}
 
 	async get_languages(): Promise<string[]> {

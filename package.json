@@ -24,6 +24,7 @@
 	},
 	"dependencies": {
 		"@formatjs/intl-displaynames": "^6.0.2",
+		"function-rate-limit": "^1.1.0",
 		"iso-639-1": "^2.1.14",
 		"observable-slim": "^0.1.6"
 	}

@@ -1,8 +1,6 @@
-import {ItemView, WorkspaceLeaf, App, setIcon} from "obsidian";
+import {ItemView, WorkspaceLeaf, App, setIcon, Notice} from "obsidian";
 import TranslatorPlugin from "./main";
 import {ICONS, TRANSLATOR_VIEW_ID, TRANSLATION_SERVICES_INFO} from "./constants";
-import {APIServiceProviders} from "./types";
-import {getKeyValue} from "./util";
 
 export class TranslatorView extends ItemView {
 	app: App;
@@ -80,12 +78,17 @@ export class TranslatorView extends ItemView {
 			this.plugin.settings.language_from = this.left_select.value;
 			this.plugin.settings.language_to = this.right_select.value;
 			this.plugin.saveSettings();
+
+			// Text is retranslated when switching the languages in most major services
+			if (this.plugin.service_data.auto_translate) {
+				this.translate();
+			}
 		});
 
 		this.translate_button = center_column.createEl('button', {cls: "translator-button"});
 		setIcon(this.translate_button, 'translate', 20);
-		this.translate_button.addEventListener("click", async () => {
-			await this.translate();
+		this.translate_button.addEventListener("click", () => {
+			this.translate();
 		});
 
 		// If auto translate is disabled, the button will not be displayed
@@ -201,19 +204,34 @@ export class TranslatorView extends ItemView {
 	}
 
 	async translate(): Promise<void> {
+		if (!this.plugin.service_data.validated) {
+			this.plugin.message_queue("Translation service is not validated");
+			return;
+		}
+
 		if (this.plugin.settings.language_to === this.plugin.settings.language_from || !/[a-zA-Z]/g.test(this.input_field.value)) {
 			this.output_field.value = this.input_field.value;
 			return;
 		}
 
 		// TODO: Add validation for the translator, n tries before blocking the service and forcing change of settings
-		let return_values = await this.plugin.translator.translate(this.input_field.value, this.plugin.settings.language_from, this.plugin.settings.language_to);
-
-		if (this.plugin.settings.language_from === "auto") {
-			this.left_select.childNodes[0].textContent = `Detect Language (${this.plugin.all_languages.get(return_values.detected_language)})`;
-			this.plugin.detected_language = return_values.detected_language;
+		try {
+			let return_values = await this.plugin.translator.translate(this.input_field.value, this.plugin.settings.language_from, this.plugin.settings.language_to);
+			this.plugin.translator.failure_count = 0;
+			if (this.plugin.settings.language_from === "auto") {
+				this.left_select.childNodes[0].textContent = `Detect Language (${this.plugin.all_languages.get(return_values.detected_language)})`;
+				this.plugin.detected_language = return_values.detected_language;
+			}
+			this.output_field.value = return_values.translation;
+		} catch {
+			this.plugin.translator.failure_count += 1;
+			// FIXME: Find a good treshold for the number of failures
+			if (this.plugin.translator.failure_count >= 10) {
+				this.plugin.message_queue("Translation service is blocked, please validate the service again to unblock it", 8000);
+				this.plugin.settings_listener.service_settings[this.plugin.settings.translation_service].validated = false;
+				this.plugin.translator.failure_count = 0;
+			}
 		}
-		this.output_field.value = return_values.translation;
 	}
 
 	async onClose() {

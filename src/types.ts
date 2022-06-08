@@ -19,8 +19,10 @@ export interface APIServiceProviders {
 
 export interface APIServiceSettings {
 	api_key: string;
+	region: string;
 	host: string | null;
 	auto_translate: boolean;
+	validated: boolean;
 	available_languages: Array<string>;
 }
 

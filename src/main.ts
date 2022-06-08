@@ -5,6 +5,7 @@ import {TranslatorView} from "./view";
 import {APIServiceProviders, APIServiceSettings, TranslatorPluginSettings} from "./types";
 import {ICONS, DEFAULT_SETTINGS, TRANSLATOR_VIEW_ID} from "./constants";
 import {DummyTranslate, BingTranslator, GoogleTranslate, Deepl, LibreTranslate, YandexTranslate} from "./handlers";
+import {toTitleCase, rateLimit} from "./util";
 
 import ISO6391, {LanguageCode} from "iso-639-1";
 import * as ObservableSlim from "observable-slim";
@@ -41,7 +42,8 @@ export default class TranslatorPlugin extends Plugin {
 	current_language: string;
 	detected_language: string;
 	service_data: APIServiceSettings;
-
+	//@ts-ignore (Included with polyfill)
+	localised_names: Intl.DisplayNames;
 
 	all_languages: Map<LanguageCode, string> = new Map();
 	available_languages: any[] = [];
@@ -49,9 +51,10 @@ export default class TranslatorPlugin extends Plugin {
 
 	locales = ISO6391.getAllCodes();
 	translator: DummyTranslate;
-
-	//@ts-ignore (Included with polyfill)
-	localised_names: Intl.DisplayNames;
+	// Limit queue to only run one message of translator plugin at a time (limitCount 0 means that none of the proceeding messages will be queued)
+	message_queue: ((...args: any) => void) = rateLimit(1, 5000, (text: string, timeout: number = 4000) => {
+		new Notice(text, timeout);
+	});
 
 	async onload() {
 		await this.loadSettings();
@@ -77,14 +80,15 @@ export default class TranslatorPlugin extends Plugin {
 		// ------------------  Listener for Settings values  ------------------
 
 		// Implements (admittedly primitive) reactivity for the settings, settings page or view gets updated when internal settings change
-		this.settings_listener = ObservableSlim.create(this.settings, false, async function(changes) {
+		this.settings_listener = ObservableSlim.create(this.settings, false, async function (changes) {
 			if (changes[0].type === "update") {
 				await self.saveSettings();
 				let key = changes[0].currentPath.split(".")[0];
 				let value = changes[0].newValue;
+				console.log(`'${toTitleCase(changes[0].currentPath.split('.').at(-1).replace('_', ' '))}' changed`);
+
 				switch (key) {
 					case "language_from":
-						console.log("Language from changed");
 						self.view_page.left_select.childNodes[0].textContent = 'Detect Language';
 						if (self.service_data.auto_translate) {
 							await self.view_page.translate();
@@ -92,7 +96,6 @@ export default class TranslatorPlugin extends Plugin {
 						break;
 
 					case "language_to":
-						console.log("Language to changed");
 						self.view_page.output_field.value = '';
 
 						if (self.service_data.auto_translate) {
@@ -102,8 +105,6 @@ export default class TranslatorPlugin extends Plugin {
 						break;
 
 					case "translation_service":
-						console.log("Translation service changed");
-
 						await self.setupTranslationService();
 						self.service_data = self.settings.service_settings[value as keyof APIServiceProviders]
 
@@ -126,17 +127,12 @@ export default class TranslatorPlugin extends Plugin {
 					case "service_settings":
 						// Get last key of the path
 						switch (changes[0].currentPath.split(".").at(-1)) {
-							case "api_key":
-								console.log("API key changed");
-								await self.setupTranslationService();
-								break;
-							case "host":
-								console.log("Host changed");
+							case "api_key": case "region" : case "host":
+								self.settings.service_settings[self.settings.translation_service as keyof APIServiceProviders].validated = null;
+								self.settings_page.setButtonStatus(self.settings_page.validate_button, self.settings_page.validate_button_icon, null);
 								await self.setupTranslationService();
 								break;
 							case "auto_translate":
-								console.log("Auto translate changed");
-
 								// Hide the translate button if auto translate is enabled
 								self.view_page.translate_button.classList.toggle("hide-element", self.service_data.auto_translate);
 								if (self.service_data.auto_translate) {
@@ -150,8 +146,6 @@ export default class TranslatorPlugin extends Plugin {
 						break;
 
 					case "display_language":
-						console.log("Display language changed");
-
 						// Obsidian's current display language is updated internally when this setting is changed
 						// (will not be updated when the display language is changed)
 						const updated_lang = window.localStorage.getItem('language') || 'en';
@@ -165,29 +159,20 @@ export default class TranslatorPlugin extends Plugin {
 						self.view_page.updateLanguageSelection();
 						break;
 
-					case "selected_languages":
-						console.log("Selected languages changed");
+					case "selected_languages": case "filter_service_languages":
 						// FIXME: Wasteful? Heck yes. Try to find a better way to do this.
-						self.available_languages = self.settings.use_spellchecker_languages ? self.settings_page.spellchecker_languages : self.settings.selected_languages;
+						self.settings_page.updateAvailableLanguages();
 						self.settings_page.updateLanguageSelection();
 						self.settings_page.updateLanguageView();
 						self.view_page.updateLanguageSelection();
 						break;
 
 					case "use_spellchecker_languages":
-						console.log("Use spellchecker languages changed");
 						self.settings_page.updateAvailableLanguages();
 						self.settings_page.updateLanguageView();
 						self.view_page.updateLanguageSelection();
 						break;
 
-					case "filter_service_languages":
-						console.log("Filter service languages changed");
-						self.settings_page.updateAvailableLanguages();
-						self.settings_page.updateLanguageSelection();
-						self.settings_page.updateLanguageView();
-						self.view_page.updateLanguageSelection();
-						break;
 				}
 			}
 		});
@@ -239,6 +224,11 @@ export default class TranslatorPlugin extends Plugin {
 				break;
 			case 'libre_translate':
 				this.translator = new LibreTranslate(this.settings.service_settings.libre_translate.host);
+				break;
+			case 'bing_translator':
+				this.translator = new BingTranslator(
+					this.settings.service_settings.bing_translator.api_key,
+					this.settings.service_settings.bing_translator.region);
 				break;
 			default:
 				this.translator = new DummyTranslate();
@@ -307,5 +297,6 @@ export default class TranslatorPlugin extends Plugin {
 		this.settings = Object.assign({}, this.settings, changedOptions(this.settings));
 		await this.saveData(this.settings);
 	}
+
 	// ---------------------------------------------------------------
 }

@@ -94,10 +94,10 @@
 	background-color: var(--background-modifier-success) !important;
 }
 
-.translator-error {
+.translator-fail {
 	background-color: var(--background-modifier-error) !important;}
 
-.translator-error > * {
+.translator-fail > * {
 	color: var(--text-on-accent);
 }
 
@@ -107,4 +107,14 @@
 
 .hide-element {
 	display: none !important;
+}
+
+.translator-column {
+	display: flex;
+	flex-direction: column;
+	flex: 1;
+}
+
+.translator-column > * {
+	width: 100%;
 }

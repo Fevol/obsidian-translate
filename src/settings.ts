@@ -17,6 +17,8 @@ export class TranslatorSettingsTab extends PluginSettingTab {
 	language_selection: DropdownComponent;
 	service_settings: HTMLElement;
 	spellchecker_languages: string[];
+	validate_button: HTMLButtonElement;
+	validate_button_icon: HTMLElement;
 
 	constructor(app: App, plugin: TranslatorPlugin) {
 		super(app, plugin);
@@ -111,30 +113,57 @@ export class TranslatorSettingsTab extends PluginSettingTab {
 		setIcon(title, this.plugin.settings.translation_service, 22);
 		title.createDiv({text: `${toTitleCase(service.replace('_', ' '))} Settings`});
 
+		// TODO: Rework this to combine test button for api key, region and host
 		if (this.plugin.service_data.api_key !== null) {
 			let apiKeyField = new Setting(this.service_settings)
 				.setName('API Key')
-				.setDesc('Enter a valid API key')
-				.addText((textbox) => {
-					textbox.setValue(this.plugin.service_data.api_key);
-					textbox.onChange(async (value) => {
-						this.plugin.settings_listener.service_settings[service].api_key = value;
-					});
-				}).then(setting => {
-					const info = TRANSLATION_SERVICES_INFO[service]
-					if ('request_key' in info) {
-						setting.descEl.createEl('br');
-						let href = setting.descEl.createEl('a', {
-							cls: 'icon-text',
-							href: info.request_key,
-						})
-						let icon = href.createDiv();
-						setIcon(icon, 'info', 15);
-						href.createEl('span', {text: 'Setup for API Key can be found here'});
-					}
+				.setDesc('Enter a valid API key');
+
+			let apiAuthentication = apiKeyField.controlEl.createDiv({cls: 'translator-column'});
+
+			let apikeyfield = apiAuthentication.createEl('input', {
+				type: 'text',
+				value: this.plugin.service_data.api_key,
+				placeholder: 'API Key',
+			});
+
+			apikeyfield.addEventListener('input', (e) => {
+				this.plugin.settings_listener.service_settings[service].api_key = apikeyfield.value;
+			});
+
+			const info = TRANSLATION_SERVICES_INFO[service]
+			if ('request_key' in info) {
+				apiKeyField.descEl.createEl('br');
+				let href = apiKeyField.descEl.createEl('a', {
+					// cls: 'icon-text',
+					href: info.request_key,
+					text: '🛈 Setup for API Key can be found here'
+				})
+				// let icon = href.createDiv();
+				// setIcon(icon, 'info', 15);
+				// href.createEl('span', {text: '🛈 Setup for API Key can be found here'});
+			}
+
+			if (this.plugin.service_data.region !== null) {
+				let regionfield = apiAuthentication.createEl('select', {
+					cls: 'dropdown',
+					value: this.plugin.service_data.region,
 				});
+				regionfield.createEl('option', {value: '', text: 'Global'});
+				for (const region of info.region_options) {
+					regionfield.createEl('option', {
+						value: region.value,
+						text: region.text
+					});
+				}
+				regionfield.addEventListener('change', (e) => {
+					this.plugin.settings_listener.service_settings[service].region = regionfield.value;
+				});
+			}
+
+
 			this.checkValidityOfField(apiKeyField, 'API Key', '', () => {
-				return this.plugin.translator.validate();
+				return this.plugin.service_data.api_key && this.plugin.translator.validate();
 			});
 		}
 
@@ -156,16 +185,17 @@ export class TranslatorSettingsTab extends PluginSettingTab {
 					if ('local_host' in info) {
 						setting.descEl.createEl('br');
 						let href = setting.descEl.createEl('a', {
-							cls: 'icon-text',
+							// cls: 'icon-text',
+							text: '🛈 You can host this service locally',
 							href: info.local_host,
 						})
-						let icon = href.createDiv();
-						setIcon(icon, 'info', 15);
-						href.createEl('span', {text: 'You can host this service locally'});
+						// let icon = href.createDiv();
+						// setIcon(icon, 'info', 15);
+						// href.createEl('span', {text: 'You can host this service locally'});
 					}
 				});
 			this.checkValidityOfField(hostField, 'host', '', async () => {
-				return fetch(this.plugin.service_data.host).then(response => {
+				return this.plugin.service_data.host && fetch(this.plugin.service_data.host).then(response => {
 					return response.ok;
 				}).catch(() => {
 					return false;
@@ -202,6 +232,7 @@ export class TranslatorSettingsTab extends PluginSettingTab {
 				button.onClick(async () => {
 					try {
 						this.plugin.settings_listener.service_settings[service].available_languages = await this.plugin.translator.get_languages();
+						console.log(this.plugin.settings_listener.service_settings[service].available_languages);
 						new Notice('Language selection updated');
 					} catch (e) {
 						new Notice('Failed to fetch languages, check host or API key');
@@ -214,35 +245,37 @@ export class TranslatorSettingsTab extends PluginSettingTab {
 
 	checkValidityOfField(field: Setting, field_name: string, field_description: string, validation_function: () => Promise<boolean>) {
 
-		let testbutton = createEl('button', {cls: 'icon-text'});
+		this.validate_button = createEl('button', {cls: 'icon-text'});
 		// Add testbutton as first element of field's controlEl
-		field.controlEl.insertBefore(testbutton, field.controlEl.firstChild);
+		field.controlEl.insertBefore(this.validate_button, field.controlEl.firstChild);
 
-		let icon = testbutton.createDiv();
-		setIcon(icon, 'question-mark-glyph', 15);
-		testbutton.createEl('span', {text: 'Test'});
+		this.validate_button_icon = this.validate_button.createDiv();
+		this.setButtonStatus(this.validate_button, this.validate_button_icon, this.plugin.service_data.validated);
+		this.validate_button.createEl('span', {text: 'Test'});
 
-		testbutton.addEventListener('click', async () => {
-			icon.empty();
-			icon.createDiv({cls: 'spinner'})
-
-			// Keep only first class of testbutton
-			testbutton.removeClass('translator-success');
-			testbutton.removeClass('translator-error');
+		this.validate_button.addEventListener('click', async () => {
+			this.setButtonStatus(this.validate_button, this.validate_button_icon, 'loading');
 
 			let valid = await validation_function();
-			icon.empty();
+			this.setButtonStatus(this.validate_button, this.validate_button_icon, valid);
 
-			if (valid) {
-				testbutton.addClass('translator-success');
-				new Notice(`${toTitleCase(field_name)} is valid`);
-				setIcon(icon, 'check', 15);
-			} else {
-				testbutton.addClass('translator-error');
-				new Notice(`${toTitleCase(field_name)} is not valid`);
-				setIcon(icon, 'cross', 15);
-			}
+			this.plugin.settings_listener.service_settings[this.plugin.settings.translation_service].validated = valid;
+			new Notice(`${toTitleCase(field_name)} is ${valid ? 'valid' : 'not valid'}`);
 		})
+	}
+
+	setButtonStatus(button: HTMLButtonElement, icon: HTMLElement, status: any) {
+		icon.empty();
+		button.removeClass('translator-success');
+		button.removeClass('translator-fail');
+		if (typeof status === 'boolean') {
+			button.addClass(`translator-${status ? 'success' : 'fail'}`);
+			setIcon(icon, status ? 'check' : 'cross', 15);
+		} else if (status === 'loading') {
+			icon.createDiv({cls: 'spinner'})
+		} else {
+			setIcon(icon, 'question-mark-glyph', 15);
+		}
 	}
 
 	updateAvailableLanguages(): void {
