@@ -1,10 +1,6 @@
 <script lang="ts">
-	import {onMount} from "svelte";
-	import {setIcon} from "obsidian";
-
 	import {Icon} from "./index";
 
-	// export let plugin: TranslatorPlugin;
 	export let value: boolean | null = null;
 	export let text: string = "Test";
 	export let size: number = 16;

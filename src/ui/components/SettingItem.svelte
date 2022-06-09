@@ -1,7 +1,5 @@
 <!-- Adapted from obsidian-periodic-notes -->
 <script lang="ts">
-	import {afterUpdate, onMount} from "svelte";
-
 	export let name: string;
 	export let description: string;
 	export let isHeading: boolean = false;

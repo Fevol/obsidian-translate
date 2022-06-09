@@ -1,8 +1,4 @@
 <script lang="ts">
-	import {onMount} from "svelte";
-	import {setIcon} from "obsidian";
-
-	// export let plugin: TranslatorPlugin;
 	export let text: any;
 	export let readonly: boolean = false;
 	export let onChange: (value) => void;

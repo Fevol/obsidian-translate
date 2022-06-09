@@ -49,8 +49,10 @@
 
 </script>
 
-
+<!--TODO: On resize, check whether to change the translator view (Determine the grid that should be used) -->
 <div class="translator-view">
+	<!-- TODO: Make the field resizable (save data)-->
+	<!-- TODO: Event should only be triggered when the user is done typing (?) (count delay)-->
 	<div class="translator-column">
 		<Dropdown
 			value={$settings.language_from}
@@ -140,43 +142,3 @@
 
 	</div>
 </div>
-
-
-<!--// this.service_used.empty();-->
-<!--//-->
-<!--// let icon_container = this.service_used.createDiv({'cls': 'icon-text'});-->
-<!--//-->
-<!--// let icon = icon_container.createDiv();-->
-<!--//-->
-<!--// setIcon(icon, this.plugin.settings.translation_service);-->
-<!--// let span = icon_container.createEl('a',{-->
-<!--	// 	cls: '',-->
-<!--	// 	text: `Using ${this.plugin.settings.translation_service.replace('_', ' ')}`,-->
-<!--	// 	href: TRANSLATION_SERVICES_INFO[this.plugin.settings.translation_service].url-->
-<!--	// });-->
-<!--//-->
-<!--// this.updateSelection(this.left_select, "from");-->
-<!--// this.updateSelection(this.right_select, "to");-->
-<!--// await this.plugin.saveSettings();-->
-<!--//-->
-<!--// if ('attribution' in TRANSLATION_SERVICES_INFO[this.plugin.settings.translation_service]) {-->
-<!--	// 	let attribution_icon = this.service_used.createDiv();-->
-<!--	//-->
-<!--	// 	// @ts-ignore-->
-<!--	// 	attribution_icon.innerHTML = ICONS[TRANSLATION_SERVICES_INFO[this.plugin.settings.translation_service].attribution];-->
-<!--	//-->
-<!--	// 	// Get the icon from service_used-->
-<!--	// 	let attribution = attribution_icon.children[0];-->
-<!--	//-->
-<!--	// 	// Scale the icon by a factor of 1.5-->
-<!--	// 	let width: number, height: number;-->
-<!--	// 	[width, height] = attribution.getAttribute("viewBox").split(" ").splice(2).map((x) => parseInt(x));-->
-<!--	//-->
-<!--	// 	let scaleX = 160 / width,-->
-<!--	// 		scaleY = 40 / height;-->
-<!--	// 	let scale = Math.min(scaleX, scaleY);-->
-<!--	//-->
-<!--	// 	attribution.setAttribute("width", (width * scale).toString());-->
-<!--	// 	attribution.setAttribute("height", (height * scale).toString());-->
-<!--	//-->
-<!--	// }-->

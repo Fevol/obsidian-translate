@@ -1,6 +1,4 @@
 <script lang="ts">
-	import type {Writable} from "svelte/store";
-	import type {TranslatorPluginSettings} from "src/types";
 	import {Icon} from "./index";
 
 	interface IOption {

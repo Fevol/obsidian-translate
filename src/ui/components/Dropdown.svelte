@@ -1,8 +1,5 @@
 <!-- Copied over from obsidian-periodic-notes -->
 <script lang="ts">
-	import type { Writable } from "svelte/store";
-	import type { TranslatorPluginSettings} from "src/types";
-
 	interface IOption {
 		value: string;
 		text: string;

@@ -8,8 +8,6 @@
 	export let svg_size: any;
 
 	let icon_element : HTMLElement;
-	// let width = size;
-	// let height = size;
 
 	onMount(() => {
 		if (icon !== 'spinner') {

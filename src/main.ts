@@ -1,5 +1,5 @@
 import {addIcon, App, Editor, MarkdownView, Modal, Notice, Plugin} from 'obsidian';
-import {get, writable, type Writable} from "svelte/store";
+import {writable, type Writable} from "svelte/store";
 
 import {TranslatorSettingsTab} from "./settings";
 import {TranslatorView} from "./view";
@@ -7,12 +7,10 @@ import {TranslatorView} from "./view";
 import type {APIServiceProviders, APIServiceSettings, PluginData, TranslatorPluginSettings} from "./types";
 import {ICONS, DEFAULT_SETTINGS, TRANSLATOR_VIEW_ID, DEFAULT_DATA} from "./constants";
 import {DummyTranslate, BingTranslator, GoogleTranslate, Deepl, LibreTranslate, YandexTranslate} from "./handlers";
-import {toTitleCase, rateLimit} from "./util";
+import {rateLimit} from "./util";
 
 import ISO6391 from "iso-639-1";
 import type {LanguageCode} from "iso-639-1";
-
-import * as ObservableSlim from "observable-slim";
 
 // Import all the locale data for the supported languages of Obsidian
 // FIXME: Large filesize, can this be loaded on demand?
@@ -52,15 +50,14 @@ export default class TranslatorPlugin extends Plugin {
 
 	all_languages: Map<LanguageCode, string> = new Map();
 	available_languages: any[] = [];
-	settings_listener: any;
 
 	locales = ISO6391.getAllCodes();
 	translator: DummyTranslate;
+
 	// Limit queue to only run one message of translator plugin at a time (limitCount 0 means that none of the proceeding messages will be queued)
 	message_queue: ((...args: any) => void)
 
-
-	// TODO: Set time interval for this to run
+	// TODO: Set time interval for translation process to run (to ensure that translations can't overlap)
 	// translation_queue = rateLimit(0, 200, async () => {
 	// 	await this.view_page.translate();
 	// });
@@ -71,23 +68,6 @@ export default class TranslatorPlugin extends Plugin {
 		});
 
 		this.settings = writable<TranslatorPluginSettings>();
-		this.settings_listener = {
-			set(target: any, key: string, value: any) {
-
-				target[key] = value;
-
-				switch (key) {
-					case "filter_service_languages":
-						break;
-					case "use_spellchecker_languages":
-						break;
-				}
-
-
-				return true;
-			}
-		};
-
 		await this.loadSettings();
 
 		this.plugin_data = writable<PluginData>();
@@ -102,6 +82,10 @@ export default class TranslatorPlugin extends Plugin {
 			this.saveSettings(data);
 		}));
 
+		// There is currently no way to catch when the display language of Obsidian is being changed, as it is not reactive
+		// (add current display language to app.json?)
+		// So 'display languages' setting will only be applied correctly when the program is fully restarted or when
+		// the language display name setting is changed.
 		this.plugin_data_proxy.current_language = await this.fixLanguageCode(window.localStorage.getItem('language') || 'en-US');
 		this.localised_names = new Intl.DisplayNames([this.plugin_data_proxy.current_language], {type: 'language'});
 
@@ -120,9 +104,6 @@ export default class TranslatorPlugin extends Plugin {
 		this.plugin_data_proxy.available_languages = this.settings_proxy.use_spellchecker_languages ? this.plugin_data_proxy.spellchecker_languages : this.settings_proxy.selected_languages;
 
 
-		// this.service_data = this.settings.service_settings[this.settings.translation_service as keyof APIServiceProviders];
-
-
 		// ------------------------  Setup plugin pages  ----------------------
 		// This adds a settings tab so the user can configure various aspects of the plugin
 		this.addSettingTab(new TranslatorSettingsTab(this.app, this));
@@ -136,116 +117,6 @@ export default class TranslatorPlugin extends Plugin {
 
 		// --------------------------------------------------------------------
 
-
-		// ------------------  Listener for Settings values  ------------------
-
-		// Implements (admittedly primitive) reactivity for the settings, settings page or view gets updated when internal settings change
-		// this.settings_listener = ObservableSlim.create(this.settings, false, async function (changes) {
-		// 	if (changes[0].type === "update") {
-		// 		// await self.saveSettings();
-		// 		let key = changes[0].currentPath.split(".")[0];
-		// 		let value = changes[0].newValue;
-		// 		console.log(`'${toTitleCase(changes[0].currentPath.split('.').at(-1).replace('_', ' '))}' changed`);
-		//
-		// 		switch (key) {
-		// 			case "language_from":
-		// 				self.view_page.left_select.childNodes[0].textContent = 'Detect Language';
-		// 				if (self.service_data.auto_translate) {
-		// 					await self.view_page.translate();
-		// 				}
-		// 				break;
-		//
-		// 			case "language_to":
-		// 				self.view_page.output_field.value = '';
-		//
-		// 				if (self.service_data.auto_translate) {
-		// 					await self.view_page.translate();
-		// 				}
-		//
-		// 				break;
-		//
-		// 			case "translation_service":
-		// 				await self.setupTranslationService();
-		// 				// self.service_data = self.settings.service_settings[value as keyof APIServiceProviders]
-		//
-		// 				// if (self.settings.filter_service_languages) {
-		// 				// 	self.settings_page.updateAvailableLanguages();
-		// 				// 	self.settings_page.updateLanguageSelection();
-		// 				// 	self.settings_page.updateLanguageView();
-		// 				// }
-		//
-		// 				await self.view_page.updateTooltip();
-		// 				if (self.service_data.auto_translate) {
-		// 					await self.view_page.translate();
-		// 				}
-		//
-		// 				// Reveal correspondings settings tab for the selected service
-		// 				// self.settings_page.showServiceSettings(value);
-		//
-		// 				break;
-		//
-		// 			case "service_settings":
-		// 				// Get last key of the path
-		// 				switch (changes[0].currentPath.split(".").at(-1)) {
-		// 					case "api_key":
-		// 					case "region" :
-		// 					case "host":
-		// 						// self.settings.service_settings[self.settings.translation_service as keyof APIServiceProviders].validated = null;
-		// 						// self.settings_page.setButtonStatus(self.settings_page.validate_button, self.settings_page.validate_button_icon, null);
-		// 						await self.setupTranslationService();
-		// 						break;
-		// 					case "auto_translate":
-		// 						// Hide the translate button if auto translate is enabled
-		// 						self.view_page.translate_button.classList.toggle("hide-element", self.service_data.auto_translate);
-		// 						if (self.service_data.auto_translate) {
-		// 							await self.view_page.translate();
-		// 						}
-		// 						break;
-		// 				}
-		// 				if (self.service_data.auto_translate) {
-		// 					await self.view_page.translate();
-		// 				}
-		// 				break;
-		//
-		// 			case "display_language":
-		// 				// Obsidian's current display language is updated internally when this setting is changed
-		// 				// (will not be updated when the display language is changed)
-		// 				const updated_lang = window.localStorage.getItem('language') || 'en';
-		// 				if (updated_lang !== self.current_language) {
-		// 					await self.updateLocalisation();
-		// 				}
-		//
-		// 				self.updateLanguageNames();
-		// 				self.settings_page.updateLanguageView();
-		// 				self.settings_page.updateLanguageSelection();
-		// 				self.view_page.updateLanguageSelection();
-		// 				break;
-		//
-		// 			case "selected_languages":
-		// 			case "filter_service_languages":
-		// 				// FIXME: Wasteful? Heck yes. Try to find a better way to do this.
-		// 				self.settings_page.updateAvailableLanguages();
-		// 				self.settings_page.updateLanguageSelection();
-		// 				self.settings_page.updateLanguageView();
-		// 				self.view_page.updateLanguageSelection();
-		// 				break;
-		//
-		// 			case "use_spellchecker_languages":
-		// 				self.settings_page.updateAvailableLanguages();
-		// 				self.settings_page.updateLanguageView();
-		// 				self.view_page.updateLanguageSelection();
-		// 				break;
-		//
-		// 		}
-		// 	}
-		// });
-		// --------------------------------------------------------------------
-
-
-		// ObservableSlim.create(this.settings.selected_languages, false, function(changes) {});
-		// ObservableSlim.create(this.settings.service_settings, false, function(changes) {});
-		// for (let service of Object.keys(this.settings.service_settings))
-		// 	ObservableSlim.create(this.settings.service_settings[service as keyof APIServiceProviders], false, function(changes) {});
 
 		let service_settings = this.settings_proxy.service_settings[this.settings_proxy.translation_service as keyof APIServiceProviders];
 		this.setupTranslationService(
@@ -314,27 +185,6 @@ export default class TranslatorPlugin extends Plugin {
 				return code.split("-")[0];
 		}
 	}
-
-	// async updateLocalisation() {
-	// 	// @ts-ignore (Intl.DisplayNames is polyfilled)
-	// 	this.localised_names = new Intl.DisplayNames([this.current_language], {type: 'language'});
-	//
-	// 	// Get correct names for all available locales
-	// 	// this.updateLanguageNames();
-	//
-	// }
-
-	// updateLanguageNames(): void {
-	// 	// For every locale in all languages, update the name based on the currently selected language display setting
-	// 	for (let locale of this.locales) {
-	// 		if (this.settings.display_language === "local") {
-	// 			this.all_languages.set(locale, ISO6391.getNativeName(locale));
-	// 		} else if (this.settings.display_language === "display") {
-	// 			this.all_languages.set(locale, this.localised_names.of(locale));
-	// 		}
-	// 	}
-	// }
-
 	// -------------------------------------------------------------
 
 
@@ -345,15 +195,6 @@ export default class TranslatorPlugin extends Plugin {
 		this.settings_proxy = settings;
 
 		this.settings.set(this.settings_proxy);
-
-
-		// FIXME: This is to make the program work with hotreload (should not be a problem when running the program normally)
-		//  The plugin gets disabled and then re-enabled if main.js is changed, however, the view does not seem to
-		//  match with the one that is currently displayed.
-		// let views = this.app.workspace.getLeavesOfType(TRANSLATOR_VIEW_ID);
-		// if (views.length) {
-		// 	this.view_page = <TranslatorView> views[0].view;
-		// }
 	}
 
 
