@@ -1,5 +1,5 @@
 import {DummyTranslate} from "./dummy-translate";
-import {KeyedObject} from "../types";
+import type {KeyedObject} from "../types";
 
 export class LibreTranslate extends DummyTranslate {
 	host: string;
@@ -7,6 +7,17 @@ export class LibreTranslate extends DummyTranslate {
 	constructor(host: string) {
 		super();
 		this.host = host;
+	}
+
+	async validate(): Promise<boolean> {
+		console.log(this.host);
+		if (!this.host)
+			return false;
+		return fetch(this.host).then(response => {
+			return response.ok;
+		}).catch(() => {
+			return false;
+		});
 	}
 
 	async detect(text: string): Promise<string> {

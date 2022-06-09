@@ -1,5 +1,5 @@
 import {DummyTranslate} from "./dummy-translate";
-import {KeyedObject} from "../types";
+import type {KeyedObject} from "../types";
 
 export class YandexTranslate extends DummyTranslate {
 	constructor() {

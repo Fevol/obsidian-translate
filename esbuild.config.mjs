@@ -1,7 +1,10 @@
 import esbuild from "esbuild";
+import esbuildSvelte from "esbuild-svelte";
 import process from "process";
+import sveltePreprocess from "svelte-preprocess";
 import builtins from 'builtin-modules'
 import { sassPlugin } from "esbuild-sass-plugin";
+
 
 const banner =
 `/*
@@ -53,5 +56,11 @@ esbuild.build({
 	treeShaking: true,
 	outdir: dir,
 
-	plugins: [sassPlugin()]
+	plugins: [
+		sassPlugin(),
+		esbuildSvelte({
+			compilerOptions: { css: true },
+			preprocess: sveltePreprocess(),
+		}),
+	]
 }).catch(() => process.exit(1));

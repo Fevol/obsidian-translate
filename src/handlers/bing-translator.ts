@@ -1,5 +1,5 @@
 import {DummyTranslate} from "./dummy-translate";
-import {KeyedObject} from "../types";
+import type {KeyedObject} from "../types";
 
 export class BingTranslator extends DummyTranslate {
 	api_key: string;
@@ -12,42 +12,62 @@ export class BingTranslator extends DummyTranslate {
 	}
 
 	async validate() {
+		if (!this.api_key)
+			return false;
+
 		// TODO: Check if there is a better way to validate the API key
-		const result = await fetch("https://api.cognitive.microsofttranslator.com/translate?api-version=3.0&"
-			+ new URLSearchParams({
-				from: "",
-				to: "en",
-				textType: "plain"
-			}), {
-			method: "POST",
-			body: JSON.stringify([{'Text': ''}]),
-			headers: {
+		try {
+			const headers: any = {
 				"Content-Type": "application/json",
 				"Ocp-Apim-Subscription-Key": this.api_key,
-				//TODO: Add region as setting
-				"Ocp-Apim-Subscription-Region": this.region
 			}
-		});
-		return result.ok;
+			if (this.region)
+				headers["Ocp-Apim-Subscription-Region"] = this.region;
+
+			const result = await fetch("https://api.cognitive.microsofttranslator.com/translate?api-version=3.0&"
+				+ new URLSearchParams({
+					from: "",
+					to: "en",
+					textType: "plain"
+				}), {
+				method: "POST",
+				body: JSON.stringify([{'Text': ''}]),
+				headers: headers
+			});
+			return result.ok;
+		} catch {
+			return false;
+		}
+
 	}
 
 	async detect(text: string): Promise<string> {
+		const headers: any = {
+			"Content-Type": "application/json",
+			"Ocp-Apim-Subscription-Key": this.api_key,
+		}
+		if (this.region)
+			headers["Ocp-Apim-Subscription-Region"] = this.region;
+
 		const result = await fetch("https://api.cognitive.microsofttranslator.com/languages?api-version=3.0&scope=text", {
 			method: "POST",
 			body: JSON.stringify({
 				text: text
 			}),
-			headers: {
-				"Content-Type": "application/json",
-				"Ocp-Apim-Subscription-Key": this.api_key,
-				"Ocp-Apim-Subscription-Region": "westeurope"
-			}
+			headers: headers
 		});
 		const data = await result.json();
 		return data.detectedLanguages[0].language;
 	}
 
 	async translate(text: string, from: string, to: string): Promise<KeyedObject> {
+		const headers: any = {
+			"Content-Type": "application/json",
+			"Ocp-Apim-Subscription-Key": this.api_key,
+		}
+		if (this.region)
+			headers["Ocp-Apim-Subscription-Region"] = this.region;
+
 		const result = await fetch("https://api.cognitive.microsofttranslator.com/translate?api-version=3.0&"
 			+ new URLSearchParams({
 				from: from === "auto" ? "" : from,
@@ -56,11 +76,7 @@ export class BingTranslator extends DummyTranslate {
 			}), {
 			method: "POST",
 			body: JSON.stringify([{'Text': text}]),
-			headers: {
-				"Content-Type": "application/json",
-				"Ocp-Apim-Subscription-Key": this.api_key,
-				"Ocp-Apim-Subscription-Region": "WestEurope"
-			}
+			headers: headers
 		});
 		const data = await result.json();
 		if (from === "auto")
@@ -70,13 +86,16 @@ export class BingTranslator extends DummyTranslate {
 	}
 
 	async get_languages(): Promise<string[]> {
+		const headers: any = {
+			"Content-Type": "application/json",
+			"Ocp-Apim-Subscription-Key": this.api_key,
+		}
+		if (this.region)
+			headers["Ocp-Apim-Subscription-Region"] = this.region;
+
 		const result = await fetch("https://api.cognitive.microsofttranslator.com/languages?api-version=3.0&scope=translation", {
 			method: "GET",
-			headers: {
-				"Content-Type": "application/json",
-				"Ocp-Apim-Subscription-Key": this.api_key,
-				"Ocp-Apim-Subscription-Region": "WestEurope"
-			}
+			headers: headers
 		});
 		const data = await result.json();
 		return Object.keys(data.translation);

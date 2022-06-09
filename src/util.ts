@@ -4,18 +4,35 @@ export function toTitleCase(str: string) {
 	});
 }
 
-// Custom fetch function with timeout
-// export function fetchTimeout(url: string, ms: number, {signal, ...options} = {}) {
-// 	const controller = new AbortController();
-// 	const promise = fetch(url, {signal: controller.signal, ...options});
-// 	if (signal) signal.addEventListener("abort", () => controller.abort());
-// 	const timeout = setTimeout(() => controller.abort(), ms);
-// 	return promise.finally(() => clearTimeout(timeout));
-// };
-
 export function getKeyValue<T extends object, U extends keyof T> (obj: T, key: U) {
 	return obj[key]
 }
+
+
+// export function watched_writable(data: Object, interceptor: any)
+// 	const store = writable(data);
+// 	const set = (key, value) => store.update(m => Object.assign({}, m, {[key]: value}));
+// 	const results = derived(store, s => ({
+// 		keys: Object.keys(s),
+// 		values: Object.values(s),
+// 		entries: Object.entries(s),
+// 		set(k, v) {
+// 			store.update(s => Object.assign({}, s, {[k]: v}))
+// 			console.log("Changed: ", k, v)
+// 		},
+// 		remove(k) {
+// 			console.log("Changed: ", k)
+// 			store.update(s => {
+// 				delete s[k];
+// 				return s;
+// 			});
+// 		}
+// 	}));
+// 	return {
+// 		subscribe: results.subscribe,
+// 		set: store.set,
+// 	}
+// }
 
 
 // Adapted from https://github.com/wankdanker/node-function-rate-limit/
@@ -48,7 +65,6 @@ export function rateLimit(limitCount: number, interval: number, fn: (arg0: any, 
 		// LimitCount of 0 means that only one function call can be executed at a time
 		if (!fifo.length || fifo.length < limitCount) {
 			fifo.push([ctx, args]);
-			console.log(fifo.length, running);
 			if (!running) {
 				running = true;
 				next_call(fifo.shift());

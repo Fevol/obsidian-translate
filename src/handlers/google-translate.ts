@@ -1,7 +1,7 @@
 // Import plugin settings
 
 import {DummyTranslate} from "./dummy-translate";
-import {KeyedObject} from "../types";
+import type {KeyedObject} from "../types";
 
 export class GoogleTranslate extends DummyTranslate {
 	api_key: string;
@@ -12,6 +12,7 @@ export class GoogleTranslate extends DummyTranslate {
 	}
 
 	async validate() {
+		// FIXME: Does this also count towards the character quota?
 		const result = await fetch("https://translation.googleapis.com/language/translate/v2/languages", {
 			method: "POST",
 			body: JSON.stringify({

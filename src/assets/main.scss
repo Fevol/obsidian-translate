@@ -3,6 +3,8 @@
 .translator-view {
 	display: flex;
 	flex-direction: column;
+	margin: 32px;
+	height: 100%;
 }
 
 .translator-column {
@@ -73,7 +75,7 @@
 	width: 16px;
 	height: 16px;
 	border: 3px solid;
-	border-color: inherit;
+	border-color: initial;
 	border-bottom-color: transparent;
 	border-radius: 50%;
 	display: inline-block;
@@ -88,6 +90,10 @@
 	100% {
 		transform: rotate(360deg);
 	}
+}
+
+.translator-toggle-button {
+	justify-content: space-between;
 }
 
 .translator-success {
