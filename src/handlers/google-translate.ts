@@ -11,81 +11,76 @@ export class GoogleTranslate extends DummyTranslate {
 		this.api_key = api_key;
 	}
 
-	async validate() {
-		// FIXME: Does this also count towards the character quota?
-		const result = await fetch("https://translation.googleapis.com/language/translate/v2/languages", {
-			method: "POST",
+	async validate(): Promise<boolean> {
+		const result = await fetch(`https://translation.googleapis.com/language/translate/v2/languages?`, {
+			method: 'GET',
 			body: JSON.stringify({
 				key: this.api_key,
-				q: "en"
+				target: 'en',
+				model: 'nmt',
 			}),
 			headers: {
-				"Content-Type": "application/json"
-			}
+				'Content-Type': 'application/json',
+				'Accept': 'application/json',
+			},
 		});
 		return result.ok;
 	}
 
 	async detect(text: string): Promise<string> {
-		const result = await fetch("https://translation.googleapis.com/language/translate/v2/detect", {
-			method: "POST",
+		const result = await fetch(`https://translation.googleapis.com/language/translate/v2/detect?`, {
+			method: 'POST',
 			body: JSON.stringify({
 				key: this.api_key,
+				q: text,
 			}),
 			headers: {
-				"Content-Type": "application/json",
-			}
+				'Content-Type': 'application/json',
+				'Accept': 'application/json',
+			},
 		});
 		const data = await result.json();
-		return data.data.detections[0].language;
+		// Data = {"detections":[[{"language":"en", "confidence":1}], ...], ...}
+		return data.data.detections[0][0].language;
 	}
 
 	async translate(text: string, from: string, to: string): Promise<KeyedObject> {
-		const result = await fetch("https://translation.googleapis.com/language/translate/v2", {
-			method: "POST",
+		const result = await fetch(`https://translation.googleapis.com/language/translate/v2?`, {
+			method: 'POST',
 			body: JSON.stringify({
 				key: this.api_key,
-				source: from,
+				q: text,
+				source: from === 'auto' ? undefined : from,
 				target: to,
-				q: [text]
+				format: 'text',
+				model: 'nmt',
 			}),
 			headers: {
-				"Content-Type": "application/json",
-			}
+				'Content-Type': 'application/json',
+				'Accept': 'application/json',
+			},
 		});
 		const data = await result.json();
-		return data.data.translations[0].translatedText;
-	}
-
-	async auto_translate(text: string, to: string): Promise<Object> {
-		const result = await fetch("https://translation.googleapis.com/language/translate/v2", {
-			method: "POST",
-			body: JSON.stringify({
-				key: this.api_key,
-				source: "auto",
-				target: to,
-				q: [text]
-			}),
-			headers: {
-				"Content-Type": "application/json",
-			}
-		});
-		const data = await result.json();
-		return {text: data.data.translations[0].translatedText, predict: null};
+		// Data = [{"text":"Hello", "detected_source_language":"en", "model":"nmt"}, ...]
+		return {translation: data.data.translations[0].translatedText, detected_language: data.data.translations[0].detectedSourceLanguage};
 	}
 
 	async get_languages(): Promise<string[]> {
-		const result = await fetch("https://translation.googleapis.com/language/translate/v2/languages", {
-			method: "POST",
+		const result = await fetch(`https://translation.googleapis.com/language/translate/v2/languages?`, {
+			method: 'GET',
 			body: JSON.stringify({
 				key: this.api_key,
-				target: "en"
+				target: 'en',
+				model: 'nmt',
 			}),
 			headers: {
-				"Content-Type": "application/json",
-			}
+				'Content-Type': 'application/json',
+				'Accept': 'application/json',
+			},
 		});
 		const data = await result.json();
-		return data.data.languages.map((language: { language: any; }) => language.language);
+		// Data = [{"language":"en", "name":"English"}, ...]
+		return data.data.languages.map((l: { language: any; name: any; }) => l.language);
 	}
+
 }

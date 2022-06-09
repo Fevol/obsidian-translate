@@ -10,7 +10,6 @@ export class LibreTranslate extends DummyTranslate {
 	}
 
 	async validate(): Promise<boolean> {
-		console.log(this.host);
 		if (!this.host)
 			return false;
 		return fetch(this.host).then(response => {

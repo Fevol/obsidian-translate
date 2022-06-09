@@ -1,56 +1,89 @@
 import {DummyTranslate} from "./dummy-translate";
 import type {KeyedObject} from "../types";
 
+// FIXME: Check what translate returns when no language_from was specified
+
 export class YandexTranslate extends DummyTranslate {
-	constructor() {
+	api_key: string;
+
+	constructor(api_key: string) {
 		super();
+		this.api_key = api_key;
 	}
 
+	async validate(): Promise<boolean> {
+		if (!this.api_key)
+			return false;
+
+		try {
+			const result = await fetch("https://translate.yandex.net/api/v1.5/tr.json/getLangs?", {
+				method: "POST",
+				body: JSON.stringify({
+					key: this.api_key,
+					ui: "en"
+				}),
+				headers: {
+					"Content-Type": "application/json"
+				}
+			});
+			// Data = {langs: {en: "English", ...}}
+			return result.ok;
+		} catch {
+			return false;
+		}
+	}
+
+
 	async detect(text: string): Promise<string> {
-		const result = await fetch("https://translate.yandex.net/api/v1.5/tr.json/detect?key=trnsl.1.1.20190512T095229Z.d8c8b8a7c7f0a8a3.c7a8f3e7a9b9f9c7f9e8c0d7c0c5d6b7c6b8c8", {
+		const result = await fetch("https://translate.yandex.net/api/v1.5/tr.json/detect?", {
 			method: "POST",
 			body: JSON.stringify({
-				text: [text]
+				key: this.api_key,
+				text: text
 			}),
-			headers: {"Content-Type": "application/json"}
+			headers: {
+				"Content-Type": "application/json"
+			}
 		});
 		const data = await result.json();
+		// Data = {code: 200, lang: "en"}
 		return data.lang;
 	}
 
 	async translate(text: string, from: string, to: string): Promise<KeyedObject> {
-		const result = await fetch("https://translate.yandex.net/api/v1.5/tr.json/translate?key=trnsl.1.1.20190512T095229Z.d8c8b8a7c7f0a8a3.c7a8f3e7a9b9f9c7f9e8c0d7c0c5d6b7c6b8c8", {
+		const result = await fetch("https://translate.yandex.net/api/v1.5/tr.json/translate?", {
 			method: "POST",
 			body: JSON.stringify({
-				text: [text],
-				lang: `${from}-${to}`
+				key: this.api_key,
+				text: text,
+				lang: from === 'auto' ? to : `${from}-${to}`,
+				format: "plain"
 			}),
-			headers: {"Content-Type": "application/json"}
 		});
 		const data = await result.json();
-		return data.text[0];
-	}
+		// Data = {code: 200, lang: "ru-en", text: ["Good day comrade!"]}
 
-	async auto_translate(text: string, to: string): Promise<Object> {
-		const result = await fetch("https://translate.yandex.net/api/v1.5/tr.json/translate?key=trnsl.1.1.20190512T095229Z.d8c8b8a7c7f0a8a3.c7a8f3e7a9b9f9c7f9e8c0d7c0c5d6b7c6b8c8", {
-			method: "POST",
-			body: JSON.stringify({
-				text: [text],
-				lang: `auto-${to}`
-			}),
-		});
-		const data = await result.json();
-		return {text: data.text[0], predict: null};
+		if (from === 'auto')
+			return {translation: data.text[0], detected_language: data.lang};
+		else
+			return {translation: data.text[0]};
 	}
 
 	async get_languages(): Promise<string[]> {
-		const result = await fetch("https://translate.yandex.net/api/v1.5/tr.json/getLangs?key=trnsl.1.1.20190512T095229Z.d8c8b8a7c7f0a8a3.c7a8f3e7a9b9f9c7f9e8c0d7c0c5d6b7c6b8c8", {
+		const result = await fetch("https://translate.yandex.net/api/v1.5/tr.json/getLangs?", {
 			method: "POST",
 			body: JSON.stringify({
-				ui: 'en'
+				key: this.api_key,
+				// Display language for format code, can be discarded
+				ui: "en"
 			}),
+			headers: {
+				"Content-Type": "application/json"
+			}
 		});
-		return await result.json();
+		const data = await result.json();
+		// Data = {langs: {en: "English", ...}}
+		return Object.keys(data.langs);
 	}
 
 }
