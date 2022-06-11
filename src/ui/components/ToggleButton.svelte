@@ -2,7 +2,7 @@
 	import {Icon} from "./index";
 
 	export let value: boolean | null = null;
-	export let text: string = "Test";
+	export let text: string;
 	export let size: number = 16;
 	export let fn: () => Promise<boolean>;
 

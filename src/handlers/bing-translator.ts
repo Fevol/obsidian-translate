@@ -23,7 +23,7 @@ export class BingTranslator extends DummyTranslate {
 			if (this.region)
 				headers["Ocp-Apim-Subscription-Region"] = this.region;
 
-			const result = await fetch("https://api.cognitive.microsofttranslator.com/translate?api-version=3.0&"
+			const response = await fetch("https://api.cognitive.microsofttranslator.com/translate?api-version=3.0&"
 				+ new URLSearchParams({
 					from: "",
 					to: "en",
@@ -33,7 +33,7 @@ export class BingTranslator extends DummyTranslate {
 				body: JSON.stringify([{'Text': ''}]),
 				headers: headers
 			});
-			return [result.ok, ""];
+			return [response.ok, ""];
 		} catch (e) {
 			return [false, e.message];
 		}
@@ -48,14 +48,14 @@ export class BingTranslator extends DummyTranslate {
 		if (this.region)
 			headers["Ocp-Apim-Subscription-Region"] = this.region;
 
-		const result = await fetch("https://api.cognitive.microsofttranslator.com/languages?api-version=3.0&scope=text", {
+		const response = await fetch("https://api.cognitive.microsofttranslator.com/languages?api-version=3.0&scope=text", {
 			method: "POST",
 			body: JSON.stringify({
 				text: text
 			}),
 			headers: headers
 		});
-		const data = await result.json();
+		const data = await response.json();
 		return data.detectedLanguages[0].language;
 	}
 
@@ -67,7 +67,7 @@ export class BingTranslator extends DummyTranslate {
 		if (this.region)
 			headers["Ocp-Apim-Subscription-Region"] = this.region;
 
-		const result = await fetch("https://api.cognitive.microsofttranslator.com/translate?api-version=3.0&"
+		const response = await fetch("https://api.cognitive.microsofttranslator.com/translate?api-version=3.0&"
 			+ new URLSearchParams({
 				from: from === "auto" ? "" : from,
 				to: to,
@@ -77,7 +77,7 @@ export class BingTranslator extends DummyTranslate {
 			body: JSON.stringify([{'Text': text}]),
 			headers: headers
 		});
-		const data = await result.json();
+		const data = await response.json();
 		if (from === "auto")
 			return {translation: data[0].translations[0].text, detected_language: data[0].detectedLanguage.language};
 		else
@@ -92,11 +92,11 @@ export class BingTranslator extends DummyTranslate {
 		if (this.region)
 			headers["Ocp-Apim-Subscription-Region"] = this.region;
 
-		const result = await fetch("https://api.cognitive.microsofttranslator.com/languages?api-version=3.0&scope=translation", {
+		const response = await fetch("https://api.cognitive.microsofttranslator.com/languages?api-version=3.0&scope=translation", {
 			method: "GET",
 			headers: headers
 		});
-		const data = await result.json();
+		const data = await response.json();
 		return Object.keys(data.translation);
 	}
 

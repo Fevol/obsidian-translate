@@ -39,7 +39,7 @@
 			plugin.translator.failure_count += 1;
 			// FIXME: Find a good treshold for the number of failures
 			if (plugin.translator.failure_count >= 10) {
-				plugin.message_queue("Translation service is blocked, please validate the service again to unblock it", 8000);
+				plugin.message_queue("Translation service is blocked, please validate the service again to unblock it", 8000, true);
 				$settings.service_settings[$settings.translation_service].validated = false;
 			}
 		}
@@ -74,10 +74,10 @@
 			   {
 				   icon: $settings.service_settings[$settings.translation_service].filter_type === 0 ? "asterisk" :
 				   		 $settings.service_settings[$settings.translation_service].filter_type === 1 ? "repeat" :
-				   		 																					  "filter",
+																									   "filter",
 				   tooltip: $settings.service_settings[$settings.translation_service].filter_type === 0 ? "Show all available languages" :
 				   		 	$settings.service_settings[$settings.translation_service].filter_type === 1 ? "Show only spellchecker languages" :
-				   		 																					  	 "Show manually selected languages",
+																										  "Show manually selected languages",
 				   onClick: () => {
 					   $settings.service_settings[$settings.translation_service].filter_type =
 					   ($settings.service_settings[$settings.translation_service].filter_type + 1) % 3;

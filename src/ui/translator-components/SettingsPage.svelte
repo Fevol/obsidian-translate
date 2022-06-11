@@ -190,6 +190,7 @@
 			type="button"
 		>
 			<ToggleButton
+				text="Test"
 				slot="control"
 				value={$settings.service_settings[service].validated}
 				fn={async () => {

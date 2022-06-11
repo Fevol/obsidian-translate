@@ -9,13 +9,11 @@ import type {APIServiceProviders} from "./types";
 
 
 export class TranslatorView extends ItemView {
-	app: App;
 	plugin: TranslatorPlugin;
-	view: SvelteComponent;
+	private view: SvelteComponent;
 
-	constructor(leaf: WorkspaceLeaf, app: App, plugin: TranslatorPlugin) {
+	constructor(leaf: WorkspaceLeaf, plugin: TranslatorPlugin) {
 		super(leaf);
-		this.app = app;
 		this.plugin = plugin;
 	}
 

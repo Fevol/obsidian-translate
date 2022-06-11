@@ -19,7 +19,7 @@ export class Deepl extends DummyTranslate {
 		if (!this.api_key)
 			return [false, "API key was not specified"];
 		try {
-			const result = await fetch("https://api.deepl.com/v2/usage", {
+			const response = await fetch("https://api.deepl.com/v2/usage", {
 				method: "POST",
 				body: JSON.stringify({}),
 				headers: {
@@ -27,14 +27,14 @@ export class Deepl extends DummyTranslate {
 					"Authorization": "DeepL-Auth-Key " + this.api_key
 				}
 			});
-			return [result.ok, ""];
+			return [response.ok, ""];
 		} catch (e) {
 			return [false, e.message];
 		}
 	}
 
 	async detect(text: string): Promise<string> {
-		const result = await fetch("https://api.deepl.com/v2/translate", {
+		const response = await fetch("https://api.deepl.com/v2/translate", {
 			method: "POST",
 			body: JSON.stringify({
 				text: text,
@@ -45,13 +45,13 @@ export class Deepl extends DummyTranslate {
 				"Authorization": "DeepL-Auth-Key " + this.api_key
 			}
 		});
-		const data = await result.json();
+		const data = await response.json();
 		// Data = [{"text":"Hello", "detected_source_language":"en"}, ...]
 		return data.language.toLowerCase();
 	}
 
 	async translate(text: string, from: string, to: string): Promise<Object> {
-		const result = await fetch("https://api.deepl.com/v2/translate", {
+		const response = await fetch("https://api.deepl.com/v2/translate", {
 			method: "POST",
 			body: JSON.stringify({
 				text: text,
@@ -65,7 +65,7 @@ export class Deepl extends DummyTranslate {
 				"Authorization": "DeepL-Auth-Key " + this.api_key
 			}
 		});
-		const data = await result.json();
+		const data = await response.json();
 		// Data = [{"text":"Hello", "detected_source_language":"en"}, ...]
 		if (from === "auto")
 			return {translation: data.translations[0].text, detected_language: data.translations[0].detected_source_language.toLowerCase()};
@@ -75,7 +75,7 @@ export class Deepl extends DummyTranslate {
 
 
 	async get_languages(): Promise<string[]> {
-		const result = await fetch("https://api.deepl.com/v2/languages", {
+		const response = await fetch("https://api.deepl.com/v2/languages", {
 			method: "POST",
 			body: JSON.stringify({}),
 			headers: {
@@ -83,7 +83,7 @@ export class Deepl extends DummyTranslate {
 				"Authorization": "DeepL-Auth-Key " + this.api_key
 			}
 		});
-		const data = await result.json();
+		const data = await response.json();
 		// Data = [{"language":"EN", "name":"English", supports_formality: true}, ...]
 		return data.map((o: any) => o.language.toLowerCase());
 	}

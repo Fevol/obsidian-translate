@@ -11,27 +11,28 @@ export class LibreTranslate extends DummyTranslate {
 	async validate(): Promise<Object> {
 		if (!this.host)
 			return [false, "Host was not specified"];
-		return fetch(this.host + '/languages').then(response => {
+		try {
+			const response = await fetch(this.host + '/languages');
 			return [response.ok, ""];
-		}).catch((e) => {
+		} catch (e) {
 			return [false, e.message];
-		});
+		}
 	}
 
 	async detect(text: string): Promise<string> {
-		const result = await fetch(`${this.host}/detect`, {
+		const response = await fetch(`${this.host}/detect`, {
 			method: "POST",
 			body: JSON.stringify({
 				q: text
 			}),
 			headers: {"Content-Type": "application/json"}
 		});
-		const data = await result.json();
+		const data = await response.json();
 		return data;
 	}
 
 	async translate(text: string, from: string, to: string): Promise<Object> {
-		const result = await fetch(`${this.host}/translate`, {
+		const response = await fetch(`${this.host}/translate`, {
 			method: "POST",
 			body: JSON.stringify({
 				q: text,
@@ -41,7 +42,7 @@ export class LibreTranslate extends DummyTranslate {
 			headers: {"Content-Type": "application/json"}
 		});
 
-		const data = await result.json();
+		const data = await response.json();
 		if (from === "auto")
 			return {translation: data.translatedText, detected_language: data.detectedLanguage.language};
 		else
@@ -49,8 +50,8 @@ export class LibreTranslate extends DummyTranslate {
 	}
 
 	async get_languages(): Promise<string[]> {
-		const result = await fetch(`${this.host}/languages`);
-		const data = await result.json();
+		const response = await fetch(`${this.host}/languages`);
+		const data = await response.json();
 		return Array.from(data).map((x: any) => {
 			return x.code
 		});

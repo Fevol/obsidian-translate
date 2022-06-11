@@ -15,7 +15,7 @@ export class YandexTranslate extends DummyTranslate {
 			return [false, "API key was not specified"];
 
 		try {
-			const result = await fetch("https://translate.yandex.net/api/v1.5/tr.json/getLangs?", {
+			const response = await fetch("https://translate.yandex.net/api/v1.5/tr.json/getLangs?", {
 				method: "POST",
 				body: JSON.stringify({
 					key: this.api_key,
@@ -25,7 +25,7 @@ export class YandexTranslate extends DummyTranslate {
 					"Content-Type": "application/json"
 				}
 			});
-			return [result.ok, ""];
+			return [response.ok, ""];
 		} catch (e) {
 			return [false, e.message];
 		}
@@ -33,7 +33,7 @@ export class YandexTranslate extends DummyTranslate {
 
 
 	async detect(text: string): Promise<string> {
-		const result = await fetch("https://translate.yandex.net/api/v1.5/tr.json/detect?", {
+		const response = await fetch("https://translate.yandex.net/api/v1.5/tr.json/detect?", {
 			method: "POST",
 			body: JSON.stringify({
 				key: this.api_key,
@@ -43,13 +43,13 @@ export class YandexTranslate extends DummyTranslate {
 				"Content-Type": "application/json"
 			}
 		});
-		const data = await result.json();
+		const data = await response.json();
 		// Data = {code: 200, lang: "en"}
 		return data.lang;
 	}
 
 	async translate(text: string, from: string, to: string): Promise<Object> {
-		const result = await fetch("https://translate.yandex.net/api/v1.5/tr.json/translate?", {
+		const response = await fetch("https://translate.yandex.net/api/v1.5/tr.json/translate?", {
 			method: "POST",
 			body: JSON.stringify({
 				key: this.api_key,
@@ -58,7 +58,7 @@ export class YandexTranslate extends DummyTranslate {
 				format: "plain"
 			}),
 		});
-		const data = await result.json();
+		const data = await response.json();
 		// Data = {code: 200, lang: "ru-en", text: ["Good day comrade!"]}
 
 		if (from === 'auto')
@@ -68,7 +68,7 @@ export class YandexTranslate extends DummyTranslate {
 	}
 
 	async get_languages(): Promise<string[]> {
-		const result = await fetch("https://translate.yandex.net/api/v1.5/tr.json/getLangs?", {
+		const response = await fetch("https://translate.yandex.net/api/v1.5/tr.json/getLangs?", {
 			method: "POST",
 			body: JSON.stringify({
 				key: this.api_key,
@@ -79,7 +79,7 @@ export class YandexTranslate extends DummyTranslate {
 				"Content-Type": "application/json"
 			}
 		});
-		const data = await result.json();
+		const data = await response.json();
 		// Data = {langs: {en: "English", ...}}
 		return Object.keys(data.langs);
 	}

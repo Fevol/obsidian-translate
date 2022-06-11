@@ -3,9 +3,8 @@
 	import {setIcon} from "obsidian";
 	import {SvelteComponent} from "svelte";
 
-	export let icon: string;
+	export let icon: string | string[2];
 	export let size: number;
-	export let svg_size: any;
 
 	let icon_element : HTMLElement;
 
@@ -20,7 +19,7 @@
 
 	// function resize() {
 	// 	// If size was of type [width, height], resize the SVG such that it fits for one of the dimensions
-	// 	if (svg_size) {
+	// 	if (size instanceof Array) {
 	// 		icon_element = icon_element.children[0].children[0] as HTMLElement;
 	// 		// FIXME: Fix this janky-ass shit,
 	// 		// let child = icon_element.children[0];

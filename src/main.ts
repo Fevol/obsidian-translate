@@ -37,7 +37,7 @@ export default class TranslatorPlugin extends Plugin {
 	settings_open: boolean = false;
 
 	// Limit queue to only run one message of translator plugin at a time (limitCount 0 means that none of the proceeding messages will be queued)
-	message_queue: ((...args: any) => void)
+	message_queue: ((...args: any[]) => void)
 
 	// TODO: Set time interval for translation process to run (to ensure that translations can't overlap)
 	// translation_queue = rateLimit(0, 200, async () => {
@@ -45,7 +45,7 @@ export default class TranslatorPlugin extends Plugin {
 	// });
 
 	async onload() {
-		this.message_queue = rateLimit(1, 5000, (text: string, timeout: number = 4000) => {
+		this.message_queue = rateLimit(1, 5000, (text: string, timeout: number = 4000, priority: boolean = false) => {
 			new Notice(text, timeout);
 		});
 
@@ -68,7 +68,7 @@ export default class TranslatorPlugin extends Plugin {
 
 		this.registerView(
 			TRANSLATOR_VIEW_ID,
-			(leaf) => new TranslatorView(leaf, this.app, this)
+			(leaf) => new TranslatorView(leaf, this)
 		);
 
 		// --------------------------------------------------------------------
@@ -127,10 +127,8 @@ export default class TranslatorPlugin extends Plugin {
 			active: true,
 		});
 
-		// Get the translator leaf
-		const leaf = this.app.workspace.getLeavesOfType(TRANSLATOR_VIEW_ID)[0];
-
-		this.app.workspace.revealLeaf(leaf);
+		// Get the translator leaf and reveal it
+		this.app.workspace.revealLeaf(this.app.workspace.getLeavesOfType(TRANSLATOR_VIEW_ID)[0]);
 	}
 
 	// ----------------  Set up translation service  ----------------
@@ -176,8 +174,7 @@ export default class TranslatorPlugin extends Plugin {
 
 	// --------------------  Settings management  --------------------
 	async loadSettings() {
-		const settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData());
-		this.settings.set(settings);
+		this.settings.set( Object.assign({}, DEFAULT_SETTINGS, await this.loadData()));
 	}
 
 

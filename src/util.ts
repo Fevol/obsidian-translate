@@ -9,12 +9,19 @@ export function getKeyValue<T extends object, U extends keyof T> (obj: T, key: U
 }
 
 // Adapted from https://github.com/wankdanker/node-function-rate-limit/
-export function rateLimit(limitCount: number, interval: number, fn: (arg0: any, arg1: any) => void) {
+export function rateLimit(limitCount: number, interval: number, fn: (...args: any) => void) {
 	// Contains set of function calls that need to be executed, limited by limitCount and executed every interval
 	const fifo: any[] = [];
 	let running = false;
 
 	function next_call(args: any[] = []) {
+		// If priority was given, bypass FIFO queue and execute immediately
+		if (args[2]) {
+			fn.apply(args[0], args[1]);
+			return;
+		}
+
+
 		// If queue is empty, throttler can stop running
 		if (!args.length) {
 			running = false;
@@ -46,3 +53,10 @@ export function rateLimit(limitCount: number, interval: number, fn: (arg0: any, 
 		}
 	};
 }
+
+String.prototype.format = function () {
+	var i = 0, args = arguments;
+	return this.replace(/{}/g, function () {
+		return typeof args[i] != 'undefined' ? args[i++] : '';
+	});
+};

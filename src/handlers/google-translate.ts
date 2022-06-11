@@ -15,7 +15,7 @@ export class GoogleTranslate extends DummyTranslate {
 			return [false, "API key was not specified"];
 
 		try {
-			const result = await fetch(`https://translation.googleapis.com/language/translate/v2/languages?`, {
+			const response = await fetch(`https://translation.googleapis.com/language/translate/v2/languages?`, {
 				method: 'GET',
 				body: JSON.stringify({
 					key: this.api_key,
@@ -27,7 +27,7 @@ export class GoogleTranslate extends DummyTranslate {
 					'Accept': 'application/json',
 				},
 			});
-			return [result.ok, ""];
+			return [response.ok, ""];
 		} catch (e) {
 			return [false, e.message];
 		}
@@ -35,7 +35,7 @@ export class GoogleTranslate extends DummyTranslate {
 
 
 	async detect(text: string): Promise<string> {
-		const result = await fetch(`https://translation.googleapis.com/language/translate/v2/detect?`, {
+		const response = await fetch(`https://translation.googleapis.com/language/translate/v2/detect?`, {
 			method: 'POST',
 			body: JSON.stringify({
 				key: this.api_key,
@@ -46,13 +46,13 @@ export class GoogleTranslate extends DummyTranslate {
 				'Accept': 'application/json',
 			},
 		});
-		const data = await result.json();
+		const data = await response.json();
 		// Data = {"detections":[[{"language":"en", "confidence":1}], ...], ...}
 		return data.data.detections[0][0].language;
 	}
 
 	async translate(text: string, from: string, to: string): Promise<Object> {
-		const result = await fetch(`https://translation.googleapis.com/language/translate/v2?`, {
+		const response = await fetch(`https://translation.googleapis.com/language/translate/v2?`, {
 			method: 'POST',
 			body: JSON.stringify({
 				key: this.api_key,
@@ -67,13 +67,13 @@ export class GoogleTranslate extends DummyTranslate {
 				'Accept': 'application/json',
 			},
 		});
-		const data = await result.json();
+		const data = await response.json();
 		// Data = [{"text":"Hello", "detected_source_language":"en", "model":"nmt"}, ...]
 		return {translation: data.data.translations[0].translatedText, detected_language: data.data.translations[0].detectedSourceLanguage};
 	}
 
 	async get_languages(): Promise<string[]> {
-		const result = await fetch(`https://translation.googleapis.com/language/translate/v2/languages?`, {
+		const response = await fetch(`https://translation.googleapis.com/language/translate/v2/languages?`, {
 			method: 'GET',
 			body: JSON.stringify({
 				key: this.api_key,
@@ -85,7 +85,7 @@ export class GoogleTranslate extends DummyTranslate {
 				'Accept': 'application/json',
 			},
 		});
-		const data = await result.json();
+		const data = await response.json();
 		// Data = [{"language":"en", "name":"English"}, ...]
 		return data.data.languages.map((l: { language: any; name: any; }) => l.language);
 	}
