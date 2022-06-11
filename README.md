@@ -3,8 +3,7 @@
 A plugin for [Obsidian](https://obsidian.md/) that adds multiple ways to translate text, with the translation service
 of your choice. ***This plugin is still in beta, and may include any number of bugs of various sizes.***
 
-![screenshot-full](https://raw.githubusercontent.com/Fevol/obsidian-translate/master/images/text_translation.gif)
-
+<img src="https://raw.githubusercontent.com/Fevol/obsidian-translate/master/images/text_translation.gif" width="800">
 ## Usage
 
 Enable the plugin by downloading one of the releases from here, or by
@@ -14,7 +13,7 @@ To start using the program, head over to the plugin's settings page and enter th
 services you wish to use. **Make sure to validate settings by pressing the 'Test' button. The program will not 
 allow you to translate text until you do!**
 
-![screenshot-full](https://raw.githubusercontent.com/Fevol/obsidian-translate/master/images/text_settings_validate.gif)
+<img src="https://raw.githubusercontent.com/Fevol/obsidian-translate/master/images/text_settings_validate.gif" width="800">
 
 Afterwards, you can open the Translation View by either accessing the left ribbon, or by executing the 
 'Open Translation View' command.
