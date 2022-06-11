@@ -27,5 +27,6 @@
 		"typescript": "^4.7.3"
 	},
 	"dependencies": {
+		"iso-639-1": "^2.1.14"
 	}
 }
