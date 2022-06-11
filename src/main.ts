@@ -14,6 +14,7 @@ import {rateLimit} from "./util";
 
 import ISO6391 from "iso-639-1";
 
+
 export default class TranslatorPlugin extends Plugin {
 	settings: Writable<TranslatorPluginSettings>;
 	plugin_data: Writable<PluginData>;
@@ -161,6 +162,7 @@ export default class TranslatorPlugin extends Plugin {
 				return code
 		}
 	}
+
 	// -------------------------------------------------------------
 
 
