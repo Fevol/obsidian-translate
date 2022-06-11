@@ -62,6 +62,7 @@ on your computer on any operating system, using Docker or Flask.
     - User has completed a sentence
     - ... (suggest!)
 - Improving reliability of the translation service handlers
+- Make localization of language codes appear correctly regardless of the API used 
 - Context menu on selection of text with option to translate to a certain language
 - Integration of more translation services
 - Improved UI for the translation view, make it work in different aspect ratios
