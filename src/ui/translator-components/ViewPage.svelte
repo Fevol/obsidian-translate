@@ -86,7 +86,7 @@
 	<div slot="view" class="translator-view">
 		<!-- TODO: Make the field resizable (save data)-->
 		<!-- TODO: Event should only be triggered when the user is done typing (?) (count delay)-->
-		<div class="translator-column">
+		<div class="translator-column" >
 			<Dropdown
 				value={$settings.language_from}
 				options={
@@ -105,7 +105,9 @@
 				text={$data.text_from}
 				onChange={async (e) => {
 			$data.text_from = e.target.value;
-			if ($settings.service_settings[$settings.translation_service].auto_translate)
+			if (!$data.text_from)
+				$data.text_to = "";
+			else if ($settings.service_settings[$settings.translation_service].auto_translate)
 				await translate();
 		}}
 			/>

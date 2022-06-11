@@ -95,6 +95,14 @@ export default class TranslatorPlugin extends Plugin {
 		});
 
 		this.addCommand({
+			id: "translator-open-view",
+			name: "Open translation view",
+			callback: () => {
+				this.activateTranslatorView();
+			},
+		});
+
+		this.addCommand({
 			id: "translator-change-service",
 			name: "Change Translator Service",
 			callback: () => {
