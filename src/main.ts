@@ -89,7 +89,6 @@ export default class TranslatorPlugin extends Plugin {
 			}
 		});
 
-
 		this.addRibbonIcon("translate", "Open translation view", () => {
 			this.activateTranslatorView();
 		});
