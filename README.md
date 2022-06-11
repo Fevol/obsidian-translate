@@ -70,6 +70,7 @@ on your computer on any operating system, using Docker or Flask.
 - Improve the settings layout and add animated transitions when switching between translation services (?)
 - General UIX improvements
 - Once all that is done, upload the plugin to the official repository
+- ...
 
 ## Discussion and Feedback
 
