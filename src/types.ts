@@ -1,9 +1,6 @@
 import type {LanguageCode} from "iso-639-1";
 
 export interface TranslatorPluginSettings {
-	selected_languages: Array<any>;
-	use_spellchecker_languages: boolean;
-	filter_service_languages: boolean;
 	display_language: string;
 
 	language_from: string;
@@ -14,7 +11,7 @@ export interface TranslatorPluginSettings {
 }
 
 export interface PluginData {
-	all_languages: Map<LanguageCode, string>;
+	all_languages: Map<string, string>;
 	available_languages: Array<any>;
 	spellchecker_languages: Array<any>;
 
@@ -34,6 +31,8 @@ export interface APIServiceProviders {
 }
 
 export interface APIServiceSettings {
+	selected_languages: Array<any>;
+	filter_type: number;
 	api_key: string;
 	region: string;
 	host: string | null;
@@ -41,8 +40,4 @@ export interface APIServiceSettings {
 	auto_translate_interval: string;
 	validated: boolean;
 	available_languages: Array<string>;
-}
-
-export interface KeyedObject {
-	[key: string]: any
 }

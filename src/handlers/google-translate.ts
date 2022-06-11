@@ -1,7 +1,6 @@
 // Import plugin settings
 
 import {DummyTranslate} from "./dummy-translate";
-import type {KeyedObject} from "../types";
 
 export class GoogleTranslate extends DummyTranslate {
 	api_key: string;
@@ -11,21 +10,29 @@ export class GoogleTranslate extends DummyTranslate {
 		this.api_key = api_key;
 	}
 
-	async validate(): Promise<boolean> {
-		const result = await fetch(`https://translation.googleapis.com/language/translate/v2/languages?`, {
-			method: 'GET',
-			body: JSON.stringify({
-				key: this.api_key,
-				target: 'en',
-				model: 'nmt',
-			}),
-			headers: {
-				'Content-Type': 'application/json',
-				'Accept': 'application/json',
-			},
-		});
-		return result.ok;
+	async validate(): Promise<Object> {
+		if (!this.api_key)
+			return [false, "API key was not specified"];
+
+		try {
+			const result = await fetch(`https://translation.googleapis.com/language/translate/v2/languages?`, {
+				method: 'GET',
+				body: JSON.stringify({
+					key: this.api_key,
+					target: 'en',
+					model: 'nmt',
+				}),
+				headers: {
+					'Content-Type': 'application/json',
+					'Accept': 'application/json',
+				},
+			});
+			return [result.ok, ""];
+		} catch (e) {
+			return [false, e.message];
+		}
 	}
+
 
 	async detect(text: string): Promise<string> {
 		const result = await fetch(`https://translation.googleapis.com/language/translate/v2/detect?`, {
@@ -44,7 +51,7 @@ export class GoogleTranslate extends DummyTranslate {
 		return data.data.detections[0][0].language;
 	}
 
-	async translate(text: string, from: string, to: string): Promise<KeyedObject> {
+	async translate(text: string, from: string, to: string): Promise<Object> {
 		const result = await fetch(`https://translation.googleapis.com/language/translate/v2?`, {
 			method: 'POST',
 			body: JSON.stringify({

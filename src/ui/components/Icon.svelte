@@ -26,16 +26,13 @@
 	// 		// let child = icon_element.children[0];
 	//
 	// 		// let [width, height] = child.getAttribute("viewBox").split(" ").splice(2).map((x) => parseInt(x));
-	// 		// console.log(width, height)
 	// 		// let scale = Math.min(svg_size[0] / width, svg_size[1] / height);
-	// 		// console.log(scale)
 	// 		// child.style.width = `${width * scale}px`;
 	// 		// icon_element.children[0].style.height = `${height * scale}px`;
 	// 		// child.setAttribute("width", (width * scale).toString());
 	// 		// child.setAttribute("height", (height * scale).toString());
 	// 		child.setAttribute("width", svg_size[0].toString());
 	// 		child.setAttribute("height", svg_size[1].toString());
-	// 		// console.log(child)
 	//
 	// 	}
 	// }
@@ -54,5 +51,5 @@
 
 </script>
 
-<div bind:this={icon_element} class:spinner={icon==='spinner'}></div>
+<div bind:this={icon_element} class={$$props.class}  class:spinner={icon==='spinner'}></div>
 

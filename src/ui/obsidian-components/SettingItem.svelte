@@ -4,6 +4,8 @@
 	export let description: string;
 	export let isHeading: boolean = false;
 	export let type: string = '';
+
+	// [ [ text, style: [classes], url, type: href|string ], ... ]
 	export let notices: string[] = [];
 </script>
 

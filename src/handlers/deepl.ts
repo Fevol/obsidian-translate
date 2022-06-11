@@ -1,5 +1,4 @@
 import {DummyTranslate} from "./dummy-translate";
-import type {KeyedObject} from "../types";
 
 // TODO: Select API endpoint used
 // TODO: Allow for formality features to be accessed
@@ -16,19 +15,22 @@ export class Deepl extends DummyTranslate {
 		this.api_key = api_key;
 	}
 
-	async validate() {
+	async validate(): Promise<any[2]> {
 		if (!this.api_key)
-			return false;
-		const result = await fetch("https://api.deepl.com/v2/usage", {
-			method: "POST",
-			body: JSON.stringify({}),
-			headers: {
-				"Content-Type": "application/json",
-				"Authorization": "DeepL-Auth-Key " + this.api_key
-			}
-		});
-		// Data = {"character_count": 1000, "character_limit": 1000}
-		return result.ok;
+			return [false, "API key was not specified"];
+		try {
+			const result = await fetch("https://api.deepl.com/v2/usage", {
+				method: "POST",
+				body: JSON.stringify({}),
+				headers: {
+					"Content-Type": "application/json",
+					"Authorization": "DeepL-Auth-Key " + this.api_key
+				}
+			});
+			return [result.ok, ""];
+		} catch (e) {
+			return [false, e.message];
+		}
 	}
 
 	async detect(text: string): Promise<string> {
@@ -48,7 +50,7 @@ export class Deepl extends DummyTranslate {
 		return data.language.toLowerCase();
 	}
 
-	async translate(text: string, from: string, to: string): Promise<KeyedObject> {
+	async translate(text: string, from: string, to: string): Promise<Object> {
 		const result = await fetch("https://api.deepl.com/v2/translate", {
 			method: "POST",
 			body: JSON.stringify({

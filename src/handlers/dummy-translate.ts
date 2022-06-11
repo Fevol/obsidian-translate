@@ -1,5 +1,3 @@
-import type {KeyedObject} from "../types";
-
 export class DummyTranslate {
 	failure_count: number;
 
@@ -7,9 +5,9 @@ export class DummyTranslate {
 		this.failure_count = 0;
 	}
 
-	async validate() {
+	async validate(): Promise<any[2]> {
 		// Will always be valid
-		return true;
+		return [false, 'This should not ever be called'];
 	}
 
 	async detect(text: string): Promise<string> {
@@ -17,7 +15,7 @@ export class DummyTranslate {
 		return null;
 	}
 
-	async translate(text: string, from: string, to: string): Promise<KeyedObject> {
+	async translate(text: string, from: string, to: string): Promise<Object> {
 		// Perfect translation
 		return {translation: text};
 	}

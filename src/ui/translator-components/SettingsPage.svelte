@@ -1,16 +1,15 @@
 <script lang="ts">
 	import {Notice} from "obsidian";
-	import TranslatorPlugin from "../main";
+	import TranslatorPlugin from "../../main";
 
 	import type {Writable} from "svelte/store";
-	import {Button, Dropdown, Toggle, Input, Icon, ToggleButton, ButtonList, SettingItem} from "./components";
+	import {Button, Dropdown, Toggle, Input, Icon, ToggleButton, ButtonList} from ".././components";
+	import {SettingItem} from "../obsidian-components";
 
-	import type {PluginData, TranslatorPluginSettings} from "../types";
-	import {TRANSLATION_SERVICES_INFO} from "../constants";
+	import type {PluginData, TranslatorPluginSettings} from "../../types";
+	import {TRANSLATION_SERVICES_INFO} from "../../constants";
 
-	import ISO6391 from "iso-639-1";
-	import {toTitleCase} from "../util";
-
+	import {toTitleCase} from "../../util";
 
 	// export let plugin: TranslatorPlugin;
 	export let plugin: TranslatorPlugin;
@@ -21,120 +20,16 @@
 	let selectable_services: any[];
 
 	$: {
-		$data.all_languages = new Map(plugin.locales.map((locale) => {
-			if ($settings.display_language === 'local')
-				return [locale, ISO6391.getNativeName(locale)]
-			else if ($settings.display_language === 'display')
-				return [locale, plugin.localised_names.of(locale)]
-		}));
-		$data.available_languages = $settings.use_spellchecker_languages ? $data.spellchecker_languages : $settings.selected_languages;
-		if ($settings.filter_service_languages)
-			$data.available_languages = $data.available_languages.filter((locale) => $settings.service_settings[$settings.translation_service].available_languages.contains(locale));
-
 		selectable_services = Array.from($data.all_languages)
 			.map(([locale, name]) => { return {'value': locale, 'text': name} })
-			.filter((option) => { return !$settings.selected_languages.contains(option.value); })
+			.filter((option) => { return !$settings.service_settings[$settings.translation_service].selected_languages.contains(option.value); })
 			.sort((a, b) => { return a.text.localeCompare(b.text);});
-
-		if ($settings.filter_service_languages)
-			selectable_services = selectable_services.filter((option) => { return $settings.service_settings[$settings.translation_service].available_languages.contains(option.value); });
 		selectable_services.unshift({'value': '', 'text': '+'});
 	}
-
-
-	// Set-up observers on service settings
-	//   Observing service settings object itself, will cause a trigger to be fired for *any* key value change in the object (undesirable)
-	let service_observer: any;
-	let api_key_observer: any;
-	let host_observer: any;
-	let region_observer: any;
-
-	$: $settings.translation_service,
-		service_observer = $settings.translation_service,
-		api_key_observer = $settings.service_settings[$settings.translation_service].api_key,
-		host_observer = $settings.service_settings[$settings.translation_service].host,
-		region_observer = $settings.service_settings[$settings.translation_service].region;
-
-	$: api_key_observer, host_observer, region_observer,
-		plugin.setupTranslationService(service_observer, api_key_observer, region_observer, host_observer)
 
 </script>
 
 <h3>General Settings</h3>
-<SettingItem
-	name="Translator languages"
-	description="Choose languages to include in translator selection"
->
-	<div slot="control">
-		<ButtonList
-			items={Array.from($data.available_languages)
-				.map((locale) => {return {'value': locale, 'text': $data.all_languages.get(locale)};})
-				.sort((a, b) => a.text.localeCompare(b.text))}
-			}
-			icon="cross"
-			disabled={$settings.use_spellchecker_languages}
-			onClick={(locale) => {
-				$settings.selected_languages = $settings.selected_languages.filter((l) => l !== locale);
-			}}
-		/>
-		<Dropdown
-			options={ selectable_services }
-			value=""
-			onChange={(e) => {
-				$settings.selected_languages = [...$settings.selected_languages, e.target.value];
-				e.target.value = "";
-			}}
-		/>
-	</div>
-</SettingItem>
-
-<SettingItem
-	name="Sync with spellchecker languages"
-	description=""
-	type="toggle"
->
-	<Toggle
-		slot="control"
-		value={ $settings.use_spellchecker_languages }
-		onChange={(val) => {
-      		$settings.use_spellchecker_languages = val;
-    	}
-    }
-	/>
-</SettingItem>
-
-<SettingItem
-	name="Filter languages"
-	description="Only display languages supported by the translation service"
-	type="toggle"
->
-	<Toggle
-		slot="control"
-		value={ $settings.filter_service_languages }
-		onChange={(val) => {
-      		$settings.filter_service_languages = val;
-    	}
-    }
-	/>
-</SettingItem>
-
-<SettingItem
-	name="Language display name"
-	description="Select in which language the language name should be displayed"
-	type="dropdown"
->
-	<Dropdown
-		slot="control"
-		options={[{"value": "display", "text": "Display"}, {"value": "local", "text": "Localised"}]}
-		value={ $settings.display_language }
-		onChange={(e) => {
-			$settings.display_language = e.target.value;
-			console.log($settings);
-		}}
-	>
-	</Dropdown>
-
-</SettingItem>
 
 <SettingItem
 	name="Translation Service"
@@ -154,6 +49,23 @@
 	</Dropdown>
 </SettingItem>
 
+<SettingItem
+	name="Language display name"
+	description="Select in which language the language name should be displayed"
+	type="dropdown"
+>
+	<Dropdown
+		slot="control"
+		options={[{"value": "display", "text": "Display"}, {"value": "local", "text": "Localised"}]}
+		value={ $settings.display_language }
+		onChange={(e) => {
+			$settings.display_language = e.target.value;
+		}}
+	>
+	</Dropdown>
+
+</SettingItem>
+
 
 {#each Object.entries(services) as [service, info]}
 	{#if service === $settings.translation_service}
@@ -161,6 +73,58 @@
 			<Icon icon={service} size=22 />
 			{toTitleCase(service.replace('_', ' '))}
 		</h2>
+
+
+		{#if $settings.service_settings[$settings.translation_service].filter_type !== 0}
+			<SettingItem
+				name="Translator languages"
+				description="Choose languages to include in translator selection"
+			>
+				<div slot="control">
+					<ButtonList
+						items={Array.from($data.available_languages)
+							.map((locale) => {return {'value': locale, 'text': $data.all_languages.get(locale)};})
+							.sort((a, b) => a.text.localeCompare(b.text))}
+						}
+						icon="cross"
+						disabled={$settings.service_settings[$settings.translation_service].filter_type === 1}
+						onClick={(locale) => {
+							$settings.service_settings[$settings.translation_service].selected_languages =
+								$settings.service_settings[$settings.translation_service].selected_languages.filter((l) => l !== locale);
+						}}
+					/>
+					<Dropdown
+						options={ selectable_services }
+						value=""
+						disabled={$settings.service_settings[$settings.translation_service].filter_type === 1}
+						onChange={(e) => {
+							$settings.service_settings[$settings.translation_service].selected_languages =
+							 [...$settings.service_settings[$settings.translation_service].selected_languages, e.target.value];
+							e.target.value = "";
+						}}
+					/>
+				</div>
+			</SettingItem>
+		{/if}
+
+		<SettingItem
+			name="Filter languages"
+			description="Determine which languages should be available for translation"
+			type="dropdown"
+		>
+			<Dropdown
+				slot="control"
+				options={ [
+					{"value": "0", "text": 'Show all languages'},
+					{"value": "1", "text": 'Sync with spellchecker'},
+					{"value": "2", "text": 'Select languages manually'}
+					] }
+				value={$settings.service_settings[$settings.translation_service].filter_type.toString()}
+				onChange={(e) => {
+							$settings.service_settings[$settings.translation_service].filter_type = parseInt(e.target.value);
+						}}
+			/>
+		</SettingItem>
 
 
 		{#if $settings.service_settings[service].api_key !== null}
@@ -180,7 +144,7 @@
 				/>
 			</SettingItem>
 
-			{#if info.region_options !== null}
+			{#if info.region_options !== undefined}
 				<SettingItem
 					name="Region"
 					description="If applicable, set the issue region of the API key"
@@ -229,7 +193,9 @@
 				slot="control"
 				value={$settings.service_settings[service].validated}
 				fn={async () => {
-					let valid = await plugin.translator.validate();
+					let [valid, error_message] = await plugin.translator.validate();
+					if (error_message)
+						plugin.message_queue(error_message);
 					$settings.service_settings[service].validated = valid;
 					return valid;
 				}}

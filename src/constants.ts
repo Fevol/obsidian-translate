@@ -25,15 +25,14 @@ export const DEFAULT_DATA: PluginData = {
 export const DEFAULT_SETTINGS: TranslatorPluginSettings = {
 	// Selected languages are stored such that when toggling between syncing spellchecker languages will preserve the user selection
 	//FIXME: Temporary default, should be either empty or display language initially?
-	selected_languages: ['en', 'fr', 'nl'],
-	use_spellchecker_languages: false,
-	filter_service_languages: false,
 	display_language: 'display',
 	language_from: '',
 	language_to: '',
 	translation_service: 'google_translate',
 	service_settings: {
 		google_translate: {
+			selected_languages: ['en', 'nl', 'fr'],
+			filter_type: 0,
 			api_key: "",
 			region: null,
 			host: null,
@@ -51,6 +50,8 @@ export const DEFAULT_SETTINGS: TranslatorPluginSettings = {
 			]
 		},
 		bing_translator: {
+			selected_languages: ['en', 'nl', 'fr'],
+			filter_type: 0,
 			api_key: "",
 			region: "",
 			host: null,
@@ -70,6 +71,8 @@ export const DEFAULT_SETTINGS: TranslatorPluginSettings = {
 			]
 		},
 		yandex_translate: {
+			selected_languages: ['en', 'nl', 'fr'],
+			filter_type: 0,
 			api_key: "",
 			region: null,
 			host: null,
@@ -86,6 +89,8 @@ export const DEFAULT_SETTINGS: TranslatorPluginSettings = {
 			]
 		},
 		libre_translate: {
+			selected_languages: ['en', 'nl', 'fr'],
+			filter_type: 0,
 			api_key: null,
 			region: null,
 			host: "https://libretranslate.com",
@@ -96,6 +101,8 @@ export const DEFAULT_SETTINGS: TranslatorPluginSettings = {
 				'hi', 'hu', 'id', 'it', 'ja', 'ko', 'nl', 'pl', 'pt', 'ru', 'sk', 'sv', 'tr', 'uk', 'vi', 'zh']
 		},
 		deepl: {
+			selected_languages: ['en', 'nl', 'fr'],
+			filter_type: 0,
 			api_key: "",
 			region: null,
 			host: null,
@@ -112,11 +119,13 @@ export const DEFAULT_SETTINGS: TranslatorPluginSettings = {
 
 export const TRANSLATION_SERVICES_INFO: { [key: string]: any } = {
 	google_translate: {
+		display_name: "Google Translate",
 		request_key: "https://cloud.google.com/translate/docs/setup",
 		url: "https://cloud.google.com/translate/docs/",
 		attribution: "google_translate_attribution",
 	},
 	bing_translator: {
+		display_name: "Bing Translator",
 		request_key: "https://www.microsoft.com/en-us/translator/business/translator-api/",
 		url: "https://www.microsoft.com/en-us/translator/",
 		attribution: "bing_translator_attribution",
@@ -186,14 +195,17 @@ export const TRANSLATION_SERVICES_INFO: { [key: string]: any } = {
 		]
 	},
 	yandex_translate: {
+		display_name: "Yandex Translate",
 		request_key: "https://yandex.com/dev/translate/",
 		url: "https://translate.yandex.com/"
 	},
 	deepl: {
+		display_name: "DeepL",
 		request_key: "https://www.deepl.com/pro-api?cta=header-pro-api/",
 		url: "https://www.deepl.com/",
 	},
 	libre_translate: {
+		display_name: "Libre Translate",
 		local_host: "https://github.com/LibreTranslate/LibreTranslate",
 		url: "https://libretranslate.com/",
 	}

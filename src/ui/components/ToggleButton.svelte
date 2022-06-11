@@ -16,7 +16,6 @@
 			value = null;
 			running = true;
 			value = await fn();
-			console.log('Pressed button', value);
 			running = false;
 		}}
 >

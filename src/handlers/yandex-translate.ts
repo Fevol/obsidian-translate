@@ -1,5 +1,4 @@
 import {DummyTranslate} from "./dummy-translate";
-import type {KeyedObject} from "../types";
 
 // FIXME: Check what translate returns when no language_from was specified
 
@@ -11,9 +10,9 @@ export class YandexTranslate extends DummyTranslate {
 		this.api_key = api_key;
 	}
 
-	async validate(): Promise<boolean> {
+	async validate(): Promise<Object> {
 		if (!this.api_key)
-			return false;
+			return [false, "API key was not specified"];
 
 		try {
 			const result = await fetch("https://translate.yandex.net/api/v1.5/tr.json/getLangs?", {
@@ -26,10 +25,9 @@ export class YandexTranslate extends DummyTranslate {
 					"Content-Type": "application/json"
 				}
 			});
-			// Data = {langs: {en: "English", ...}}
-			return result.ok;
-		} catch {
-			return false;
+			return [result.ok, ""];
+		} catch (e) {
+			return [false, e.message];
 		}
 	}
 
@@ -50,7 +48,7 @@ export class YandexTranslate extends DummyTranslate {
 		return data.lang;
 	}
 
-	async translate(text: string, from: string, to: string): Promise<KeyedObject> {
+	async translate(text: string, from: string, to: string): Promise<Object> {
 		const result = await fetch("https://translate.yandex.net/api/v1.5/tr.json/translate?", {
 			method: "POST",
 			body: JSON.stringify({

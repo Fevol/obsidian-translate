@@ -5,6 +5,7 @@ import Toggle from "./Toggle.svelte";
 import Input from "./Input.svelte";
 import TextArea from "./TextArea.svelte";
 import Icon from "./Icon.svelte";
+
 // -----------------------------------------------------------------
 
 
@@ -16,10 +17,6 @@ import ButtonList from "./ButtonList.svelte";
 
 
 
-// ---------------------  Obsidian Components  ---------------------
-import SettingItem from "./SettingItem.svelte";
-
-// -----------------------------------------------------------------
 
 
 export {
@@ -31,5 +28,4 @@ export {
 	Icon,
 	ToggleButton,
 	ButtonList,
-	SettingItem,
 }

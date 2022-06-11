@@ -1,5 +1,4 @@
 import {DummyTranslate} from "./dummy-translate";
-import type {KeyedObject} from "../types";
 
 export class LibreTranslate extends DummyTranslate {
 	host: string;
@@ -9,13 +8,13 @@ export class LibreTranslate extends DummyTranslate {
 		this.host = host;
 	}
 
-	async validate(): Promise<boolean> {
+	async validate(): Promise<Object> {
 		if (!this.host)
-			return false;
-		return fetch(this.host).then(response => {
-			return response.ok;
-		}).catch(() => {
-			return false;
+			return [false, "Host was not specified"];
+		return fetch(this.host + '/languages').then(response => {
+			return [response.ok, ""];
+		}).catch((e) => {
+			return [false, e.message];
 		});
 	}
 
@@ -31,7 +30,7 @@ export class LibreTranslate extends DummyTranslate {
 		return data;
 	}
 
-	async translate(text: string, from: string, to: string): Promise<KeyedObject> {
+	async translate(text: string, from: string, to: string): Promise<Object> {
 		const result = await fetch(`${this.host}/translate`, {
 			method: "POST",
 			body: JSON.stringify({
@@ -52,6 +51,8 @@ export class LibreTranslate extends DummyTranslate {
 	async get_languages(): Promise<string[]> {
 		const result = await fetch(`${this.host}/languages`);
 		const data = await result.json();
-		return Array.from(data).map((x: any) => {return x.code});
+		return Array.from(data).map((x: any) => {
+			return x.code
+		});
 	}
 }

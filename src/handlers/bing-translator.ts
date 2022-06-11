@@ -1,5 +1,4 @@
 import {DummyTranslate} from "./dummy-translate";
-import type {KeyedObject} from "../types";
 
 export class BingTranslator extends DummyTranslate {
 	api_key: string;
@@ -11,9 +10,9 @@ export class BingTranslator extends DummyTranslate {
 		this.region = region;
 	}
 
-	async validate() {
+	async validate(): Promise<any[2]> {
 		if (!this.api_key)
-			return false;
+			return [false, "API key was not specified"];
 
 		// TODO: Check if there is a better way to validate the API key
 		try {
@@ -34,9 +33,9 @@ export class BingTranslator extends DummyTranslate {
 				body: JSON.stringify([{'Text': ''}]),
 				headers: headers
 			});
-			return result.ok;
-		} catch {
-			return false;
+			return [result.ok, ""];
+		} catch (e) {
+			return [false, e.message];
 		}
 
 	}
@@ -60,7 +59,7 @@ export class BingTranslator extends DummyTranslate {
 		return data.detectedLanguages[0].language;
 	}
 
-	async translate(text: string, from: string, to: string): Promise<KeyedObject> {
+	async translate(text: string, from: string, to: string): Promise<Object> {
 		const headers: any = {
 			"Content-Type": "application/json",
 			"Ocp-Apim-Subscription-Key": this.api_key,
