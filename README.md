@@ -23,14 +23,15 @@ Afterwards, you can open the Translation View by either accessing the left ribbo
 
 ### Services overview
 
-| Translation Service     | Supported | Free                                    | Preserves Formatting | Languages | Notes                 |
-|-------------------------|-----------|-----------------------------------------|----------------------|-----------|-----------------------|
-| Google Translate        | ❓         | ✅ *(0.5M characters **per month**)* ¹ ² | ❓                    | 109       |                       |
-| Deepl                   | ❓         | ✅  *(0.5M characters **per month**)* ¹  | ❓                    | 28        |                       |
-| Yandex Translate        | ❓         | ✅ *(5M characters)* ¹                   | ❓                    | 93        |                       |
-| Libre Translate         | ✅         | ✅                                       | ❌                    | 30        | Can be hosted locally |
-| Bing Translator (Azure) | ✅         | ✅  *(2M characters **per month**)* ¹    | ❓                    | 111       |                       |
-| Amazon Translate        | ⭕         | ✅  *(2M characters **per month**)* ¹ ³  |                      |           |                       |
+| Translation Service     | Supported | Free                                    | Offline Support | Preserves Formatting | Languages | Notes                      |
+|-------------------------|-----------|-----------------------------------------|-----------------|----------------------|-----------|----------------------------|
+| Google Translate        | ❓         | ✅ *(0.5M characters **per month**)* ¹ ² |                 | ❓                    | 109       |                            |
+| Deepl                   | ❓         | ✅  *(0.5M characters **per month**)* ¹  |                 | ❓                    | 28        |                            |
+| Yandex Translate        | ❓         | ✅ *(5M characters)* ¹                   |                 | ❓                    | 93        |                            |
+| Libre Translate         | ✅         | ✅                                       | ✅               | ❌                    | 30        | Can be hosted locally      |
+| Bing Translator (Azure) | ✅         | ✅  *(2M characters **per month**)* ¹    |                 | ❓                    | 111       |                            |
+| Amazon Translate        | ⭕         | ✅  *(2M characters **per month**)* ¹ ³  |                 |                      |           |                            |
+| Bergamot                | ⭕         | ✅                                       | ✅               |                      | 14        | Waiting for stable release |
 
 _¹ Requires a valid credit card to sign up for a free API key_<br>
 _² Free 300$ credit when signing up (valid for three months)_<br>
@@ -65,7 +66,6 @@ on your computer on any operating system, using Docker or Flask.
 - Context menu on selection of text with option to translate to a certain language
 - Integration of more translation services
 - Improved UI for the translation view, make it work in different aspect ratios
-- Prevent the 'Translation service not validated' message when changing settings
 - Add proper localization support to the settings UI
 - Improve the settings layout and add animated transitions when switching between translation services (?)
 - General UIX improvements

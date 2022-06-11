@@ -19,10 +19,12 @@
 
 	async function translate() {
 		if (!$settings.service_settings[$settings.translation_service].validated) {
-			plugin.message_queue("Translation service is not validated");
+			if (!plugin.settings_open)
+				plugin.message_queue("Translation service is not validated");
 			return;
 		}
 
+		// Check if there is actually something to be translated, or if the text is just whitespace
 		if ($settings.language_from === $settings.language_to || !/[a-zA-Z]/g.test($data.text_from)) {
 			$data.text_to = $data.text_from;
 			return;

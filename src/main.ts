@@ -19,6 +19,7 @@ export default class TranslatorPlugin extends Plugin {
 	settings: Writable<TranslatorPluginSettings>;
 	plugin_data: Writable<PluginData>;
 
+	reactivity: Reactivity;
 	settings_page: TranslatorSettingsTab;
 	view_page: TranslatorView;
 
@@ -32,7 +33,8 @@ export default class TranslatorPlugin extends Plugin {
 	locales = ISO6391.getAllCodes();
 	translator: DummyTranslate;
 
-	reactivity: Reactivity;
+	// Ensures that none of those annoying 'Translation service is not validated' messages are shown while changing settings
+	settings_open: boolean = false;
 
 	// Limit queue to only run one message of translator plugin at a time (limitCount 0 means that none of the proceeding messages will be queued)
 	message_queue: ((...args: any) => void)
@@ -142,6 +144,12 @@ export default class TranslatorPlugin extends Plugin {
 				break;
 			case 'bing_translator':
 				this.translator = new BingTranslator(api_key, region);
+				break;
+			case 'yandex_translate':
+				this.translator = new YandexTranslate(api_key);
+				break;
+			case 'deepl':
+				this.translator = new Deepl(api_key);
 				break;
 			default:
 				this.translator = new DummyTranslate();

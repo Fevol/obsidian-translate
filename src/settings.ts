@@ -14,6 +14,8 @@ export class TranslatorSettingsTab extends PluginSettingTab {
 	}
 
 	display(): void {
+		this.plugin.settings_open = true;
+
 		const {containerEl} = this;
 		containerEl.empty();
 
@@ -29,6 +31,9 @@ export class TranslatorSettingsTab extends PluginSettingTab {
 
 	hide(): any {
 		super.hide();
+
+		this.plugin.settings_open = false;
+
 		this.view.$destroy();
 	}
 }
