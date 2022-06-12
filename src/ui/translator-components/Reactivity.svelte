@@ -36,9 +36,11 @@
 		$data.current_language = plugin.fixLanguageCode(moment.locale());
 
 		// @ts-ignore (Config exists in vault)
-		$data.spellchecker_languages = [...new Set(app.vault.config.spellcheckLanguages.map((x) => {
-			return x.split('-')[0];
-		}))]
+		if (app.vault.config.spellcheckLanguages) {
+			$data.spellchecker_languages = [...new Set(app.vault.config.spellcheckLanguages.map((x) => {
+				return x.split('-')[0];
+			}))]
+		}
 	});
 
 	$: $settings.translation_service,
