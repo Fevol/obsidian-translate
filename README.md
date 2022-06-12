@@ -24,7 +24,6 @@ Afterwards, you can open the Translation View by either accessing the left ribbo
 
 
 ## Translation Services
-
 ### Services overview
 
 | Translation Service     | Supported | Free                                    | Offline Support | Preserves Formatting | Languages | Notes                      |
