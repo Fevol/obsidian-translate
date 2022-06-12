@@ -4,13 +4,17 @@ A plugin for [Obsidian](https://obsidian.md/) that adds multiple ways to transla
 of your choice. ***This plugin is still in beta, and may include any number of bugs of various sizes.***
 
 <img src="https://raw.githubusercontent.com/Fevol/obsidian-translate/master/images/text_translation.gif" width="800">
+
 ## Usage
 
 Enable the plugin by downloading one of the releases from here, or by
 using [BRAT](https://github.com/TfTHacker/obsidian42-brat).
 
 To start using the program, head over to the plugin's settings page and enter the authentication details for any of the
-services you wish to use. **Make sure to validate settings by pressing the 'Test' button. The program will not 
+services you wish to use. Note that unless you host the service locally, you _will_ need to sign up for an API key;
+this plugin does not provide any API keys by default.
+
+**Make sure to validate settings by pressing the 'Test' button. The program will not 
 allow you to translate text until you do!**
 
 <img src="https://raw.githubusercontent.com/Fevol/obsidian-translate/master/images/text_settings_validate.gif" width="800">
