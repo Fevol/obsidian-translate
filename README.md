@@ -83,4 +83,3 @@ or suggest improvements, or message me over on Discord (@Fevol#9470).
 This was mainly a passion project to implement something I personally really needed, and I think that with this release,
 I finally have worked all the basic functionality out. However, I do realise that there is so much more that *could* be
 done with this; so, if you have _any_ ideas, I would love to hear them!
-
