@@ -132,10 +132,17 @@ export default class TranslatorPlugin extends Plugin {
 
 
 					// TODO: Sveltelize this?
-					for (let language of data.available_languages) {
-						let dropdown_item = dropdown_menu.createEl("div", {cls: "menu-item", text: t(language)});
+
+					let dropdown_menu_items = Array.from(data.available_languages).map((locale) => {
+						return [locale, t(locale)]
+					}).sort((a, b) => {
+						return a[1].localeCompare(b[1])
+					});
+
+					for (let [locale, name] of dropdown_menu_items) {
+						let dropdown_item = dropdown_menu.createEl("div", {cls: "menu-item", text: name});
 						this.registerDomEvent(dropdown_item, "click", async () => {
-							let translation = await this.translator.translate(editor.getSelection(), 'auto', language);
+							let translation = await this.translator.translate(editor.getSelection(), 'auto', locale);
 							//@ts-ignore
 							editor.replaceSelection(translation.translation);
 						});

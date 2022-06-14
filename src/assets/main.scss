@@ -140,6 +140,8 @@
 	top: 0%;
 	flex-direction: column;
 	flex: 1;
+	max-height: 100%;
+	overflow-y: scroll !important;
 }
 
 .translator-dropdown:hover .translator-dropdown-menu {
@@ -147,5 +149,9 @@
 }
 
 .menu {
-	overflow: unset !important;
+	// Temporary solution: overflow: hidden causes the dropdown menu to not be drawn
+	overflow: unset;
+	// Temporary solution: padding makes it hard to reach the dropdown menu, without deactivating the :hover selector
+	padding-left: 0;
+	padding-right: 0;
 }
