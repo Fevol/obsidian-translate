@@ -1,6 +1,6 @@
-import {addIcon, App, Editor, moment, MarkdownView, Modal, Notice, Plugin} from 'obsidian';
+import {addIcon, App, Editor, moment, MarkdownView, Modal, Notice, Plugin, Menu, setIcon} from 'obsidian';
 
-import {writable, type Writable} from "svelte/store";
+import {writable, type Writable, get} from "svelte/store";
 import {Reactivity, ViewPage} from "./ui/translator-components";
 
 import {TranslatorSettingsTab} from "./settings";
@@ -13,6 +13,7 @@ import {DummyTranslate, BingTranslator, GoogleTranslate, Deepl, LibreTranslate, 
 import {rateLimit} from "./util";
 
 import ISO6391 from "iso-639-1";
+import t from "./l10n";
 
 
 export default class TranslatorPlugin extends Plugin {
@@ -111,6 +112,39 @@ export default class TranslatorPlugin extends Plugin {
 				new SwitchService(this.app, this).open();
 			},
 		});
+
+		this.registerEvent(
+			this.app.workspace.on("editor-menu", (menu, editor) => {
+				const item = menu.addItem((item) => {
+					item.setTitle("Translate")
+						.setIcon("translate")
+						.onClick(async () => {
+							console.log("attempt to translate", this.settings)
+							console.log(editor.getSelection())
+						});
+					const element = (item as any).dom as HTMLElement;
+					element.classList.add("translator-dropdown")
+					let dropdown_icon = element.createEl("span", {cls: "translator-dropdown-logo"})
+					setIcon(dropdown_icon, "chevron-right");
+
+					let data = get(this.plugin_data);
+					let dropdown_menu = element.createEl("div", {cls: "menu translator-dropdown-menu"});
+
+
+					// TODO: Sveltelize this?
+					for (let language of data.available_languages) {
+						let dropdown_item = dropdown_menu.createEl("div", {cls: "menu-item", text: t(language)});
+						this.registerDomEvent(dropdown_item, "click", async () => {
+							let translation = await this.translator.translate(editor.getSelection(), 'auto', language);
+							//@ts-ignore
+							editor.replaceSelection(translation.translation);
+						});
+					}
+
+
+				});
+			})
+		);
 	}
 
 	async onunload() {
@@ -174,7 +208,7 @@ export default class TranslatorPlugin extends Plugin {
 
 	// --------------------  Settings management  --------------------
 	async loadSettings() {
-		this.settings.set( Object.assign({}, DEFAULT_SETTINGS, await this.loadData()));
+		this.settings.set(Object.assign({}, DEFAULT_SETTINGS, await this.loadData()));
 	}
 
 

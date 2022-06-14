@@ -126,3 +126,26 @@
 .translator-column > * {
 	width: 100%;
 }
+
+.translator-dropdown-logo {
+	position: sticky;
+	left: 100%;
+	top: 50%;
+}
+
+.translator-dropdown-menu {
+	display: none;
+	position: absolute;
+	left: 100%;
+	top: 0%;
+	flex-direction: column;
+	flex: 1;
+}
+
+.translator-dropdown:hover .translator-dropdown-menu {
+	display: flex;
+}
+
+.menu {
+	overflow: unset !important;
+}
