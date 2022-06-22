@@ -3,7 +3,7 @@
 A plugin for [Obsidian](https://obsidian.md/) that adds multiple ways to translate text, with the translation service
 of your choice. ***This plugin is still in early beta!***
 
-<img src="https://raw.githubusercontent.com/Fevol/obsidian-translate/master/images/context-menus.gif" width="800">
+<img src="https://raw.githubusercontent.com/Fevol/obsidian-translate/master/images/obsidian-translate.gif" width="800">
 
 ## Usage
 

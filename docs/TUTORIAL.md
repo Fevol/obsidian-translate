@@ -45,6 +45,9 @@ translate and replace the text in the current file _**or**_ translate current fi
 will also be translated, whenever possible
 
 ### Translate Selection
+<img src="https://raw.githubusercontent.com/Fevol/obsidian-translate/master/images/context-menus.gif" width="800">
+
+
 The **Translate Selection** command will translate the selected text in the current file.
 It is also possible to right-click the selection and select a language to translate to from the dropdown menu.
 
