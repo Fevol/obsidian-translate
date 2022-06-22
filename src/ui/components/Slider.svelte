@@ -1,7 +1,4 @@
 <script lang="ts">
-	import {onMount} from "svelte";
-
-
 	export let min: number = 1;
 	export let max: number = 100;
 	export let step: number = 1;

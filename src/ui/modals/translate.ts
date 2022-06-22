@@ -1,7 +1,6 @@
-import {FuzzySuggestModal, App, WorkspaceLeaf, MarkdownView, Editor, TFile} from "obsidian";
+import {FuzzySuggestModal, App, MarkdownView, Editor} from "obsidian";
 import type TranslatorPlugin from "src/main";
 import {get} from "svelte/store";
-import t from "../../l10n";
 import {translate_file, translate_selection} from "../../helpers";
 
 export default class TranslateModal extends FuzzySuggestModal<string>{

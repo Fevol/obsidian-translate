@@ -1,4 +1,4 @@
-import {TFile, Editor, Notice} from "obsidian";
+import {TFile, Editor} from "obsidian";
 import type TranslatorPlugin from "./main";
 
 
