@@ -1,5 +1,7 @@
 <!-- Adapted from obsidian-periodic-notes -->
 <script lang="ts">
+	import { slide } from 'svelte/transition';
+
 	export let name: string;
 	export let description: string;
 	export let isHeading: boolean = false;
@@ -13,6 +15,7 @@
 	class="setting-item"
 	class:setting-item-heading={isHeading}
 	class:mod-dropdown={type === "dropdown"}
+	transition:slide
 >
 	<div class="setting-item-info">
 		<div class="setting-item-name">

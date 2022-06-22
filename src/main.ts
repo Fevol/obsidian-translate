@@ -5,7 +5,7 @@ import {Reactivity, ViewPage} from "./ui/translator-components";
 
 import {TranslatorSettingsTab} from "./settings";
 import {TranslatorView} from "./view";
-import {SwitchService} from "./modals";
+import {SwitchService, TranslateModal} from "./ui/modals";
 
 import type {APIServiceProviders, APIServiceSettings, PluginData, TranslatorPluginSettings} from "./types";
 import {ICONS, DEFAULT_SETTINGS, TRANSLATOR_VIEW_ID, DEFAULT_DATA} from "./constants";
@@ -14,6 +14,8 @@ import {rateLimit} from "./util";
 
 import ISO6391 from "iso-639-1";
 import t from "./l10n";
+import {translate_selection} from "./helpers";
+// import {importFastText} from "./handlers/language-detection";
 
 
 export default class TranslatorPlugin extends Plugin {
@@ -46,7 +48,12 @@ export default class TranslatorPlugin extends Plugin {
 	// });
 
 	async onload() {
-		this.message_queue = rateLimit(1, 5000, (text: string, timeout: number = 4000, priority: boolean = false) => {
+		// TODO: Implement FastText
+		// await importFastText();
+
+
+
+		this.message_queue = rateLimit(5, 3000, true,(text: string, timeout: number = 4000, priority: boolean = false) => {
 			new Notice(text, timeout);
 		});
 
@@ -100,7 +107,8 @@ export default class TranslatorPlugin extends Plugin {
 		this.addCommand({
 			id: "translator-open-view",
 			name: "Open translation view",
-			callback: () => {
+			icon: "translate",
+			editorCallback: () => {
 				this.activateTranslatorView();
 			},
 		});
@@ -108,8 +116,72 @@ export default class TranslatorPlugin extends Plugin {
 		this.addCommand({
 			id: "translator-change-service",
 			name: "Change Translator Service",
-			callback: () => {
+			icon: "cloud",
+			editorCallback: () => {
 				new SwitchService(this.app, this).open();
+			},
+		});
+
+		this.addCommand({
+			id: "translator-to-new-file",
+			name: "File to selected language (new file)",
+			icon: "translate-file-new",
+			editorCallback: () => {
+				new TranslateModal(this.app, this, "file-new").open();
+			},
+		});
+
+		this.addCommand({
+			id: "translator-to-curr-file",
+			name: "File to selected language (current file)",
+			icon: "translate-file",
+			editorCallback: () => {
+				new TranslateModal(this.app, this, "file-current").open();
+			},
+		});
+
+		this.addCommand({
+			id: "translator-selection",
+			name: "Selection to selected language",
+			icon: "translate-selection-filled",
+			editorCallback: () => {
+				new TranslateModal(this.app, this, "selection").open();
+			},
+		});
+
+		this.addCommand({
+			id: "translator-detection",
+			name: "Detect language of selection",
+			icon: "detect-selection",
+			editorCallback: async (editor, view) => {
+				let selection = editor.getSelection();
+				let results = await this.translator.detect(selection);
+				results = results.sort((a, b) => {
+					return b.confidence - a.confidence;
+				});
+
+				let main = results.shift();
+
+				if (main.message)
+					new Notice(main.message, 4000);
+
+				if (main.language) {
+					let alternatives = results.map((result) => {
+						return `${t(result.language)}` + (result.confidence !== undefined ? ` [${(result.confidence * 100).toFixed(2)}%]` : '');
+					}).join("\n\t");
+
+					alternatives = (alternatives ? "\nAlternatives:\n\t" : "") + alternatives;
+
+					new Notice(`Detected language:\n\t${t(main.language)}` +
+						(main.confidence !== undefined ? ` [${(main.confidence * 100).toFixed(2)}%]` : '') + alternatives, 0);
+				}
+
+				// if (this.translator.failure_count >= 10)
+				// 	this.settings.update(x => {
+				// 		x.service_settings[x.translation_service as keyof APIServiceProviders].validated = false;
+				// 		return x;
+				// 	});
+
 			},
 		});
 
@@ -119,8 +191,7 @@ export default class TranslatorPlugin extends Plugin {
 					item.setTitle("Translate")
 						.setIcon("translate")
 						.onClick(async () => {
-							console.log("attempt to translate", this.settings)
-							console.log(editor.getSelection())
+							// Keep the dropdown open
 						});
 					const element = (item as any).dom as HTMLElement;
 					element.classList.add("translator-dropdown")
@@ -134,7 +205,7 @@ export default class TranslatorPlugin extends Plugin {
 					// TODO: Sveltelize this?
 
 					let dropdown_menu_items = Array.from(data.available_languages).map((locale) => {
-						return [locale, t(locale)]
+						return [locale, data.all_languages.get(locale)];
 					}).sort((a, b) => {
 						return a[1].localeCompare(b[1])
 					});
@@ -142,9 +213,7 @@ export default class TranslatorPlugin extends Plugin {
 					for (let [locale, name] of dropdown_menu_items) {
 						let dropdown_item = dropdown_menu.createEl("div", {cls: "menu-item", text: name});
 						this.registerDomEvent(dropdown_item, "click", async () => {
-							let translation = await this.translator.translate(editor.getSelection(), 'auto', locale);
-							//@ts-ignore
-							editor.replaceSelection(translation.translation);
+							await translate_selection(this, editor, locale);
 						});
 					}
 
@@ -188,11 +257,22 @@ export default class TranslatorPlugin extends Plugin {
 				this.translator = new YandexTranslate(api_key);
 				break;
 			case 'deepl':
-				this.translator = new Deepl(api_key);
+				this.translator = new Deepl(api_key, host);
 				break;
 			default:
 				this.translator = new DummyTranslate();
 		}
+
+		// Whenever
+		const subscriber = this.translator.valid.subscribe((valid: boolean) => {
+			if (!valid) {
+				this.message_queue("Too many failures: please revalidate the service", 5000, true)
+				this.settings.update(x => {
+					x.service_settings[x.translation_service as keyof APIServiceProviders].validated = false;
+					return x
+				});
+			}
+		});
 	}
 
 	// --------------------------------------------------------------

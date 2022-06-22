@@ -78,6 +78,35 @@ export default {
 
 	// ------------------------------------------------------------------------------------------------
 
+	// Extra locale information (such as en-gb, zh-tw, etc.)
+	"HANS": "Simplified",
+	"HANT": "Traditional",
+	"LATN": "Latin",
+	"CYRL": "Cyrillic",
+	// TODO: Ask a Star Trek fan what PIQD is supposed to be (besides Picard)
+	// "PIQD": "",
+	"MONG": "Mongolian",
+
+	// Region specifiers for locales
+	"TW": "Taiwanese",
+	"GB": "British",
+	"US": "American",
+	"BR": "Brazilian",
+	"PT": "Portuguese",
+	"CA": "Canadian",
+	"CN": "PRC",
+
+	// Locales that were not included in DisplayNames
+	"iw": "Hebrew",
+	"ikt": "Inuinnaqtun",
+	"jw": "Javanese",
+	"kmr": "Kurmanji",
+	"mhr": "Eastern Mari",
+	"mww": "Hmong Daw",
+	"otq": "Otomi",
+	"prs": "Dari",
+	"yua": "Yucatec Maya",
+
 
 
 	// Locales, you definitely do not need to add these, they are already provided for all of Obsidian's display languages

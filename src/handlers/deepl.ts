@@ -1,91 +1,177 @@
 import {DummyTranslate} from "./dummy-translate";
+import type {DetectionResult, LanguagesFetchResult, TranslationResult, ValidationResult} from "../types";
+import {request} from "obsidian";
 
-// TODO: Select API endpoint used
 // TODO: Allow for formality features to be accessed
 // TODO: Allow for formatting to be preserved
 // Check if split_sentences option causes problems
 //   --> .join all the translations together
 // Check if language code being lower/uppercase makes a difference
 
+
+// Due to CORS limitations, this package is using obsidian's request function
+
 export class Deepl extends DummyTranslate {
 	api_key: string;
+	host: string;
 
-	constructor(api_key: string) {
+	// // Keep track of requests
+	// limit_count: number = 0
+	//
+	// // Request limiter for service
+	// request_limiter: object = {
+	// 	// Max amount of characters per interval
+	// 	max_requests: 10,
+	// 	interval: "second",
+	// }
+
+
+	constructor(api_key: string, host: string = 'https://api-free.deepl.com/v2') {
 		super();
 		this.api_key = api_key;
+		this.host = host;
 	}
 
-	async validate(): Promise<any[2]> {
+
+	async validate(): Promise<ValidationResult> {
 		if (!this.api_key)
-			return [false, "API key was not specified"];
+			return {valid: false, message: "API key was not specified"};
+
+		this.host = "https://api.deepl.com/v2";
 		try {
-			const response = await fetch("https://api.deepl.com/v2/usage", {
-				method: "POST",
-				body: JSON.stringify({}),
+			let response = JSON.parse(await request({
+				url: `${this.host}/usage`,
+				method: "GET",
 				headers: {
-					"Content-Type": "application/json",
 					"Authorization": "DeepL-Auth-Key " + this.api_key
 				}
-			});
-			return [response.ok, ""];
+			}));
+
+			if ("character_count" in response)
+				return {valid: true, message: "Using DeepL Pro API", host: this.host};
+
+			// If request fails or API key is invalid for DeepL pro, catch error and try DeepL free
+			throw "Invalid API key for DeepL Pro";
 		} catch (e) {
-			return [false, e.message];
+			this.host = "https://api-free.deepl.com/v2";
+			try {
+				let response = JSON.parse(await request({
+					url: `${this.host}/usage`,
+					method: "GET",
+					headers: {
+						"Authorization": "DeepL-Auth-Key " + this.api_key
+					}
+				}));
+				if (!("character_count" in response))
+					return {valid: false, message: "Validation failed:\nVerify correctness of API key"};
+				return {valid: true, message: "Using DeepL Free API", host: this.host};
+			} catch (e) {
+				return {valid: false, message: "Validation failed:\nVerify correctness of API key"};
+			}
 		}
 	}
 
-	async detect(text: string): Promise<string> {
-		const response = await fetch("https://api.deepl.com/v2/translate", {
-			method: "POST",
-			body: JSON.stringify({
-				text: text,
-				target_lang: "EN-GB",
-			}),
-			headers: {
-				"Content-Type": "application/json",
-				"Authorization": "DeepL-Auth-Key " + this.api_key
-			}
-		});
-		const data = await response.json();
-		// Data = [{"text":"Hello", "detected_source_language":"en"}, ...]
-		return data.language.toLowerCase();
+	// FIXME: DeepL doesn't actually support language detection, this is translating the text to get the language
+	//         Obviously this is not desirable, might just disable this feature for DeepL
+	async detect(text: string): Promise<Array<DetectionResult>> {
+		if (!text.trim())
+			return [{message: "No text was provided"}];
+
+		try {
+			const response = await request({
+				url: `${this.host}/translate?` + new URLSearchParams({
+					text: text,
+					target_lang: "en"
+				}),
+				method: "POST",
+				contentType: "application/json",
+				headers: {
+					"Authorization": "DeepL-Auth-Key " + this.api_key
+				}
+			});
+
+			if (!response)
+				throw new Error("Check API key")
+
+			// Data = [{"text":"Hello", "detected_source_language":"en"}, ...]
+			const data = JSON.parse(response);
+
+			const return_values = [{language: data.translations[0].detected_source_language.toLowerCase()}];
+			this.success();
+
+			return return_values
+		} catch (e) {
+			this.failed();
+			return [{message: `Language detection failed:\n(${e.message})`}];
+		}
 	}
 
-	async translate(text: string, from: string, to: string): Promise<Object> {
-		const response = await fetch("https://api.deepl.com/v2/translate", {
-			method: "POST",
-			body: JSON.stringify({
-				text: text,
-				source_lang: from,
-				target_lang: to,
-				split_sentences: false,
-				preserve_formatting: false,
-			}),
-			headers: {
-				"Content-Type": "application/json",
-				"Authorization": "DeepL-Auth-Key " + this.api_key
-			}
-		});
-		const data = await response.json();
-		// Data = [{"text":"Hello", "detected_source_language":"en"}, ...]
-		if (from === "auto")
-			return {translation: data.translations[0].text, detected_language: data.translations[0].detected_source_language.toLowerCase()};
-		else
-			return {translation: data.translations[0].text};
+	async translate(text: string, from: string, to: string): Promise<TranslationResult> {
+		if (!text.trim())
+			return {message: "No text was provided"};
+		if (!to)
+			return {message: "No target language was provided"};
+
+		try {
+			const response = await request({
+				url: `${this.host}/translate?` + new URLSearchParams({
+					text: text,
+					source_lang: from === "auto" ? "" : from,
+					target_lang: to,
+					split_sentences: "0",
+					preserve_formatting: "0",
+				}),
+				method: "POST",
+				contentType: "application/json",
+				headers: {
+					"Authorization": "DeepL-Auth-Key " + this.api_key
+				}
+			});
+
+			if (!response)
+				throw new Error("Check API key")
+
+			// Data = [{"text":"Hello", "detected_source_language":"en"}, ...]
+			const data = JSON.parse(response);
+			const return_values = {translation: data.translations[0].text,
+				detected_language: (from === "auto" && data.translations[0].detected_source_language) ?
+									data.translations[0].detected_source_language.toLowerCase() : null}
+			this.success();
+
+			return return_values;
+		} catch (e) {
+			this.failed();
+			return {message: `Translation failed:\n(${e.message})`};
+		}
 	}
 
 
-	async get_languages(): Promise<string[]> {
-		const response = await fetch("https://api.deepl.com/v2/languages", {
-			method: "POST",
-			body: JSON.stringify({}),
-			headers: {
-				"Content-Type": "application/json",
-				"Authorization": "DeepL-Auth-Key " + this.api_key
-			}
-		});
-		const data = await response.json();
-		// Data = [{"language":"EN", "name":"English", supports_formality: true}, ...]
-		return data.map((o: any) => o.language.toLowerCase());
+	async get_languages(): Promise<LanguagesFetchResult> {
+		try {
+			const response = await request({
+				url: `${this.host}/languages`,
+				method: "POST",
+				contentType: "application/json",
+				headers: {
+					"Authorization": "DeepL-Auth-Key " + this.api_key
+				}
+			});
+
+			if (!response)
+				throw new Error("Check API key")
+
+			// Data = [{"language":"EN", "name":"English", supports_formality: true}, ...]
+			const data = JSON.parse(response);
+			const return_values = {languages: data.map((o: any) => o.language.toLowerCase())};
+			this.success();
+
+			return return_values;
+		} catch (e) {
+			this.failed();
+			return {message: `Languages fetching failed:\n(${e.message})`};
+		}
+
+
 	}
 
 }

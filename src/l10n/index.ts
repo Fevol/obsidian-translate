@@ -43,6 +43,7 @@ import vi from "./locale/vi";
 import zhCN from "./locale/zh-cn";
 import zhTW from "./locale/zh-tw";
 
+// Supported Obsidian languages
 const locales : { [key: string]: Partial<typeof en> } = {
 	ar,
 	be,
@@ -90,7 +91,7 @@ const locale: {[key: string]: string} = locales[moment.locale()];
 
 export default function t(str: string): string {
 	if (!locale)
-		console.error("Error: dictionary locale not found", moment.locale());
+		console.error("Error: translator locale not found", moment.locale());
 
 	return (locale && locale[str]) || en[str as keyof typeof en] || str;
 }

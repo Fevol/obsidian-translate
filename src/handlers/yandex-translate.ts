@@ -1,4 +1,5 @@
 import {DummyTranslate} from "./dummy-translate";
+import type {DetectionResult, LanguagesFetchResult, TranslationResult, ValidationResult} from "../types";
 
 // FIXME: Check what translate returns when no language_from was specified
 
@@ -10,78 +11,110 @@ export class YandexTranslate extends DummyTranslate {
 		this.api_key = api_key;
 	}
 
-	async validate(): Promise<Object> {
+	async validate(): Promise<ValidationResult> {
 		if (!this.api_key)
-			return [false, "API key was not specified"];
+			return {valid: false, message: "API key was not specified"};
 
 		try {
-			const response = await fetch("https://translate.yandex.net/api/v1.5/tr.json/getLangs?", {
-				method: "POST",
-				body: JSON.stringify({
+			const response = await fetch("https://translate.yandex.net/api/v1.5/tr.json/getLangs?" +
+				new URLSearchParams({
 					key: this.api_key,
 					ui: "en"
-				}),
-				headers: {
-					"Content-Type": "application/json"
-				}
+				}), {
+				method: "POST",
 			});
-			return [response.ok, ""];
+			const data = await response.json();
+			return {valid: response.ok, message: response.ok ? "" : `(UNTESTED SERVICE) Validation failed:\n${data.message}`};
 		} catch (e) {
-			return [false, e.message];
+			return {valid: false, message: `(UNTESTED SERVICE) Validation failed:\n${e.message}`};
 		}
 	}
 
 
-	async detect(text: string): Promise<string> {
-		const response = await fetch("https://translate.yandex.net/api/v1.5/tr.json/detect?", {
-			method: "POST",
-			body: JSON.stringify({
-				key: this.api_key,
-				text: text
-			}),
-			headers: {
-				"Content-Type": "application/json"
-			}
-		});
-		const data = await response.json();
-		// Data = {code: 200, lang: "en"}
-		return data.lang;
+	async detect(text: string): Promise<Array<DetectionResult>> {
+		if (!text.trim())
+			return [{message: "No text was provided"}];
+
+		try {
+			const response = await fetch("https://translate.yandex.net/api/v1.5/tr.json/detect?" +
+				new URLSearchParams({
+					key: this.api_key,
+					text: text
+				}), {
+				method: "POST"
+			});
+			// Data = {code: 200, lang: "en"}
+			const data = await response.json();
+			if (!response.ok)
+				throw new Error(data.message);
+
+			const return_values = [{language: data.language, message: "(UNTESTED SERVICE) Results may be incorrect"}];
+			this.success();
+
+			return return_values;
+		}	catch (e) {
+			this.failed();
+			return [{message: `(UNTESTED SERVICE) Language detection failed:\n(${e.message})`}];
+		}
 	}
 
-	async translate(text: string, from: string, to: string): Promise<Object> {
-		const response = await fetch("https://translate.yandex.net/api/v1.5/tr.json/translate?", {
-			method: "POST",
-			body: JSON.stringify({
-				key: this.api_key,
-				text: text,
-				lang: from === 'auto' ? to : `${from}-${to}`,
-				format: "plain"
-			}),
-		});
-		const data = await response.json();
-		// Data = {code: 200, lang: "ru-en", text: ["Good day comrade!"]}
+	async translate(text: string, from: string, to: string): Promise<TranslationResult> {
+		if (!text.trim())
+			return {message: "No text was provided"};
+		if (!to)
+			return {message: "No target language was provided"};
 
-		if (from === 'auto')
-			return {translation: data.text[0], detected_language: data.lang};
-		else
-			return {translation: data.text[0]};
+		try {
+			const response = await fetch("https://translate.yandex.net/api/v1.5/tr.json/translate?" +
+				new URLSearchParams({
+					key: this.api_key,
+					text: text,
+					lang: from === 'auto' ? to : `${from}-${to}`,
+					format: "plain"
+				}), {
+				method: "POST",
+			});
+			// Data = {code: 200, lang: "ru-en", text: ["Good day comrade!"]}
+			const data = await response.json();
+			if (!response.ok)
+				throw new Error(data.message);
+
+			const return_values = {translation: data.text[0],
+				                   detected_language: from === "auto" && data.lang ? data.lang : null,
+									message: "(UNTESTED SERVICE) Results may be incorrect"};
+			this.success();
+
+			return return_values;
+
+		} catch (e) {
+			this.failed();
+			return {message: `(UNTESTED SERVICE) Translation failed:\n(${e.message})`};
+		}
 	}
 
-	async get_languages(): Promise<string[]> {
-		const response = await fetch("https://translate.yandex.net/api/v1.5/tr.json/getLangs?", {
-			method: "POST",
-			body: JSON.stringify({
-				key: this.api_key,
-				// Display language for format code, can be discarded
-				ui: "en"
-			}),
-			headers: {
-				"Content-Type": "application/json"
-			}
-		});
-		const data = await response.json();
-		// Data = {langs: {en: "English", ...}}
-		return Object.keys(data.langs);
+	async get_languages(): Promise<LanguagesFetchResult> {
+		try {
+			const response = await fetch("https://translate.yandex.net/api/v1.5/tr.json/getLangs?" +
+				new URLSearchParams({
+					key: this.api_key,
+					// Display language for format code, can be discarded
+					ui: "en"
+				}), {
+				method: "POST",
+			});
+			// Data = {langs: {en: "English", ...}}
+			const data = await response.json();
+			if (!response.ok)
+				throw new Error(data.message);
+
+			const return_values = {languages: Object.keys(data.langs)};
+			this.success();
+
+			return return_values;
+		} catch (e) {
+			this.failed();
+			return {message: `(UNTESTED SERVICE) Languages fetching failed:\n(${e.message})`};
+		}
 	}
 
 }

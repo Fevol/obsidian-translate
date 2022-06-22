@@ -1,5 +1,7 @@
 <script lang="ts">
 	import {Icon} from "./index";
+	import {slide, fade} from "svelte/transition"
+	import {horizontalSlide} from "../animations";
 
 	interface IOption {
 		value: string;
@@ -14,12 +16,12 @@
 	export let size: number = 8;
 </script>
 
-<div class="setting-command-hotkeys">
+<div class="setting-command-hotkeys" transition:slide>
 	{#each items as {value, text}}
-		<span class="setting-hotkey icon-text">
+		<span class="setting-hotkey icon-text" in:horizontalSlide out:horizontalSlide>
 			{text}
 			{#if !disabled}
-				<span on:click={onClick(value)} class="setting-hotkey-icon">
+				<span on:click={onClick(value)} class="setting-hotkey-icon" transition:fade>
 					<Icon icon={icon} size={size} />
 				</span>
 			{/if}

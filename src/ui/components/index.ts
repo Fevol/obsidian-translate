@@ -4,6 +4,7 @@ import Dropdown from "./Dropdown.svelte";
 import Toggle from "./Toggle.svelte";
 import Input from "./Input.svelte";
 import TextArea from "./TextArea.svelte";
+import Slider from "./Slider.svelte";
 import Icon from "./Icon.svelte";
 
 // -----------------------------------------------------------------
@@ -28,4 +29,5 @@ export {
 	Icon,
 	ToggleButton,
 	ButtonList,
+	Slider,
 }

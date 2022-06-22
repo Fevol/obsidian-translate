@@ -4,14 +4,19 @@
 	import {SvelteComponent} from "svelte";
 
 	export let icon: string | string[2];
+	export let content: string;
 	export let size: number;
 
 	let icon_element : HTMLElement;
 
 	onMount(() => {
 		if (icon !== 'spinner') {
-			setIcon(icon_element, icon, size);
+			if (!content)
+				setIcon(icon_element, icon, size);
 			// resize();
+			// Custom loader for SVG icons that does not restrict the size of the icon
+			else
+				icon_element.innerHTML = content.trim();
 		}
 
 	});
@@ -41,8 +46,11 @@
 		if (icon_element) {
 			icon_element.empty();
 			if (icon !== 'spinner') {
-				setIcon(icon_element, icon, size);
+				if (!content)
+					setIcon(icon_element, icon, size);
 				// resize();
+				else
+					icon_element.innerHTML = content.trim();
 			}
 		}
 
@@ -51,4 +59,3 @@
 </script>
 
 <div bind:this={icon_element} class={$$props.class}  class:spinner={icon==='spinner'}></div>
-

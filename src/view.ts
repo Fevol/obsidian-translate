@@ -5,7 +5,6 @@ import type {SvelteComponent} from "svelte";
 import {ViewPage} from "./ui/translator-components";
 
 import {ICONS, TRANSLATOR_VIEW_ID, TRANSLATION_SERVICES_INFO} from "./constants";
-import type {APIServiceProviders} from "./types";
 
 
 export class TranslatorView extends ItemView {
@@ -33,6 +32,7 @@ export class TranslatorView extends ItemView {
 	async onOpen() {
 		const {containerEl} = this;
 		containerEl.empty();
+		containerEl.id = "translator-view";
 
 		this.view = new ViewPage({
 			target: containerEl,
@@ -49,4 +49,8 @@ export class TranslatorView extends ItemView {
 		this.view.$destroy();
 	}
 
+	onResize() {
+		const rectangle = this.containerEl.getBoundingClientRect();
+		this.view.onResize(rectangle.width, rectangle.height);
+	}
 }

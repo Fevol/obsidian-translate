@@ -6,15 +6,23 @@ export interface TranslatorPluginSettings {
 	language_from: string;
 	language_to: string;
 
+	view_mode: number;
+
 	translation_service: string;
 	service_settings: APIServiceProviders;
 }
 
 export interface PluginData {
+	// Cache the available language locales, and their corresponding names
 	all_languages: Map<string, string>;
+
+	// Which languages can be selected for translation (unfiltered)
 	available_languages: Array<any>;
+
+	// Current spellchecker languages (synced at startup of the plugin)
 	spellchecker_languages: Array<any>;
 
+	// Current display language of Obsidian (synced at startup of the plugin)
 	current_language: string;
 
 	text_from: string;
@@ -31,13 +39,50 @@ export interface APIServiceProviders {
 }
 
 export interface APIServiceSettings {
+	// What languages did the user select? (locale codes)
 	selected_languages: Array<any>;
+	// What languages are available for *this translation service* (locale codes)
+	available_languages: Array<string>;
+
+	// Which languages get shown in the translation view selection box
+	// (0 = all, 1 = synced with spell checker, 2 = only selected languages)
 	filter_type: number;
+
+	// Authentication settings for translation services
 	api_key: string;
 	region: string;
-	host: string | null;
+	host: string;
+
+	// Automatically translate the text when the user types
 	auto_translate: boolean;
-	auto_translate_interval: string;
+
+	// Determine how long to wait before translating the text
+	auto_translate_interval: number;
+
+	// Whether the translation service is validated (current authentication settings are valid)
 	validated: boolean;
-	available_languages: Array<string>;
+}
+
+export interface TranslationResult {
+	translation?: string;
+	detected_language?: string;
+	message?: string;
+}
+
+export interface ValidationResult {
+	valid: boolean;
+	host?: string;
+	message?: string;
+}
+
+export interface LanguagesFetchResult {
+	languages?: Array<string>;
+	message?: string;
+}
+
+export interface DetectionResult {
+	language?: string;
+	confidence?: number;
+	message?: string;
+
 }
