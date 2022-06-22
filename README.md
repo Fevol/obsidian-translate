@@ -1,13 +1,13 @@
 # Obsidian Translate
 
 A plugin for [Obsidian](https://obsidian.md/) that adds multiple ways to translate text, with the translation service
-of your choice. ***This plugin is still in beta, and may include any number of bugs of various sizes.***
+of your choice. ***This plugin is still in early beta!***
 
-<img src="https://raw.githubusercontent.com/Fevol/obsidian-translate/master/images/text_translation.gif" width="800">
+<img src="https://raw.githubusercontent.com/Fevol/obsidian-translate/master/images/context-menus.gif" width="800">
 
 ## Usage
 
-Enable the plugin by manually downloading one of the releases from here, or by
+Enable the plugin by manually downloading one of the releases from Github, or by
 using [BRAT](https://github.com/TfTHacker/obsidian42-brat).
 
 To start using the program, head over to the plugin's settings page and enter the authentication details for any of the
@@ -17,10 +17,10 @@ services you wish to use. Note that unless you host the service locally, you _wi
 **Make sure to validate settings by pressing the 'Test' button. The program will not 
 allow you to translate text until you do!**
 
-<img src="https://raw.githubusercontent.com/Fevol/obsidian-translate/master/images/text_settings_validate.gif" width="800">
+<img src="https://raw.githubusercontent.com/Fevol/obsidian-translate/master/images/settings-validate.gif" width="800">
 
 Afterwards, you can open the Translation View by either accessing the left ribbon, or by executing the 
-'Open Translation View' command.
+'Open Translation View' command. For more informations, head over to the [documentation](https://github.com/Fevol/obsidian-translate/blob/master/docs/TUTORIAL.md).
 
 
 ## Translation Services
@@ -77,8 +77,7 @@ on your computer/network on any operating system, using Docker or Flask.
 - Right mouse (context menu) contains dropdown to translate selection 
 
 ## Bugs
-- If auto-translate is on, changing the layout manually, the translation delay or the language filter will result in
-an additional translation request being sent, even though the text hasn't changed.
+- No known bugs
 
 
 ## Future plans
@@ -90,8 +89,7 @@ an additional translation request being sent, even though the text hasn't change
 - Improving reliability of the translation service handlers
 - Make localization of language codes appear correctly regardless of the API used 
 - Integration of more translation services
-- Improved UI for the translation view, make it work in different aspect ratios
-- Add proper localization support to the settings UI
+- Add proper localization support to the plugin
 - Improve the settings layout and add animated transitions when switching between translation services (?)
 - General UIX improvements
 - Once all that is done, upload the plugin to the official repository
