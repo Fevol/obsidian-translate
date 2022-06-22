@@ -1,5 +1,3 @@
-import type {LanguageCode} from "iso-639-1";
-
 export interface TranslatorPluginSettings {
 	display_language: string;
 

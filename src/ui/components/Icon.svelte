@@ -1,7 +1,6 @@
 <script lang="ts">
 	import {onMount} from "svelte";
 	import {setIcon} from "obsidian";
-	import {SvelteComponent} from "svelte";
 
 	export let icon: string | string[2];
 	export let content: string;

@@ -6,7 +6,7 @@
 	import {Button, Dropdown, TextArea} from "../components";
 	import {NavHeader, View} from "../obsidian-components";
 
-	import type {PluginData, TranslatorPluginSettings, APIServiceProviders} from "../../types";
+	import type {PluginData, TranslatorPluginSettings} from "../../types";
 	import {FILTER_MODES, ICONS, TRANSLATION_SERVICES_INFO, VIEW_MODES} from "../../constants";
 	import {Icon} from "../components";
 	import {SwitchService} from "../modals";

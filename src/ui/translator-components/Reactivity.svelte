@@ -109,16 +109,4 @@
 		}
 	});
 
-	// FIXME: Find a way to set language_to and language_from in a reactive way without causing a loop
-	// function get_language(language: string, other_language: string) {
-	// 	if ($data.available_languages.contains(language))
-	// 		return language;
-	// 	if (!$data.available_languages)
-	// 		return '';
-	// 	if ($data.available_languages.length === 1)
-	// 		return $data.available_languages.first();
-	// 	// TODO: Make this random?
-	// 	return $data.available_languages[0] === other_language ? $data.available_languages[1] : $data.available_languages[0];
-	// }
-
 </script>

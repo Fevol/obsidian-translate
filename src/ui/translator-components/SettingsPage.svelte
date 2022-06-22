@@ -1,5 +1,4 @@
 <script lang="ts">
-	import {Notice} from "obsidian";
 	import TranslatorPlugin from "../../main";
 
 	import type {Writable} from "svelte/store";
