@@ -5,6 +5,7 @@
 
 	export let typingdelay: number = 0;
 	export let onChange: (value) => void;
+	export let onInput: (value) => void;
 	let timer = null;
 </script>
 
@@ -36,5 +37,6 @@
 				}, typingdelay);
 			}
 		}
+		on:keydown={(e) => onInput(e)}
 	/>
 {/if}

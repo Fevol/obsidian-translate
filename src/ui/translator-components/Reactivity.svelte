@@ -106,6 +106,8 @@
 			$data.spellchecker_languages = [...new Set(app.vault.config.spellcheckLanguages.map((x) => {
 				return x.split('-')[0];
 			}))]
+			if (filter_type_observer === 1)
+				updateAvailableLanguages();
 		}
 	});
 

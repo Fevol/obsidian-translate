@@ -107,7 +107,6 @@
 
 
 	}
-
 </script>
 
 <View>
@@ -182,6 +181,11 @@
 						$data.text_to = "";
 						$data.detected_language = undefined;
 					} else if ($settings.service_settings[$settings.translation_service].auto_translate) {
+						await translate();
+					}
+				}}
+				onInput={async (e) => {
+					if (e.ctrlKey && e.keyCode === 13) {
 						await translate();
 					}
 				}}

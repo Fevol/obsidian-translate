@@ -95,6 +95,7 @@
 									$settings.service_settings[$settings.translation_service].selected_languages.filter((l) => l !== locale);
 							}}
 						/>
+						{#if $settings.service_settings[$settings.translation_service].filter_type !== 1}
 						<Dropdown
 							options={ selectable_services }
 							value=""
@@ -105,6 +106,7 @@
 								e.target.value = "";
 							}}
 						/>
+						{/if}
 					</div>
 				</SettingItem>
 			{/if}

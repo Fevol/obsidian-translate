@@ -21,7 +21,7 @@
 		<span class="setting-hotkey icon-text" in:horizontalSlide out:horizontalSlide>
 			{text}
 			{#if !disabled}
-				<span on:click={onClick(value)} class="setting-hotkey-icon" transition:fade>
+				<span on:click={onClick(value)} class="setting-hotkey-icon">
 					<Icon icon={icon} size={size} />
 				</span>
 			{/if}
