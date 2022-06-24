@@ -1,4 +1,4 @@
-import {addIcon, App, Editor, moment, MarkdownView, Modal, Notice, Plugin, Menu, setIcon} from 'obsidian';
+import {addIcon, App, Editor, moment, MarkdownView, Modal, Notice, Plugin, Menu, setIcon, Platform} from 'obsidian';
 
 import {writable, type Writable, get} from "svelte/store";
 import {Reactivity, ViewPage} from "./ui/translator-components";
@@ -104,79 +104,84 @@ export default class TranslatorPlugin extends Plugin {
 			this.activateTranslatorView();
 		});
 
-		this.addCommand({
-			id: "translator-open-view",
-			name: "Open translation view",
-			icon: "translate",
-			editorCallback: () => {
-				this.activateTranslatorView();
+		const commands: Array<CommandI> = [
+			{
+				id: "translator-open-view",
+				name: "Open translation view",
+				icon: "translate",
+				func: () => {this.activateTranslatorView()}
 			},
-		});
-
-		this.addCommand({
-			id: "translator-change-service",
-			name: "Change Translator Service",
-			icon: "cloud",
-			editorCallback: () => {
-				new SwitchService(this.app, this).open();
+			{
+				id: "translator-change-service",
+				name: "Change Translator Service",
+				icon: "cloud",
+				func: () => {new SwitchService(this.app, this).open()}
 			},
-		});
-
-		this.addCommand({
-			id: "translator-to-new-file",
-			name: "File to selected language (new file)",
-			icon: "translate-file-new",
-			editorCallback: () => {
-				new TranslateModal(this.app, this, "file-new").open();
+			{
+				id: "translator-to-new-file",
+				name: "File to selected language (new file)",
+				icon: "translate-file-new",
+				editor_context: true,
+				func: () => {new TranslateModal(this.app, this, "file-new").open()}
 			},
-		});
 
-		this.addCommand({
-			id: "translator-to-curr-file",
-			name: "File to selected language (current file)",
-			icon: "translate-file",
-			editorCallback: () => {
-				new TranslateModal(this.app, this, "file-current").open();
+			{
+				id: "translator-to-curr-file",
+				name: "File to selected language (current file)",
+				icon: "translate-file-new",
+				editor_context: true,
+				func: () => {new TranslateModal(this.app, this, "file-current").open()}
 			},
-		});
-
-		this.addCommand({
-			id: "translator-selection",
-			name: "Selection to selected language",
-			icon: "translate-selection-filled",
-			editorCallback: () => {
-				new TranslateModal(this.app, this, "selection").open();
+			{
+				id: "translator-selection",
+				name: "Selection to selected language",
+				icon: "translate-selection-filled",
+				editor_context: true,
+				func: () => {new TranslateModal(this.app, this, "selection").open()}
 			},
-		});
+			{
+				id: "translator-detection",
+				name: "Detect language of selection",
+				icon: "detect-selection",
+				editor_context: true,
+				func: async (editor: Editor, view: MarkdownView) => {
+					let selection = editor.getSelection();
+					let results = await this.translator.detect(selection);
+					results = results.sort((a, b) => {
+						return b.confidence - a.confidence;
+					});
 
-		this.addCommand({
-			id: "translator-detection",
-			name: "Detect language of selection",
-			icon: "detect-selection",
-			editorCallback: async (editor, view) => {
-				let selection = editor.getSelection();
-				let results = await this.translator.detect(selection);
-				results = results.sort((a, b) => {
-					return b.confidence - a.confidence;
-				});
+					let main = results.shift();
 
-				let main = results.shift();
+					if (main.message)
+						new Notice(main.message, 4000);
 
-				if (main.message)
-					new Notice(main.message, 4000);
+					if (main.language) {
+						let alternatives = results.map((result) => {
+							return `${t(result.language)}` + (result.confidence !== undefined ? ` [${(result.confidence * 100).toFixed(2)}%]` : '');
+						}).join("\n\t");
 
-				if (main.language) {
-					let alternatives = results.map((result) => {
-						return `${t(result.language)}` + (result.confidence !== undefined ? ` [${(result.confidence * 100).toFixed(2)}%]` : '');
-					}).join("\n\t");
+						alternatives = (alternatives ? "\nAlternatives:\n\t" : "") + alternatives;
 
-					alternatives = (alternatives ? "\nAlternatives:\n\t" : "") + alternatives;
+						new Notice(`Detected language:\n\t${t(main.language)}` +
+							(main.confidence !== undefined ? ` [${(main.confidence * 100).toFixed(2)}%]` : '') + alternatives, 0);
+					}
+				},
+			}
+		]
+		interface CommandI {
+			id: string,
+			name: string,
+			icon: string,
+			editor_context?: boolean
+			func?: any,
+		}
 
-					new Notice(`Detected language:\n\t${t(main.language)}` +
-						(main.confidence !== undefined ? ` [${(main.confidence * 100).toFixed(2)}%]` : '') + alternatives, 0);
-				}
-			},
-		});
+		for (let command of commands) {
+			delete Object.assign(command, {[(Platform.isMobile || command.editor_context) ? "editorCallback" : "callback"]: command["func"] })["func"];
+			this.addCommand(command);
+		}
+
 
 		this.registerEvent(
 			this.app.workspace.on("editor-menu", (menu, editor) => {

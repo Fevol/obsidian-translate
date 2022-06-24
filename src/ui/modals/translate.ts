@@ -8,6 +8,7 @@ export default class TranslateModal extends FuzzySuggestModal<string>{
 	options: Record<string, string>[];
 	translation_type: string;
 
+	// FIXME?: Pass the editor context if provided
 	constructor(app: App, plugin: TranslatorPlugin, translation_type: string) {
 		super(app);
 		this.plugin = plugin;
