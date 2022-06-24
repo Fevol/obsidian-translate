@@ -3,7 +3,7 @@
 
 	import type {Writable} from "svelte/store";
 	import {horizontalSlide} from "../animations";
-	import {Button, Dropdown, TextArea} from "../components";
+	import {Dropdown, TextArea} from "../components";
 	import {NavHeader, View} from "../obsidian-components";
 
 	import type {PluginData, TranslatorPluginSettings} from "../../types";
@@ -24,7 +24,7 @@
 	let language_to_observer: any;
 	let language_from_observer: any;
 
-	async function translate() {
+	export async function translate() {
 		if (!$settings.service_settings[$settings.translation_service].validated) {
 			if (!plugin.settings_open)
 				plugin.message_queue("Translation service is not validated");
