@@ -58,7 +58,7 @@ export class TranslatorView extends ItemView {
 			}
 		});
 		this.in = containerEl.getElementsByClassName('translator-textarea')[0]
-		this.in.addEventListener('DOMActivate', () => this.push())
+		this.in.addEventListener('mouseenter', () => this.push())
 		this.out = containerEl.getElementsByClassName('translator-textarea')[0]
 		this.out.addEventListener('mouseout', () => this.pop())
 	}
