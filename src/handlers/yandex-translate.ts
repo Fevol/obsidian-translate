@@ -6,8 +6,8 @@ import type {DetectionResult, LanguagesFetchResult, TranslationResult, Validatio
 export class YandexTranslate extends DummyTranslate {
 	api_key: string;
 
-	constructor(api_key: string) {
-		super();
+	constructor(valid: boolean, api_key: string) {
+		super(valid);
 		this.api_key = api_key;
 	}
 
@@ -32,6 +32,9 @@ export class YandexTranslate extends DummyTranslate {
 
 
 	async detect(text: string): Promise<Array<DetectionResult>> {
+		if (!this.valid)
+			return [{message: "Translation service is not validated"}];
+
 		if (!text.trim())
 			return [{message: "No text was provided"}];
 
@@ -59,6 +62,8 @@ export class YandexTranslate extends DummyTranslate {
 	}
 
 	async translate(text: string, from: string, to: string): Promise<TranslationResult> {
+		if (!this.valid)
+			return {message: "Translation service is not validated"};
 		if (!text.trim())
 			return {message: "No text was provided"};
 		if (!to)
@@ -93,6 +98,8 @@ export class YandexTranslate extends DummyTranslate {
 	}
 
 	async get_languages(): Promise<LanguagesFetchResult> {
+		if (!this.valid)
+			return {message: "Translation service is not validated"};
 		try {
 			const response = await fetch("https://translate.yandex.net/api/v1.5/tr.json/getLangs?" +
 				new URLSearchParams({

@@ -1,4 +1,5 @@
 <script lang="ts">
+	import {Scope} from "obsidian";
 	import TranslatorPlugin from "../../main";
 
 	import type {Writable} from "svelte/store";
@@ -11,6 +12,7 @@
 	import {Icon} from "../components";
 	import {SwitchService} from "../modals";
 	import t from "../../l10n";
+	import {onDestroy} from "svelte";
 
 	export let plugin: TranslatorPlugin;
 	export let settings: Writable<TranslatorPluginSettings>;
@@ -24,7 +26,17 @@
 	let language_to_observer: any;
 	let language_from_observer: any;
 
-	export async function translate() {
+
+	// Implements Cmd+Enter functionality for quick translation
+	const view_scope = new Scope(app.scope);
+	view_scope.register(['Mod'], 'Enter', (e) => {
+		translate();
+		return false;
+	});
+
+	async function translate() {
+		// While validation is also checked within the translator, if we don't check if the settings are open,
+		// 	we don't want the message to be displayed
 		if (!$settings.service_settings[$settings.translation_service].validated) {
 			if (!plugin.settings_open)
 				plugin.message_queue("Translation service is not validated");
@@ -71,14 +83,16 @@
 
 
 
-
+	// If available_languages changes (list of locales that the user has applied filter on), rebuild the selectable_languages
+	// array, representing all languages that the user can select in the Translation view
 	$: $data.available_languages, selectable_languages = Array.from($data.available_languages)
 		.map((locale) => {const language = $data.all_languages.get(locale);return {'value': locale, 'text': language ? language : locale};})
 		.sort((a, b) => a.text.localeCompare(b.text))
 
 	$: {
 		view_mode_observer;
-		// Reactivity can only trigger here (and not in view), so we get the translator view and its size here by the id
+		// Since Reactivity is far more clean to write in Svelte files (and perhaps more efficient),
+		// we listen to view mode being changed here, and then fetch the View element by its ID
 		const rectangle = document.getElementById("translator-view")?.getBoundingClientRect();
 		onResize(rectangle?.width || 0, rectangle?.height || 0);
 	}
@@ -104,9 +118,13 @@
 				new_layout = "vertical";
 			current_layout = new_layout;
 		}
-
-
 	}
+
+	onDestroy(() => {
+		app.keymap.popScope(view_scope);
+	})
+
+
 </script>
 
 <View>
@@ -152,7 +170,10 @@
 			   ]}
 	/>
 
-	<div slot="view" class="translator-view {current_layout}">
+	<div slot="view" class="translator-view {current_layout}"
+		on:mouseenter={() => app.keymap.pushScope(view_scope)}
+		on:mouseleave={() => app.keymap.popScope(view_scope)}
+	>
 		<!-- TODO: Make the field resizable (save data)-->
 		<!-- TODO: Event should only be triggered when the user is done typing (?) (count delay)-->
 		<!-- FIXME: Some services use regional identifiers for their locales, might cause trouble -->
@@ -183,8 +204,6 @@
 						$data.detected_language = undefined;
 					} else if ($settings.service_settings[$settings.translation_service].auto_translate) {
 						await translate();
-					} else if ((e.metaKey || e.ctrlKey) && (e.keyCode === 10 || e.keyCode === 13)) {
-						await translate();
 					}
 				}}
 			/>
@@ -210,7 +229,8 @@
 			</button>
 
 			{#if !$settings.service_settings[$settings.translation_service].auto_translate}
-				<button transition:horizontalSlide={{ duration: 300 }} class="translator-button" on:click={async () => {await translate();}} aria-label="Translate">
+				<button transition:horizontalSlide={{ duration: 300 }} class="translator-button"
+						on:click={async () => {await translate();}} aria-label="Translate">
 					<Icon icon=translate size={20}/>
 				</button>
 			{/if}

@@ -9,7 +9,7 @@ import {SwitchService, TranslateModal} from "./ui/modals";
 
 import type {APIServiceProviders, APIServiceSettings, PluginData, TranslatorPluginSettings} from "./types";
 import {ICONS, DEFAULT_SETTINGS, TRANSLATOR_VIEW_ID, DEFAULT_DATA} from "./constants";
-import {DummyTranslate, BingTranslator, GoogleTranslate, Deepl, LibreTranslate, YandexTranslate} from "./handlers";
+import type {DummyTranslate} from "./handlers";
 import {rateLimit} from "./util";
 
 import ISO6391 from "iso-639-1";
@@ -175,13 +175,6 @@ export default class TranslatorPlugin extends Plugin {
 					new Notice(`Detected language:\n\t${t(main.language)}` +
 						(main.confidence !== undefined ? ` [${(main.confidence * 100).toFixed(2)}%]` : '') + alternatives, 0);
 				}
-
-				// if (this.translator.failure_count >= 10)
-				// 	this.settings.update(x => {
-				// 		x.service_settings[x.translation_service as keyof APIServiceProviders].validated = false;
-				// 		return x;
-				// 	});
-
 			},
 		});
 
@@ -240,41 +233,6 @@ export default class TranslatorPlugin extends Plugin {
 		// Get the translator leaf and reveal it
 		this.app.workspace.revealLeaf(this.app.workspace.getLeavesOfType(TRANSLATOR_VIEW_ID)[0]);
 	}
-
-	// ----------------  Set up translation service  ----------------
-	setupTranslationService(service: string, api_key: string = '', region: string = '', host: string = '') {
-		switch (service) {
-			case 'google_translate':
-				this.translator = new GoogleTranslate(api_key);
-				break;
-			case 'libre_translate':
-				this.translator = new LibreTranslate(host);
-				break;
-			case 'bing_translator':
-				this.translator = new BingTranslator(api_key, region);
-				break;
-			case 'yandex_translate':
-				this.translator = new YandexTranslate(api_key);
-				break;
-			case 'deepl':
-				this.translator = new Deepl(api_key, host);
-				break;
-			default:
-				this.translator = new DummyTranslate();
-		}
-
-		// Whenever
-		const subscriber = this.translator.valid.subscribe((valid: boolean) => {
-			if (!valid) {
-				this.message_queue("Too many failures: please revalidate the service", 5000, true)
-				this.settings.update(x => {
-					x.service_settings[x.translation_service as keyof APIServiceProviders].validated = false;
-					return x
-				});
-			}
-		});
-	}
-
 	// --------------------------------------------------------------
 
 

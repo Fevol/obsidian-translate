@@ -1,5 +1,8 @@
 <!-- This component handles all updates in the settings/data objects -->
 
+import {DummyTranslate, BingTranslator, GoogleTranslate, Deepl, LibreTranslate, YandexTranslate} from "../../handlers";
+
+
 <script lang="ts">
 
 	import {onMount} from "svelte";
@@ -13,7 +16,16 @@
 	import ISO6391 from "iso-639-1";
 
 	import t from "../../l10n";
-	import {TRANSLATION_SERVICES_INFO} from "../../constants";
+	import {
+		BingTranslator,
+		Deepl,
+		DummyTranslate,
+		GoogleTranslate,
+		LibreTranslate,
+		YandexTranslate
+	} from "../../handlers";
+	import {writable} from "svelte/store";
+
 
 	export let app: App;
 	export let plugin: TranslatorPlugin;
@@ -27,6 +39,7 @@
 	let api_key_observer: any;
 	let host_observer: any;
 	let region_observer: any;
+	let display_language_observer: any;
 
 	let filter_type_observer: any;
 	let available_languages_observer: any;
@@ -53,10 +66,27 @@
 	$: api_key_observer = $settings.service_settings[$settings.translation_service].api_key;
 	$: host_observer = $settings.service_settings[$settings.translation_service].host;
 	$: region_observer = $settings.service_settings[$settings.translation_service].region;
+	$: display_language_observer = $settings.display_language;
 	$: service_observer = $settings.translation_service;
 
 
+	function setupTranslationService(service: string, api_key: string = '', region: string = '', host: string = '') {
+		const valid = $settings.service_settings[service]?.validated;
+		if (service === "google_translate")
+			plugin.translator = new GoogleTranslate(valid, api_key);
+		else if (service === "bing_translator")
+			plugin.translator = new BingTranslator(valid, api_key, region);
+		else if (service === "yandex_translate")
+			plugin.translator = new YandexTranslate(valid, api_key);
+		else if (service === "deepl")
+			plugin.translator = new Deepl(valid, api_key, host);
+		else if (service === "libre_translate")
+			plugin.translator = new LibreTranslate(valid, host);
+		else
+			plugin.translator = new DummyTranslate(valid);
+	}
 
+	// Update selection of available languages for the Translation View
 	function updateAvailableLanguages() {
 		$data.available_languages =
 			filter_type_observer === 0 ? $settings.service_settings[$settings.translation_service].available_languages :
@@ -64,6 +94,8 @@
 										 $settings.service_settings[$settings.translation_service].selected_languages;
 	}
 
+	// Fetch names for locales of translation service (this can not be pre-calculated as the set of available languages
+	// in a service changes constantly)
 	function updateLanguageNames() {
 		$data.all_languages =
 			new Map(Array.from($settings.service_settings[$settings.translation_service].available_languages.map((locale: string) => {
@@ -75,29 +107,24 @@
 					extra = extra ? ` (${extra})` : '';
 				}
 				if ($settings.display_language === 'local')
-					language = ISO6391.getNativeName(language)
+					language = ISO6391.getNativeName(language) || t(language)
 				else if ($settings.display_language === 'display')
 					language = t(language)
 				return [locale, language + extra];
 		})))
 	}
 	$: filter_type_observer, selected_languages_observer, updateAvailableLanguages();
-	$: plugin.setupTranslationService(service_observer, api_key_observer, region_observer, host_observer);
+	$: setupTranslationService(service_observer, api_key_observer, region_observer, host_observer);
 
 
 	// TWO TRIGGERS:
 	//  1. Translation service got changed (different available languages length)
 	// 	2. Available languages of translator got updated in settings (different available languages length)
 	$: available_languages_observer, updateAvailableLanguages(), updateLanguageNames();
-
-
-
+	$: display_language_observer, updateLanguageNames();
 
 	onMount(() => {
-		// Set-up plugin data
-
 		// There is currently no way to catch when the display language of Obsidian is being changed, as it is not reactive
-		// (add current display language to app.json?)
 		// So 'display languages' setting will only be applied correctly when the program is fully restarted or when
 		// the language display name setting is changed.
 		$data.current_language = plugin.fixLanguageCode(moment.locale());
@@ -125,6 +152,20 @@
 			}
 		}
 
+		// If translator becomes invalid (due to subsequent failures), save the valid value
+		plugin.translator.valid_watcher.subscribe((valid: boolean) => {
+			if (plugin.translator.constructed) {
+				if (valid === false) {
+					plugin.message_queue("Too many failures: please revalidate the service", 5000, true)
+					$settings.service_settings[$settings.translation_service].validated = false;
+				}
+			} else {
+				if (valid === false)
+					plugin.message_queue("Please validate the service to use its functionality", 5000, true)
+				// Avoids the error message being shown initially
+				plugin.translator.constructed = true;
+			}
+		});
 
 	});
 

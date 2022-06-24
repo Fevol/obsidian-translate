@@ -15,8 +15,8 @@ export class BingTranslator extends DummyTranslate {
 	// 	interval: "hour",
 	// }
 
-	constructor(api_key: string, region: string) {
-		super();
+	constructor(valid: boolean, api_key: string, region: string) {
+		super(valid);
 		this.api_key = api_key;
 		this.region = region;
 	}
@@ -53,6 +53,9 @@ export class BingTranslator extends DummyTranslate {
 	}
 
 	async detect(text: string): Promise<Array<DetectionResult>> {
+		if (!this.valid)
+			return [{message: "Translation service is not validated"}];
+
 		if (!text.trim())
 			return [{message: "No text was provided"}];
 
@@ -93,6 +96,8 @@ export class BingTranslator extends DummyTranslate {
 	}
 
 	async translate(text: string, from: string = 'auto', to: string): Promise<TranslationResult> {
+		if (!this.valid)
+			return {message: "Translation service is not validated"};
 		if (!text.trim())
 			return {message: "No text was provided"};
 		if (!to)
@@ -130,7 +135,7 @@ export class BingTranslator extends DummyTranslate {
 		}
 	}
 
-	// No API key required
+	// No API key required, service may be invalid
 	async get_languages(): Promise<LanguagesFetchResult> {
 		try {
 			const response = await fetch("https://api.cognitive.microsofttranslator.com/languages?api-version=3.0&scope=translation", {

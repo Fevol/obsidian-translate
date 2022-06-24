@@ -20,6 +20,7 @@
 	const services = TRANSLATION_SERVICES_INFO;
 	let selectable_services: any[];
 
+	// Update list of languages that can be selected in 'Manually select languages' option
 	$: {
 		selectable_services = Array.from($data.all_languages)
 			.map(([locale, name]) => { return {'value': locale, 'text': name} })
@@ -136,6 +137,9 @@
 					name="API Key"
 					description="API key for translation service"
 					type="text"
+					notices={[
+						{ type: 'href', text: "🛈 Sign up for API key here", url: info.request_key}
+					]}
 				>
 					<Input
 						slot="control"

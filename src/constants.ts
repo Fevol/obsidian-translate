@@ -135,7 +135,7 @@ export const TRANSLATION_SERVICES_INFO: { [key: string]: any } = {
 	},
 	bing_translator: {
 		display_name: "Bing Translator",
-		request_key: "https://www.microsoft.com/en-us/translator/business/translator-api/",
+		request_key: "https://azure.microsoft.com/en-us/free/",
 		url: "https://www.microsoft.com/en-us/translator/",
 		attribution: "bing_translator_attribution",
 		region_options: [

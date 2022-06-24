@@ -4,8 +4,8 @@ import type {DetectionResult, LanguagesFetchResult, TranslationResult, Validatio
 export class LibreTranslate extends DummyTranslate {
 	host: string;
 
-	constructor(host: string) {
-		super();
+	constructor(valid: boolean, host: string) {
+		super(valid);
 		this.host = host;
 	}
 
@@ -23,6 +23,9 @@ export class LibreTranslate extends DummyTranslate {
 	}
 
 	async detect(text: string): Promise<Array<DetectionResult>> {
+		if (!this.valid)
+			return [{message: "Translation service is not validated"}];
+
 		if (!text.trim())
 			return [{message: "No text was provided"}];
 
@@ -49,6 +52,8 @@ export class LibreTranslate extends DummyTranslate {
 	}
 
 	async translate(text: string, from: string, to: string): Promise<TranslationResult> {
+		if (!this.valid)
+			return {message: "Translation service is not validated"};
 		if (!text.trim())
 			return {message: "No text was provided"};
 		if (!to)
@@ -81,6 +86,8 @@ export class LibreTranslate extends DummyTranslate {
 	}
 
 	async get_languages(): Promise<LanguagesFetchResult> {
+		if (!this.valid)
+			return {message: "Translation service is not validated"};
 		try {
 			const response = await fetch(`${this.host}/languages`);
 

@@ -26,8 +26,8 @@ export class Deepl extends DummyTranslate {
 	// }
 
 
-	constructor(api_key: string, host: string = 'https://api-free.deepl.com/v2') {
-		super();
+	constructor(valid: boolean, api_key: string, host: string = 'https://api-free.deepl.com/v2') {
+		super(valid);
 		this.api_key = api_key;
 		this.host = host;
 	}
@@ -74,6 +74,9 @@ export class Deepl extends DummyTranslate {
 	// FIXME: DeepL doesn't actually support language detection, this is translating the text to get the language
 	//         Obviously this is not desirable, might just disable this feature for DeepL
 	async detect(text: string): Promise<Array<DetectionResult>> {
+		if (!this.valid)
+			return [{message: "Translation service is not validated"}];
+
 		if (!text.trim())
 			return [{message: "No text was provided"}];
 
@@ -107,6 +110,8 @@ export class Deepl extends DummyTranslate {
 	}
 
 	async translate(text: string, from: string, to: string): Promise<TranslationResult> {
+		if (!this.valid)
+			return {message: "Translation service is not validated"};
 		if (!text.trim())
 			return {message: "No text was provided"};
 		if (!to)
@@ -147,6 +152,8 @@ export class Deepl extends DummyTranslate {
 
 
 	async get_languages(): Promise<LanguagesFetchResult> {
+		if (!this.valid)
+			return {message: "Translation service is not validated"};
 		try {
 			const response = await request({
 				url: `${this.host}/languages`,

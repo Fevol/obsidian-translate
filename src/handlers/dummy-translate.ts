@@ -3,17 +3,27 @@ import type {Writable} from "svelte/store";
 import {writable} from "svelte/store";
 
 export class DummyTranslate {
+	constructed: boolean = false;
 	failure_count: number;
-	valid: Writable<boolean> = writable(true);
 
-	constructor() {
+	// Due to the fact that valid will be accessed many times, it's best if we don't have to call get from svelte/store
+	//  each time, as that will require a subscribe and an unsubscribe every time we execute translator logic
+	valid: boolean;
+	valid_watcher: Writable<boolean>;
+
+
+	constructor(valid: boolean) {
 		this.failure_count = 0;
+		this.valid_watcher = writable<boolean>(valid);
+		this.valid = valid;
 	}
 
 	failed(): void {
 		this.failure_count++;
-		if (this.failure_count >= 10)
-			this.valid.set(false);
+		if (this.failure_count >= 10) {
+			this.valid_watcher.set(false);
+			this.valid = false;
+		}
 	}
 
 	success(): void {

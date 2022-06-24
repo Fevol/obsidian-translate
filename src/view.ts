@@ -10,25 +10,10 @@ import {TRANSLATOR_VIEW_ID} from "./constants";
 export class TranslatorView extends ItemView {
 	plugin: TranslatorPlugin;
 	private view: SvelteComponent;
-	scope: Scope;
-	in: Element;
-	out: Element;
 
 	constructor(leaf: WorkspaceLeaf, plugin: TranslatorPlugin) {
 		super(leaf);
 		this.plugin = plugin;
-		this.scope = new Scope(app.scope)
-		this.scope.register(['Mod'], 'Enter', (e) => {
-			this.view.translate();
-			return false;
-		});
-	}
-
-	push() {
-		app.keymap.pushScope(this.scope);
-	}
-	pop() {
-		app.keymap.popScope(this.scope);
 	}
 
 	getViewType() {
@@ -57,15 +42,10 @@ export class TranslatorView extends ItemView {
 				data: this.plugin.plugin_data,
 			}
 		});
-		this.in = containerEl.getElementsByClassName('translator-textarea')[0]
-		this.in.addEventListener('mouseenter', () => this.push())
-		this.out = containerEl.getElementsByClassName('translator-textarea')[0]
-		this.out.addEventListener('mouseout', () => this.pop())
 	}
 
 	async onClose() {
 		this.view.$destroy();
-		this.pop()
 		this.containerEl.detach()
 	}
 
