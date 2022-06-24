@@ -37,7 +37,7 @@ export const DEFAULT_SETTINGS: TranslatorPluginSettings = {
 	translation_service: 'google_translate',
 	service_settings: {
 		google_translate: {
-			selected_languages: ['en', 'nl', 'fr'],
+			selected_languages: [],
 			filter_type: 0,
 			api_key: "",
 			region: null,
@@ -56,7 +56,7 @@ export const DEFAULT_SETTINGS: TranslatorPluginSettings = {
 			]
 		},
 		bing_translator: {
-			selected_languages: ['en', 'nl', 'fr'],
+			selected_languages: [],
 			filter_type: 0,
 			api_key: "",
 			region: "",
@@ -76,7 +76,7 @@ export const DEFAULT_SETTINGS: TranslatorPluginSettings = {
 			]
 		},
 		yandex_translate: {
-			selected_languages: ['en', 'nl', 'fr'],
+			selected_languages: [],
 			filter_type: 0,
 			api_key: "",
 			region: null,
@@ -94,7 +94,7 @@ export const DEFAULT_SETTINGS: TranslatorPluginSettings = {
 			]
 		},
 		libre_translate: {
-			selected_languages: ['en', 'nl', 'fr'],
+			selected_languages: [],
 			filter_type: 0,
 			api_key: null,
 			region: null,
@@ -108,7 +108,7 @@ export const DEFAULT_SETTINGS: TranslatorPluginSettings = {
 			]
 		},
 		deepl: {
-			selected_languages: ['en', 'nl', 'fr'],
+			selected_languages: [],
 			filter_type: 0,
 			api_key: "",
 			region: null,

@@ -19,7 +19,7 @@
 		readonly={readonly}
 		placeholder={placeholder}
 		bind:value={text}
-		on:input={onChange} {text}
+		on:keydown={onChange} {text}
 	/>
 {:else}
 	<textarea
@@ -27,7 +27,7 @@
 		readonly={readonly}
 		placeholder={placeholder}
 		value={text}
-		on:input={
+		on:keydown={
 			(e) => {
 				if (timer) {
 					clearTimeout(timer);
@@ -37,6 +37,5 @@
 				}, typingdelay);
 			}
 		}
-		on:keydown={(e) => onInput(e)}
 	/>
 {/if}

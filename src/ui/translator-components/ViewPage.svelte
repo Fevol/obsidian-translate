@@ -174,7 +174,8 @@
 				placeholder="Type here..."
 				class="translator-textarea"
 				text={$data.text_from}
-				typingdelay={$settings.service_settings[$settings.translation_service].auto_translate_interval}
+				typingdelay={$settings.service_settings[$settings.translation_service].auto_translate &&
+				 			 $settings.service_settings[$settings.translation_service].auto_translate_interval}
 				onChange={async (e) => {
 					$data.text_from = e.target.value;
 					if (!$data.text_from) {
@@ -182,10 +183,7 @@
 						$data.detected_language = undefined;
 					} else if ($settings.service_settings[$settings.translation_service].auto_translate) {
 						await translate();
-					}
-				}}
-				onInput={async (e) => {
-					if (e.ctrlKey && e.keyCode === 13) {
+					} else if ((e.metaKey || e.ctrlKey) && (e.keyCode === 10 || e.keyCode === 13)) {
 						await translate();
 					}
 				}}

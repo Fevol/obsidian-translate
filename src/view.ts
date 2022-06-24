@@ -1,4 +1,5 @@
-import {ItemView, WorkspaceLeaf} from "obsidian";
+import {ItemView, Scope, WorkspaceLeaf} from "obsidian";
+import type {KeymapEventHandler} from "obsidian";
 import type TranslatorPlugin from "./main";
 
 import type {SvelteComponent} from "svelte";
@@ -9,11 +10,14 @@ import {TRANSLATOR_VIEW_ID} from "./constants";
 
 export class TranslatorView extends ItemView {
 	plugin: TranslatorPlugin;
+	scope: Scope;
 	private view: SvelteComponent;
+	shortcut: KeymapEventHandler;
 
 	constructor(leaf: WorkspaceLeaf, plugin: TranslatorPlugin) {
 		super(leaf);
 		this.plugin = plugin;
+		this.scope = new Scope(this.app.scope);
 	}
 
 	getViewType() {
@@ -42,11 +46,12 @@ export class TranslatorView extends ItemView {
 				data: this.plugin.plugin_data,
 			}
 		});
-
+		this.shortcut = this.scope.register(['Mod'], 'Enter', () => {});
 	}
 
 	async onClose() {
 		this.view.$destroy();
+		this.scope.unregister(this.shortcut);
 	}
 
 	onResize() {

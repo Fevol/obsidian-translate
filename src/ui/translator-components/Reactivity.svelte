@@ -13,6 +13,7 @@
 	import ISO6391 from "iso-639-1";
 
 	import t from "../../l10n";
+	import {TRANSLATION_SERVICES_INFO} from "../../constants";
 
 	export let app: App;
 	export let plugin: TranslatorPlugin;
@@ -109,6 +110,22 @@
 			if (filter_type_observer === 1)
 				updateAvailableLanguages();
 		}
+
+		// FIXME: Not sure how to go about this in a better way, spellchecker languages should not always be included:
+		//   users should be able to have a persistent selection of languages. This is hopefully a good compromise:
+		//   each time the program is started up, check if the list of selected languages is empty, if so,
+		//	 update it with the spellchecker languages; if possible, I would like this to happen ONCE, when the
+		// 	 user activates the plugin for the first time ever (and technically possible by adding a 'activated' variable
+		//	 inside data), but that seems redundant
+		if ($data.spellchecker_languages.length) {
+			for (let service in $settings.service_settings) {
+				if (!$settings.service_settings[service].selected_languages.length) {
+					$settings.service_settings[service].selected_languages = $data.spellchecker_languages;
+				}
+			}
+		}
+
+
 	});
 
 </script>
