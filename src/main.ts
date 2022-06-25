@@ -16,7 +16,6 @@ import ISO6391 from "iso-639-1";
 import t from "./l10n";
 import {translate_selection} from "./helpers";
 
-
 export default class TranslatorPlugin extends Plugin {
 	settings: Writable<TranslatorPluginSettings>;
 	plugin_data: Writable<PluginData>;
@@ -47,8 +46,6 @@ export default class TranslatorPlugin extends Plugin {
 	// });
 
 	async onload() {
-		// TODO: Implement FastText
-
 		this.message_queue = rateLimit(5, 3000, true,(text: string, timeout: number = 4000, priority: boolean = false) => {
 			new Notice(text, timeout);
 		});
