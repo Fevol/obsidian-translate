@@ -14,8 +14,8 @@ import {rateLimit} from "./util";
 
 import ISO6391 from "iso-639-1";
 import t from "./l10n";
-import {detect_selection, translate_selection} from "./helpers";
-// import {importFastText} from "./handlers/languageDetection/language-detection";
+import {translate_selection} from "./helpers";
+import {importFastText} from "./handlers/language-detection";
 
 
 export default class TranslatorPlugin extends Plugin {
@@ -44,7 +44,11 @@ export default class TranslatorPlugin extends Plugin {
 
 	async onload() {
 		// TODO: Implement FastText
-		// await importFastText(this);
+
+
+		importFastText(this);
+
+
 
 		this.message_queue = rateLimit(5, 3000, true,(text: string, timeout: number = 4000, priority: boolean = false) => {
 			new Notice(text, timeout);
