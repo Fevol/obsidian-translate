@@ -1,3 +1,4 @@
+export * from './bergamot';
 export * from './bing-translator';
 export * from './google-translate';
 export * from './yandex-translate';

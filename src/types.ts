@@ -37,6 +37,7 @@ export interface APIServiceProviders {
 	yandex_translate: APIServiceSettings;
 	libre_translate: APIServiceSettings;
 	deepl: APIServiceSettings;
+	bergamot: APIServiceSettings;
 }
 
 export interface APIServiceSettings {

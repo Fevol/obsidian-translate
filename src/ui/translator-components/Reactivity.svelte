@@ -1,4 +1,8 @@
 <!-- This component handles all updates in the settings/data objects -->
+
+import {DummyTranslate, BingTranslator, GoogleTranslate, BergamotTranslate, Deepl, LibreTranslate, YandexTranslate} from "../../handlers";
+
+
 <script lang="ts">
 
 	import {onMount} from "svelte";
@@ -13,9 +17,10 @@
 	import ISO6391 from "iso-639-1";
 
 	import t from "../../l10n";
-	import {BingTranslator, Deepl, DummyTranslate, GoogleTranslate, LibreTranslate, YandexTranslate} from "../../handlers";
+	import {BingTranslator, Deepl, DummyTranslate, BergamotTranslate, GoogleTranslate, LibreTranslate, YandexTranslate} from "../../handlers";
 	import {aesGcmDecrypt} from "../../util";
 	import {PasswordRequestModal} from "../modals";
+
 
 	export let app: App;
 	export let plugin: TranslatorPlugin;
@@ -82,6 +87,8 @@
 			plugin.translator = new Deepl(api_key_observer, host_observer);
 		else if (service_observer === "libre_translate")
 			plugin.translator = new LibreTranslate(host_observer);
+		else if (service_observer === "bergamot")
+			plugin.translator = new BergamotTranslate(valid, plugin);
 		else
 			plugin.translator = new DummyTranslate();
 
