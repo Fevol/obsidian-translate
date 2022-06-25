@@ -1,6 +1,6 @@
 <!-- This component handles all updates in the settings/data objects -->
 
-import {DummyTranslate, BingTranslator, GoogleTranslate, Deepl, LibreTranslate, YandexTranslate} from "../../handlers";
+import {DummyTranslate, BingTranslator, GoogleTranslate, BergamotTranslate, Deepl, LibreTranslate, YandexTranslate} from "../../handlers";
 
 
 <script lang="ts">
@@ -20,6 +20,7 @@ import {DummyTranslate, BingTranslator, GoogleTranslate, Deepl, LibreTranslate, 
 		BingTranslator,
 		Deepl,
 		DummyTranslate,
+		BergamotTranslate,
 		GoogleTranslate,
 		LibreTranslate,
 		YandexTranslate
@@ -82,6 +83,8 @@ import {DummyTranslate, BingTranslator, GoogleTranslate, Deepl, LibreTranslate, 
 			plugin.translator = new Deepl(valid, api_key, host);
 		else if (service === "libre_translate")
 			plugin.translator = new LibreTranslate(valid, host);
+		else if (service === "bergamot")
+			plugin.translator = new BergamotTranslate(valid, plugin);
 		else
 			plugin.translator = new DummyTranslate(valid);
 	}

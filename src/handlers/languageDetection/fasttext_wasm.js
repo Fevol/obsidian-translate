@@ -1982,7 +1982,6 @@ var FastTextModule = (function () {
 						// Don't use streaming for file:// delivered objects in a webview, fetch them synchronously.
 						!isFileURI(wasmBinaryFile) &&
 						typeof fetch === 'function') {
-						console.log("J");
 
 						// TODO: Get access to app.vault and plugin.manifest here!
 						let file = await app.vault.adapter.readBinary(`.obsidian/plugins/obsidian-translate/src/handlers/languageDetection/fasttext_wasm.wasm`)
