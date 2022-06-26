@@ -5,6 +5,8 @@ of your choice. ***This plugin is still in early beta!***
 
 <img src="https://raw.githubusercontent.com/Fevol/obsidian-translate/master/images/obsidian-translate.gif" width="800">
 
+---
+
 ## Usage
 
 Enable the plugin by manually downloading one of the releases from Github, or by
@@ -22,6 +24,7 @@ allow you to translate text until you do!**
 Afterwards, you can open the Translation View by either accessing the left ribbon, or by executing the 
 'Open Translation View' command. For more informations, head over to the [documentation](https://github.com/Fevol/obsidian-translate/blob/master/docs/TUTORIAL.md).
 
+---
 
 ## Translation Services
 ### Services overview
@@ -61,7 +64,11 @@ on your computer/network on any operating system, using Docker or Flask.
 - Make sure that you _only_ enable automatic translation if you have a sufficiently high character cap on your API
   account, or  locally host your own translation service (e.g. with Libre Translate).
 
+---
+
 ## Features
+For more informations, head over to the [documentation](https://github.com/Fevol/obsidian-translate/blob/master/docs/TUTORIAL.md).
+
 ### Commands
 - **Translate current file:** Translate _current_ file
 - **Translate to new file:** Translate active document to new file, title of document also gets translated
@@ -76,30 +83,34 @@ on your computer/network on any operating system, using Docker or Flask.
   - Quick access to most important settings (change providers, automatic translate, language filter, layout, plugin settings)
 - Right mouse (context menu) contains dropdown to translate selection 
 
-## Bugs
-- No known bugs
-
+---
 
 ## Future plans
-
-- Adding more ways to determine when to automatically translate, such as:
-    - Every `x` seconds
-    - User has completed a sentence (entered period)
-    - ... (suggest!)
-- Improving reliability of the translation service handlers
-- Make localization of language codes appear correctly regardless of the API used 
+### Features
+- Add more options to determine when to automatically translate current text
 - Integration of more translation services
+  - Fully local translation via FastText (text detection) and Bergamot (translation)
+  - QQ/Youdao
+  - ...
 - Add proper localization support to the plugin
-- Improve the settings layout and add animated transitions when switching between translation services (?)
+
+### Improvements
 - General UIX improvements
-- Once all that is done, upload the plugin to the official repository
-- ...
+- Improving reliability of the translation service handlers
+- Find ways to reduce the amount of characters that are sent to the translation service
+  - Caching translation results of sentence (continuous typing in translation view will not result in linear growth of amount of characters being sent over)
+  - ...
+
+---
 
 ## Discussion and Feedback
 
-Any feedback would *very* much be appreciated. Please use the [GitHub issue tracker]() to report bugs, request features,
+Any feedback would *very* much be appreciated. Please use the [GitHub issue tracker](https://github.com/Fevol/obsidian-translate/issues/new) to report bugs, request features,
 or suggest improvements, or message me over on Discord (@Fevol#9470).
 
-This was mainly a passion project to implement something I personally really needed, and I think that with this release,
-I finally have worked all the basic functionality out. However, I do realise that there is so much more that *could* be
-done with this; so, if you have _any_ ideas, I would love to hear them!
+This was mainly a passion project to implement something I personally really wanted. I hope you enjoy the plugin!
+
+Currently, I'm looking for feedback on the following topics:
+- Integration of more translation service providers
+- UX improvements (more shortcuts, commands, ...)
+- UI improvements (removal/improvement of animations)
