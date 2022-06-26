@@ -43,9 +43,12 @@
 			return;
 		}
 
+		// If no language from was specified or the saved language_from is not in the list of available languages
+		// for the translation service, auto-detect language
 		if ($settings.language_from !== 'auto' && !$data.available_languages.contains($settings.language_from)) {
 			$settings.language_from = 'auto';
 		}
+
 		if (!$data.available_languages.contains($settings.language_to)) {
 			plugin.message_queue("No language to translate to was selected");
 			return;
