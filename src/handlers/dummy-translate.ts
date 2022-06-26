@@ -18,12 +18,15 @@ export class DummyTranslate {
 		this.valid = valid;
 	}
 
+	set_validity(valid: boolean): void {
+		this.valid_watcher.set(valid);
+		this.valid = valid;
+	}
+
 	failed(): void {
 		this.failure_count++;
-		if (this.failure_count >= 10) {
-			this.valid_watcher.set(false);
-			this.valid = false;
-		}
+		if (this.failure_count >= 10)
+			this.set_validity(false);
 	}
 
 	success(): void {

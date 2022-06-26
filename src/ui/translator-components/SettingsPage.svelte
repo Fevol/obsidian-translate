@@ -197,12 +197,14 @@
 				description="Ensure that the translation service is set-up properly"
 				type="button"
 			>
+				<!-- FIXME: Check if there is a way to merge the setting's writeable and the translation service's writeable, currently implementation is ugly-->
 				<ToggleButton
 					text="Test"
 					slot="control"
 					value={$settings.service_settings[service].validated}
 					fn={async () => {
 						let validation_results = await plugin.translator.validate();
+						plugin.translator.set_validity(validation_results.valid);
 						if (validation_results.message)
 							plugin.message_queue(validation_results.message, !validation_results.valid ? 5000 : 3000);
 						if (validation_results.host)
