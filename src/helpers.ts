@@ -1,5 +1,6 @@
-import {TFile, Editor} from "obsidian";
+import {TFile, Editor, Notice} from "obsidian";
 import type TranslatorPlugin from "./main";
+import t from "./l10n";
 
 
 export async function translate_file(plugin: TranslatorPlugin, file: TFile,
@@ -63,4 +64,33 @@ export async function translate_selection(plugin: TranslatorPlugin, editor: Edit
 	}
 	let translation = (await plugin.translator.translate(editor.getSelection(), 'auto', language_to)).translation;
 	editor.replaceSelection(translation);
+}
+
+export async function detect_selection(plugin: TranslatorPlugin, editor: Editor): Promise<void> {
+	let selection = editor.getSelection();
+	if (editor.getSelection().length === 0) {
+		plugin.message_queue("Selection is empty");
+		return;
+	}
+
+	let results = await plugin.translator.detect(selection);
+	results = results.sort((a, b) => {
+		return b.confidence - a.confidence;
+	});
+
+	let main = results.shift();
+
+	if (main.message)
+		new Notice(main.message, 4000);
+
+	if (main.language) {
+		let alternatives = results.map((result) => {
+			return `${t(result.language)}` + (result.confidence !== undefined ? ` [${(result.confidence * 100).toFixed(2)}%]` : '');
+		}).join("\n\t");
+
+		alternatives = (alternatives ? "\nAlternatives:\n\t" : "") + alternatives;
+
+		new Notice(`Detected language:\n\t${t(main.language)}` +
+			(main.confidence !== undefined ? ` [${(main.confidence * 100).toFixed(2)}%]` : '') + alternatives, 0);
+	}
 }

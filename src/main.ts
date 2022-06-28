@@ -14,7 +14,7 @@ import {rateLimit} from "./util";
 
 import ISO6391 from "iso-639-1";
 import t from "./l10n";
-import {translate_selection} from "./helpers";
+import {detect_selection, translate_selection} from "./helpers";
 // import {importFastText} from "./handlers/languageDetection/language-detection";
 
 
@@ -50,8 +50,6 @@ export default class TranslatorPlugin extends Plugin {
 	async onload() {
 		// TODO: Implement FastText
 		// await importFastText(this);
-
-
 
 		this.message_queue = rateLimit(5, 3000, true,(text: string, timeout: number = 4000, priority: boolean = false) => {
 			new Notice(text, timeout);
@@ -145,27 +143,7 @@ export default class TranslatorPlugin extends Plugin {
 				icon: "detect-selection",
 				editor_context: true,
 				func: async (editor: Editor, view: MarkdownView) => {
-					let selection = editor.getSelection();
-					let results = await this.translator.detect(selection);
-					results = results.sort((a, b) => {
-						return b.confidence - a.confidence;
-					});
-
-					let main = results.shift();
-
-					if (main.message)
-						new Notice(main.message, 4000);
-
-					if (main.language) {
-						let alternatives = results.map((result) => {
-							return `${t(result.language)}` + (result.confidence !== undefined ? ` [${(result.confidence * 100).toFixed(2)}%]` : '');
-						}).join("\n\t");
-
-						alternatives = (alternatives ? "\nAlternatives:\n\t" : "") + alternatives;
-
-						new Notice(`Detected language:\n\t${t(main.language)}` +
-							(main.confidence !== undefined ? ` [${(main.confidence * 100).toFixed(2)}%]` : '') + alternatives, 0);
-					}
+					await detect_selection(this, editor);
 				},
 			}
 		]
@@ -185,9 +163,11 @@ export default class TranslatorPlugin extends Plugin {
 
 		this.registerEvent(
 			this.app.workspace.on("editor-menu", (menu, editor) => {
-				const item = menu.addItem((item) => {
+
+				menu.addItem((item) => {
 					item.setTitle("Translate")
 						.setIcon("translate")
+						.setSection("translate")
 						.onClick(async () => {
 							// Keep the dropdown open
 						});
@@ -217,6 +197,17 @@ export default class TranslatorPlugin extends Plugin {
 
 
 				});
+
+				menu.addItem((item) => {
+					item.setTitle("Detect Language")
+						.setIcon("detect-selection")
+						.setSection("translate")
+						.onClick(async () => {
+							await detect_selection(this, editor);
+						});
+				});
+
+
 			})
 		);
 	}
