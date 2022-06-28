@@ -1,8 +1,4 @@
 <!-- This component handles all updates in the settings/data objects -->
-
-import {DummyTranslate, BingTranslator, GoogleTranslate, Deepl, LibreTranslate, YandexTranslate} from "../../handlers";
-
-
 <script lang="ts">
 
 	import {onMount} from "svelte";
@@ -16,14 +12,7 @@ import {DummyTranslate, BingTranslator, GoogleTranslate, Deepl, LibreTranslate, 
 	import ISO6391 from "iso-639-1";
 
 	import t from "../../l10n";
-	import {
-		BingTranslator,
-		Deepl,
-		DummyTranslate,
-		GoogleTranslate,
-		LibreTranslate,
-		YandexTranslate
-	} from "../../handlers";
+	import {BingTranslator, Deepl, DummyTranslate, GoogleTranslate, LibreTranslate, YandexTranslate} from "../../handlers";
 	import {writable} from "svelte/store";
 
 
