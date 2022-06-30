@@ -20,13 +20,12 @@ export default class PasswordModal extends Modal {
 			}
 		});
 		this.view.$on("close", async (e) => {
-			this.onClose();
+			super.close();
 		});
+
 	}
 
-	async onClose() {
+	onClose() {
 		this.view.$destroy();
-		this.containerEl.detach();
-		super.close();
 	}
 }
