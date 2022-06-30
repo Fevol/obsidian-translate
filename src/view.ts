@@ -41,6 +41,10 @@ export class TranslatorView extends ItemView {
 				data: this.plugin.plugin_data,
 			}
 		});
+		// FIXME: This ensures that content in the view is using the available space, and nothing more,
+		//  find a better way to write this though (or find an actual solution instead of a hack)
+		this.contentEl.style.display = "flex";
+		this.contentEl.style.flexDirection = "column";
 	}
 
 	async onClose() {

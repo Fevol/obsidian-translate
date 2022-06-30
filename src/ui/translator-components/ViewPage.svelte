@@ -274,8 +274,8 @@
 	  (e.g.: <200px = (FIELD) (BUTTON) (FIELD), 200px > ... > 400px = (FIELD, FIELD) (BUTTON), >400px (FIELD, BUTTON, FIELD) */
 	.translator-view {
 		display: grid;
-		margin: 24px;
-		height: 100%;
+		margin: 12px;
+		flex-grow: 1;
 		gap: 16px;
 	}
 
