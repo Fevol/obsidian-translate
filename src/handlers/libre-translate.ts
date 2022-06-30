@@ -4,8 +4,8 @@ import type {DetectionResult, LanguagesFetchResult, TranslationResult, Validatio
 export class LibreTranslate extends DummyTranslate {
 	host: string;
 
-	constructor(valid: boolean, host: string) {
-		super(valid);
+	constructor(host: string) {
+		super();
 		this.host = host;
 	}
 
@@ -15,6 +15,8 @@ export class LibreTranslate extends DummyTranslate {
 
 		try {
 			const response = await fetch(this.host + '/languages');
+			if (response.ok) this.success();
+
 			const data = await response.json();
 			return {valid: response.ok, message: response.ok ? "" : `Validation failed:\n${data.error.message}`};
 		} catch (e) {

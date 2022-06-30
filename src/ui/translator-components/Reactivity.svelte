@@ -9,6 +9,7 @@
 	import type {Writable} from "svelte/store";
 
 	import type {PluginData, TranslatorPluginSettings} from "../../types";
+	import {TRANSLATION_SERVICES_INFO} from "../../constants";
 	import ISO6391 from "iso-639-1";
 
 	import t from "../../l10n";
@@ -62,19 +63,56 @@
 
 
 	function setupTranslationService(service: string, api_key: string = '', region: string = '', host: string = '') {
-		const valid = $settings.service_settings[service]?.validated;
+		let valid = $settings.service_settings[service]?.validated;
+
+		// Checking plugin.translator will make sure that the first call of setupTranslationService is ignored
+		if (plugin.translator) {
+			// If api_key is required, but not provided, the translator will initialise as invalid
+			// Else if the api_key ends with '==', the api_key is still encrypted, is also invalid
+			if (!valid) {
+			} else if (TRANSLATION_SERVICES_INFO[service].requires_api_key) {
+				let invalidated = false;
+				if (!api_key) {
+					invalidated = true;
+					plugin.message_queue("No API key was given", 5000, true);
+				} else if ($settings.security_setting === 'password') {
+					// FIXME: Not every encrypted key ends with '==' for some reason
+					if (api_key.endsWith("==")) {
+						invalidated = true;
+						plugin.message_queue("Password is still encrypted", 5000, true);
+					}
+				}
+				if (invalidated) {
+					$settings.service_settings[service].validated = false;
+					valid = false;
+				}
+			}
+		} else if (!valid) {
+			plugin.message_queue("Please validate the service to use its functionality", 5000, true);
+		}
+
 		if (service === "google_translate")
-			plugin.translator = new GoogleTranslate(valid, api_key);
+			plugin.translator = new GoogleTranslate(api_key);
 		else if (service === "bing_translator")
-			plugin.translator = new BingTranslator(valid, api_key, region);
+			plugin.translator = new BingTranslator(api_key, region);
 		else if (service === "yandex_translate")
-			plugin.translator = new YandexTranslate(valid, api_key);
+			plugin.translator = new YandexTranslate(api_key);
 		else if (service === "deepl")
-			plugin.translator = new Deepl(valid, api_key, host);
+			plugin.translator = new Deepl(api_key, host);
 		else if (service === "libre_translate")
-			plugin.translator = new LibreTranslate(valid, host);
+			plugin.translator = new LibreTranslate(host);
 		else
-			plugin.translator = new DummyTranslate(valid);
+			plugin.translator = new DummyTranslate();
+
+		plugin.translator.valid = valid;
+
+		plugin.translator.failure_count_watcher.subscribe(failure_count => {
+			if (failure_count >= 10) {
+				$settings.service_settings[service].validated = false;
+				plugin.translator.valid = false;
+				plugin.message_queue("Too many failures: please revalidate the service", 5000, true);
+			}
+		});
 	}
 
 	// Update selection of available languages for the Translation View
@@ -161,22 +199,6 @@
 		if ($settings.security_setting === 'password' && !localStorage.getItem('password')) {
 			new PasswordRequestModal(plugin).open();
 		}
-
-		// If translator becomes invalid (due to subsequent failures), save the valid value
-		plugin.translator.valid_watcher.subscribe((valid: boolean) => {
-			if (plugin.translator.constructed) {
-				if (valid === false) {
-					plugin.message_queue("Too many failures: please revalidate the service", 5000, true)
-					$settings.service_settings[$settings.translation_service].validated = false;
-				}
-			} else {
-				if (valid === false)
-					plugin.message_queue("Please validate the service to use its functionality", 5000, true)
-				// Avoids the error message being shown initially
-				plugin.translator.constructed = true;
-			}
-		});
-
 	});
 
 </script>

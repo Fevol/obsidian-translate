@@ -26,8 +26,8 @@ export class Deepl extends DummyTranslate {
 	// }
 
 
-	constructor(valid: boolean, api_key: string, host: string = 'https://api-free.deepl.com/v2') {
-		super(valid);
+	constructor(api_key: string, host: string = 'https://api-free.deepl.com/v2') {
+		super();
 		this.api_key = api_key;
 		this.host = host;
 	}
@@ -47,8 +47,10 @@ export class Deepl extends DummyTranslate {
 				}
 			}));
 
-			if ("character_count" in response)
+			if ("character_count" in response) {
+				this.success();
 				return {valid: true, message: "Using DeepL Pro API", host: this.host};
+			}
 
 			// If request fails or API key is invalid for DeepL pro, catch error and try DeepL free
 			throw "Invalid API key for DeepL Pro";
@@ -64,6 +66,8 @@ export class Deepl extends DummyTranslate {
 				}));
 				if (!("character_count" in response))
 					return {valid: false, message: "Validation failed:\nVerify correctness of API key"};
+
+				this.success();
 				return {valid: true, message: "Using DeepL Free API", host: this.host};
 			} catch (e) {
 				return {valid: false, message: "Validation failed:\nVerify correctness of API key"};

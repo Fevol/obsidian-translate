@@ -15,8 +15,8 @@ export class BingTranslator extends DummyTranslate {
 	// 	interval: "hour",
 	// }
 
-	constructor(valid: boolean, api_key: string, region: string) {
-		super(valid);
+	constructor(api_key: string, region: string) {
+		super();
 		this.api_key = api_key;
 		this.region = region;
 	}
@@ -44,6 +44,9 @@ export class BingTranslator extends DummyTranslate {
 				body: JSON.stringify([{'Text': ''}]),
 				headers: headers
 			});
+
+			if(response.ok) this.success();
+
 			const data = await response.json();
 			return {valid: response.ok, message: !response.ok ? `Validation failed:\n${data.error.message}` : ""};
 		} catch (e) {

@@ -121,12 +121,14 @@ export const DEFAULT_SETTINGS: TranslatorPluginSettings = {
 export const TRANSLATION_SERVICES_INFO: { [key: string]: any } = {
 	google_translate: {
 		display_name: "Google Translate",
+		requires_api_key: true,
 		request_key: "https://cloud.google.com/translate/docs/setup",
 		url: "https://cloud.google.com/translate/docs/",
 		attribution: "google_translate_attribution",
 	},
 	bing_translator: {
 		display_name: "Bing Translator",
+		requires_api_key: true,
 		request_key: "https://azure.microsoft.com/en-us/free/",
 		url: "https://www.microsoft.com/en-us/translator/",
 		attribution: "bing_translator_attribution",
@@ -197,16 +199,19 @@ export const TRANSLATION_SERVICES_INFO: { [key: string]: any } = {
 	},
 	yandex_translate: {
 		display_name: "Yandex Translate",
+		requires_api_key: true,
 		request_key: "https://yandex.com/dev/translate/",
 		url: "https://translate.yandex.com/"
 	},
 	deepl: {
 		display_name: "DeepL",
+		requires_api_key: true,
 		request_key: "https://www.deepl.com/pro-api?cta=header-pro-api/",
 		url: "https://www.deepl.com/",
 	},
 	libre_translate: {
 		display_name: "Libre Translate",
+		requires_api_key: false,
 		local_host: "https://github.com/LibreTranslate/LibreTranslate",
 		url: "https://libretranslate.com/",
 		host: true,

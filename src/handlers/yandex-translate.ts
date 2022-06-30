@@ -6,8 +6,8 @@ import type {DetectionResult, LanguagesFetchResult, TranslationResult, Validatio
 export class YandexTranslate extends DummyTranslate {
 	api_key: string;
 
-	constructor(valid: boolean, api_key: string) {
-		super(valid);
+	constructor(api_key: string) {
+		super();
 		this.api_key = api_key;
 	}
 
@@ -23,6 +23,8 @@ export class YandexTranslate extends DummyTranslate {
 				}), {
 				method: "POST",
 			});
+			if (response.ok) this.success();
+
 			const data = await response.json();
 			return {valid: response.ok, message: response.ok ? "" : `(UNTESTED SERVICE) Validation failed:\n${data.message}`};
 		} catch (e) {

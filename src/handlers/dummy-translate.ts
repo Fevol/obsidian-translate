@@ -1,36 +1,31 @@
 import type {DetectionResult, LanguagesFetchResult, TranslationResult, ValidationResult} from "../types";
 import type {Writable} from "svelte/store";
 import {writable} from "svelte/store";
+import {Notice} from "obsidian";
 
 export class DummyTranslate {
-	constructed: boolean = false;
+	// Due to the fact that failure_count will be accessed many times, it's best if we don't have to call get from
+	//	svelte/store each time, as that will require a subscribe and an unsubscribe every time we execute translator logic
 	failure_count: number;
+	failure_count_watcher: Writable<number>;
 
-	// Due to the fact that valid will be accessed many times, it's best if we don't have to call get from svelte/store
-	//  each time, as that will require a subscribe and an unsubscribe every time we execute translator logic
 	valid: boolean;
-	valid_watcher: Writable<boolean>;
 
 
-	constructor(valid: boolean) {
+	constructor() {
 		this.failure_count = 0;
-		this.valid_watcher = writable<boolean>(valid);
-		this.valid = valid;
-	}
-
-	set_validity(valid: boolean): void {
-		this.valid_watcher.set(valid);
-		this.valid = valid;
+		this.failure_count_watcher = writable<number>(0);
+		this.valid = true;
 	}
 
 	failed(): void {
 		this.failure_count++;
-		if (this.failure_count >= 10)
-			this.set_validity(false);
+		this.failure_count_watcher.set(this.failure_count);
 	}
 
 	success(): void {
 		this.failure_count = 0;
+		this.failure_count_watcher.set(0);
 	}
 
 	async validate(): Promise<ValidationResult> {

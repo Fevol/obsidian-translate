@@ -2,6 +2,7 @@
 
 import {DummyTranslate} from "./dummy-translate";
 import type {DetectionResult, LanguagesFetchResult, TranslationResult, ValidationResult} from "../types";
+import type {ReferenceCache} from "obsidian";
 
 export class GoogleTranslate extends DummyTranslate {
 	api_key: string;
@@ -16,8 +17,8 @@ export class GoogleTranslate extends DummyTranslate {
 	// 	interval: "second",
 	// }
 
-	constructor(valid: boolean, api_key: string) {
-		super(valid);
+	constructor(api_key: string) {
+		super();
 		this.api_key = api_key;
 	}
 
@@ -37,6 +38,8 @@ export class GoogleTranslate extends DummyTranslate {
 					'Accept': 'application/json',
 				},
 			});
+			if(response.ok) this.success();
+
 			const data = await response.json();
 			return {valid: response.ok, message: response.ok ? "" : `Validation failed:\n${data.error.message}`};
 		} catch (e) {

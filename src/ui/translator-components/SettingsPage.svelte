@@ -68,7 +68,7 @@
 			} else if (old_mode === "dont_save") {
 				key = sessionStorage.getItem(service + '_api_key');
 			}
-			setAPIKey(new_mode, service, key || '');
+			await setAPIKey(new_mode, service, key || '');
 		}
 		clearAPIKeys(old_mode, new_mode);
 	}
@@ -226,7 +226,7 @@
 					type="text"
 					notices={[
 						{ type: 'href', text: "🛈 Sign up for API key here", url: info.request_key},
-						...($data.api_key.endsWith("==") ? [{ type: 'text', text: `⚠ API key is still encrypted`, style: 'warning-text'}] : [])
+						...($data.api_key?.endsWith("==") ? [{ type: 'text', text: `⚠ API key is still encrypted`, style: 'warning-text'}] : [])
 					]}
 				>
 					<Input
@@ -293,7 +293,7 @@
 					value={$settings.service_settings[service].validated}
 					fn={async () => {
 						let validation_results = await plugin.translator.validate();
-						plugin.translator.set_validity(validation_results.valid);
+						plugin.translator.valid = validation_results.valid;
 						if (validation_results.message)
 							plugin.message_queue(validation_results.message, !validation_results.valid ? 5000 : 3000);
 						if (validation_results.host)
