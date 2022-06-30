@@ -50,9 +50,10 @@
 		value={input}
 		placeholder="Type here..."
 		on:keyup={(e) => {
-			input = e.target.value;
 			if (e.key === "Enter")
 				test_password();
+			else
+				input = e.target.value;
 		}}
 	/>
 </div>
