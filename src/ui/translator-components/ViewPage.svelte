@@ -346,6 +346,7 @@
 	}
 
 	.mixed {
+		grid-template-columns: 1fr 1fr;
 		grid-template-rows: 1fr auto auto;
 		grid-template-areas: "left right" "center center" "bottom bottom";
 	}
