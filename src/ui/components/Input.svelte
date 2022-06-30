@@ -3,7 +3,7 @@
 	export let val: any;
 	export let placeholder: string = '';
 	export let onChange: (value) => void;
-
+	export let valid: boolean = null;
 </script>
 
 
@@ -13,5 +13,7 @@
 	value={val}
 	placeholder={placeholder}
 	on:input={onChange} {val}
+	class:translator_input_success={valid}
+	class:translator_input_fail={valid === false}
 >
 

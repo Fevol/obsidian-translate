@@ -6,11 +6,12 @@
 	import {horizontalSlide} from "../animations";
 	import {Button, Dropdown, Slider, Toggle, Input, Icon, ToggleButton, ButtonList} from ".././components";
 	import {SettingItem} from "../obsidian-components";
+	import {PasswordModal} from "../modals";
 
 	import type {PluginData, TranslatorPluginSettings, ValidationResult} from "../../types";
-	import {TRANSLATION_SERVICES_INFO} from "../../constants";
+	import {TRANSLATION_SERVICES_INFO, SECURITY_MODES} from "../../constants";
 
-	import {toTitleCase} from "../../util";
+	import {aesGcmDecrypt, aesGcmEncrypt, toTitleCase} from "../../util";
 
 	// export let plugin: TranslatorPlugin;
 	export let plugin: TranslatorPlugin;
@@ -18,6 +19,7 @@
 	export let data: Writable<PluginData>;
 
 	const services = TRANSLATION_SERVICES_INFO;
+	const security_options = SECURITY_MODES;
 	let selectable_services: any[];
 
 	// Update list of languages that can be selected in 'Manually select languages' option
@@ -29,6 +31,47 @@
 		selectable_services.unshift({'value': '', 'text': '+'});
 	}
 
+	async function setAPIKey(mode: string, service: string, key: string) {
+		if (mode === "none") {
+			$settings.service_settings[service].api_key = key;
+		} else if (mode === "password") {
+			$settings.service_settings[service].api_key = await aesGcmEncrypt(key, localStorage.getItem('password'));
+		} else if (mode === "local_only") {
+			localStorage.setItem(service + '_api_key', key);
+		} else if (mode === "dont_save") {
+			sessionStorage.setItem(service + '_api_key', key);
+		}
+	}
+
+	function clearAPIKeys(old_mode: string, new_mode: string) {
+		if ((old_mode === "none" || old_mode === "password") && !(new_mode === "none" || new_mode === "password")) {
+			for (let service in $settings.service_settings)
+				$settings.service_settings[service].api_key = undefined;
+		} else if (old_mode === "local_only") {
+			for (let service in $settings.service_settings)
+				localStorage.removeItem(service + '_api_key');
+		} else if (old_mode === "dont_save") {
+			for (let service in $settings.service_settings)
+				sessionStorage.removeItem(service + '_api_key');
+		}
+	}
+
+	async function updateAPIKeys(old_mode: string, new_mode: string) {
+		for (let service in $settings.service_settings) {
+			let key: string;
+			if (old_mode === "none") {
+				key = $settings.service_settings[service].api_key;
+			} else if (old_mode === "password") {
+				key = await aesGcmDecrypt($settings.service_settings[service].api_key, localStorage.getItem('password'));
+			} else if (old_mode === "local_only") {
+				key = localStorage.getItem(service + '_api_key');
+			} else if (old_mode === "dont_save") {
+				key = sessionStorage.getItem(service + '_api_key');
+			}
+			setAPIKey(new_mode, service, key || '');
+		}
+		clearAPIKeys(old_mode, new_mode);
+	}
 </script>
 
 <h3>General Settings</h3>
@@ -68,6 +111,44 @@
 
 </SettingItem>
 
+<SettingItem
+	name="Security settings for API key"
+	description="Determine how the API key is stored on the device"
+	type="dropdown"
+	notices={[
+		{ type: 'text', text: `🛈 ${security_options.find(x => x.value === $settings.security_setting).info}`}
+	]}
+>
+	<Dropdown
+		slot="control"
+		options={security_options}
+		value={ $settings.security_setting }
+		onChange={async (e) => {
+			await updateAPIKeys($settings.security_setting, e.target.value);
+			$settings.security_setting = e.target.value;
+		}}
+	>
+	</Dropdown>
+</SettingItem>
+
+
+{#if $settings.security_setting === 'password'}
+	<SettingItem
+		name="Password"
+		type="password"
+		description="Enter your password to encrypt your API key"
+	>
+		<Button
+			text="Set password"
+			slot="control"
+			onClick={() => {
+				new PasswordModal(plugin.app, plugin).open()
+			}}
+		>
+
+		</Button>
+	</SettingItem>
+{/if}
 
 {#each Object.entries(services) as [service, info]}
 	{#if service === $settings.translation_service}
@@ -132,7 +213,7 @@
 			</SettingItem>
 
 
-			{#if $settings.service_settings[service].api_key !== null}
+			{#if info.request_key !== undefined}
 				<SettingItem
 					name="API Key"
 					description="API key for translation service"
@@ -143,9 +224,10 @@
 				>
 					<Input
 						slot="control"
-						val={$settings.service_settings[service].api_key}
+						val={$data.api_key}
 						onChange={(e) => {
-							$settings.service_settings[service].api_key = e.target.value;
+							setAPIKey($settings.security_setting, service, e.target.value);
+							$data.api_key = e.target.value;
 							$settings.service_settings[service].validated = null;
 						}}
 						type="text"

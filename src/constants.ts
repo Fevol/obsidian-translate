@@ -18,6 +18,7 @@ export const ICONS = {
 }
 
 export const DEFAULT_DATA: PluginData = {
+	api_key: "",
 	available_languages: [],
 	all_languages: new Map(),
 	current_language: "",
@@ -28,20 +29,17 @@ export const DEFAULT_DATA: PluginData = {
 }
 
 export const DEFAULT_SETTINGS: TranslatorPluginSettings = {
-	// Selected languages are stored such that when toggling between syncing spellchecker languages will preserve the user selection
-	//FIXME: Temporary default, should be either empty or display language initially?
 	display_language: 'display',
 	language_from: '',
 	language_to: '',
 	view_mode: 0,
 	translation_service: 'google_translate',
+	security_setting: 'none',
 	service_settings: {
 		google_translate: {
 			selected_languages: [],
 			filter_type: 0,
 			api_key: "",
-			region: null,
-			host: null,
 			auto_translate: false,
 			auto_translate_interval: 500,
 			validated: null,
@@ -79,8 +77,6 @@ export const DEFAULT_SETTINGS: TranslatorPluginSettings = {
 			selected_languages: [],
 			filter_type: 0,
 			api_key: "",
-			region: null,
-			host: null,
 			auto_translate: false,
 			auto_translate_interval: 500,
 			validated: null,
@@ -96,8 +92,6 @@ export const DEFAULT_SETTINGS: TranslatorPluginSettings = {
 		libre_translate: {
 			selected_languages: [],
 			filter_type: 0,
-			api_key: null,
-			region: null,
 			host: "",
 			auto_translate: false,
 			auto_translate_interval: 500,
@@ -111,8 +105,6 @@ export const DEFAULT_SETTINGS: TranslatorPluginSettings = {
 			selected_languages: [],
 			filter_type: 0,
 			api_key: "",
-			region: null,
-			host: null,
 			auto_translate: false,
 			auto_translate_interval: 500,
 			validated: null,
@@ -259,12 +251,11 @@ export const VIEW_MODES = {
 	}
 }
 
-
-export const AUTO_TRANSLATE_INTERVALS = [
-	{value: '', text: 'Instantly'},
-	{value: 'finished', text: '... seconds after you stopped typing'},
-	{value: 'every', text: 'Translate every ...'},
-];
-
+export const SECURITY_MODES = [
+	{ value: 'none', text: 'No security', info: "API key are currently stored as plaintext strings in data.json" },
+	{ value: 'password', text: 'Encrypt with password', info: "API keys are currently stored as encrypted strings in data.json" },
+	{ value: 'local_only', text: 'Only save locally', info: "API keys will not be saved to data.json, keys are only stored locally" },
+	{ value: 'dont_save', text: "Only keep for session", info: "API keys will be cleared if Obsidian is closed" },
+]
 
 export const TRANSLATOR_VIEW_ID = "translator-view";

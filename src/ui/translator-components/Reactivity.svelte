@@ -13,8 +13,7 @@
 
 	import t from "../../l10n";
 	import {BingTranslator, Deepl, DummyTranslate, GoogleTranslate, LibreTranslate, YandexTranslate} from "../../handlers";
-	import {writable} from "svelte/store";
-
+	import {aesGcmDecrypt} from "../../util";
 
 	export let app: App;
 	export let plugin: TranslatorPlugin;
@@ -29,6 +28,7 @@
 	let host_observer: any;
 	let region_observer: any;
 	let display_language_observer: any;
+	let security_setting_observer: any;
 
 	let filter_type_observer: any;
 	let available_languages_observer: any;
@@ -52,11 +52,12 @@
 	$: filter_type_observer = $settings.service_settings[$settings.translation_service].filter_type;
 	$: available_languages_observer = $settings.service_settings[$settings.translation_service].available_languages.length;
 	$: selected_languages_observer = $settings.service_settings[$settings.translation_service].selected_languages.length;
-	$: api_key_observer = $settings.service_settings[$settings.translation_service].api_key;
+	$: api_key_observer = $data.api_key;
 	$: host_observer = $settings.service_settings[$settings.translation_service].host;
 	$: region_observer = $settings.service_settings[$settings.translation_service].region;
 	$: display_language_observer = $settings.display_language;
 	$: service_observer = $settings.translation_service;
+	$: security_setting_observer = $settings.security_setting;
 
 
 	function setupTranslationService(service: string, api_key: string = '', region: string = '', host: string = '') {
@@ -102,8 +103,23 @@
 				return [locale, language + extra];
 		})))
 	}
+
+	async function getAPIKey(mode: string, service: string) {
+		if (mode === "none") {
+			return $settings.service_settings[service].api_key;
+		} else if (mode === "password") {
+			return await aesGcmDecrypt($settings.service_settings[service].api_key, localStorage.getItem('password'));
+		} else if (mode === "local_only") {
+			return localStorage.getItem(service + '_api_key');
+		} else if (mode === "dont_save") {
+			return sessionStorage.getItem(service + '_api_key');
+		}
+	}
+
+
 	$: filter_type_observer, selected_languages_observer, updateAvailableLanguages();
 	$: setupTranslationService(service_observer, api_key_observer, region_observer, host_observer);
+	$: getAPIKey(security_setting_observer, service_observer).then(x => $data.api_key = x);
 
 
 	// TWO TRIGGERS:

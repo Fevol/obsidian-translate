@@ -13,6 +13,7 @@ import Icon from "./Icon.svelte";
 //----------------------  Advanced Components  ---------------------
 import ToggleButton from "./ToggleButton.svelte";
 import ButtonList from "./ButtonList.svelte";
+import ValidateInput from "./ValidateInput.svelte";
 
 // -----------------------------------------------------------------
 
@@ -29,5 +30,6 @@ export {
 	Icon,
 	ToggleButton,
 	ButtonList,
+	ValidateInput,
 	Slider,
 }

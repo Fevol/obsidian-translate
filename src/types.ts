@@ -1,5 +1,7 @@
 export interface TranslatorPluginSettings {
-	display_language: string;
+	security_setting: "none" | "password" | "local_only" | "no_save";
+
+	display_language: "local" | "display";
 
 	language_from: string;
 	language_to: string;
@@ -13,6 +15,7 @@ export interface TranslatorPluginSettings {
 export interface PluginData {
 	// Cache the available language locales, and their corresponding names
 	all_languages: Map<string, string>;
+	api_key: string;
 
 	// Which languages can be selected for translation (unfiltered)
 	available_languages: Array<any>;
@@ -47,9 +50,9 @@ export interface APIServiceSettings {
 	filter_type: number;
 
 	// Authentication settings for translation services
-	api_key: string;
-	region: string;
-	host: string;
+	api_key?: string;
+	region?: string;
+	host?: string;
 
 	// Automatically translate the text when the user types
 	auto_translate: boolean;
