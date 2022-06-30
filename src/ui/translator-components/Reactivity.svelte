@@ -14,6 +14,7 @@
 	import t from "../../l10n";
 	import {BingTranslator, Deepl, DummyTranslate, GoogleTranslate, LibreTranslate, YandexTranslate} from "../../handlers";
 	import {aesGcmDecrypt} from "../../util";
+	import {PasswordRequestModal} from "../modals";
 
 	export let app: App;
 	export let plugin: TranslatorPlugin;
@@ -155,6 +156,10 @@
 					$settings.service_settings[service].selected_languages = $data.spellchecker_languages;
 				}
 			}
+		}
+
+		if ($settings.security_setting === 'password' && !localStorage.getItem('password')) {
+			new PasswordRequestModal(plugin).open();
 		}
 
 		// If translator becomes invalid (due to subsequent failures), save the valid value

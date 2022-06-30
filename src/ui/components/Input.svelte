@@ -4,6 +4,7 @@
 	export let placeholder: string = '';
 	export let onChange: (value) => void;
 	export let valid: boolean = null;
+	export let readonly: boolean = false;
 </script>
 
 
@@ -12,6 +13,7 @@
 	type={type}
 	value={val}
 	placeholder={placeholder}
+	readonly={readonly}
 	on:input={onChange} {val}
 	class:translator_input_success={valid}
 	class:translator_input_fail={valid === false}

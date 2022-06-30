@@ -6,7 +6,7 @@
 	import {horizontalSlide} from "../animations";
 	import {Button, Dropdown, Slider, Toggle, Input, Icon, ToggleButton, ButtonList} from ".././components";
 	import {SettingItem} from "../obsidian-components";
-	import {PasswordModal} from "../modals";
+	import {PasswordModal, PasswordRequestModal} from "../modals";
 
 	import type {PluginData, TranslatorPluginSettings, ValidationResult} from "../../types";
 	import {TRANSLATION_SERVICES_INFO, SECURITY_MODES} from "../../constants";
@@ -136,17 +136,23 @@
 	<SettingItem
 		name="Password"
 		type="password"
-		description="Enter your password to encrypt your API key"
+		description="Update locally stored password"
 	>
-		<Button
-			text="Set password"
-			slot="control"
-			onClick={() => {
-				new PasswordModal(plugin.app, plugin).open()
-			}}
-		>
-
-		</Button>
+		<div slot="control" style="display: flex; flex-direction: column; gap: 16px">
+			<Button
+				text="Set new password"
+				onClick={() => {
+					new PasswordModal(plugin.app, plugin).open()
+				}}
+			/>
+			<Button
+				text="Set password"
+				onClick={() => {
+					new PasswordRequestModal(plugin).open();
+				}
+			}
+			/>
+		</div>
 	</SettingItem>
 {/if}
 

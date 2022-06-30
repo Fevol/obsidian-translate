@@ -97,6 +97,8 @@ export async function aesGcmEncrypt(plaintext: string, password: string) {
 	if (!password || !plaintext)
 		return plaintext;
 
+	// FIXME: Ensure that DOMException is not thrown if password is incorrect
+	// FIXME: Password too short error
 	const pwUtf8 = new TextEncoder().encode(password);                                 // encode password as UTF-8
 	const pwHash = await crypto.subtle.digest('SHA-256', pwUtf8);                      // hash the password
 
