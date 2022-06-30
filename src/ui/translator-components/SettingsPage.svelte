@@ -225,7 +225,8 @@
 					description="API key for translation service"
 					type="text"
 					notices={[
-						{ type: 'href', text: "🛈 Sign up for API key here", url: info.request_key}
+						{ type: 'href', text: "🛈 Sign up for API key here", url: info.request_key},
+						...($data.api_key.endsWith("==") ? [{ type: 'text', text: `⚠ API key is still encrypted`, style: 'warning-text'}] : [])
 					]}
 				>
 					<Input
