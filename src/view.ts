@@ -30,12 +30,11 @@ export class TranslatorView extends ItemView {
 
 
 	async onOpen() {
-		const {containerEl} = this;
-		containerEl.empty();
-		containerEl.id = "translator-view";
+		this.contentEl.empty();
+		this.contentEl.id = "translator-view";
 
 		this.view = new ViewPage({
-			target: containerEl,
+			target: this.contentEl,
 			props: {
 				plugin: this.plugin,
 				settings: this.plugin.settings,
@@ -50,7 +49,7 @@ export class TranslatorView extends ItemView {
 	}
 
 	onResize() {
-		const rectangle = this.containerEl.getBoundingClientRect();
+		const rectangle = this.contentEl.getBoundingClientRect();
 		this.view.onResize(rectangle.width, rectangle.height);
 	}
 }
