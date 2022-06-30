@@ -18,6 +18,24 @@
 	$: aesGcmDecrypt(encrypted_api_key, input).then(x => decrypted_api_key = x);
 
 	const dispatch = createEventDispatcher();
+
+	async function test_password() {
+		try {
+			let decrypted_api_key = await aesGcmDecrypt(encrypted_api_key, input);
+			// If encrypted and decrypted key are the same, the input is probably empty
+			if (encrypted_api_key === decrypted_api_key) {
+				new Notice("Password is invalid");
+			} else {
+				localStorage.setItem("password", input);
+				$data.api_key = await aesGcmDecrypt(encrypted_api_key, localStorage.getItem('password'));
+				dispatch("close");
+			}
+		} catch (e) {
+			// If decryption fails, the input is too long/wrong
+			new Notice("Password is invalid");
+		}
+	}
+
 </script>
 
 <div style="margin-bottom: 32px">
@@ -27,30 +45,19 @@
 
 <div class="translator-password-modal-inputs">
 	<b>Password:</b>
-	<Input
-		val={input}
+	<input
 		type="password"
-		placeholder='Type here...'
-		onChange={(e) => { input = e.target.value; }}
+		value={input}
+		placeholder="Type here..."
+		on:keyup={(e) => {
+			input = e.target.value;
+			if (e.key === "Enter")
+				test_password();
+		}}
 	/>
 </div>
 
-<button class="translator-password-modal-button" on:click={async () => {
-	try {
-		let decrypted_api_key = await aesGcmDecrypt(encrypted_api_key, input);
-		// If encrypted and decrypted key are the same, the input is probably empty
-		if (encrypted_api_key === decrypted_api_key) {
-			new Notice("Password is invalid");
-		} else {
-			localStorage.setItem("password", input);
-			$data.api_key = await aesGcmDecrypt(encrypted_api_key, localStorage.getItem('password'));
-			dispatch("close");
-		}
-	} catch (e) {
-		// If decryption fails, the input is too long/wrong
-		new Notice("Password is invalid");
-	}
-}}>
+<button class="translator-password-modal-button" on:click={async () => await test_password()}>
 	Submit
 </button>
 
