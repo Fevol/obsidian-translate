@@ -88,7 +88,7 @@ import {DummyTranslate, BingTranslator, GoogleTranslate, BergamotTranslate, Deep
 		else if (service_observer === "libre_translate")
 			plugin.translator = new LibreTranslate(host_observer);
 		else if (service_observer === "bergamot")
-			plugin.translator = new BergamotTranslate(valid, plugin);
+			plugin.translator = new BergamotTranslate(plugin);
 		else
 			plugin.translator = new DummyTranslate();
 
