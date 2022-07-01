@@ -103,6 +103,22 @@ For more informations, head over to the [documentation](https://github.com/Fevol
 
 ---
 
+## Security
+A lot of work has been put in to ensure that the plugin is as secure as possible.
+The following are some of the implemented security features:
+- Requests will only be sent to the translation service on explicit user input (e.g. clicking translate button,
+  validating service, ...) -- unless the user has enabled the auto translate option.
+- You can set how the API keys are stored on the device/plugin data, such that there is a smaller likelihood
+  of them being read/stolen, below are some of the implemented storage methods:
+  - **No security:** the API keys are stored as plaintext in `data.json`.
+  - **Encrypted with password:** the API keys are stored as ciphertext in `data.json`, with the password
+    being user-provided. The password only needs to be entered _once_ for each device.
+  - **Only save locally:** the API keys are stored on your device's local storage, and will persist across
+    app restarts. The API key will have to be entered _once_ for each device.
+  - **Only keep for session:** the API keys are stored on your device's local storage, and will be cleared
+    when Obsidian closes. The API key will have to be entered _once_ for each device.
+---
+
 ## Discussion and Feedback
 
 Any feedback would *very* much be appreciated. Please use the [GitHub issue tracker](https://github.com/Fevol/obsidian-translate/issues/new) to report bugs, request features,
