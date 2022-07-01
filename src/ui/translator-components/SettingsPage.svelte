@@ -72,6 +72,12 @@
 		}
 		clearAPIKeys(old_mode, new_mode);
 	}
+
+	function invalidateService() {
+		$settings.service_settings[$settings.translation_service].validated = null;
+		plugin.translator.valid = null;
+	}
+
 </script>
 
 <h3>General Settings</h3>
@@ -235,7 +241,7 @@
 						onChange={(e) => {
 							setAPIKey($settings.security_setting, service, e.target.value);
 							$data.api_key = e.target.value;
-							$settings.service_settings[service].validated = null;
+							invalidateService();
 						}}
 						type="text"
 					/>
@@ -253,7 +259,7 @@
 							value={$settings.service_settings[service].region}
 							onChange={(e) => {
 								$settings.service_settings[service].region = e.target.value;
-								$settings.service_settings[service].validated = null;
+								invalidateService();
 							}}
 						/>
 					</SettingItem>
@@ -274,7 +280,7 @@
 						val={$settings.service_settings[service].host}
 						onChange={(e) => {
 							$settings.service_settings[service].host = e.target.value;
-							$settings.service_settings[service].validated = null;
+							invalidateService();
 						}}
 						type="text"
 					/>
@@ -362,7 +368,7 @@
 							plugin.message_queue(return_values.message);
 						if (return_values.languages) {
 							$settings.service_settings[service].available_languages = return_values.languages;
-							plugin.message_queue("Languages updated")
+							plugin.message_queue("Languages updated");
 						}
 					}}
 				/>

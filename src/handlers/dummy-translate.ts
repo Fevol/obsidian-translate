@@ -11,7 +11,6 @@ export class DummyTranslate {
 
 	valid: boolean;
 
-
 	constructor() {
 		this.failure_count = 0;
 		this.failure_count_watcher = writable<number>(0);

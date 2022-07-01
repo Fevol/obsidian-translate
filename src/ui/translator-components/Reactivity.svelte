@@ -62,45 +62,26 @@
 	$: security_setting_observer = $settings.security_setting;
 
 
-	function setupTranslationService(service: string, api_key: string = '', region: string = '', host: string = '') {
-		let valid = $settings.service_settings[service]?.validated;
+	function setupTranslationService() {
+		let valid = $settings.service_settings[service_observer]?.validated;
 
-		// Checking plugin.translator will make sure that the first call of setupTranslationService is ignored
-		if (plugin.translator) {
-			// If api_key is required, but not provided, the translator will initialise as invalid
-			// Else if the api_key ends with '==', the api_key is still encrypted, is also invalid
-			if (!valid) {
-			} else if (TRANSLATION_SERVICES_INFO[service].requires_api_key) {
-				let invalidated = false;
-				if (!api_key) {
-					invalidated = true;
-					plugin.message_queue("No API key was given", 5000, true);
-				} else if ($settings.security_setting === 'password') {
-					// FIXME: Not every encrypted key ends with '==' for some reason
-					if (api_key.endsWith("==")) {
-						invalidated = true;
-						plugin.message_queue("Password is still encrypted", 5000, true);
-					}
-				}
-				if (invalidated) {
-					$settings.service_settings[service].validated = false;
-					valid = false;
-				}
-			}
-		} else if (!valid) {
-			plugin.message_queue("Please validate the service to use its functionality", 5000, true);
-		}
+		// FIXME: I quite dislike this particular piece of code, the intention for this is that the user
+		// 	gets a warning on startup if the translation service is not validated, but this might get tiresome
+		//  pretty fast, maybe this should be reflected in the user interface instead of using a notification.
+		// if (plugin.translator && !valid) {
+		// 	plugin.message_queue("Please validate the service to use its functionality", 5000, true);
+		// }
 
-		if (service === "google_translate")
-			plugin.translator = new GoogleTranslate(api_key);
-		else if (service === "bing_translator")
-			plugin.translator = new BingTranslator(api_key, region);
-		else if (service === "yandex_translate")
-			plugin.translator = new YandexTranslate(api_key);
-		else if (service === "deepl")
-			plugin.translator = new Deepl(api_key, host);
-		else if (service === "libre_translate")
-			plugin.translator = new LibreTranslate(host);
+		if (service_observer === "google_translate")
+			plugin.translator = new GoogleTranslate(api_key_observer);
+		else if (service_observer === "bing_translator")
+			plugin.translator = new BingTranslator(api_key_observer, region_observer);
+		else if (service_observer === "yandex_translate")
+			plugin.translator = new YandexTranslate(api_key_observer);
+		else if (service_observer === "deepl")
+			plugin.translator = new Deepl(api_key_observer, host_observer);
+		else if (service_observer === "libre_translate")
+			plugin.translator = new LibreTranslate(host_observer);
 		else
 			plugin.translator = new DummyTranslate();
 
@@ -108,7 +89,7 @@
 
 		plugin.translator.failure_count_watcher.subscribe(failure_count => {
 			if (failure_count >= 10) {
-				$settings.service_settings[service].validated = false;
+				$settings.service_settings[service_observer].validated = false;
 				plugin.translator.valid = false;
 				plugin.message_queue("Too many failures: please revalidate the service", 5000, true);
 			}
@@ -143,6 +124,32 @@
 		})))
 	}
 
+	function validateAPIKey() {
+		if (TRANSLATION_SERVICES_INFO[service_observer].requires_api_key) {
+			let invalidated = false;
+			let message = '';
+			// API key is required but not provided, invalid state
+			if (!api_key_observer) {
+				invalidated = true;
+				message = "No API key was given";
+
+			// Security setting is password but given API key is still encrypted (ends on '=='), invalid state
+			} else if ($settings.security_setting === 'password') {
+				// FIXME: Not every encrypted key ends with '==' for some reason
+				if (api_key_observer.endsWith("==")) {
+					invalidated = true;
+					message = "Password is still encrypted";
+				}
+			}
+			if (invalidated) {
+				$settings.service_settings[service_observer].validated = false;
+				plugin.translator.valid = false;
+			}
+			if (message && !plugin.settings_open)
+				plugin.message_queue(message, 5000, true);
+		}
+	}
+
 	async function getAPIKey(mode: string, service: string) {
 		if (mode === "none") {
 			return $settings.service_settings[service].api_key;
@@ -155,9 +162,31 @@
 		}
 	}
 
+	$: {
+		if (plugin.translator && plugin.translator.hasOwnProperty('api_key')) {
+			plugin.translator.api_key = api_key_observer;
+			plugin.translator.success();
+			validateAPIKey();
+		}
+	}
+
+	$: {
+		if (plugin.translator && plugin.translator.hasOwnProperty('region')) {
+			plugin.translator.region = region_observer;
+		plugin.translator.success();
+	}
+	}
+
+	$: {
+		if (plugin.translator && plugin.translator.hasOwnProperty('host')) {
+			plugin.translator.host = host_observer;
+			plugin.translator.success();
+		}
+	}
+
+	$: service_observer, setupTranslationService();
 
 	$: filter_type_observer, selected_languages_observer, updateAvailableLanguages();
-	$: setupTranslationService(service_observer, api_key_observer, region_observer, host_observer);
 	$: getAPIKey(security_setting_observer, service_observer).then(x => $data.api_key = x);
 
 
@@ -196,8 +225,17 @@
 			}
 		}
 
-		if ($settings.security_setting === 'password' && !localStorage.getItem('password')) {
-			new PasswordRequestModal(plugin).open();
+		// If security mode is 'password', but no password was set on the device, prompt the user to enter the password
+		if ($settings.security_setting === 'password') {
+			if (!localStorage.getItem('password')) {
+				new PasswordRequestModal(plugin).open();
+			}
+		} else if ($settings.security_setting === 'dont_save') {
+			for (let service in $settings.service_settings) {
+				// If API key is stored only for session, check if the API key still exists, if not, invalidate service
+				if (!sessionStorage.getItem(service + '_api_key'))
+					$settings.service_settings[service].validated = null;
+			}
 		}
 	});
 
