@@ -62,8 +62,11 @@ export async function translate_selection(plugin: TranslatorPlugin, editor: Edit
 		plugin.message_queue("Selection is empty");
 		return;
 	}
-	let translation = (await plugin.translator.translate(editor.getSelection(), 'auto', language_to)).translation;
-	editor.replaceSelection(translation);
+	let results = await plugin.translator.translate(editor.getSelection(), 'auto', language_to);
+	if (results.translation)
+		editor.replaceSelection(results.translation);
+	if (results.message)
+		plugin.message_queue(results.message);
 }
 
 export async function detect_selection(plugin: TranslatorPlugin, editor: Editor): Promise<void> {

@@ -42,11 +42,6 @@ export default class TranslatorPlugin extends Plugin {
 	// Limit queue to only run one message of translator plugin at a time (limitCount 0 means that none of the proceeding messages will be queued)
 	message_queue: ((...args: any[]) => void)
 
-	// TODO: Set time interval for translation process to run (to ensure that translations can't overlap)
-	// translation_queue = rateLimit(0, 200, async () => {
-	// 	await this.view_page.translate();
-	// });
-
 	async onload() {
 		// TODO: Implement FastText
 		// await importFastText(this);
