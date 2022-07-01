@@ -1,4 +1,4 @@
-import {addIcon, App, Editor, moment, MarkdownView, Modal, Notice, Plugin, Menu, setIcon, Platform} from 'obsidian';
+import { addIcon, Editor, MarkdownView, Notice, Plugin, setIcon, Platform, requireApiVersion } from 'obsidian';
 
 import {writable, type Writable, get} from "svelte/store";
 import {Reactivity, ViewPage} from "./ui/translator-components";
@@ -167,10 +167,13 @@ export default class TranslatorPlugin extends Plugin {
 				menu.addItem((item) => {
 					item.setTitle("Translate")
 						.setIcon("translate")
-						.setSection("translate")
 						.onClick(async () => {
 							// Keep the dropdown open
 						});
+
+					if (requireApiVersion("0.15.3"))
+						item.setSection("translate")
+
 					const element = (item as any).dom as HTMLElement;
 					element.classList.add("translator-dropdown")
 					let dropdown_icon = element.createEl("span", {cls: "translator-dropdown-logo"})
@@ -201,10 +204,12 @@ export default class TranslatorPlugin extends Plugin {
 				menu.addItem((item) => {
 					item.setTitle("Detect Language")
 						.setIcon("detect-selection")
-						.setSection("translate")
 						.onClick(async () => {
 							await detect_selection(this, editor);
 						});
+
+					if (requireApiVersion("0.15.3"))
+						item.setSection("translate")
 				});
 
 
