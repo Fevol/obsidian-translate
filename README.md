@@ -100,7 +100,6 @@ For more informations, head over to the [documentation](https://github.com/Fevol
 - Find ways to reduce the amount of characters that are sent to the translation service
   - Caching translation results of sentence (continuous typing in translation view will not result in linear growth of amount of characters being sent over)
   - ...
-
 ---
 
 ## Security
