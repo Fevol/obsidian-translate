@@ -7,8 +7,9 @@ import {FastText, FastTextModel, addOnPostRun} from "./languageDetection/fasttex
 export class BergamotTranslate extends DummyTranslate {
 	model: FastTextModel;
 
-	constructor(valid: boolean, plugin: TranslatorPlugin) {
-		super(valid);
+	constructor(plugin: TranslatorPlugin) {
+		super();
+
 		// TODO: Check if file scripts exist
 		let ft = new FastText(plugin);
 		ft.loadModel("lid.176.ftz").then((model) => { this.model = model; });
