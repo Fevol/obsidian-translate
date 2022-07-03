@@ -170,6 +170,22 @@
 				{toTitleCase(service.replace('_', ' '))}
 			</h2>
 
+			{#if $settings.service_settings[$settings.translation_service].storage_path !== undefined}
+				<SettingItem
+					name="Model path"
+					description="Determine where in the '.obsidian' folder the local models should be stored"
+					type="input"
+				>
+					<Input
+						slot="control"
+						val={$settings.service_settings[$settings.translation_service].storage_path}
+						onChange={(e) => {
+							$settings.service_settings[$settings.translation_service].storage_path = e.target.value;
+						}}
+						type="text"
+					/>
+				</SettingItem>
+			{/if}
 
 			{#if $settings.service_settings[$settings.translation_service].filter_type !== 0}
 				<SettingItem

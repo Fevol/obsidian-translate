@@ -55,6 +55,9 @@ export interface APIServiceSettings {
 	region?: string;
 	host?: string;
 
+	// Where the local models are stored, if applicable
+	storage_path?: string;
+
 	// Automatically translate the text when the user types
 	auto_translate: boolean;
 

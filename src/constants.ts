@@ -117,12 +117,11 @@ export const DEFAULT_SETTINGS: TranslatorPluginSettings = {
 		bergamot: {
 			selected_languages: [],
 			filter_type: 0,
-			api_key: null,
-			region: null,
-			host: null,
+			storage_path: "models",
+			validated: null,
+
 			auto_translate: false,
 			auto_translate_interval: 500,
-			validated: null,
 			// FIXME: Account for dialects
 			available_languages: [
 				"bg", "cs", "da", "de", "el", "en", "es", "et", "fi", "fr", "hu", "id", "it", "ja", "lt", "lv", "nl",

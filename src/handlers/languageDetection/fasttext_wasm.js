@@ -1,3 +1,5 @@
+import {get} from "svelte/store";
+
 var FastTextModule = (function () {
 	var _scriptDir = import.meta.url;
 
@@ -1981,21 +1983,8 @@ var FastTextModule = (function () {
 
 						// TODO: Get access to app.vault and plugin.manifest here!
 						await app.plugins.loadManifests();
-						// console.log(app.plugins?.manifests['obsidian-translate']?.dir)
-
-						// const file = app.vault.adapter.read(`${app.plugins?.manifests['obsidian-translate']?.dir}/src/handlers/languageDetection/fasttext_wasm.data`)
-						// let file = await app.vault.adapter.readBinary(`.obsidian/plugins/obsidian-translate/src/handlers/languageDetection/fasttext_wasm.wasm`);
-						//
-						// const worker = Worker();
-						// console.log(JSONfn.stringify(info));
-						// worker.postMessage([info, file])
-						// worker.onmessage = (event) => {
-						// 	console.log("Finished loading");
-						// }
-
-
-
-						let file = await app.vault.adapter.readBinary(`.obsidian/plugins/obsidian-translate/src/handlers/languageDetection/fasttext_wasm.wasm`);
+						let settings = get(app.plugins.plugins['obsidian-translate'].settings)
+						let file = await app.vault.adapter.readBinary(`.obsidian/${settings.service_settings.bergamot.storage_path}/fasttext_wasm.wasm`);
 						let result = WebAssembly.instantiate(file, info)
 						return result.then(receiveInstantiatedSource, function (reason) {
 							err('wasm streaming compile failed: ' + reason);

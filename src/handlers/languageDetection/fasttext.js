@@ -9,6 +9,7 @@
 
 import fastTextModularized from './fasttext_wasm.js';
 import {App, TFile} from "obsidian";
+import {get} from "svelte/store";
 
 
 var fastTextModule = null
@@ -78,15 +79,12 @@ class FastText {
 		// var self = this.plugin;
 		// let adapter = app.vault.adapter;
 		const fastTextNative = this.f;
-		console.log(fastTextNative);
 		try {
 			await app.plugins.loadManifests();
-			let manifest = app.plugins?.manifests['obsidian-translate']?.dir
-			console.log(fastTextModule, fastTextModule.FS)
-			let bytes = await app.vault.adapter.readBinary(`${manifest}/src/handlers/languageDetection/${url}`);
+			let settings = get(this.plugin.settings);
+			let bytes = await app.vault.adapter.readBinary(`.obsidian/${settings.service_settings.bergamot.storage_path}/${url}`);
 			const FS = fastTextModule.FS
-			const byteArray = new Uint8Array(bytes);
-			FS.writeFile(modelFileInWasmFs, byteArray);
+			FS.writeFile(modelFileInWasmFs, new Uint8Array(bytes));
 			fastTextNative.loadModel(modelFileInWasmFs);
 			let model = new FastTextModel(fastTextNative);
 			return model;
