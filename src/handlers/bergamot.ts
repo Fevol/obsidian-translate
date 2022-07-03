@@ -2,7 +2,7 @@ import type {DetectionResult} from "../types";
 import type TranslatorPlugin from "../main";
 import {DummyTranslate} from "./dummy-translate";
 import type {ValidationResult} from "../types";
-import {FastText, FastTextModel, addOnPostRun} from "./languageDetection/fasttext";
+import {FastText, FastTextModel, addOnPostRun} from "./fasttext/fasttext";
 
 export class BergamotTranslate extends DummyTranslate {
 	model: FastTextModel;

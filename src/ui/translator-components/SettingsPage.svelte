@@ -12,6 +12,7 @@
 	import {TRANSLATION_SERVICES_INFO, SECURITY_MODES} from "../../constants";
 
 	import {aesGcmDecrypt, aesGcmEncrypt, toTitleCase} from "../../util";
+	import {request} from "obsidian";
 
 	// export let plugin: TranslatorPlugin;
 	export let plugin: TranslatorPlugin;
@@ -78,6 +79,32 @@
 		plugin.translator.valid = null;
 	}
 
+
+	function strToUtf8Bytes(str) {
+		const utf8 = [];
+		for (let ii = 0; ii < str.length; ii++) {
+			let charCode = str.charCodeAt(ii);
+			if (charCode < 0x80) utf8.push(charCode);
+			else if (charCode < 0x800) {
+				utf8.push(0xc0 | (charCode >> 6), 0x80 | (charCode & 0x3f));
+			} else if (charCode < 0xd800 || charCode >= 0xe000) {
+				utf8.push(0xe0 | (charCode >> 12), 0x80 | ((charCode >> 6) & 0x3f), 0x80 | (charCode & 0x3f));
+			} else {
+				ii++;
+				// Surrogate pair:
+				// UTF-16 encodes 0x10000-0x10FFFF by subtracting 0x10000 and
+				// splitting the 20 bits of 0x0-0xFFFFF into two halves
+				charCode = 0x10000 + (((charCode & 0x3ff) << 10) | (str.charCodeAt(ii) & 0x3ff));
+				utf8.push(
+					0xf0 | (charCode >> 18),
+					0x80 | ((charCode >> 12) & 0x3f),
+					0x80 | ((charCode >> 6) & 0x3f),
+					0x80 | (charCode & 0x3f),
+				);
+			}
+		}
+		return utf8;
+	}
 </script>
 
 <h3>General Settings</h3>
@@ -170,7 +197,7 @@
 				{toTitleCase(service.replace('_', ' '))}
 			</h2>
 
-			{#if $settings.service_settings[$settings.translation_service].storage_path !== undefined}
+			{#if service === 'bergamot'}
 				<SettingItem
 					name="Model path"
 					description="Determine where in the '.obsidian' folder the local models should be stored"
@@ -185,6 +212,28 @@
 						type="text"
 					/>
 				</SettingItem>
+				<SettingItem
+					name="Setup local text detection"
+					description="Install FastText language models for local text detection"
+					type="button"
+				>
+					<Button
+						slot="control"
+						icon="download"
+						onClick={async () => {
+
+							let result = await fetch("https://github.com/Fevol/obsidian-translate/blob/bergamot/models/fasttext_wasm.wasm?raw=true");
+							console.log(result);
+
+							await app.vault.createBinary(`.obsidian/${$settings.service_settings[service].storage_path}/fasttext_wasm.wasm`, result);
+
+							result = await fetch("https://github.com/Fevol/obsidian-translate/blob/bergamot/models/lid.176.ftz?raw=true");
+							console.log(result);
+							await app.vault.createBinary(`.obsidian/${$settings.service_settings[service].storage_path}/lid.176.ftz`, result);
+						}}
+					/>
+				</SettingItem>
+
 			{/if}
 
 			{#if $settings.service_settings[$settings.translation_service].filter_type !== 0}

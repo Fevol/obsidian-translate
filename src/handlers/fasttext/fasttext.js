@@ -14,11 +14,6 @@ import {get} from "svelte/store";
 
 var fastTextModule = null
 
-// const _initFastTextModule = async function () {
-// 	fastTextModule = await fastTextModularized();
-// 	return true
-// }
-
 let postRunFunc = null;
 const addOnPostRun = function (func) {
 	postRunFunc = func;
