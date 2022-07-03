@@ -205,10 +205,13 @@
 					      users would probably prefer if the file was downloaded from an official place -- look for this! -->
 					<!-- FIXME: Find a better way to reinitialize FastText -->
 
-					<Button
+					<button
 						slot="control"
-						icon="download"
-						onClick={async () => {
+						class:translator-success={plugin.translator?.valid}
+						class:translator-fail={plugin.translator?.valid === false}
+						class="icon-text"
+						style="justify-content: center"
+						on:click={async () => {
 							let model_path = `.obsidian/${$settings.service_settings[service].storage_path}/lid.176.ftz`
 							let model_result = await requestUrl({url: "https://dl.fbaipublicfiles.com/fasttext/supervised-models/lid.176.ftz"});
 							await writeOrReplace(model_path, model_result.arrayBuffer);
@@ -219,7 +222,11 @@
 
 							plugin.reactivity.setupTranslationService();
 						}}
-					/>
+					>
+						<Icon icon={"download"} />
+					</button>
+
+
 				</SettingItem>
 
 			{/if}

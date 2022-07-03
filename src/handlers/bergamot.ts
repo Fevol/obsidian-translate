@@ -16,12 +16,17 @@ export class BergamotTranslate extends DummyTranslate {
 			try {
 				if (ft instanceof WebAssembly.RuntimeError)
 					plugin.message_queue(ft.message.match(/\(([^)]+)\)/)[0].slice(1, -1));
-				else
-					ft.loadModel("lid.176.ftz").then((model: FastTextModel) => { this.model = model; });
+				else {
+					ft.loadModel("lid.176.ftz").then((model: FastTextModel) => {
+						this.model = model;
+					});
+					this.validate().then((x) => {
+						this.valid = x.valid;
+					});
+				}
 			} catch (e) {
 				console.log("Error loading model: " + e);
 			}
-
 		})
 	}
 
