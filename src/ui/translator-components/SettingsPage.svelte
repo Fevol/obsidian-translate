@@ -12,7 +12,7 @@
 	import {TRANSLATION_SERVICES_INFO, SECURITY_MODES} from "../../constants";
 
 	import {aesGcmDecrypt, aesGcmEncrypt, toTitleCase} from "../../util";
-	import {request} from "obsidian";
+	import {request, requestUrl, TFile} from "obsidian";
 
 	// export let plugin: TranslatorPlugin;
 	export let plugin: TranslatorPlugin;
@@ -80,30 +80,13 @@
 	}
 
 
-	function strToUtf8Bytes(str) {
-		const utf8 = [];
-		for (let ii = 0; ii < str.length; ii++) {
-			let charCode = str.charCodeAt(ii);
-			if (charCode < 0x80) utf8.push(charCode);
-			else if (charCode < 0x800) {
-				utf8.push(0xc0 | (charCode >> 6), 0x80 | (charCode & 0x3f));
-			} else if (charCode < 0xd800 || charCode >= 0xe000) {
-				utf8.push(0xe0 | (charCode >> 12), 0x80 | ((charCode >> 6) & 0x3f), 0x80 | (charCode & 0x3f));
-			} else {
-				ii++;
-				// Surrogate pair:
-				// UTF-16 encodes 0x10000-0x10FFFF by subtracting 0x10000 and
-				// splitting the 20 bits of 0x0-0xFFFFF into two halves
-				charCode = 0x10000 + (((charCode & 0x3ff) << 10) | (str.charCodeAt(ii) & 0x3ff));
-				utf8.push(
-					0xf0 | (charCode >> 18),
-					0x80 | ((charCode >> 12) & 0x3f),
-					0x80 | ((charCode >> 6) & 0x3f),
-					0x80 | (charCode & 0x3f),
-				);
-			}
-		}
-		return utf8;
+	async function writeOrReplace(path: string, data: ArrayBuffer) {
+		// getAbstractFileByPath will not find the file if it is inside a hidden folder (e.g. obsidian);
+		// it seems like createBinary does not care about hidden folders
+		if (await app.vault.adapter.exists(path))
+			await app.vault.adapter.writeBinary(path, data);
+		else
+			await app.vault.createBinary(path, data);
 	}
 </script>
 
@@ -217,19 +200,24 @@
 					description="Install FastText language models for local text detection"
 					type="button"
 				>
+					<!-- Download FastText model and binary -->
+					<!-- FIXME: Official FastText repo does not contain wasm file, so the binary was added to the plugin's repo
+					      users would probably prefer if the file was downloaded from an official place -- look for this! -->
+					<!-- FIXME: Find a better way to reinitialize FastText -->
+
 					<Button
 						slot="control"
 						icon="download"
 						onClick={async () => {
+							let model_path = `.obsidian/${$settings.service_settings[service].storage_path}/lid.176.ftz`
+							let model_result = await requestUrl({url: "https://dl.fbaipublicfiles.com/fasttext/supervised-models/lid.176.ftz"});
+							await writeOrReplace(model_path, model_result.arrayBuffer);
 
-							let result = await fetch("https://github.com/Fevol/obsidian-translate/blob/bergamot/models/fasttext_wasm.wasm?raw=true");
-							console.log(result);
+							let binary_path = `.obsidian/${$settings.service_settings[service].storage_path}/fasttext_wasm.wasm`
+							let binary_result = await requestUrl({url: "https://github.com/Fevol/obsidian-translate/blob/bergamot/models/fasttext_wasm.wasm?raw=true"});
+							await writeOrReplace(binary_path, binary_result.arrayBuffer);
 
-							await app.vault.createBinary(`.obsidian/${$settings.service_settings[service].storage_path}/fasttext_wasm.wasm`, result);
-
-							result = await fetch("https://github.com/Fevol/obsidian-translate/blob/bergamot/models/lid.176.ftz?raw=true");
-							console.log(result);
-							await app.vault.createBinary(`.obsidian/${$settings.service_settings[service].storage_path}/lid.176.ftz`, result);
+							plugin.reactivity.setupTranslationService();
 						}}
 					/>
 				</SettingItem>

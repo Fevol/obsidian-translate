@@ -67,7 +67,7 @@ import {DummyTranslate, BingTranslator, GoogleTranslate, BergamotTranslate, Deep
 	$: security_setting_observer = $settings.security_setting;
 
 
-	function setupTranslationService() {
+	export function setupTranslationService() {
 		let valid = $settings.service_settings[service_observer]?.validated;
 
 		// FIXME: I quite dislike this particular piece of code, the intention for this is that the user
