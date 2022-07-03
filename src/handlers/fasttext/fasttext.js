@@ -51,13 +51,16 @@ class FastText {
 		if (postRunFunc)
 			postRunFunc();
 		this.f = new fastTextModule.FastText();
-
 	}
 
 	static async create(plugin) {
-		const o = new FastText(plugin);
-		await o.initialize();
-		return o;
+		try {
+			const o = new FastText(plugin);
+			await o.initialize();
+			return o;
+		} catch (e) {
+			return e;
+		}
 	}
 
 

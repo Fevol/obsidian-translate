@@ -1984,27 +1984,23 @@ var FastTextModule = (function () {
 						// TODO: Get access to app.vault and plugin.manifest here!
 						await app.plugins.loadManifests();
 						let settings = get(app.plugins.plugins['obsidian-translate'].settings)
-						let file = await app.vault.adapter.readBinary(`.obsidian/${settings.service_settings.bergamot.storage_path}/fasttext_wasm.wasm`);
+
+						let path = `.obsidian/${settings.service_settings.bergamot.storage_path}/fasttext_wasm.wasm`;
+
+						if (!await app.vault.adapter.exists(path))
+							abort('Could not find fasttext_wasm.wasm in the vault');
+
+						let file = await app.vault.adapter.readBinary(path)
+
+						if (!file)
+							abort('fasttext_wasm.wasm is empty');
+
 						let result = WebAssembly.instantiate(file, info)
 						return result.then(receiveInstantiatedSource, function (reason) {
 							err('wasm streaming compile failed: ' + reason);
 							err('falling back to ArrayBuffer instantiation');
 							return instantiateArrayBuffer(receiveInstantiatedSource);
 						});
-
-						// return file.then(async file => {
-							// let m = new WebAssembly.Module(file);
-							// let result = WebAssembly.instantiate(file, info)
-							// var result = WebAssembly.instantiate(Uint8Array.from(atob(file), (c) => c.charCodeAt(0)), info)
-
-							// return result.then(receiveInstantiatedSource, function (reason) {
-							// 	// We expect the most common failure cause to be a bad MIME type for the binary,
-							// 	// in which case falling back to ArrayBuffer instantiation should work.
-							// 	err('wasm streaming compile failed: ' + reason);
-							// 	err('falling back to ArrayBuffer instantiation');
-							// 	return instantiateArrayBuffer(receiveInstantiatedSource);
-							// });
-						// })
 					} else {
 						return instantiateArrayBuffer(receiveInstantiatedSource);
 					}

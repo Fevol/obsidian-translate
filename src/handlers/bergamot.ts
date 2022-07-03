@@ -10,17 +10,32 @@ export class BergamotTranslate extends DummyTranslate {
 	constructor(plugin: TranslatorPlugin) {
 		super();
 
-		// TODO: ft is not loaded yet, so we need to wait for it to load
 		FastText.create(plugin).then(ft => {
-			ft.loadModel("lid.176.ftz").then((model) => { this.model = model; });
+			// FIXME: For some reason, you cannot catch the abort of fasttext_wasm here, so this is done in the fasttext wrapper
+			//  by returning the error
+			try {
+				if (ft instanceof WebAssembly.RuntimeError)
+					plugin.message_queue(ft.message.match(/\(([^)]+)\)/)[0].slice(1, -1));
+				else
+					ft.loadModel("lid.176.ftz").then((model: FastTextModel) => { this.model = model; });
+			} catch (e) {
+				console.log("Error loading model: " + e);
+			}
+
 		})
 	}
 
 	async validate(): Promise<ValidationResult> {
-		return {valid: true};
+		return {valid: this.model !== null};
 	}
 
 	async detect(text: string): Promise<Array<DetectionResult>> {
+		if (!this.valid)
+			return [{message: "Translation service is not validated"}];
+
+		if (!text.trim())
+			return [{message: "No text was provided"}];
+
 		return BergamotTranslate.getPredictions(this.model.predict(text, 5, 0.0));
 	}
 
