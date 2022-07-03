@@ -13,21 +13,17 @@ import {App, TFile} from "obsidian";
 
 var fastTextModule = null
 
-const _initFastTextModule = async function () {
-	fastTextModule = await fastTextModularized();
-	return true
-}
+// const _initFastTextModule = async function () {
+// 	fastTextModule = await fastTextModularized();
+// 	return true
+// }
 
 let postRunFunc = null;
 const addOnPostRun = function (func) {
 	postRunFunc = func;
 };
 
-_initFastTextModule().then((res) => {
-	if (postRunFunc) {
-		postRunFunc();
-	}
-})
+
 
 const thisModule = this;
 const trainFileInWasmFs = 'train.txt';
@@ -51,9 +47,23 @@ const heapToFloat32 = (r) => new Float32Array(r.buffer, r.ptr, r.size);
 
 class FastText {
 	constructor(plugin) {
-		this.f = new fastTextModule.FastText();
 		this.plugin = plugin;
 	}
+
+	async initialize() {
+		fastTextModule = await fastTextModularized();
+		if (postRunFunc)
+			postRunFunc();
+		this.f = new fastTextModule.FastText();
+
+	}
+
+	static async create(plugin) {
+		const o = new FastText(plugin);
+		await o.initialize();
+		return o;
+	}
+
 
 
 	/**
@@ -65,11 +75,15 @@ class FastText {
 	 * @return {Promise}   promise object that resolves to a `FastTextModel`
 	 */
 	async loadModel(url) {
-		var self = this.plugin;
-		let adapter = this.plugin.app.vault.adapter;
+		// var self = this.plugin;
+		// let adapter = app.vault.adapter;
 		const fastTextNative = this.f;
+		console.log(fastTextNative);
 		try {
-			let bytes = await adapter.readBinary(`${this.plugin.manifest.dir}/src/handlers/languageDetection/${url}`);
+			await app.plugins.loadManifests();
+			let manifest = app.plugins?.manifests['obsidian-translate']?.dir
+			console.log(fastTextModule, fastTextModule.FS)
+			let bytes = await app.vault.adapter.readBinary(`${manifest}/src/handlers/languageDetection/${url}`);
 			const FS = fastTextModule.FS
 			const byteArray = new Uint8Array(bytes);
 			FS.writeFile(modelFileInWasmFs, byteArray);

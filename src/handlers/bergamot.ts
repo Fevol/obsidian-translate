@@ -10,9 +10,10 @@ export class BergamotTranslate extends DummyTranslate {
 	constructor(plugin: TranslatorPlugin) {
 		super();
 
-		// TODO: Check if file scripts exist
-		let ft = new FastText(plugin);
-		ft.loadModel("lid.176.ftz").then((model) => { this.model = model; });
+		// TODO: ft is not loaded yet, so we need to wait for it to load
+		FastText.create(plugin).then(ft => {
+			ft.loadModel("lid.176.ftz").then((model) => { this.model = model; });
+		})
 	}
 
 	async validate(): Promise<ValidationResult> {

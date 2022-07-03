@@ -1923,7 +1923,7 @@ var FastTextModule = (function () {
 
 // Create the wasm instance.
 // Receives the wasm imports, returns the exports.
-			async function createWasm() {
+			function createWasm() {
 				// prepare imports
 				var info = {
 					'env': asmLibraryArg,
@@ -1981,25 +1981,41 @@ var FastTextModule = (function () {
 
 						// TODO: Get access to app.vault and plugin.manifest here!
 						await app.plugins.loadManifests();
-						console.log(app.plugins?.manifests['obsidian-translate']?.dir)
+						// console.log(app.plugins?.manifests['obsidian-translate']?.dir)
 
-						// Note to self: current issue is that you want to access the plugin manifest correctly (so model can be in arbitrary location),
-						// but app.plugins.manifest is asynchronous, resulting in some weird issues that fastTextModule is not constructed
-						// when FastText is being constructed inside fasttext.js
-						// FIXME: Currently, this setup causes a ~1 second hiccup, probably due to inefficient adapter read
-						//  the multiple awaits inside the constructor, and the conversion from base64 string to bytes
-						//  (and no, regular bytes does not work -- investigate)
-						const file = await app.vault.adapter.read(`${app.plugins?.manifests['obsidian-translate']?.dir}/src/handlers/languageDetection/fasttext_wasm.data`)
-						console.log(file)
-						var result = WebAssembly.instantiate(Uint8Array.from(atob(file), (c) => c.charCodeAt(0)), info)
+						// const file = app.vault.adapter.read(`${app.plugins?.manifests['obsidian-translate']?.dir}/src/handlers/languageDetection/fasttext_wasm.data`)
+						// let file = await app.vault.adapter.readBinary(`.obsidian/plugins/obsidian-translate/src/handlers/languageDetection/fasttext_wasm.wasm`);
+						//
+						// const worker = Worker();
+						// console.log(JSONfn.stringify(info));
+						// worker.postMessage([info, file])
+						// worker.onmessage = (event) => {
+						// 	console.log("Finished loading");
+						// }
 
+
+
+						let file = await app.vault.adapter.readBinary(`.obsidian/plugins/obsidian-translate/src/handlers/languageDetection/fasttext_wasm.wasm`);
+						let result = WebAssembly.instantiate(file, info)
 						return result.then(receiveInstantiatedSource, function (reason) {
-							// We expect the most common failure cause to be a bad MIME type for the binary,
-							// in which case falling back to ArrayBuffer instantiation should work.
 							err('wasm streaming compile failed: ' + reason);
 							err('falling back to ArrayBuffer instantiation');
 							return instantiateArrayBuffer(receiveInstantiatedSource);
 						});
+
+						// return file.then(async file => {
+							// let m = new WebAssembly.Module(file);
+							// let result = WebAssembly.instantiate(file, info)
+							// var result = WebAssembly.instantiate(Uint8Array.from(atob(file), (c) => c.charCodeAt(0)), info)
+
+							// return result.then(receiveInstantiatedSource, function (reason) {
+							// 	// We expect the most common failure cause to be a bad MIME type for the binary,
+							// 	// in which case falling back to ArrayBuffer instantiation should work.
+							// 	err('wasm streaming compile failed: ' + reason);
+							// 	err('falling back to ArrayBuffer instantiation');
+							// 	return instantiateArrayBuffer(receiveInstantiatedSource);
+							// });
+						// })
 					} else {
 						return instantiateArrayBuffer(receiveInstantiatedSource);
 					}
