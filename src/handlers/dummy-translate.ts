@@ -46,4 +46,8 @@ export class DummyTranslate {
 		// Everything and nothing
 		return {message: 'This should not ever be called'};
 	}
+
+	has_autodetect_capability(): boolean {
+		return false;
+	}
 }

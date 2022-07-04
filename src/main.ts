@@ -195,18 +195,18 @@ export default class TranslatorPlugin extends Plugin {
 
 				});
 
-				menu.addItem((item) => {
-					item.setTitle("Detect Language")
-						.setIcon("detect-selection")
-						.onClick(async () => {
-							await detect_selection(this, editor);
-						});
+				if (this.translator.has_autodetect_capability()) {
+					menu.addItem((item) => {
+						item.setTitle("Detect Language")
+							.setIcon("detect-selection")
+							.onClick(async () => {
+								await detect_selection(this, editor);
+							});
 
-					if (requireApiVersion("0.15.3"))
-						item.setSection("translate")
-				});
-
-
+						if (requireApiVersion("0.15.3"))
+							item.setSection("translate")
+					});
+				}
 			})
 		);
 	}

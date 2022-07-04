@@ -108,4 +108,8 @@ export class LibreTranslate extends DummyTranslate {
 			return {message: `Languages fetching failed:\n(${e.message})`};
 		}
 	}
+
+	has_autodetect_capability(): boolean {
+		return true;
+	}
 }

@@ -29,6 +29,7 @@ export interface PluginData {
 	text_from: string;
 	text_to: string;
 	detected_language: string;
+	has_autodetect_capability: boolean;
 }
 
 export interface APIServiceProviders {

@@ -126,4 +126,8 @@ export class YandexTranslate extends DummyTranslate {
 		}
 	}
 
+	has_autodetect_capability(): boolean {
+		return true;
+	}
+
 }

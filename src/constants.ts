@@ -26,6 +26,7 @@ export const DEFAULT_DATA: PluginData = {
 	text_to: "",
 	text_from: "",
 	detected_language: "",
+	has_autodetect_capability: false,
 }
 
 export const DEFAULT_SETTINGS: TranslatorPluginSettings = {

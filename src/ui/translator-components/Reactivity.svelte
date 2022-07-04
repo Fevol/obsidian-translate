@@ -94,6 +94,7 @@ import {DummyTranslate, BingTranslator, GoogleTranslate, BergamotTranslate, Deep
 			plugin.translator = new DummyTranslate();
 
 		plugin.translator.valid = valid;
+		$data.has_autodetect_capability = plugin.translator.has_autodetect_capability();
 
 		plugin.translator.failure_count_watcher.subscribe(failure_count => {
 			if (failure_count >= 10) {
@@ -106,7 +107,8 @@ import {DummyTranslate, BingTranslator, GoogleTranslate, BergamotTranslate, Deep
 
 	function getLocales(locales: Array<DownloadableModel> | Array<string>) {
 		if (locales instanceof Array<DownloadableModel>)
-			return Array.from(locales).map((model: DownloadableModel) => { return model.locale });
+			// English is the pivot language
+			return ['en'].concat(Array.from(locales).map((model: DownloadableModel) => { return model.locale }));
 		else
 			return locales;
 	}

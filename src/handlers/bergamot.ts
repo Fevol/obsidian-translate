@@ -159,4 +159,8 @@ export class BergamotTranslate extends DummyTranslate {
 	// 	return {languages: }
 	// }
 
+
+	has_autodetect_capability(): boolean {
+		return this.model != null;
+	}
 }

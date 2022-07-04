@@ -184,15 +184,15 @@
 			<Dropdown
 				value={$settings.language_from}
 				options={
-				[
-					$data.detected_language ? {value: 'auto', text: `Detect Language (${t($data.detected_language)})`} : {value: 'auto', text: 'Detect Language'},
-					...selectable_languages,
-				]
-		}
+					$data.has_autodetect_capability ? [
+						$data.detected_language ? {value: 'auto', text: `Detect Language (${t($data.detected_language)})`} : {value: 'auto', text: 'Detect Language'},
+						...selectable_languages,
+					] : selectable_languages
+				}
 				onChange={(e) => {
-			$settings.language_from = e.target.value;
-			$data.detected_language = undefined;
-		}}
+					$settings.language_from = e.target.value;
+					$data.detected_language = undefined;
+				}}
 			/>
 			<TextArea
 				placeholder="Type here..."

@@ -185,4 +185,8 @@ export class Deepl extends DummyTranslate {
 
 	}
 
+	has_autodetect_capability(): boolean {
+		return true;
+	}
+
 }

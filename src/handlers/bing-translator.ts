@@ -163,4 +163,8 @@ export class BingTranslator extends DummyTranslate {
 		}
 	}
 
+	has_autodetect_capability(): boolean {
+		return true;
+	}
+
 }

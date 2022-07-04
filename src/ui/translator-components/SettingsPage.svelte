@@ -38,6 +38,7 @@
 			.filter((option) => { return !$settings.service_settings[$settings.translation_service].selected_languages.contains(option.value); })
 			.sort((a, b) => { return a.text.localeCompare(b.text);});
 		selectable_services.unshift({'value': '', 'text': '+'});
+		$data.has_autodetect_capability = plugin.translator.has_autodetect_capability();
 	}
 
 	$: {
