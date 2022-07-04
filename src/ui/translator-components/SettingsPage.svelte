@@ -8,11 +8,17 @@
 	import {SettingItem} from "../obsidian-components";
 	import {PasswordModal, PasswordRequestModal} from "../modals";
 
-	import type {PluginData, TranslatorPluginSettings, ValidationResult} from "../../types";
+	import type {
+		DownloadableModel,
+		PluginData,
+		TranslatorPluginSettings,
+		ValidationResult
+	} from "../../types";
 	import {TRANSLATION_SERVICES_INFO, SECURITY_MODES} from "../../constants";
 
-	import {aesGcmDecrypt, aesGcmEncrypt, toTitleCase} from "../../util";
-	import {request, requestUrl, TFile} from "obsidian";
+	import {aesGcmDecrypt, aesGcmEncrypt, humanFileSize, toTitleCase} from "../../util";
+	import {requestUrl, TFile} from "obsidian";
+	import t from "../../l10n";
 
 	// export let plugin: TranslatorPlugin;
 	export let plugin: TranslatorPlugin;
@@ -22,6 +28,8 @@
 	const services = TRANSLATION_SERVICES_INFO;
 	const security_options = SECURITY_MODES;
 	let selectable_services: any[];
+	let downloadable_models: any[];
+
 
 	// Update list of languages that can be selected in 'Manually select languages' option
 	$: {
@@ -30,6 +38,23 @@
 			.filter((option) => { return !$settings.service_settings[$settings.translation_service].selected_languages.contains(option.value); })
 			.sort((a, b) => { return a.text.localeCompare(b.text);});
 		selectable_services.unshift({'value': '', 'text': '+'});
+	}
+
+	$: {
+		let models = $settings.service_settings[$settings.translation_service].downloadable_models;
+		if (models) {
+			downloadable_models = Array.from(models)
+				.filter(model => {
+					return !$settings.service_settings[$settings.translation_service].available_languages.some((other) => {
+						return other.locale === model.locale;
+					});
+				})
+				.map(model => {
+					return {'value': model.locale, 'text': `${$data.all_languages.get(model.locale)} (${humanFileSize(model.size, true)})${model.development ? ' [DEV]' : ''}`};
+				})
+				.sort((a, b) => { return a.text.localeCompare(b.text);});
+			downloadable_models.unshift({'value': '', 'text': '+'});
+		}
 	}
 
 	async function setAPIKey(mode: string, service: string, key: string) {
@@ -88,6 +113,21 @@
 		else
 			await app.vault.createBinary(path, data);
 	}
+
+	async function writeRecursive(path: string, data: any) {
+		let paths = path.split('/').filter(x => x !== '');
+		let current_path = '';
+		for (let i = 0; i < paths.length - 1; i++) {
+			current_path += paths[i];
+			if (!await app.vault.adapter.exists(current_path))
+				await app.vault.adapter.mkdir(current_path);
+			current_path += '/';
+		}
+		await app.vault.adapter.writeBinary(path, data);
+	}
+
+
+
 </script>
 
 <h3>General Settings</h3>
@@ -220,14 +260,65 @@
 							let binary_result = await requestUrl({url: "https://github.com/Fevol/obsidian-translate/blob/bergamot/models/fasttext_wasm.wasm?raw=true"});
 							await writeOrReplace(binary_path, binary_result.arrayBuffer);
 
+							plugin.message_queue("Successfully installed FastText data");
+
 							plugin.reactivity.setupTranslationService();
 						}}
 					>
 						<Icon icon={"download"} />
 					</button>
-
-
 				</SettingItem>
+
+				<SettingItem name="Manage Bergamot models">
+					<div slot="control">
+						<ButtonList
+							items={ $settings.service_settings[service].available_languages.map((model) => {
+								return {
+									'value': model.locale,
+									'text': `${$data.all_languages.get(model.locale)} (${humanFileSize(model.size, true)})${model.development ? ' [DEV]' : ''}`
+								}
+							}) }
+							icon="cross"
+							onClick={async (e) => {
+
+							}}
+						/>
+						<Dropdown
+							options={ downloadable_models }
+							value=""
+							onChange={async (e) => {
+								let model = $settings.service_settings[service].downloadable_models.find(x => x.locale === e.target.value);
+
+								const rootURL = "https://storage.googleapis.com/bergamot-models-sandbox";
+
+								for (let file_info of model.files.from) {
+									console.log(`${rootURL}/${$settings.service_settings[service].version}/${model.locale}en/${file_info.filename}`)
+									let file = await requestUrl({url: `${rootURL}/${$settings.service_settings[service].version}/${model.locale}en/${file_info.filename}`});
+									if (file.status !== 200) {
+										plugin.message_queue(`Failed to download ${t(model.locale)} language models`);
+										return;
+									}
+									await writeRecursive(`.obsidian/${$settings.service_settings[service].storage_path}/bergamot/${model.locale}/${file_info.filename}`, file.arrayBuffer);
+								}
+
+								for (let file_info of model.files.to) {
+									let file = await requestUrl({url: `${rootURL}/${$settings.service_settings[service].version}/en${model.locale}/${file_info.filename}`});
+									if (file.status !== 200) {
+										plugin.message_queue(`Failed to download ${t(model.locale)} language models`);
+										return;
+									}
+									await writeRecursive(`.obsidian/${$settings.service_settings[service].storage_path}/bergamot/${model.locale}/${file_info.filename}`, file.arrayBuffer);
+								}
+
+								plugin.message_queue(`Successfully installed ${t(model.locale)} language models`);
+
+								$settings.service_settings[service].available_languages = [...$settings.service_settings[service].available_languages, model];
+
+							}}
+						/>
+					</div>
+				</SettingItem>
+
 
 			{/if}
 
@@ -239,8 +330,8 @@
 					<div slot="control" transition:slide>
 						<ButtonList
 							items={Array.from($data.available_languages)
-							.map((locale) => {return {'value': locale, 'text': $data.all_languages.get(locale)};})
-							.sort((a, b) => a.text.localeCompare(b.text))}
+								.map((locale) => {return {'value': locale, 'text': $data.all_languages.get(locale)};})
+								.sort((a, b) => a.text.localeCompare(b.text))
 							}
 							icon="cross"
 							disabled={$settings.service_settings[$settings.translation_service].filter_type === 1}
@@ -427,7 +518,13 @@
 						if (return_values.message)
 							plugin.message_queue(return_values.message);
 						if (return_values.languages) {
-							$settings.service_settings[service].available_languages = return_values.languages;
+							if (return_values.data) {
+								$settings.service_settings[service].downloadable_models = return_values.languages;
+								$settings.service_settings[service].version = return_values.data;
+								plugin.reactivity.updateLanguageNames();
+							} else {
+								$settings.service_settings[service].available_languages = return_values.languages;
+							}
 							plugin.message_queue("Languages updated");
 						}
 					}}

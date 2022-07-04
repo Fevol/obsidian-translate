@@ -12,7 +12,7 @@ import {DummyTranslate, BingTranslator, GoogleTranslate, BergamotTranslate, Deep
 
 	import type {Writable} from "svelte/store";
 
-	import type {PluginData, TranslatorPluginSettings} from "../../types";
+	import type {DownloadableModel, PluginData, TranslatorPluginSettings} from "../../types";
 	import {TRANSLATION_SERVICES_INFO} from "../../constants";
 	import ISO6391 from "iso-639-1";
 
@@ -59,6 +59,7 @@ import {DummyTranslate, BingTranslator, GoogleTranslate, BergamotTranslate, Deep
 	$: filter_type_observer = $settings.service_settings[$settings.translation_service].filter_type;
 	$: available_languages_observer = $settings.service_settings[$settings.translation_service].available_languages.length;
 	$: selected_languages_observer = $settings.service_settings[$settings.translation_service].selected_languages.length;
+	$: downloadable_languages_observer = $settings.service_settings[$settings.translation_service].downloadable_models?.length;
 	$: api_key_observer = $data.api_key;
 	$: host_observer = $settings.service_settings[$settings.translation_service].host;
 	$: region_observer = $settings.service_settings[$settings.translation_service].region;
@@ -103,32 +104,45 @@ import {DummyTranslate, BingTranslator, GoogleTranslate, BergamotTranslate, Deep
 		});
 	}
 
+	function getLocales(locales: Array<DownloadableModel> | Array<string>) {
+		if (locales instanceof Array<DownloadableModel>)
+			return Array.from(locales).map((model: DownloadableModel) => { return model.locale });
+		else
+			return locales;
+	}
+
 	// Update selection of available languages for the Translation View
 	function updateAvailableLanguages() {
-		$data.available_languages =
-			filter_type_observer === 0 ? $settings.service_settings[$settings.translation_service].available_languages :
-			filter_type_observer === 1 ? $data.spellchecker_languages :
-										 $settings.service_settings[$settings.translation_service].selected_languages;
+		if (filter_type_observer === 0) {
+			$data.available_languages = getLocales($settings.service_settings[$settings.translation_service].available_languages);
+		} else if (filter_type_observer === 1) {
+			$data.available_languages = $data.spellchecker_languages;
+		} else if (filter_type_observer === 2) {
+			$data.available_languages = Array.from($settings.service_settings[$settings.translation_service].available_languages).map((model: DownloadableModel) => { return model.locale });
+		}
 	}
 
 	// Fetch names for locales of translation service (this can not be pre-calculated as the set of available languages
 	// in a service changes constantly)
-	function updateLanguageNames() {
+	export function updateLanguageNames() {
+		let lang = getLocales($settings.service_settings[$settings.translation_service].downloadable_models)
+		|| $settings.service_settings[$settings.translation_service].available_languages
+
 		$data.all_languages =
-			new Map(Array.from($settings.service_settings[$settings.translation_service].available_languages.map((locale: string) => {
-				let language: any = locale,
-					extra: string = '';
-				if (language.contains('-')) {
-					[language, extra] = language.split('-');
-					extra = t(extra.toUpperCase());
-					extra = extra ? ` (${extra})` : '';
-				}
-				if ($settings.display_language === 'local')
-					language = ISO6391.getNativeName(language) || t(language)
-				else if ($settings.display_language === 'display')
-					language = t(language)
-				return [locale, language + extra];
-		})))
+			new Map(Array.from(lang.map((locale: string) => {
+					let language: any = locale,
+						extra: string = '';
+					if (language.contains('-')) {
+						[language, extra] = language.split('-');
+						extra = t(extra.toUpperCase());
+						extra = extra ? ` (${extra})` : '';
+					}
+					if ($settings.display_language === 'local')
+						language = ISO6391.getNativeName(language) || t(language)
+					else if ($settings.display_language === 'display')
+						language = t(language)
+					return [locale, language + extra];
+			})))
 	}
 
 	function validateAPIKey() {

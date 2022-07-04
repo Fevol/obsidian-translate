@@ -7,7 +7,12 @@ import {TranslatorSettingsTab} from "./settings";
 import {TranslatorView} from "./view";
 import {SwitchService, TranslateModal} from "./ui/modals";
 
-import type {APIServiceProviders, APIServiceSettings, PluginData, TranslatorPluginSettings} from "./types";
+import type {
+	APIServiceProviders,
+	APIServiceSettings,
+	PluginData,
+	TranslatorPluginSettings
+} from "./types";
 import {ICONS, DEFAULT_SETTINGS, TRANSLATOR_VIEW_ID, DEFAULT_DATA} from "./constants";
 import type {DummyTranslate} from "./handlers";
 import {rateLimit} from "./util";
@@ -44,8 +49,8 @@ export default class TranslatorPlugin extends Plugin {
 			new Notice(text, timeout);
 		});
 
-		this.settings = writable<TranslatorPluginSettings>();
-		await this.loadSettings();
+		let settings: TranslatorPluginSettings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData());
+		this.settings = writable<TranslatorPluginSettings>(settings);
 
 		this.plugin_data = writable<PluginData>();
 		this.plugin_data.set(DEFAULT_DATA);
@@ -242,10 +247,6 @@ export default class TranslatorPlugin extends Plugin {
 
 
 	// --------------------  Settings management  --------------------
-	async loadSettings() {
-		this.settings.set(Object.assign({}, DEFAULT_SETTINGS, await this.loadData()));
-	}
-
 
 	async saveSettings(updatedSettings: any) {
 		await this.saveData(updatedSettings);

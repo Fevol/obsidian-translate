@@ -40,11 +40,31 @@ export interface APIServiceProviders {
 	bergamot: APIServiceSettings;
 }
 
+export interface ModelDatafile {
+	type: string;
+	filename: string;
+}
+
+export interface ModelData {
+	from: Array<ModelDatafile>;
+	to: Array<ModelDatafile>;
+}
+
+export interface DownloadableModel {
+	locale: string;
+	size: number;
+	development: boolean;
+	files: ModelData;
+}
+
 export interface APIServiceSettings {
 	// What languages did the user select? (locale codes)
 	selected_languages: Array<any>;
 	// What languages are available for *this translation service* (locale codes)
-	available_languages: Array<string>;
+	available_languages: Array<string> | Array<DownloadableModel>;
+
+	downloadable_models?: Array<DownloadableModel>;
+	version?: string;
 
 	// Which languages get shown in the translation view selection box
 	// (0 = all, 1 = synced with spell checker, 2 = only selected languages)
@@ -81,8 +101,9 @@ export interface ValidationResult {
 }
 
 export interface LanguagesFetchResult {
-	languages?: Array<string>;
+	languages?: Array<string> | Array<DownloadableModel>;
 	message?: string;
+	data?: string;
 }
 
 export interface DetectionResult {
