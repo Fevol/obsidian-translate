@@ -106,7 +106,7 @@ import {DummyTranslate, BingTranslator, GoogleTranslate, BergamotTranslate, Deep
 	}
 
 	function getLocales(locales: Array<DownloadableModel> | Array<string>) {
-		if (locales instanceof Array<DownloadableModel>)
+		if (locales && locales[0] instanceof Object)
 			// English is the pivot language
 			return ['en'].concat(Array.from(locales).map((model: DownloadableModel) => { return model.locale }));
 		else

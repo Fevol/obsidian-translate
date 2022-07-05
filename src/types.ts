@@ -41,14 +41,17 @@ export interface APIServiceProviders {
 	bergamot: APIServiceSettings;
 }
 
-export interface ModelDatafile {
-	type: string;
-	filename: string;
+export interface ModelDatasets {
+	model?: string;
+	lex?: string;
+	vocab?: string;
+	trgvocab?: string;
+	srcvocab?: string;
 }
 
 export interface ModelData {
-	from: Array<ModelDatafile>;
-	to: Array<ModelDatafile>;
+	from: ModelDatasets;
+	to: ModelDatasets;
 }
 
 export interface DownloadableModel {

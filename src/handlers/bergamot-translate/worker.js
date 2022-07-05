@@ -1,11 +1,12 @@
+import { get } from 'svelte/store';
+import './bergamot-translator-worker'
+
 // All variables specific to translation service
 var translationService, responseOptions, input = undefined;
 // A map of language-pair to TranslationModel object
 var translationModels = new Map();
 
-const BERGAMOT_TRANSLATOR_MODULE = "bergamot-translator-worker.js";
-const MODEL_REGISTRY = "registry.json";
-const rootURL = "https://storage.googleapis.com/bergamot-models-sandbox";
+// const BERGAMOT_TRANSLATOR_MODULE = "bergamot-translator-worker.js";
 let version = null;
 let modelRegistry = null;
 
@@ -14,18 +15,14 @@ const decoder = new TextDecoder(); // utf-8 to string converter
 
 const start = Date.now();
 let moduleLoadStart;
+let plugin;
 var Module = {
 	preRun: [function() {
 		log(`Time until Module.preRun: ${(Date.now() - start) / 1000} secs`);
 		moduleLoadStart = Date.now();
 	}],
 	onRuntimeInitialized: async function() {
-		log(`Wasm Runtime initialized Successfully (preRun -> onRuntimeInitialized) in ${(Date.now() - moduleLoadStart) / 1000} secs`);
-		let resp = await fetch(`${rootURL}/latest.txt`);
-		version = await resp.text();
-		resp = await fetch(`${rootURL}/${version}/${MODEL_REGISTRY}`);
-		modelRegistry = await resp.json();
-		postMessage([`import_reply`, modelRegistry, version]);
+		postMessage([`import_reply`]);
 	}
 };
 
@@ -42,7 +39,8 @@ onmessage = async function(e) {
 	log(`Message '${command}' received from main script`);
 	let result = "";
 	if (command === 'import') {
-		importScripts(BERGAMOT_TRANSLATOR_MODULE);
+		// importScripts(BERGAMOT_TRANSLATOR_MODULE);
+		plugin = e.data[1];
 	} else if (command === 'load_model') {
 		let start = Date.now();
 		let from = e.data[1];
@@ -83,13 +81,13 @@ onmessage = async function(e) {
 }
 
 // This function downloads file from a url and returns the array buffer
-const downloadAsArrayBuffer = async(url) => {
-	const response = await fetch(url);
-	if (!response.ok) {
-		throw Error(`Downloading ${url} failed: HTTP ${response.status} - ${response.statusText}`);
-	}
-	return response.arrayBuffer();
-}
+// const downloadAsArrayBuffer = async(url) => {
+// 	const response = await fetch(url);
+// 	if (!response.ok) {
+// 		throw Error(`Downloading ${url} failed: HTTP ${response.status} - ${response.statusText}`);
+// 	}
+// 	return response.arrayBuffer();
+// }
 
 // This function constructs and initializes the AlignedMemory from the array buffer and alignment size
 const prepareAlignedMemoryFromBuffer = async (buffer, alignmentSize) => {
@@ -188,37 +186,51 @@ quiet-translation: true
 gemm-precision: int8shiftAll
 `;
 
-	const commonPath = `${rootURL}/${version}/${languagePair}`
-	const modelFile = `${commonPath}/${modelRegistry[languagePair]["model"].name}`;
-	let vocabFiles;
-	const shortlistFile = `${commonPath}/${modelRegistry[languagePair]["lex"].name}`;
-	if (("srcvocab" in modelRegistry[languagePair]) && ("trgvocab" in modelRegistry[languagePair])) {
-		vocabFiles = [`${commonPath}/${modelRegistry[languagePair]["srcvocab"].name}`,
-			`${commonPath}/${modelRegistry[languagePair]["trgvocab"].name}`];
-	}
-	else {
-		vocabFiles = [`${commonPath}/${modelRegistry[languagePair]["vocab"].name}`,
-			`${commonPath}/${modelRegistry[languagePair]["vocab"].name}`];
-	}
-	const uniqueVocabFiles = new Set(vocabFiles);
-	log(`modelFile: ${modelFile}\nshortlistFile: ${shortlistFile}\nNo. of unique vocabs: ${uniqueVocabFiles.size}`);
-	uniqueVocabFiles.forEach(item => log(`unique vocabFile: ${item}`));
+	// const commonPath = `${rootURL}/${version}/${languagePair}`
+	// const modelFile = `${commonPath}/${modelRegistry[languagePair]["model"].name}`;
+	// let vocabFiles;
+	// const shortlistFile = `${commonPath}/${modelRegistry[languagePair]["lex"].name}`;
+	// if (("srcvocab" in modelRegistry[languagePair]) && ("trgvocab" in modelRegistry[languagePair])) {
+	// 	vocabFiles = [`${commonPath}/${modelRegistry[languagePair]["srcvocab"].name}`,
+	// 		`${commonPath}/${modelRegistry[languagePair]["trgvocab"].name}`];
+	// }
+	// else {
+	// 	vocabFiles = [`${commonPath}/${modelRegistry[languagePair]["vocab"].name}`,
+	// 		`${commonPath}/${modelRegistry[languagePair]["vocab"].name}`];
+	// }
+	// const uniqueVocabFiles = new Set(vocabFiles);
+	// log(`modelFile: ${modelFile}\nshortlistFile: ${shortlistFile}\nNo. of unique vocabs: ${uniqueVocabFiles.size}`);
+	// uniqueVocabFiles.forEach(item => log(`unique vocabFile: ${item}`));
 
 	// Download the files as buffers from the given urls
 	let start = Date.now();
-	// TODO: This should LOAD files from Obsidian FS (Model, Shortlist, Vocabs)
 
-	// let bytes = await app.vault.adapter.readBinary(`.obsidian/${settings.service_settings.bergamot.storage_path}/bergamot/model`);
+	let settings = get(plugin.settings).service_settings.bergamot;
+	let is_from = from !== "en";
+	let selected_language = is_from ? from : to;
 
-	const downloadedBuffers = await Promise.all([downloadAsArrayBuffer(modelFile), downloadAsArrayBuffer(shortlistFile)]);
-	const modelBuffer = downloadedBuffers[0];
-	const shortListBuffer = downloadedBuffers[1];
+	let language_data = settings.available_languages.find((x) => x.locale === selected_language).files[is_from ? "from" : "to"];
+	const base_path = `.obsidian/${settings.storage_path}/bergamot/${selected_language}/`;
 
-	const downloadedVocabBuffers = [];
-	for (let item of uniqueVocabFiles.values()) {
-		downloadedVocabBuffers.push(await downloadAsArrayBuffer(item));
+	let modelBuffer = await app.vault.adapter.readBinary(`${base_path}/${language_data.model}`);
+	let shortListBuffer = await app.vault.adapter.readBinary(`${base_path}/${language_data.lex}`);
+	let downloadedVocabBuffers = [];
+	if (language_data.vocab !== undefined) {
+		downloadedVocabBuffers = [await app.vault.adapter.readBinary(`${base_path}/${language_data.vocab}`)];
+	} else {
+		downloadedVocabBuffers = [await app.vault.adapter.readBinary(`${base_path}/${language_data.trgvocab}`),
+					   			  await app.vault.adapter.readBinary(`${base_path}/${language_data.srcvocab}`)];
 	}
-	log(`Total Download time for all files of '${languagePair}': ${(Date.now() - start) / 1000} secs`);
+
+	// const downloadedBuffers = await Promise.all([downloadAsArrayBuffer(modelFile), downloadAsArrayBuffer(shortlistFile)]);
+	// const modelBuffer = downloadedBuffers[0];
+	// const shortListBuffer = downloadedBuffers[1];
+
+	// const downloadedVocabBuffers = [];
+	// for (let item of uniqueVocabFiles.values()) {
+	// 	downloadedVocabBuffers.push(await downloadAsArrayBuffer(item));
+	// }
+	// log(`Total Download time for all files of '${languagePair}': ${(Date.now() - start) / 1000} secs`);
 
 	// Construct AlignedMemory objects with downloaded buffers
 	let constructedAlignedMemories = await Promise.all([prepareAlignedMemoryFromBuffer(modelBuffer, 256),

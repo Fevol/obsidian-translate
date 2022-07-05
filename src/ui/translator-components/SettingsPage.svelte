@@ -236,6 +236,7 @@
 						type="text"
 					/>
 				</SettingItem>
+
 				<SettingItem
 					name="Setup local text detection"
 					description="Install FastText language models for local text detection"
@@ -248,20 +249,46 @@
 
 					<button
 						slot="control"
+						class:translator-success={plugin.translator?.has_autodetect_capability()}
+						class:translator-fail={!plugin.translator?.has_autodetect_capability()}
+						class="icon-text"
+						style="justify-content: center"
+						on:click={async () => {
+							let model_path = `.obsidian/${$settings.service_settings[service].storage_path}/fasttext/lid.176.ftz`
+							let model_result = await requestUrl({url: "https://dl.fbaipublicfiles.com/fasttext/supervised-models/lid.176.ftz"});
+							await writeOrReplace(model_path, model_result.arrayBuffer);
+
+							let binary_path = `.obsidian/${$settings.service_settings[service].storage_path}/fasttext/fasttext_wasm.wasm`
+							let binary_result = await requestUrl({url: "https://github.com/Fevol/obsidian-translate/blob/bergamot/models/fasttext_wasm.wasm?raw=true"});
+							await writeOrReplace(binary_path, binary_result.arrayBuffer);
+
+							plugin.message_queue("Successfully installed FastText data");
+
+							plugin.reactivity.setupTranslationService();
+						}}
+					>
+						<Icon icon={"download"} />
+					</button>
+				</SettingItem>
+
+				<SettingItem
+					name="Setup local translation"
+					description="Install Bergamot translation engine"
+					type="button"
+				>
+					<!-- FIXME: WASM location in repo might not be very stable (but would be most up-to-date) -->
+					<button
+						slot="control"
 						class:translator-success={plugin.translator?.valid}
 						class:translator-fail={plugin.translator?.valid === false}
 						class="icon-text"
 						style="justify-content: center"
 						on:click={async () => {
-							let model_path = `.obsidian/${$settings.service_settings[service].storage_path}/lid.176.ftz`
-							let model_result = await requestUrl({url: "https://dl.fbaipublicfiles.com/fasttext/supervised-models/lid.176.ftz"});
-							await writeOrReplace(model_path, model_result.arrayBuffer);
-
-							let binary_path = `.obsidian/${$settings.service_settings[service].storage_path}/fasttext_wasm.wasm`
-							let binary_result = await requestUrl({url: "https://github.com/Fevol/obsidian-translate/blob/bergamot/models/fasttext_wasm.wasm?raw=true"});
+							let binary_path = `.obsidian/${$settings.service_settings[service].storage_path}/bergamot/bergamot-translator-worker.wasm`
+							let binary_result = await requestUrl({url: "https://github.com/mozilla/firefox-translations/blob/main/extension/model/static/translation/bergamot-translator-worker.wasm?raw=true"});
 							await writeOrReplace(binary_path, binary_result.arrayBuffer);
 
-							plugin.message_queue("Successfully installed FastText data");
+							plugin.message_queue("Successfully installed Bergamot binary");
 
 							plugin.reactivity.setupTranslationService();
 						}}
@@ -292,23 +319,22 @@
 
 								const rootURL = "https://storage.googleapis.com/bergamot-models-sandbox";
 
-								for (let file_info of model.files.from) {
-									console.log(`${rootURL}/${$settings.service_settings[service].version}/${model.locale}en/${file_info.filename}`)
-									let file = await requestUrl({url: `${rootURL}/${$settings.service_settings[service].version}/${model.locale}en/${file_info.filename}`});
+								for (const filename of Object.values(model.files.from)) {
+									let file = await requestUrl({url: `${rootURL}/${$settings.service_settings[service].version}/${model.locale}en/${filename}`});
 									if (file.status !== 200) {
 										plugin.message_queue(`Failed to download ${t(model.locale)} language models`);
 										return;
 									}
-									await writeRecursive(`.obsidian/${$settings.service_settings[service].storage_path}/bergamot/${model.locale}/${file_info.filename}`, file.arrayBuffer);
+									await writeRecursive(`.obsidian/${$settings.service_settings[service].storage_path}/bergamot/${model.locale}/${filename}`, file.arrayBuffer);
 								}
 
-								for (let file_info of model.files.to) {
-									let file = await requestUrl({url: `${rootURL}/${$settings.service_settings[service].version}/en${model.locale}/${file_info.filename}`});
+								for (const filename of Object.values(model.files.to)) {
+									let file = await requestUrl({url: `${rootURL}/${$settings.service_settings[service].version}/en${model.locale}/${filename}`});
 									if (file.status !== 200) {
 										plugin.message_queue(`Failed to download ${t(model.locale)} language models`);
 										return;
 									}
-									await writeRecursive(`.obsidian/${$settings.service_settings[service].storage_path}/bergamot/${model.locale}/${file_info.filename}`, file.arrayBuffer);
+									await writeRecursive(`.obsidian/${$settings.service_settings[service].storage_path}/bergamot/${model.locale}/${filename}`, file.arrayBuffer);
 								}
 
 								plugin.message_queue(`Successfully installed ${t(model.locale)} language models`);

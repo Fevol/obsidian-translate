@@ -128,34 +128,16 @@ export const DEFAULT_SETTINGS: TranslatorPluginSettings = {
 			downloadable_models: [
 				{
 					"files": {
-						"from": [
-							{
-								"type": "model",
-								"filename": "model.bgen.intgemm.alphas.bin"
-							},
-							{
-								"type": "lex",
-								"filename": "lex.50.50.bgen.s2t.bin"
-							},
-							{
-								"type": "vocab",
-								"filename": "vocab.bgen.spm"
-							}
-						],
-						"to": [
-							{
-								"type": "model",
-								"filename": "model.enbg.intgemm.alphas.bin"
-							},
-							{
-								"type": "lex",
-								"filename": "lex.50.50.enbg.s2t.bin"
-							},
-							{
-								"type": "vocab",
-								"filename": "vocab.bgen.spm"
-							}
-						]
+						"from": {
+							"model": "model.bgen.intgemm.alphas.bin",
+							"lex": "lex.50.50.bgen.s2t.bin",
+							"vocab": "vocab.bgen.spm"
+						},
+						"to": {
+							"model": "model.enbg.intgemm.alphas.bin",
+							"lex": "lex.50.50.enbg.s2t.bin",
+							"vocab": "vocab.bgen.spm"
+						}
 					},
 					"locale": "bg",
 					"size": 47912284,
@@ -163,38 +145,16 @@ export const DEFAULT_SETTINGS: TranslatorPluginSettings = {
 				},
 				{
 					"files": {
-						"from": [
-							{
-								"type": "model",
-								"filename": "model.csen.intgemm.alphas.bin"
-							},
-							{
-								"type": "lex",
-								"filename": "lex.50.50.csen.s2t.bin"
-							},
-							{
-								"type": "vocab",
-								"filename": "vocab.csen.spm"
-							}
-						],
-						"to": [
-							{
-								"type": "model",
-								"filename": "model.encs.intgemm.alphas.bin"
-							},
-							{
-								"type": "lex",
-								"filename": "lex.50.50.encs.s2t.bin"
-							},
-							{
-								"type": "vocab",
-								"filename": "vocab.csen.spm"
-							},
-							{
-								"type": "qualityModel",
-								"filename": "qualityModel.encs.bin"
-							}
-						]
+						"from": {
+							"model": "model.csen.intgemm.alphas.bin",
+							"lex": "lex.50.50.csen.s2t.bin",
+							"vocab": "vocab.csen.spm"
+						},
+						"to": {
+							"model": "model.encs.intgemm.alphas.bin",
+							"lex": "lex.50.50.encs.s2t.bin",
+							"vocab": "vocab.csen.spm",
+						}
 					},
 					"locale": "cs",
 					"size": 43913018,
@@ -202,34 +162,16 @@ export const DEFAULT_SETTINGS: TranslatorPluginSettings = {
 				},
 				{
 					"files": {
-						"from": [
-							{
-								"type": "model",
-								"filename": "model.deen.intgemm.alphas.bin"
-							},
-							{
-								"type": "lex",
-								"filename": "lex.50.50.deen.s2t.bin"
-							},
-							{
-								"type": "vocab",
-								"filename": "vocab.deen.spm"
-							}
-						],
-						"to": [
-							{
-								"type": "model",
-								"filename": "model.ende.intgemm.alphas.bin"
-							},
-							{
-								"type": "lex",
-								"filename": "lex.50.50.ende.s2t.bin"
-							},
-							{
-								"type": "vocab",
-								"filename": "vocab.deen.spm"
-							}
-						]
+						"from": {
+							"model": "model.deen.intgemm.alphas.bin",
+							"lex": "lex.50.50.deen.s2t.bin",
+							"vocab": "vocab.deen.spm"
+						},
+						"to": {
+							"model": "model.ende.intgemm.alphas.bin",
+							"lex": "lex.50.50.ende.s2t.bin",
+							"vocab": "vocab.deen.spm"
+						}
 					},
 					"locale": "de",
 					"size": 44841422,
@@ -237,38 +179,16 @@ export const DEFAULT_SETTINGS: TranslatorPluginSettings = {
 				},
 				{
 					"files": {
-						"from": [
-							{
-								"type": "model",
-								"filename": "model.esen.intgemm.alphas.bin"
-							},
-							{
-								"type": "lex",
-								"filename": "lex.50.50.esen.s2t.bin"
-							},
-							{
-								"type": "vocab",
-								"filename": "vocab.esen.spm"
-							}
-						],
-						"to": [
-							{
-								"type": "model",
-								"filename": "model.enes.intgemm.alphas.bin"
-							},
-							{
-								"type": "lex",
-								"filename": "lex.50.50.enes.s2t.bin"
-							},
-							{
-								"type": "vocab",
-								"filename": "vocab.esen.spm"
-							},
-							{
-								"type": "qualityModel",
-								"filename": "qualityModel.enes.bin"
-							}
-						]
+						"from": {
+							"model": "model.esen.intgemm.alphas.bin",
+							"lex": "lex.50.50.esen.s2t.bin",
+							"vocab": "vocab.esen.spm"
+						},
+						"to": {
+							"model": "model.enes.intgemm.alphas.bin",
+							"lex": "lex.50.50.enes.s2t.bin",
+							"vocab": "vocab.esen.spm",
+						}
 					},
 					"locale": "es",
 					"size": 43140496,
@@ -276,38 +196,16 @@ export const DEFAULT_SETTINGS: TranslatorPluginSettings = {
 				},
 				{
 					"files": {
-						"from": [
-							{
-								"type": "model",
-								"filename": "model.eten.intgemm.alphas.bin"
-							},
-							{
-								"type": "lex",
-								"filename": "lex.50.50.eten.s2t.bin"
-							},
-							{
-								"type": "vocab",
-								"filename": "vocab.eten.spm"
-							}
-						],
-						"to": [
-							{
-								"type": "model",
-								"filename": "model.enet.intgemm.alphas.bin"
-							},
-							{
-								"type": "lex",
-								"filename": "lex.50.50.enet.s2t.bin"
-							},
-							{
-								"type": "vocab",
-								"filename": "vocab.eten.spm"
-							},
-							{
-								"type": "qualityModel",
-								"filename": "qualityModel.enet.bin"
-							}
-						]
+						"from": {
+							"model": "model.eten.intgemm.alphas.bin",
+							"lex": "lex.50.50.eten.s2t.bin",
+							"vocab": "vocab.eten.spm"
+						},
+						"to": {
+							"model": "model.enet.intgemm.alphas.bin",
+							"lex": "lex.50.50.enet.s2t.bin",
+							"vocab": "vocab.eten.spm",
+						}
 					},
 					"locale": "et",
 					"size": 42614152,
@@ -315,34 +213,16 @@ export const DEFAULT_SETTINGS: TranslatorPluginSettings = {
 				},
 				{
 					"files": {
-						"from": [
-							{
-								"type": "model",
-								"filename": "model.fren.intgemm.alphas.bin"
-							},
-							{
-								"type": "lex",
-								"filename": "lex.50.50.fren.s2t.bin"
-							},
-							{
-								"type": "vocab",
-								"filename": "vocab.fren.spm"
-							}
-						],
-						"to": [
-							{
-								"type": "model",
-								"filename": "model.enfr.intgemm.alphas.bin"
-							},
-							{
-								"type": "lex",
-								"filename": "lex.50.50.enfr.s2t.bin"
-							},
-							{
-								"type": "vocab",
-								"filename": "vocab.fren.spm"
-							}
-						]
+						"from": {
+							"model": "model.fren.intgemm.alphas.bin",
+							"lex": "lex.50.50.fren.s2t.bin",
+							"vocab": "vocab.fren.spm"
+						},
+						"to": {
+							"model": "model.enfr.intgemm.alphas.bin",
+							"lex": "lex.50.50.enfr.s2t.bin",
+							"vocab": "vocab.fren.spm"
+						}
 					},
 					"locale": "fr",
 					"size": 52649954,
@@ -350,34 +230,16 @@ export const DEFAULT_SETTINGS: TranslatorPluginSettings = {
 				},
 				{
 					"files": {
-						"from": [
-							{
-								"type": "model",
-								"filename": "model.iten.intgemm.alphas.bin"
-							},
-							{
-								"type": "lex",
-								"filename": "lex.50.50.iten.s2t.bin"
-							},
-							{
-								"type": "vocab",
-								"filename": "vocab.iten.spm"
-							}
-						],
-						"to": [
-							{
-								"type": "model",
-								"filename": "model.enit.intgemm.alphas.bin"
-							},
-							{
-								"type": "lex",
-								"filename": "lex.50.50.enit.s2t.bin"
-							},
-							{
-								"type": "vocab",
-								"filename": "vocab.enit.spm"
-							}
-						]
+						"from": {
+							"model": "model.iten.intgemm.alphas.bin",
+							"lex": "lex.50.50.iten.s2t.bin",
+							"vocab": "vocab.iten.spm"
+						},
+						"to": {
+							"model": "model.enit.intgemm.alphas.bin",
+							"lex": "lex.50.50.enit.s2t.bin",
+							"vocab": "vocab.enit.spm"
+						}
 					},
 					"locale": "it",
 					"size": 45379864,
@@ -385,34 +247,16 @@ export const DEFAULT_SETTINGS: TranslatorPluginSettings = {
 				},
 				{
 					"files": {
-						"from": [
-							{
-								"type": "model",
-								"filename": "model.plen.intgemm.alphas.bin"
-							},
-							{
-								"type": "lex",
-								"filename": "lex.50.50.plen.s2t.bin"
-							},
-							{
-								"type": "vocab",
-								"filename": "vocab.plen.spm"
-							}
-						],
-						"to": [
-							{
-								"type": "model",
-								"filename": "model.enpl.intgemm.alphas.bin"
-							},
-							{
-								"type": "lex",
-								"filename": "lex.50.50.enpl.s2t.bin"
-							},
-							{
-								"type": "vocab",
-								"filename": "vocab.enpl.spm"
-							}
-						]
+						"from": {
+							"model": "model.plen.intgemm.alphas.bin",
+							"lex": "lex.50.50.plen.s2t.bin",
+							"vocab": "vocab.plen.spm"
+						},
+						"to": {
+							"model": "model.enpl.intgemm.alphas.bin",
+							"lex": "lex.50.50.enpl.s2t.bin",
+							"vocab": "vocab.enpl.spm"
+						}
 					},
 					"locale": "pl",
 					"size": 44467108,
@@ -420,34 +264,16 @@ export const DEFAULT_SETTINGS: TranslatorPluginSettings = {
 				},
 				{
 					"files": {
-						"from": [
-							{
-								"type": "model",
-								"filename": "model.pten.intgemm.alphas.bin"
-							},
-							{
-								"type": "lex",
-								"filename": "lex.50.50.pten.s2t.bin"
-							},
-							{
-								"type": "vocab",
-								"filename": "vocab.pten.spm"
-							}
-						],
-						"to": [
-							{
-								"type": "model",
-								"filename": "model.enpt.intgemm.alphas.bin"
-							},
-							{
-								"type": "lex",
-								"filename": "lex.50.50.enpt.s2t.bin"
-							},
-							{
-								"type": "vocab",
-								"filename": "vocab.enpt.spm"
-							}
-						]
+						"from": {
+							"model": "model.pten.intgemm.alphas.bin",
+							"lex": "lex.50.50.pten.s2t.bin",
+							"vocab": "vocab.pten.spm"
+						},
+						"to": {
+							"model": "model.enpt.intgemm.alphas.bin",
+							"lex": "lex.50.50.enpt.s2t.bin",
+							"vocab": "vocab.enpt.spm"
+						}
 					},
 					"locale": "pt",
 					"size": 45063626,
@@ -455,34 +281,16 @@ export const DEFAULT_SETTINGS: TranslatorPluginSettings = {
 				},
 				{
 					"files": {
-						"from": [
-							{
-								"type": "model",
-								"filename": "model.faen.intgemm.alphas.bin"
-							},
-							{
-								"type": "lex",
-								"filename": "lex.50.50.faen.s2t.bin"
-							},
-							{
-								"type": "vocab",
-								"filename": "vocab.faen.spm"
-							}
-						],
-						"to": [
-							{
-								"type": "model",
-								"filename": "model.enfa.intgemm.alphas.bin"
-							},
-							{
-								"type": "lex",
-								"filename": "lex.50.50.enfa.s2t.bin"
-							},
-							{
-								"type": "vocab",
-								"filename": "vocab.enfa.spm"
-							}
-						]
+						"from": {
+							"model": "model.faen.intgemm.alphas.bin",
+							"lex": "lex.50.50.faen.s2t.bin",
+							"vocab": "vocab.faen.spm"
+						},
+						"to": {
+							"model": "model.enfa.intgemm.alphas.bin",
+							"lex": "lex.50.50.enfa.s2t.bin",
+							"vocab": "vocab.enfa.spm"
+						}
 					},
 					"locale": "fa",
 					"size": 47215849,
@@ -490,34 +298,16 @@ export const DEFAULT_SETTINGS: TranslatorPluginSettings = {
 				},
 				{
 					"files": {
-						"from": [
-							{
-								"type": "model",
-								"filename": "model.ruen.intgemm.alphas.bin"
-							},
-							{
-								"type": "lex",
-								"filename": "lex.50.50.ruen.s2t.bin"
-							},
-							{
-								"type": "vocab",
-								"filename": "vocab.ruen.spm"
-							}
-						],
-						"to": [
-							{
-								"type": "model",
-								"filename": "model.enru.intgemm.alphas.bin"
-							},
-							{
-								"type": "lex",
-								"filename": "lex.50.50.enru.s2t.bin"
-							},
-							{
-								"type": "vocab",
-								"filename": "vocab.enru.spm"
-							}
-						]
+						"from": {
+							"model": "model.ruen.intgemm.alphas.bin",
+							"lex": "lex.50.50.ruen.s2t.bin",
+							"vocab": "vocab.ruen.spm"
+						},
+						"to": {
+							"model": "model.enru.intgemm.alphas.bin",
+							"lex": "lex.50.50.enru.s2t.bin",
+							"vocab": "vocab.enru.spm"
+						}
 					},
 					"locale": "ru",
 					"size": 44295337,
@@ -525,42 +315,18 @@ export const DEFAULT_SETTINGS: TranslatorPluginSettings = {
 				},
 				{
 					"files": {
-						"from": [
-							{
-								"type": "model",
-								"filename": "model.uken.intgemm8.bin"
-							},
-							{
-								"type": "lex",
-								"filename": "lex.uken.s2t.bin"
-							},
-							{
-								"type": "srcvocab",
-								"filename": "srcvocab.uken.spm"
-							},
-							{
-								"type": "trgvocab",
-								"filename": "trgvocab.uken.spm"
-							}
-						],
-						"to": [
-							{
-								"type": "model",
-								"filename": "model.enuk.intgemm8.bin"
-							},
-							{
-								"type": "lex",
-								"filename": "lex.enuk.s2t.bin"
-							},
-							{
-								"type": "trgvocab",
-								"filename": "trgvocab.enuk.spm"
-							},
-							{
-								"type": "srcvocab",
-								"filename": "srcvocab.enuk.spm"
-							}
-						]
+						"from": {
+							"model": "model.uken.intgemm8.bin",
+							"lex": "lex.uken.s2t.bin",
+							"srcvocab": "srcvocab.uken.spm",
+							"trgvocab": "trgvocab.uken.spm"
+						},
+						"to": {
+							"model": "model.enuk.intgemm8.bin",
+							"lex": "lex.enuk.s2t.bin",
+							"trgvocab": "trgvocab.enuk.spm",
+							"srcvocab": "srcvocab.enuk.spm"
+						}
 					},
 					"locale": "uk",
 					"size": 74267492,

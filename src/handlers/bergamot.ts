@@ -9,8 +9,8 @@ import type {
 } from "../types";
 import {FastText, FastTextModel, addOnPostRun} from "./fasttext/fasttext";
 
-//@ts-ignore
 import Worker from "./bergamot-translate/worker";
+
 import {requestUrl} from "obsidian";
 
 export class BergamotTranslate extends DummyTranslate {
@@ -49,31 +49,28 @@ export class BergamotTranslate extends DummyTranslate {
 			}
 		})
 
-		// this.translation_worker = Worker();
-		// this.translation_worker.postMessage(["import"]);
-		//
-		// this.translation_worker.onmessage = (e: { data: any[]; }) => {
-		// 	if (e.data[0] === "translate_reply" && e.data[1]) {
-		// 		// Set the translation result here
-		// 		this.data = e.data[1].join("\n\n");
-		// 		this.status = "translated";
-		// 	} else if (e.data[0] === "load_model_reply" && e.data[1]) {
-		// 		// Model has been loaded in the worker, update status and start translating
-		//
-		// 		// Current status of the translation worker
-		// 		let status = e.data[1];
-		// 		console.log(status);
-		//
-		// 	} else if (e.data[0] === "import_reply" && e.data[1]) {
-		// 		let available_models: any = e.data[1];
-		// 		this.version = e.data[2];
-		// 	}
-		// }
+		this.translation_worker = Worker();
+		this.translation_worker.postMessage(["import", plugin]);
+
+		this.translation_worker.onmessage = (e: { data: any[]; }) => {
+			if (e.data[0] === "translate_reply" && e.data[1]) {
+				// Set the translation result here
+				this.data = e.data[1].join("\n\n");
+				this.status = "translated";
+			} else if (e.data[0] === "load_model_reply" && e.data[1]) {
+				// Model has been loaded in the worker, update status and start translating
+
+				// Current status of the translation worker
+				let status = e.data[1];
+				console.log(status);
+
+			}
+		}
 
 	}
 
 	async validate(): Promise<ValidationResult> {
-		return {valid: this.model !== null};
+		return {valid: this.translation_worker !== null};
 	}
 
 	async detect(text: string): Promise<Array<DetectionResult>> {
@@ -100,6 +97,7 @@ export class BergamotTranslate extends DummyTranslate {
 			return {message: "No target language was provided"};
 
 		// Bergamot translator does not have inherent text detection capabilities, offload this responsibility to FastText worker
+		// FIXME: It is possible that detected language is not in the supported models list for Bergamot; ignore
 		if (from === 'auto') {
 			const detections = await this.detect(text);
 			if (detections.length === 0)
@@ -138,13 +136,13 @@ export class BergamotTranslate extends DummyTranslate {
 			let files_from_size = Object.values(registry[`${lang}en`]).reduce((a: any, b: any) => a + b.size, 0) as number;
 			let files_to_size = Object.values(registry[`en${lang}`]).reduce((a: any, b: any) => a + b.size, 0) as number;
 
-			let models_from_files = Object.keys(registry[`${lang}en`]).map((x: any) => {return {type: x, filename: registry[`${lang}en`][x].name}});
-			let models_to_files = Object.keys(registry[`en${lang}`]).map((x: any) => {return {type: x, filename: registry[`en${lang}`][x].name}});
+			let models_from_files: [any, any][] = Object.keys(registry[`${lang}en`]).map((x: any) => [x, registry[`${lang}en`][x].name]);
+			let models_to_files: [any, any][] = Object.keys(registry[`en${lang}`]).map((x: any) => [x, registry[`en${lang}`][x].name]);
 
 			return {
 				files: {
-					from: models_from_files,
-					to: models_to_files
+					from: Object.fromEntries(models_from_files),
+					to: Object.fromEntries(models_to_files),
 				},
 				locale: lang,
 				size: files_from_size + files_to_size,
