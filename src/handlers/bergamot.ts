@@ -9,7 +9,8 @@ import type {
 } from "../types";
 import {FastText, FastTextModel, addOnPostRun} from "./fasttext/fasttext";
 
-import Worker from "./bergamot-translate/worker";
+// @ts-ignore
+import Worker from "./bergamot-translate/bergamot.worker";
 
 import {requestUrl} from "obsidian";
 
@@ -50,10 +51,11 @@ export class BergamotTranslate extends DummyTranslate {
 		})
 
 		this.translation_worker = Worker();
-		this.translation_worker.postMessage(["import", plugin]);
 
 		this.translation_worker.onmessage = (e: { data: any[]; }) => {
-			if (e.data[0] === "translate_reply" && e.data[1]) {
+			if (e.data[0] === "import_reply") {
+				this.valid = true;
+			} else if (e.data[0] === "translate_reply" && e.data[1]) {
 				// Set the translation result here
 				this.data = e.data[1].join("\n\n");
 				this.status = "translated";
@@ -62,15 +64,16 @@ export class BergamotTranslate extends DummyTranslate {
 
 				// Current status of the translation worker
 				let status = e.data[1];
-				console.log(status);
+				console.log(' ---- ', status);
 
 			}
 		}
 
+		this.translation_worker.postMessage(["import"]);
 	}
 
 	async validate(): Promise<ValidationResult> {
-		return {valid: this.translation_worker !== null};
+		return {valid: this.valid};
 	}
 
 	async detect(text: string): Promise<Array<DetectionResult>> {
@@ -85,7 +88,7 @@ export class BergamotTranslate extends DummyTranslate {
 
 	private static getPredictions(predictions: any) {
 		let results = [];
-		for (let i=0; i<predictions.size(); i++)
+		for (let i = 0; i < predictions.size(); i++)
 			results.push({language: predictions.get(i)[1].replace("__label__", ""), confidence: predictions.get(i)[0]});
 		return results;
 	}
@@ -131,7 +134,7 @@ export class BergamotTranslate extends DummyTranslate {
 
 		let available_languages = Object.keys(registry).filter(x => x.startsWith("en"));
 		let mapped_languages: Array<DownloadableModel> = available_languages.map(x => {
-			let lang = x.substring(2,4);
+			let lang = x.substring(2, 4);
 
 			let files_from_size = Object.values(registry[`${lang}en`]).reduce((a: any, b: any) => a + b.size, 0) as number;
 			let files_to_size = Object.values(registry[`en${lang}`]).reduce((a: any, b: any) => a + b.size, 0) as number;

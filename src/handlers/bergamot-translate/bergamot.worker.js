@@ -1,5 +1,6 @@
-import { get } from 'svelte/store';
 import './bergamot-translator-worker'
+import {App} from "obsidian"
+import {get} from "svelte/store";
 
 // All variables specific to translation service
 var translationService, responseOptions, input = undefined;
@@ -40,8 +41,12 @@ onmessage = async function(e) {
 	let result = "";
 	if (command === 'import') {
 		// importScripts(BERGAMOT_TRANSLATOR_MODULE);
-		plugin = e.data[1];
+		// plugin = e.data[1];
+		// FIXME: You can't pass the plugin via messages, check if there is a better way to do this stuff
+		// plugin = app.plugins.plugins['obsidian-translate']
+		postMessage([`${command}_reply`, result]);
 	} else if (command === 'load_model') {
+		console.log(app);
 		let start = Date.now();
 		let from = e.data[1];
 		let to = e.data[2];
@@ -60,6 +65,7 @@ onmessage = async function(e) {
 		log(`'${command}' command done, Posting message back to main script`);
 		postMessage([`${command}_reply`, result]);
 	} else if (command === 'translate') {
+		console.log(app);
 		const from = e.data[1];
 		const to = e.data[2];
 		const inputParagraphs = e.data[3];

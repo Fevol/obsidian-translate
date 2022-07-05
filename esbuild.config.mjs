@@ -4,6 +4,7 @@ import process from "process";
 import sveltePreprocess from "svelte-preprocess";
 import builtins from 'builtin-modules'
 import {sassPlugin} from "esbuild-sass-plugin";
+import inlineWorkerPlugin from 'esbuild-plugin-inline-worker';
 
 const banner =
 	`/*
@@ -61,5 +62,6 @@ esbuild.build({
 			compilerOptions: {css: true},
 			preprocess: sveltePreprocess(),
 		}),
+		inlineWorkerPlugin(),
 	]
 }).catch(() => process.exit(1));

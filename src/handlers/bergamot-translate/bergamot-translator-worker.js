@@ -1,3 +1,4 @@
+// import {App} from "obsidian"
 import {get} from "svelte/store";
 
 function loadEmscriptenGlueCode(Module) {
