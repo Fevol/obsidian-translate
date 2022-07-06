@@ -588,5 +588,8 @@
 		justify-content: center;
 	}
 
+	h2 {
+		gap: 10px;
+	}
 
 </style>

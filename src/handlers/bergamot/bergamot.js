@@ -72,9 +72,7 @@ class Bergamot {
 			// caching is disabled (see https://github.com/mozilla/firefox-translations/issues/288)
 			// Caching can be re-enabled by setting nr > 0, check if necessary
 			let translationServiceConfig = { cacheSize: 0 };
-			console.log(`Creating Translation Service with config: ${JSON.stringify(translationServiceConfig)}`);
 			this.translationService = new this.WasmEngineModule.BlockingService(translationServiceConfig);
-			console.log("Translation Service created successfully");
 		}
 	}
 
