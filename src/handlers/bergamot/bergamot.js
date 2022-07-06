@@ -29,10 +29,11 @@ class TranslationMessage {
  * objects like the underlying wasm module, the language models etc... and
  * their states of operation
  */
-export class Bergamot {
+class Bergamot {
 
-	constructor(available_models) {
+	constructor(available_models, path) {
 		this.available_models = available_models;
+		this.path = path;
 
 		// all variables specific to translation service
 		this.translationService = null;
@@ -56,11 +57,8 @@ export class Bergamot {
 	}
 
 
-	async new_loadTranslationEngine(sourceLanguage, targetLanguage, withOutboundTranslation, withQualityEstimation) {
-		await app.plugins.loadManifests();
-		let settings = get(app.plugins.plugins['obsidian-translate'].settings)
-
-		let path = `.obsidian/${settings.service_settings.bergamot.storage_path}/bergamot/bergamot-translator-worker.wasm`;
+	async new_loadTranslationEngine() {
+		let path = `.obsidian/${this.path}/bergamot/bergamot-translator-worker.wasm`;
 
 		if (!await app.vault.adapter.exists(path))
 			throw 'Could not find bergamot-translator-worker.wasm in the vault';
@@ -73,10 +71,6 @@ export class Bergamot {
 				console.log("Error loading wasm module.");
 			},
 			onRuntimeInitialized: function() {
-				// TODO: Check if this.WasmEngineModule is defined
-
-				// TODO: Load language models?
-				// this.getLanguageModels(sourceLanguage, targetLanguage, withOutboundTranslation, withQualityEstimation);
 				this.constructTranslationService();
 			}.bind(this),
 			wasmBinary: wasmArrayBuffer,
@@ -101,22 +95,32 @@ export class Bergamot {
 	}
 
 
-	new_translate (text, from, to) {
+	async new_translate (text, from, to) {
 		// TODO: find out what 'messages' is
 		let vectorResponse, vectorResponseOptions, vectorSourceText;
 		try {
-			vectorResponseOptions = this._prepareResponseOptions(messages);
-			vectorSourceText = this._prepareSourceText(messages);
+			// vectorResponseOptions = this._prepareResponseOptions(messages);
+			// vectorSourceText = this._prepareSourceText(messages);
+			const vectorResponseOptions = new this.WasmEngineModule.VectorResponseOptions();
+			vectorResponseOptions.push_back({
+				qualityScores: true,
+				alignment: true,
+				html: false,
+			});
+
+
+			vectorSourceText = new this.WasmEngineModule.VectorString();
+			vectorSourceText.push_back(text);
 
 			if (this._isPivotingRequired(from, to)) {
 				// translate via pivoting
-				const translationModelSrcToPivot = this.new_getTranslationModel(from, this.PIVOT_LANGUAGE);
-				const translationModelPivotToTarget = this.new_getTranslationModel(this.PIVOT_LANGUAGE, to);
-				vectorResponse = this.translationService.translateViaPivoting(translationModelSrcToPivot, translationModelPivotToTarget, vectorSourceText, vectorResponseOptions);
+				const from_model = await this.new_getTranslationModel(from, this.PIVOT_LANGUAGE);
+				const to_model = await this.new_getTranslationModel(this.PIVOT_LANGUAGE, to);
+				vectorResponse = this.translationService.translateViaPivoting(from_model, to_model, text, vectorResponseOptions);
 			} else {
 				// translate without pivoting
-				const translationModel = this.new_getTranslationModel(from, to);
-				vectorResponse = this.translationService.translate(translationModel, vectorSourceText, vectorResponseOptions);
+				const model = await this.new_getTranslationModel(from, to);
+				vectorResponse = this.translationService.translate(model, vectorSourceText, vectorResponseOptions);
 			}
 
 			// parse all relevant information from vectorResponse
@@ -132,7 +136,7 @@ export class Bergamot {
 		}
 	}
 
-	new_getTranslationModel(from, to) {
+	async new_getTranslationModel(from, to) {
 		const languagePair = this._getLanguagePair(from, to);
 
 		if (this.translationModels.has(languagePair)) {
@@ -141,7 +145,7 @@ export class Bergamot {
 			const target_language = from === 'en' ? to : from;
 			const is_from = from === target_language;
 
-			let model = this.available_models.some((other) => {
+			let model = this.available_models.find((other) => {
 				return other.locale === target_language;
 			});
 
@@ -177,19 +181,19 @@ export class Bergamot {
             alignment: soft
             `;
 
-			const alignedModelMemory = this.loadBinary(target_language, data.model, 'model');
-			const alignedShortlistMemory = this.loadBinary(target_language, data.lex, 'lex');
-			let alignedVocabMemoryList = null;
+			const alignedModelMemory = await this.loadBinary(target_language, data.model, 'model');
+			const alignedShortlistMemory = await this.loadBinary(target_language, data.lex, 'lex');
+			let alignedVocabMemoryList = new this.WasmEngineModule.AlignedMemoryList();
 			if (data.vocab !== undefined)
-				alignedVocabMemoryList = [this.loadBinary(target_language, data.vocab, 'vocab')];
+				alignedVocabMemoryList.push_back(await this.loadBinary(target_language, data.vocab, 'vocab'));
 			else {
-				alignedVocabMemoryList = [this.loadBinary(target_language, data.srcvocab, 'srcvocab'),
-										  this.loadBinary(target_language, data.trgvocab, 'trgvocab')];
+				alignedVocabMemoryList.push_back(await this.loadBinary(target_language, data.srcvocab, 'srcvocab'));
+				alignedVocabMemoryList.push_back(await this.loadBinary(target_language, data.trgvocab, 'trgvocab'));
 			}
 
 			let alignedQEMemory = null;
 			if (data.qualityModel !== undefined) {
-				alignedQEMemory = this.loadBinary(target_language, data.qualityModel, 'qualityModel');
+				alignedQEMemory = await this.loadBinary(target_language, data.qualityModel, 'qualityModel');
 			}
 
 			// Merge all data and generate Model
@@ -199,10 +203,10 @@ export class Bergamot {
 		}
 	}
 
-	loadBinary(language, filename, type) {
-		// TODO: Fix this
-		let data = app.vault.adapter.readBinary(`.obsidian/${SETTINGS}/bergamot/${language}`);
-		return this.prepareAlignedMemoryFromBuffer(data, this.modelFileAlignments[type]);
+	async loadBinary(language, filename, type) {
+		return app.vault.adapter.readBinary(`.obsidian/${this.path}/bergamot/${language}/${filename}`).then(file => {
+			return this.prepareAlignedMemoryFromBuffer(file, this.modelFileAlignments[type]);
+		})
 	}
 
 
@@ -783,3 +787,5 @@ export class Bergamot {
 		return decoder.decode(utf8SentenceBytes);
 	}
 }
+
+export {Bergamot}

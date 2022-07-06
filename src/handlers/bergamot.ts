@@ -28,7 +28,7 @@ export class BergamotTranslate extends DummyTranslate {
 	status: string = '';
 	data: any = null;
 
-	constructor(plugin: TranslatorPlugin) {
+	constructor(plugin: TranslatorPlugin, available_models: Array<DownloadableModel>, path: string) {
 		super();
 		this.plugin = plugin;
 
@@ -51,7 +51,8 @@ export class BergamotTranslate extends DummyTranslate {
 			}
 		})
 
-		this.translator = new Bergamot();
+		this.translator = new Bergamot(available_models, path);
+		this.translator.new_loadTranslationEngine();
 	}
 
 	async validate(): Promise<ValidationResult> {
@@ -99,7 +100,8 @@ export class BergamotTranslate extends DummyTranslate {
 
 
 	async translate(text: string, from: string = 'auto', to: string): Promise<TranslationResult> {
-		this.translator.
+		// @ts-ignore
+		return {translation: await this.translator.new_translate(text, from, to)};
 	}
 
 	async get_languages(): Promise<LanguagesFetchResult> {

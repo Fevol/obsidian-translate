@@ -78,6 +78,8 @@ import {DummyTranslate, BingTranslator, GoogleTranslate, BergamotTranslate, Deep
 		// 	plugin.message_queue("Please validate the service to use its functionality", 5000, true);
 		// }
 
+		// TODO: Check if downloadable models got updated
+
 		if (service_observer === "google_translate")
 			plugin.translator = new GoogleTranslate(api_key_observer);
 		else if (service_observer === "bing_translator")
@@ -89,7 +91,9 @@ import {DummyTranslate, BingTranslator, GoogleTranslate, BergamotTranslate, Deep
 		else if (service_observer === "libre_translate")
 			plugin.translator = new LibreTranslate(host_observer);
 		else if (service_observer === "bergamot")
-			plugin.translator = new BergamotTranslate(plugin);
+			plugin.translator = new BergamotTranslate(plugin,
+													  $settings.service_settings.bergamot.available_languages as DownloadableModel[],
+												      $settings.service_settings.bergamot.storage_path);
 		else
 			plugin.translator = new DummyTranslate();
 
