@@ -5,31 +5,32 @@ import type {
 	ValidationResult,
 	TranslationResult,
 	LanguagesFetchResult,
-	DownloadableModel, ModelData
+	DownloadableModel, ModelData, ModelDatasets, TranslatorPluginSettings, APIServiceSettings
 } from "../types";
 import {FastText, FastTextModel, addOnPostRun} from "./fasttext/fasttext";
 
-// @ts-ignore
-import Worker from "./bergamot-translate/bergamot.worker";
+import {Bergamot} from "./bergamot/bergamot";
+
 
 import {requestUrl} from "obsidian";
+import {get} from "svelte/store";
+
 
 export class BergamotTranslate extends DummyTranslate {
 	model: FastTextModel;
-	translation_worker: Worker;
+	translator: Bergamot;
 
 	version: number;
 
-
-	available_languages = [
-		"bg", "cs", "nl", "en", "et", "de", "fr", "is", "it", "nb", "nn", "fa", "pl", "pt", "ru", "es", "uk"
-	];
+	loaded_models: Array<string> = ['en'];
+	plugin: TranslatorPlugin;
 
 	status: string = '';
 	data: any = null;
 
 	constructor(plugin: TranslatorPlugin) {
 		super();
+		this.plugin = plugin;
 
 		FastText.create(plugin).then(ft => {
 			// FIXME: For some reason, you cannot catch the abort of fasttext_wasm here, so this is done in the fasttext wrapper
@@ -50,26 +51,40 @@ export class BergamotTranslate extends DummyTranslate {
 			}
 		})
 
-		this.translation_worker = Worker();
-
-		this.translation_worker.onmessage = (e: { data: any[]; }) => {
-			if (e.data[0] === "import_reply") {
-				this.valid = true;
-			} else if (e.data[0] === "translate_reply" && e.data[1]) {
-				// Set the translation result here
-				this.data = e.data[1].join("\n\n");
-				this.status = "translated";
-			} else if (e.data[0] === "load_model_reply" && e.data[1]) {
-				// Model has been loaded in the worker, update status and start translating
-
-				// Current status of the translation worker
-				let status = e.data[1];
-				console.log(' ---- ', status);
-
+		// @ts-ignore
+		Bergamot.create(plugin).then(bg => {
+			try {
+				if (bg instanceof WebAssembly.RuntimeError)
+					plugin.message_queue(bg.message.match(/\(([^)]+)\)/)[0].slice(1, -1));
+				else {
+				//	Load additional data
+				}
+			} catch (e) {
+				console.log("Error loading Bergamot: " + e);
 			}
-		}
+		})
 
-		this.translation_worker.postMessage(["import"]);
+
+
+
+		// this.translation_worker = Worker();
+		// this.translation_worker.onmessage = (e: { data: any[]; }) => {
+		// 	if (e.data[0] === "import_reply") {
+		// 		this.valid = true;
+		// 	} else if (e.data[0] === "translate_reply" && e.data[1]) {
+		// 		// Set the translation result here
+		// 		this.data = e.data[1].join("\n\n");
+		// 		this.status = "translated";
+		// 	} else if (e.data[0] === "load_model_reply" && e.data[1]) {
+		// 		// Model has been loaded in the worker, update status and start translating
+		//
+		// 		// Current status of the translation worker
+		// 		let status = e.data[1];
+		// 		console.log(' ---- ', status);
+		//
+		// 	}
+		// }
+		// this.translation_worker.postMessage(["import"]);
 	}
 
 	async validate(): Promise<ValidationResult> {
@@ -93,34 +108,70 @@ export class BergamotTranslate extends DummyTranslate {
 		return results;
 	}
 
-	async translate(text: string, from: string = 'auto', to: string): Promise<TranslationResult> {
-		if (!text.trim())
-			return {message: "No text was provided"};
-		if (!to)
-			return {message: "No target language was provided"};
+	async get_model_data(from: string, to: string) {
+		let is_from = from !== "en";
+		let selected_language = is_from ? from : to;
 
-		// Bergamot translator does not have inherent text detection capabilities, offload this responsibility to FastText worker
-		// FIXME: It is possible that detected language is not in the supported models list for Bergamot; ignore
-		if (from === 'auto') {
-			const detections = await this.detect(text);
-			if (detections.length === 0)
-				return {message: "No language detected"};
-			if (detections[1].language)
-				from = detections[0].language;
-			else
-				return {message: "Language could not be identified or FastText worker has failed"};
+		let settings: APIServiceSettings = get(this.plugin.settings).service_settings.bergamot;
+
+		// @ts-ignore (find complains that available_languages consists of two different types)
+		let language_data: ModelDatasets = settings.available_languages.find((x: DownloadableModel) => x.locale === selected_language).files[is_from ? "from" : "to"];
+		const base_path = `.obsidian/${settings.storage_path}/bergamot/${selected_language}/`;
+
+		let modelBuffer = await app.vault.adapter.readBinary(`${base_path}/${language_data.model}`);
+		let shortListBuffer = await app.vault.adapter.readBinary(`${base_path}/${language_data.lex}`);
+		let downloadedVocabBuffers = [];
+		if (language_data.vocab !== undefined) {
+			downloadedVocabBuffers = [await app.vault.adapter.readBinary(`${base_path}/${language_data.vocab}`)];
+		} else {
+			downloadedVocabBuffers = [await app.vault.adapter.readBinary(`${base_path}/${language_data.trgvocab}`),
+				await app.vault.adapter.readBinary(`${base_path}/${language_data.srcvocab}`)];
 		}
+		return [modelBuffer, shortListBuffer, downloadedVocabBuffers];
+	}
 
-		// TODO: Language model should be available for 'from' and 'to' language
 
-		this.translation_worker.postMessage(["translate", from, to, text]);
+	async translate(text: string, from: string = 'auto', to: string): Promise<TranslationResult> {
+		// this.translator.translate(text, from, to);
 
-		while (!this.status) { }
-		this.status = '';
-		return {translation: this.data};
-
-		// TODO: Internal state: wait till message is received from worker
-
+		// if (!text.trim())
+		// 	return {message: "No text was provided"};
+		// if (!to)
+		// 	return {message: "No target language was provided"};
+		//
+		// // Bergamot translator does not have inherent text detection capabilities, offload this responsibility to FastText worker
+		// // FIXME: It is possible that detected language is not in the supported models list for Bergamot; ignore
+		// if (from === 'auto') {
+		// 	const detections = await this.detect(text);
+		// 	if (detections.length === 0)
+		// 		return {message: "No language detected"};
+		// 	if (detections[1].language)
+		// 		from = detections[0].language;
+		// 	else
+		// 		return {message: "Language could not be identified or FastText worker has failed"};
+		// }
+		//
+		// if (!this.loaded_models.includes(from)) {
+		// 	this.translation_worker.postMessage(["load_model", from, 'en', this.get_model_data(from, 'en')]);
+		// 	this.translation_worker.postMessage(["load_model", 'en', from, this.get_model_data('en', from)]);
+		// 	this.loaded_models.push(from);
+		// }
+		// if (!this.loaded_models.includes(to)) {
+		// 	this.translation_worker.postMessage(["load_model", to, 'en', this.get_model_data(to, 'en')]);
+		// 	this.translation_worker.postMessage(["load_model", 'en', to, this.get_model_data('en', to)]);
+		// 	this.loaded_models.push(to);
+		// }
+		//
+		// // TODO: Language model should be available for 'from' and 'to' language
+		//
+		// this.translation_worker.postMessage(["translate", from, to, text]);
+		//
+		// while (!this.status) { }
+		// this.status = '';
+		// return {translation: this.data};
+		//
+		// // TODO: Internal state: wait till message is received from worker
+		return {}
 
 	}
 
