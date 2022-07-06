@@ -31,7 +31,9 @@ class TranslationMessage {
  */
 export class Bergamot {
 
-	constructor() {
+	constructor(available_models) {
+		this.available_models = available_models;
+
 		// all variables specific to translation service
 		this.translationService = null;
 
@@ -72,7 +74,9 @@ export class Bergamot {
 			},
 			onRuntimeInitialized: function() {
 				// TODO: Check if this.WasmEngineModule is defined
-				this.getLanguageModels(sourceLanguage, targetLanguage, withOutboundTranslation, withQualityEstimation);
+
+				// TODO: Load language models?
+				// this.getLanguageModels(sourceLanguage, targetLanguage, withOutboundTranslation, withQualityEstimation);
 				this.constructTranslationService();
 			}.bind(this),
 			wasmBinary: wasmArrayBuffer,
@@ -97,64 +101,6 @@ export class Bergamot {
 	}
 
 
-	async loadTranslationEngine(sourceLanguage, targetLanguage, withOutboundTranslation, withQualityEstimation) {
-		// postMessage([
-		// 	"updateProgress",
-		// 	"loadingTranslationEngine"
-		// ]);
-		// first we load the wasm engine
-		// const response = await fetch(engineWasmLocalPath);
-		// if (!response.ok) {
-		// 	// postMessage(["reportError", "engine_download"]);
-		// 	console.log("Error loading engine as buffer.");
-		// 	return;
-		// }
-		// const wasmArrayBuffer = await response.arrayBuffer();
-
-		await app.plugins.loadManifests();
-		let settings = get(app.plugins.plugins['obsidian-translate'].settings)
-
-		let path = `.obsidian/${settings.service_settings.bergamot.storage_path}/bergamot/bergamot-translator-worker.wasm`;
-
-
-		if (!await app.vault.adapter.exists(path))
-			throw 'Could not find bergamot-translator-worker.wasm in the vault';
-
-		let wasmArrayBuffer = await app.vault.adapter.readBinary(path)
-
-
-		const initialModule = {
-			preRun: [
-				function() {
-					this.wasmModuleStartTimestamp = Date.now();
-				}.bind(this)
-			],
-			onAbort() {
-				console.log("Error loading wasm module.");
-				// postMessage(["reportError", "engine_load"]);
-				// postMessage(["updateProgress", "errorLoadingWasm"]);
-			},
-			onRuntimeInitialized: function() {
-
-				/*
-				 * once we have the wasm engine module successfully
-				 * initialized, we then load the language models
-				 */
-				console.log(`Wasm Runtime initialized Successfully (preRun -> onRuntimeInitialized) in ${(Date.now() - this.wasmModuleStartTimestamp) / 1000} secs`);
-				this.getLanguageModels(sourceLanguage, targetLanguage, withOutboundTranslation, withQualityEstimation);
-			}.bind(this),
-			wasmBinary: wasmArrayBuffer,
-		};
-		try {
-			this.WasmEngineModule = loadEmscriptenGlueCode(initialModule);
-		} catch (e) {
-			console.log("Error loading wasm module:", e);
-			// postMessage(["reportError", "engine_load"]);
-			// postMessage(["updateProgress", "errorLoadingWasm"]);
-		}
-	}
-
-
 	new_translate (text, from, to) {
 		// TODO: find out what 'messages' is
 		let vectorResponse, vectorResponseOptions, vectorSourceText;
@@ -164,12 +110,12 @@ export class Bergamot {
 
 			if (this._isPivotingRequired(from, to)) {
 				// translate via pivoting
-				const translationModelSrcToPivot = this._getLoadedTranslationModel(from, this.PIVOT_LANGUAGE);
-				const translationModelPivotToTarget = this._getLoadedTranslationModel(this.PIVOT_LANGUAGE, to);
+				const translationModelSrcToPivot = this.new_getTranslationModel(from, this.PIVOT_LANGUAGE);
+				const translationModelPivotToTarget = this.new_getTranslationModel(this.PIVOT_LANGUAGE, to);
 				vectorResponse = this.translationService.translateViaPivoting(translationModelSrcToPivot, translationModelPivotToTarget, vectorSourceText, vectorResponseOptions);
 			} else {
 				// translate without pivoting
-				const translationModel = this._getLoadedTranslationModel(from, to);
+				const translationModel = this.new_getTranslationModel(from, to);
 				vectorResponse = this.translationService.translate(translationModel, vectorSourceText, vectorResponseOptions);
 			}
 
@@ -186,6 +132,78 @@ export class Bergamot {
 		}
 	}
 
+	new_getTranslationModel(from, to) {
+		const languagePair = this._getLanguagePair(from, to);
+
+		if (this.translationModels.has(languagePair)) {
+			return this.translationModels.get(languagePair);
+		} else {
+			const target_language = from === 'en' ? to : from;
+			const is_from = from === target_language;
+
+			let model = this.available_models.some((other) => {
+				return other.locale === target_language;
+			});
+
+			if (!model)
+				throw "Model was not found"
+
+			let data = model.files.from;
+			// TODO: What is quality estimation and where is it used?
+			let has_quality_estimation = data.qualityModel;
+
+			// Gotten from firefox-translations/backgroundScript.js/GetLanguageModels
+			let precision = data.model.endsWith("intgemm8.bin") ? "int8shiftAll" : "int8shiftAlphaAll";
+
+
+			/*
+			 * for available configuration options,
+			 * please check: https://marian-nmt.github.io/docs/cmd/marian-decoder/
+			 * DO NOT CHANGE THE SPACES BETWEEN EACH ENTRY OF CONFIG
+			 */
+			const modelConfig = `
+            beam-size: 1
+            normalize: 1.0
+            word-penalty: 0
+            max-length-break: 128
+            mini-batch-words: 1024
+            workspace: 128
+            max-length-factor: 2.0
+            skip-cost: ${!has_quality_estimation}
+            cpu-threads: 0
+            quiet: true
+            quiet-translation: true
+            gemm-precision: ${precision}
+            alignment: soft
+            `;
+
+			const alignedModelMemory = this.loadBinary(target_language, data.model, 'model');
+			const alignedShortlistMemory = this.loadBinary(target_language, data.lex, 'lex');
+			let alignedVocabMemoryList = null;
+			if (data.vocab !== undefined)
+				alignedVocabMemoryList = [this.loadBinary(target_language, data.vocab, 'vocab')];
+			else {
+				alignedVocabMemoryList = [this.loadBinary(target_language, data.srcvocab, 'srcvocab'),
+										  this.loadBinary(target_language, data.trgvocab, 'trgvocab')];
+			}
+
+			let alignedQEMemory = null;
+			if (data.qualityModel !== undefined) {
+				alignedQEMemory = this.loadBinary(target_language, data.qualityModel, 'qualityModel');
+			}
+
+			// Merge all data and generate Model
+			let translationModel = new this.WasmEngineModule.TranslationModel(modelConfig, alignedModelMemory, alignedShortlistMemory, alignedVocabMemoryList, alignedQEMemory);
+			this.translationModels.set(languagePair, translationModel);
+			return translationModel;
+		}
+	}
+
+	loadBinary(language, filename, type) {
+		// TODO: Fix this
+		let data = app.vault.adapter.readBinary(`.obsidian/${SETTINGS}/bergamot/${language}`);
+		return this.prepareAlignedMemoryFromBuffer(data, this.modelFileAlignments[type]);
+	}
 
 
 	get ENGINE_STATE () {
@@ -454,6 +472,63 @@ export class Bergamot {
 			value.delete();
 		});
 		this.translationModels.clear();
+	}
+
+	async loadTranslationEngine(sourceLanguage, targetLanguage, withOutboundTranslation, withQualityEstimation) {
+		// postMessage([
+		// 	"updateProgress",
+		// 	"loadingTranslationEngine"
+		// ]);
+		// first we load the wasm engine
+		// const response = await fetch(engineWasmLocalPath);
+		// if (!response.ok) {
+		// 	// postMessage(["reportError", "engine_download"]);
+		// 	console.log("Error loading engine as buffer.");
+		// 	return;
+		// }
+		// const wasmArrayBuffer = await response.arrayBuffer();
+
+		await app.plugins.loadManifests();
+		let settings = get(app.plugins.plugins['obsidian-translate'].settings)
+
+		let path = `.obsidian/${settings.service_settings.bergamot.storage_path}/bergamot/bergamot-translator-worker.wasm`;
+
+
+		if (!await app.vault.adapter.exists(path))
+			throw 'Could not find bergamot-translator-worker.wasm in the vault';
+
+		let wasmArrayBuffer = await app.vault.adapter.readBinary(path)
+
+
+		const initialModule = {
+			preRun: [
+				function() {
+					this.wasmModuleStartTimestamp = Date.now();
+				}.bind(this)
+			],
+			onAbort() {
+				console.log("Error loading wasm module.");
+				// postMessage(["reportError", "engine_load"]);
+				// postMessage(["updateProgress", "errorLoadingWasm"]);
+			},
+			onRuntimeInitialized: function() {
+
+				/*
+				 * once we have the wasm engine module successfully
+				 * initialized, we then load the language models
+				 */
+				console.log(`Wasm Runtime initialized Successfully (preRun -> onRuntimeInitialized) in ${(Date.now() - this.wasmModuleStartTimestamp) / 1000} secs`);
+				this.getLanguageModels(sourceLanguage, targetLanguage, withOutboundTranslation, withQualityEstimation);
+			}.bind(this),
+			wasmBinary: wasmArrayBuffer,
+		};
+		try {
+			this.WasmEngineModule = loadEmscriptenGlueCode(initialModule);
+		} catch (e) {
+			console.log("Error loading wasm module:", e);
+			// postMessage(["reportError", "engine_load"]);
+			// postMessage(["updateProgress", "errorLoadingWasm"]);
+		}
 	}
 
 	async constructTranslationModel(languageModels, from, to, withQualityEstimation) {
