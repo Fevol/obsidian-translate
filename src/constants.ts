@@ -38,7 +38,11 @@ export const DEFAULT_SETTINGS: TranslatorPluginSettings = {
 	view_mode: 0,
 	translation_service: 'google_translate',
 	security_setting: 'none',
+	storage_path: "models",
 	service_settings: {
+		fasttext: {
+			default_usage: false,
+		},
 		google_translate: {
 			selected_languages: [],
 			filter_type: 0,
@@ -120,7 +124,6 @@ export const DEFAULT_SETTINGS: TranslatorPluginSettings = {
 		bergamot: {
 			selected_languages: [],
 			filter_type: 0,
-			storage_path: "models",
 			validated: null,
 
 			auto_translate: false,

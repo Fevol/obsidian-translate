@@ -1,89 +1,51 @@
 import type TranslatorPlugin from "../main";
 import {DummyTranslate} from "./dummy-translate";
 import type {
-	DetectionResult,
-	ValidationResult,
-	TranslationResult,
-	LanguagesFetchResult,
-	DownloadableModel, ModelData, ModelDatasets, TranslatorPluginSettings, APIServiceSettings
+	DetectionResult, ValidationResult, TranslationResult, LanguagesFetchResult,
+	DownloadableModel, ModelDatasets, TranslatorPluginSettings,
 } from "../types";
-import {FastText, FastTextModel, addOnPostRun} from "./fasttext/fasttext";
 
 import {Bergamot} from "./bergamot/bergamot";
 
 
 import {requestUrl} from "obsidian";
 import {get} from "svelte/store";
+import t from "../l10n";
 
 
 export class BergamotTranslate extends DummyTranslate {
-	model: FastTextModel;
 	translator: Bergamot;
-
-	version: number;
-
-	loaded_models: Array<string> = ['en'];
+	detector: DummyTranslate = null;
 	plugin: TranslatorPlugin;
+	available_languages: Array<string>;
 
-	status: string = '';
-	data: any = null;
-
-	constructor(plugin: TranslatorPlugin, available_models: Array<DownloadableModel>, path: string) {
+	constructor(detector: DummyTranslate = null, plugin: TranslatorPlugin, available_models: Array<DownloadableModel>, path: string) {
 		super();
 		this.plugin = plugin;
-
-		FastText.create(plugin).then(ft => {
-			// FIXME: For some reason, you cannot catch the abort of fasttext_wasm here, so this is done in the fasttext wrapper
-			//  by returning the error
-			try {
-				if (ft instanceof WebAssembly.RuntimeError)
-					plugin.message_queue(ft.message.match(/\(([^)]+)\)/)[0].slice(1, -1));
-				else {
-					ft.loadModel("lid.176.ftz").then((model: FastTextModel) => {
-						this.model = model;
-					});
-					this.validate().then((x) => {
-						this.valid = x.valid;
-					});
-				}
-			} catch (e) {
-				console.log("Error loading model: " + e);
-			}
-		})
+		this.detector = detector;
 
 		this.translator = new Bergamot(available_models, path);
 		this.translator.new_loadTranslationEngine();
+
+		this.available_languages = ["en"].concat(available_models.map((model: any) => model.locale));
 	}
 
 	async validate(): Promise<ValidationResult> {
-		return {valid: this.valid};
+		return {valid: this.translator != null};
 	}
 
 	async detect(text: string): Promise<Array<DetectionResult>> {
-		if (!this.valid)
-			return [{message: "Translation service is not validated"}];
-
-		if (!text.trim())
-			return [{message: "No text was provided"}];
-
-		return BergamotTranslate.getPredictions(this.model.predict(text, 5, 0.0));
-	}
-
-	private static getPredictions(predictions: any) {
-		let results = [];
-		for (let i = 0; i < predictions.size(); i++)
-			results.push({language: predictions.get(i)[1].replace("__label__", ""), confidence: predictions.get(i)[0]});
-		return results;
+		return this.detector.detect(text);
 	}
 
 	async get_model_data(from: string, to: string) {
 		let is_from = from !== "en";
 		let selected_language = is_from ? from : to;
 
-		let settings: APIServiceSettings = get(this.plugin.settings).service_settings.bergamot;
+		let settings: TranslatorPluginSettings = get(this.plugin.settings);
 
-		// @ts-ignore (find complains that available_languages consists of two different types)
-		let language_data: ModelDatasets = settings.available_languages.find((x: DownloadableModel) => x.locale === selected_language).files[is_from ? "from" : "to"];
+		// @ts-ignore (find complains that available_languages consists of two different types - only one type will be possible though)
+		let language_data: ModelDatasets = settings.service_settings.bergamot.available_languages.find((x: DownloadableModel) => x.locale === selected_language).files[is_from ? "from" : "to"];
 		const base_path = `.obsidian/${settings.storage_path}/bergamot/${selected_language}/`;
 
 		let modelBuffer = await app.vault.adapter.readBinary(`${base_path}/${language_data.model}`);
@@ -100,8 +62,35 @@ export class BergamotTranslate extends DummyTranslate {
 
 
 	async translate(text: string, from: string = 'auto', to: string): Promise<TranslationResult> {
-		// @ts-ignore
-		return {translation: await this.translator.new_translate(text, from, to)};
+		if (!this.valid)
+			return {message: "Translation service is not validated"};
+		if (!text.trim())
+			return {message: "No text was provided"};
+		if (!to)
+			return {message: "No target language was provided"};
+
+		let detected_language = '';
+		if (from === 'auto') {
+			if (this.has_autodetect_capability()) {
+				detected_language = (await this.detector.detect(text)).first()?.language;
+				if (detected_language && detected_language !== 'auto')
+					from = detected_language;
+				else
+					return {message: "Could not detect language"};
+			} else {
+				return {message: "Automatic language detection is not supported"};
+			}
+		}
+
+		if (!this.available_languages.includes(from))
+			return {message: `${t(from)} is not supported`};
+		if (!this.available_languages.includes(to))
+			return {message: `${t(to)} is not supported`};
+
+		// @ts-ignore (new_translate does not have specific return value, but it is guaranteed to be string)
+		let translation = await this.translator.new_translate(text, from, to) as string;
+
+		return {translation: translation, detected_language: detected_language};
 	}
 
 	async get_languages(): Promise<LanguagesFetchResult> {
@@ -135,13 +124,7 @@ export class BergamotTranslate extends DummyTranslate {
 		return {languages: mapped_languages, data: version};
 	}
 
-	// TODO: Downloadable languages = languages in registry.json (simple fetch request?)
-	// async get_downloadable_languages(): Promise<LanguagesFetchResult> {
-	// 	return {languages: }
-	// }
-
-
 	has_autodetect_capability(): boolean {
-		return this.model != null;
+		return this.detector != null;
 	}
 }

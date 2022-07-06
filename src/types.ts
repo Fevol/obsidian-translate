@@ -10,6 +10,10 @@ export interface TranslatorPluginSettings {
 
 	translation_service: string;
 	service_settings: APIServiceProviders;
+
+
+	// Where the local models are stored, if applicable
+	storage_path?: string;
 }
 
 export interface PluginData {
@@ -39,6 +43,7 @@ export interface APIServiceProviders {
 	libre_translate: APIServiceSettings;
 	deepl: APIServiceSettings;
 	bergamot: APIServiceSettings;
+	fasttext: FastTextData;
 }
 
 export interface ModelDatasets {
@@ -79,9 +84,6 @@ export interface APIServiceSettings {
 	region?: string;
 	host?: string;
 
-	// Where the local models are stored, if applicable
-	storage_path?: string;
-
 	// Automatically translate the text when the user types
 	auto_translate: boolean;
 
@@ -90,6 +92,10 @@ export interface APIServiceSettings {
 
 	// Whether the translation service is validated (current authentication settings are valid)
 	validated: boolean;
+}
+
+export interface FastTextData {
+	default_usage: boolean;
 }
 
 export interface TranslationResult {

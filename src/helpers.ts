@@ -76,7 +76,12 @@ export async function detect_selection(plugin: TranslatorPlugin, editor: Editor)
 		return;
 	}
 
-	let results = await plugin.translator.detect(selection);
+	let results;
+	if (plugin.detector)
+		results = await plugin.detector.detect(selection);
+	else
+		results = await plugin.translator.detect(selection);
+
 	results = results.sort((a, b) => {
 		return b.confidence - a.confidence;
 	});

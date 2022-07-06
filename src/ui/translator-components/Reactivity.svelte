@@ -1,7 +1,5 @@
 <!-- This component handles all updates in the settings/data objects -->
 
-import {DummyTranslate, BingTranslator, GoogleTranslate, BergamotTranslate, Deepl, LibreTranslate, YandexTranslate} from "../../handlers";
-
 
 <script lang="ts">
 
@@ -17,7 +15,16 @@ import {DummyTranslate, BingTranslator, GoogleTranslate, BergamotTranslate, Deep
 	import ISO6391 from "iso-639-1";
 
 	import t from "../../l10n";
-	import {BingTranslator, Deepl, DummyTranslate, BergamotTranslate, GoogleTranslate, LibreTranslate, YandexTranslate} from "../../handlers";
+	import {
+		BingTranslator,
+		Deepl,
+		DummyTranslate,
+		BergamotTranslate,
+		GoogleTranslate,
+		LibreTranslate,
+		YandexTranslate,
+		FastTextDetector
+	} from "../../handlers";
 	import {aesGcmDecrypt} from "../../util";
 	import {PasswordRequestModal} from "../modals";
 
@@ -71,15 +78,18 @@ import {DummyTranslate, BingTranslator, GoogleTranslate, BergamotTranslate, Deep
 	export function setupTranslationService() {
 		let valid = $settings.service_settings[service_observer]?.validated;
 
-		// FIXME: I quite dislike this particular piece of code, the intention for this is that the user
-		// 	gets a warning on startup if the translation service is not validated, but this might get tiresome
-		//  pretty fast, maybe this should be reflected in the user interface instead of using a notification.
-		// if (plugin.translator && !valid) {
-		// 	plugin.message_queue("Please validate the service to use its functionality", 5000, true);
-		// }
+		if (!plugin.detector) {
+			if ($settings.service_settings.fasttext.default_usage || service_observer === 'bergamot') {
+				plugin.detector = new FastTextDetector(plugin);
+			}
+		} else {
+			if (!($settings.service_settings.fasttext.default_usage || service_observer === 'bergamot')) {
+				// TODO: Check if proper cleanup happens
+				plugin.detector = null;
+			}
+		}
 
 		// TODO: Check if downloadable models got updated
-
 		if (service_observer === "google_translate")
 			plugin.translator = new GoogleTranslate(api_key_observer);
 		else if (service_observer === "bing_translator")
@@ -90,11 +100,11 @@ import {DummyTranslate, BingTranslator, GoogleTranslate, BergamotTranslate, Deep
 			plugin.translator = new Deepl(api_key_observer, host_observer);
 		else if (service_observer === "libre_translate")
 			plugin.translator = new LibreTranslate(host_observer);
-		else if (service_observer === "bergamot")
-			plugin.translator = new BergamotTranslate(plugin,
-													  $settings.service_settings.bergamot.available_languages as DownloadableModel[],
-												      $settings.service_settings.bergamot.storage_path);
-		else
+		else if (service_observer === "bergamot") {
+			plugin.translator = new BergamotTranslate(plugin.detector, plugin,
+				$settings.service_settings.bergamot.available_languages as DownloadableModel[],
+				$settings.storage_path);
+		} else
 			plugin.translator = new DummyTranslate();
 
 		plugin.translator.valid = valid;
@@ -246,7 +256,7 @@ import {DummyTranslate, BingTranslator, GoogleTranslate, BergamotTranslate, Deep
 		//	 inside data), but that seems redundant
 		if ($data.spellchecker_languages.length) {
 			for (let service in $settings.service_settings) {
-				if (!$settings.service_settings[service].selected_languages.length) {
+				if ($settings.service_settings[service].selected_languages !== undefined && !$settings.service_settings[service].selected_languages.length) {
 					$settings.service_settings[service].selected_languages = $data.spellchecker_languages;
 				}
 			}

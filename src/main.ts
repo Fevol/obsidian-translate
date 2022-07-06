@@ -9,7 +9,7 @@ import {SwitchService, TranslateModal} from "./ui/modals";
 
 import type {
 	APIServiceProviders,
-	APIServiceSettings,
+	APIServiceSettings, DetectionResult,
 	PluginData,
 	TranslatorPluginSettings
 } from "./types";
@@ -37,6 +37,7 @@ export default class TranslatorPlugin extends Plugin {
 
 	locales = ISO6391.getAllCodes();
 	translator: DummyTranslate;
+	detector: DummyTranslate;
 
 	// Ensures that none of those annoying 'Translation service is not validated' messages are shown while changing settings
 	settings_open: boolean = false;

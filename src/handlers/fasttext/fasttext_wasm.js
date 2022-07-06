@@ -1985,7 +1985,7 @@ var FastTextModule = (function () {
 						await app.plugins.loadManifests();
 						let settings = get(app.plugins.plugins['obsidian-translate'].settings)
 
-						let path = `.obsidian/${settings.service_settings.bergamot.storage_path}/fasttext/fasttext_wasm.wasm`;
+						let path = `.obsidian/${settings.storage_path}/fasttext/fasttext_wasm.wasm`;
 
 						if (!await app.vault.adapter.exists(path))
 							abort('Could not find fasttext_wasm.wasm in the vault');

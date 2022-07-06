@@ -80,7 +80,7 @@ class FastText {
 		try {
 			await app.plugins.loadManifests();
 			let settings = get(this.plugin.settings);
-			let bytes = await app.vault.adapter.readBinary(`.obsidian/${settings.service_settings.bergamot.storage_path}/fasttext/${url}`);
+			let bytes = await app.vault.adapter.readBinary(`.obsidian/${settings.storage_path}/fasttext/${url}`);
 			const FS = fastTextModule.FS
 			FS.writeFile(modelFileInWasmFs, new Uint8Array(bytes));
 			fastTextNative.loadModel(modelFileInWasmFs);

@@ -213,6 +213,23 @@
 	</SettingItem>
 {/if}
 
+
+<SettingItem
+	name="Model path"
+	description="Determine where in the '.obsidian' folder local models should be stored"
+	type="input"
+>
+	<Input
+		slot="control"
+		val={$settings.storage_path}
+		onChange={(e) => {
+							$settings.storage_path = e.target.value;
+						}}
+		type="text"
+	/>
+</SettingItem>
+
+
 {#each Object.entries(services) as [service, info]}
 	{#if service === $settings.translation_service}
 		<div in:horizontalSlide="{{duration: 600, delay: 300 }}" out:slide={{  duration: 400 }}>
@@ -222,55 +239,6 @@
 			</h2>
 
 			{#if service === 'bergamot'}
-				<SettingItem
-					name="Model path"
-					description="Determine where in the '.obsidian' folder the local models should be stored"
-					type="input"
-				>
-					<Input
-						slot="control"
-						val={$settings.service_settings[$settings.translation_service].storage_path}
-						onChange={(e) => {
-							$settings.service_settings[$settings.translation_service].storage_path = e.target.value;
-						}}
-						type="text"
-					/>
-				</SettingItem>
-
-				<SettingItem
-					name="Setup local text detection"
-					description="Install FastText language models for local text detection"
-					type="button"
-				>
-					<!-- Download FastText model and binary -->
-					<!-- FIXME: Official FastText repo does not contain wasm file, so the binary was added to the plugin's repo
-					      users would probably prefer if the file was downloaded from an official place -- look for this! -->
-					<!-- FIXME: Find a better way to reinitialize FastText -->
-
-					<button
-						slot="control"
-						class:translator-success={plugin.translator?.has_autodetect_capability()}
-						class:translator-fail={!plugin.translator?.has_autodetect_capability()}
-						class="icon-text"
-						style="justify-content: center"
-						on:click={async () => {
-							let model_path = `.obsidian/${$settings.service_settings[service].storage_path}/fasttext/lid.176.ftz`
-							let model_result = await requestUrl({url: "https://dl.fbaipublicfiles.com/fasttext/supervised-models/lid.176.ftz"});
-							await writeOrReplace(model_path, model_result.arrayBuffer);
-
-							let binary_path = `.obsidian/${$settings.service_settings[service].storage_path}/fasttext/fasttext_wasm.wasm`
-							let binary_result = await requestUrl({url: "https://github.com/Fevol/obsidian-translate/blob/bergamot/models/fasttext_wasm.wasm?raw=true"});
-							await writeOrReplace(binary_path, binary_result.arrayBuffer);
-
-							plugin.message_queue("Successfully installed FastText data");
-
-							plugin.reactivity.setupTranslationService();
-						}}
-					>
-						<Icon icon={"download"} />
-					</button>
-				</SettingItem>
-
 				<SettingItem
 					name="Setup local translation"
 					description="Install Bergamot translation engine"
@@ -284,7 +252,7 @@
 						class="icon-text"
 						style="justify-content: center"
 						on:click={async () => {
-							let binary_path = `.obsidian/${$settings.service_settings[service].storage_path}/bergamot/bergamot-translator-worker.wasm`
+							let binary_path = `.obsidian/${$settings.storage_path}/bergamot/bergamot-translator-worker.wasm`
 							let binary_result = await requestUrl({url: "https://github.com/mozilla/firefox-translations/blob/main/extension/model/static/translation/bergamot-translator-worker.wasm?raw=true"});
 							await writeOrReplace(binary_path, binary_result.arrayBuffer);
 
@@ -325,7 +293,7 @@
 										plugin.message_queue(`Failed to download ${t(model.locale)} language models`);
 										return;
 									}
-									await writeRecursive(`.obsidian/${$settings.service_settings[service].storage_path}/bergamot/${model.locale}/${filename}`, file.arrayBuffer);
+									await writeRecursive(`.obsidian/${$settings.storage_path}/bergamot/${model.locale}/${filename}`, file.arrayBuffer);
 								}
 
 								for (const filename of Object.values(model.files.to)) {
@@ -334,7 +302,7 @@
 										plugin.message_queue(`Failed to download ${t(model.locale)} language models`);
 										return;
 									}
-									await writeRecursive(`.obsidian/${$settings.service_settings[service].storage_path}/bergamot/${model.locale}/${filename}`, file.arrayBuffer);
+									await writeRecursive(`.obsidian/${$settings.storage_path}/bergamot/${model.locale}/${filename}`, file.arrayBuffer);
 								}
 
 								plugin.message_queue(`Successfully installed ${t(model.locale)} language models`);
@@ -560,6 +528,60 @@
 		</div>
 	{/if}
 {/each}
+
+<h2 class="icon-text translator-title">
+	<Icon icon="fasttext" size=22 />
+	FastText
+</h2>
+
+<SettingItem
+	name="Setup local text detection"
+	description="Install FastText language models for local text detection"
+	type="button"
+>
+	<!-- Download FastText model and binary -->
+	<!-- FIXME: Official FastText repo does not contain wasm file, so the binary was added to the plugin's repo
+		  users would probably prefer if the file was downloaded from an official place -- look for this! -->
+	<!-- FIXME: Find a better way to reinitialize FastText -->
+
+	<button
+		slot="control"
+		class:translator-success={plugin.translator?.has_autodetect_capability()}
+		class:translator-fail={!plugin.translator?.has_autodetect_capability()}
+		class="icon-text"
+		style="justify-content: center"
+		on:click={async () => {
+							let model_path = `.obsidian/${$settings.storage_path}/fasttext/lid.176.ftz`
+							let model_result = await requestUrl({url: "https://dl.fbaipublicfiles.com/fasttext/supervised-models/lid.176.ftz"});
+							await writeOrReplace(model_path, model_result.arrayBuffer);
+
+							let binary_path = `.obsidian/${$settings.storage_path}/fasttext/fasttext_wasm.wasm`
+							let binary_result = await requestUrl({url: "https://github.com/Fevol/obsidian-translate/blob/bergamot/models/fasttext_wasm.wasm?raw=true"});
+							await writeOrReplace(binary_path, binary_result.arrayBuffer);
+
+							plugin.message_queue("Successfully installed FastText data");
+
+							plugin.reactivity.setupTranslationService();
+						}}
+	>
+		<Icon icon={"download"} />
+	</button>
+</SettingItem>
+
+<SettingItem
+	name="Always use FastText"
+	description="FastText will be used as the default text detection engine"
+	type="text"
+>
+	<Toggle
+		slot="control"
+		value={ $settings.service_settings.fasttext.default_usage }
+		onChange={(val) => {
+						$settings.service_settings.fasttext.default_usage = val;
+		}}
+	/>
+</SettingItem>
+
 
 <style lang="scss">
 	.translator-title {
