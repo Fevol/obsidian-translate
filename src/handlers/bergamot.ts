@@ -24,10 +24,15 @@ export class BergamotTranslate extends DummyTranslate {
 		this.plugin = plugin;
 		this.detector = detector;
 
-		this.translator = new Bergamot(available_models, path);
-		this.translator.new_loadTranslationEngine();
-
-		this.available_languages = ["en"].concat(available_models.map((model: any) => model.locale));
+		try {
+			this.translator = new Bergamot(available_models, path);
+			this.translator.loadTranslationEngine();
+			this.available_languages = ["en"].concat(available_models.map((model: any) => model.locale));
+		} catch (e) {
+			this.plugin.message_queue(`Error while loading Bergamot: ${e.message}`);
+			this.translator = null;
+			this.valid = false;
+		}
 	}
 
 	async validate(): Promise<ValidationResult> {
@@ -81,6 +86,9 @@ export class BergamotTranslate extends DummyTranslate {
 				return {message: "Automatic language detection is not supported"};
 			}
 		}
+		if (from === to) {
+			return {translation: text, detected_language: from};
+		}
 
 		if (!this.available_languages.includes(from))
 			return {message: `${t(from)} is not supported`};
@@ -88,7 +96,7 @@ export class BergamotTranslate extends DummyTranslate {
 			return {message: `${t(to)} is not supported`};
 
 		// @ts-ignore (new_translate does not have specific return value, but it is guaranteed to be string)
-		let translation = await this.translator.new_translate(text, from, to) as string;
+		let translation = await this.translator.translate(text, from, to) as string;
 
 		return {translation: translation, detected_language: detected_language};
 	}

@@ -2997,7 +2997,7 @@ export function loadEmscriptenGlueCode(Module) {
 				return fallbackGemm(GEMM_TO_FALLBACK_FUNCTIONS_MAP);
 			}
 		}
-		console.log(`Using optimized gemm (${OPTIMIZED_GEMM}) implementation`);
+		// console.log(`Using optimized gemm (${OPTIMIZED_GEMM}) implementation`);
 		return optimizedGemmModuleExports;
 	}
 
@@ -3010,7 +3010,7 @@ export function loadEmscriptenGlueCode(Module) {
 		for (let key in gemmToFallbackFunctionsMap) {
 			fallbackGemmModuleExports[key] = (...a) => Module[FALLBACK_GEMM][gemmToFallbackFunctionsMap[key]](...a)
 		}
-		console.log(`Using fallback gemm implementation`);
+		// console.log(`Using fallback gemm implementation`);
 		return fallbackGemmModuleExports;
 	}
 
