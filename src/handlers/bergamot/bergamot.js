@@ -152,7 +152,7 @@ class Bergamot {
 			if (!model)
 				throw "Model was not found"
 
-			let data = model.files.from;
+			let data = model.files[is_from ? 'from' : 'to'];
 			// TODO: What is quality estimation and where is it used?
 			let has_quality_estimation = data.qualityModel;
 
