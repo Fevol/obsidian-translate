@@ -51,40 +51,7 @@ export class BergamotTranslate extends DummyTranslate {
 			}
 		})
 
-		// @ts-ignore
-		Bergamot.create(plugin).then(bg => {
-			try {
-				if (bg instanceof WebAssembly.RuntimeError)
-					plugin.message_queue(bg.message.match(/\(([^)]+)\)/)[0].slice(1, -1));
-				else {
-				//	Load additional data
-				}
-			} catch (e) {
-				console.log("Error loading Bergamot: " + e);
-			}
-		})
-
-
-
-
-		// this.translation_worker = Worker();
-		// this.translation_worker.onmessage = (e: { data: any[]; }) => {
-		// 	if (e.data[0] === "import_reply") {
-		// 		this.valid = true;
-		// 	} else if (e.data[0] === "translate_reply" && e.data[1]) {
-		// 		// Set the translation result here
-		// 		this.data = e.data[1].join("\n\n");
-		// 		this.status = "translated";
-		// 	} else if (e.data[0] === "load_model_reply" && e.data[1]) {
-		// 		// Model has been loaded in the worker, update status and start translating
-		//
-		// 		// Current status of the translation worker
-		// 		let status = e.data[1];
-		// 		console.log(' ---- ', status);
-		//
-		// 	}
-		// }
-		// this.translation_worker.postMessage(["import"]);
+		this.translator = new Bergamot();
 	}
 
 	async validate(): Promise<ValidationResult> {
@@ -132,47 +99,7 @@ export class BergamotTranslate extends DummyTranslate {
 
 
 	async translate(text: string, from: string = 'auto', to: string): Promise<TranslationResult> {
-		// this.translator.translate(text, from, to);
-
-		// if (!text.trim())
-		// 	return {message: "No text was provided"};
-		// if (!to)
-		// 	return {message: "No target language was provided"};
-		//
-		// // Bergamot translator does not have inherent text detection capabilities, offload this responsibility to FastText worker
-		// // FIXME: It is possible that detected language is not in the supported models list for Bergamot; ignore
-		// if (from === 'auto') {
-		// 	const detections = await this.detect(text);
-		// 	if (detections.length === 0)
-		// 		return {message: "No language detected"};
-		// 	if (detections[1].language)
-		// 		from = detections[0].language;
-		// 	else
-		// 		return {message: "Language could not be identified or FastText worker has failed"};
-		// }
-		//
-		// if (!this.loaded_models.includes(from)) {
-		// 	this.translation_worker.postMessage(["load_model", from, 'en', this.get_model_data(from, 'en')]);
-		// 	this.translation_worker.postMessage(["load_model", 'en', from, this.get_model_data('en', from)]);
-		// 	this.loaded_models.push(from);
-		// }
-		// if (!this.loaded_models.includes(to)) {
-		// 	this.translation_worker.postMessage(["load_model", to, 'en', this.get_model_data(to, 'en')]);
-		// 	this.translation_worker.postMessage(["load_model", 'en', to, this.get_model_data('en', to)]);
-		// 	this.loaded_models.push(to);
-		// }
-		//
-		// // TODO: Language model should be available for 'from' and 'to' language
-		//
-		// this.translation_worker.postMessage(["translate", from, to, text]);
-		//
-		// while (!this.status) { }
-		// this.status = '';
-		// return {translation: this.data};
-		//
-		// // TODO: Internal state: wait till message is received from worker
-		return {}
-
+		this.translator.
 	}
 
 	async get_languages(): Promise<LanguagesFetchResult> {
