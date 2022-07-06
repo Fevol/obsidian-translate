@@ -116,7 +116,7 @@ class Bergamot {
 				// translate via pivoting
 				const from_model = await this.new_getTranslationModel(from, this.PIVOT_LANGUAGE);
 				const to_model = await this.new_getTranslationModel(this.PIVOT_LANGUAGE, to);
-				vectorResponse = this.translationService.translateViaPivoting(from_model, to_model, text, vectorResponseOptions);
+				vectorResponse = this.translationService.translateViaPivoting(from_model, to_model, vectorSourceText, vectorResponseOptions);
 			} else {
 				// translate without pivoting
 				const model = await this.new_getTranslationModel(from, to);
@@ -750,7 +750,7 @@ class Bergamot {
 			const response = vectorResponse.get(i);
 			result.push(response.getTranslatedText());
 		}
-		return result;
+		return result.join('\n');
 	}
 
 	// this function extracts all the translated sentences from the Response and returns them.
