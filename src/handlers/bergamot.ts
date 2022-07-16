@@ -2,7 +2,7 @@ import type TranslatorPlugin from "../main";
 import {DummyTranslate} from "./dummy-translate";
 import type {
 	DetectionResult, ValidationResult, TranslationResult, LanguagesFetchResult,
-	DownloadableModel, ModelDatasets, TranslatorPluginSettings,
+	DownloadableModel, ModelDatasets, TranslatorPluginSettings, Models, ModelData, ModelFileData, FileData,
 } from "../types";
 
 import {Bergamot} from "./bergamot/bergamot";
@@ -19,17 +19,23 @@ export class BergamotTranslate extends DummyTranslate {
 	plugin: TranslatorPlugin;
 	available_languages: Array<string>;
 
-	constructor(detector: DummyTranslate = null, plugin: TranslatorPlugin, available_models: Array<DownloadableModel>, path: string) {
+	constructor(detector: DummyTranslate = null, plugin: TranslatorPlugin, available_models: ModelFileData, path: string) {
 		super();
 		this.plugin = plugin;
 		this.detector = detector;
 
-		try {
-			this.translator = new Bergamot(available_models, path);
-			this.translator.loadTranslationEngine();
-			this.available_languages = ["en"].concat(available_models.map((model: any) => model.locale));
-		} catch (e) {
-			this.plugin.message_queue(`Error while loading Bergamot: ${e.message}`);
+		if (available_models) {
+			try {
+				this.translator = new Bergamot(available_models, path);
+				this.translator.loadTranslationEngine();
+				this.available_languages = ["en"].concat(available_models.files.map((model: FileData) => model.name));
+			} catch (e) {
+				this.plugin.message_queue(`Error while loading Bergamot: ${e.message}`);
+				this.translator = null;
+				this.valid = false;
+			}
+		} else {
+			this.plugin.message_queue("Bergamot binary was not properly installed");
 			this.translator = null;
 			this.valid = false;
 		}
@@ -91,9 +97,9 @@ export class BergamotTranslate extends DummyTranslate {
 		}
 
 		if (!this.available_languages.includes(from))
-			return {message: `${t(from)} is not supported`};
+			return {message: `${t(from)} is not installed as a language model`};
 		if (!this.available_languages.includes(to))
-			return {message: `${t(to)} is not supported`};
+			return {message: `${t(to)} is not installed as a language model`};
 
 		// @ts-ignore (new_translate does not have specific return value, but it is guaranteed to be string)
 		let translation = await this.translator.translate(text, from, to) as string;

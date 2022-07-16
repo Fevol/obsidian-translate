@@ -8,7 +8,7 @@
 	import {NavHeader, View} from "../obsidian-components";
 
 	import type {PluginData, TranslatorPluginSettings} from "../../types";
-	import {FILTER_MODES, ICONS, TRANSLATION_SERVICES_INFO, VIEW_MODES} from "../../constants";
+	import {DETECTOR_SERVICES_INFO, FILTER_MODES, ICONS, TRANSLATION_SERVICES_INFO, VIEW_MODES} from "../../constants";
 	import {Icon} from "../components";
 	import {SwitchService} from "../modals";
 	import t from "../../l10n";
@@ -140,7 +140,7 @@
 			   },
 			   {
 				   icon: $settings.service_settings[$settings.translation_service].auto_translate ? "zap" : "hand",
-				   tooltip: "Turn auto-translate " + ($settings.service_settings[$settings.translation_service].auto_translate ? "off" : "on"),
+				   tooltip: ($settings.service_settings[$settings.translation_service].auto_translate ? "Automatically translating" : "Translating manually"),
 				   onClick: () => {
 					   $settings.service_settings[$settings.translation_service].auto_translate =
 					   !$settings.service_settings[$settings.translation_service].auto_translate;
@@ -182,6 +182,7 @@
 		<!-- FIXME: Some services use regional identifiers for their locales, might cause trouble -->
 		<div class="translator-column translator-left-column" >
 			<Dropdown
+				class="translator-select"
 				value={$settings.language_from}
 				options={
 					$data.has_autodetect_capability ? [
@@ -243,6 +244,7 @@
 
 		<div class="translator-column translator-right-column">
 			<Dropdown
+				class="translator-select"
 				value={$settings.language_to}
 				options={selectable_languages}
 				onChange={(e) => {
@@ -257,10 +259,22 @@
 			/>
 		</div>
 		<div class="translator-attribution-column">
-			<a href={services[$settings.translation_service].url} class="icon-text translator-service-text">
-				<Icon icon={$settings.translation_service}/>
-				{`Using ${$settings.translation_service.replace('_', ' ')}`}
-			</a>
+			<div style="display: flex; flex-direction: row; gap: 4px">
+				Using
+				<a href={services[$settings.translation_service].url} class="icon-text translator-service-text">
+					<Icon icon={$settings.translation_service}/>
+					{`${$settings.translation_service.replace('_', ' ')}`}
+				</a>
+				{#if plugin.detector}
+					with
+					<a href={DETECTOR_SERVICES_INFO["fasttext"].url} class="icon-text translator-service-text">
+						<Icon icon="fasttext"}/>
+						FastText
+					</a>
+				{/if}
+			</div>
+
+
 			{#if services[$settings.translation_service].attribution !== undefined}
 				<Icon content={ICONS[$settings.translation_service + '_attribution']} size={40} svg_size={[160, 40]}/>
 			{/if}
@@ -286,7 +300,12 @@
 	}
 
 	.translator-column > * {
-		width: 100%;
+		width: 0;
+	}
+
+
+	.translator-select {
+		width: auto;
 	}
 
 	.translator-left-column {

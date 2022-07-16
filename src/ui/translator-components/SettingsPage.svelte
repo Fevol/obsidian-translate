@@ -254,9 +254,13 @@
 						on:click={async () => {
 							let binary_path = `.obsidian/${$settings.storage_path}/bergamot/bergamot-translator-worker.wasm`
 							let binary_result = await requestUrl({url: "https://github.com/mozilla/firefox-translations/blob/main/extension/model/static/translation/bergamot-translator-worker.wasm?raw=true"});
-							await writeOrReplace(binary_path, binary_result.arrayBuffer);
+							await writeRecursive(binary_path, binary_result.arrayBuffer);
 
 							plugin.message_queue("Successfully installed Bergamot binary");
+							if (!$data.models.bergamot)
+								$data.models.bergamot = {files: [], size: ''};
+
+							$data.models.bergamot.size = binary_result.arrayBuffer.byteLength;
 
 							plugin.reactivity.setupTranslationService();
 						}}
@@ -287,12 +291,15 @@
 
 								const rootURL = "https://storage.googleapis.com/bergamot-models-sandbox";
 
+								let size = 0;
+
 								for (const filename of Object.values(model.files.from)) {
 									let file = await requestUrl({url: `${rootURL}/${$settings.service_settings[service].version}/${model.locale}en/${filename}`});
 									if (file.status !== 200) {
 										plugin.message_queue(`Failed to download ${t(model.locale)} language models`);
 										return;
 									}
+									size += file.arrayBuffer.byteLength;
 									await writeRecursive(`.obsidian/${$settings.storage_path}/bergamot/${model.locale}/${filename}`, file.arrayBuffer);
 								}
 
@@ -302,8 +309,13 @@
 										plugin.message_queue(`Failed to download ${t(model.locale)} language models`);
 										return;
 									}
+									size += file.arrayBuffer.byteLength;
 									await writeRecursive(`.obsidian/${$settings.storage_path}/bergamot/${model.locale}/${filename}`, file.arrayBuffer);
 								}
+
+								if (!$data.models.bergamot)
+									$data.models.bergamot = {files: [], size: ''}
+								$data.models.bergamot.files.push({size: size, name: model.locale})
 
 								plugin.message_queue(`Successfully installed ${t(model.locale)} language models`);
 
@@ -461,9 +473,10 @@
 				name="Automatic translate"
 				description="Translate text as it is being typed"
 				type="text"
-				notices={[
-				{text: "⚠ May quickly use up the API's character quota", style: 'warning-text'}
-			]}
+				notices={
+					service === 'bergamot' ? [] :
+					[{text: "⚠ May quickly use up the API's character quota", style: 'warning-text'}]
+				}
 			>
 				<Toggle
 					slot="control"
@@ -553,14 +566,21 @@
 		on:click={async () => {
 							let model_path = `.obsidian/${$settings.storage_path}/fasttext/lid.176.ftz`
 							let model_result = await requestUrl({url: "https://dl.fbaipublicfiles.com/fasttext/supervised-models/lid.176.ftz"});
-							await writeOrReplace(model_path, model_result.arrayBuffer);
+							await writeRecursive(model_path, model_result.arrayBuffer);
 
 							let binary_path = `.obsidian/${$settings.storage_path}/fasttext/fasttext_wasm.wasm`
 							let binary_result = await requestUrl({url: "https://github.com/Fevol/obsidian-translate/blob/bergamot/models/fasttext_wasm.wasm?raw=true"});
-							await writeOrReplace(binary_path, binary_result.arrayBuffer);
+							await writeRecursive(binary_path, binary_result.arrayBuffer);
 
 							plugin.message_queue("Successfully installed FastText data");
 
+							$data.models.fasttext = {
+								size: binary_result.arrayBuffer.byteLength,
+								files: [{
+									name: 'lid.176.ftz',
+									size: model_result.arrayBuffer.byteLength
+								}]
+							}
 							plugin.reactivity.setupTranslationService();
 						}}
 	>

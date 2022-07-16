@@ -34,6 +34,8 @@ export interface PluginData {
 	text_to: string;
 	detected_language: string;
 	has_autodetect_capability: boolean;
+
+	models: Models;
 }
 
 export interface APIServiceProviders {
@@ -92,6 +94,23 @@ export interface APIServiceSettings {
 
 	// Whether the translation service is validated (current authentication settings are valid)
 	validated: boolean;
+}
+
+export interface FileData {
+	name: string;
+	// Sizes are kept for versioning
+	// TODO: Check if hashes or version numbers could be kept here
+	size: string;
+}
+
+export interface ModelFileData {
+	files?: Array<FileData>;
+	size: string;
+}
+
+export interface Models {
+	fasttext?: ModelFileData;
+	bergamot?: ModelFileData;
 }
 
 export interface FastTextData {

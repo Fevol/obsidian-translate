@@ -50,11 +50,11 @@ export default class TranslatorPlugin extends Plugin {
 			new Notice(text, timeout);
 		});
 
+		this.plugin_data = writable<PluginData>();
+		this.plugin_data.set(Object.assign({}, DEFAULT_DATA, {models: JSON.parse(localStorage.getItem('models'))}));
+
 		let settings: TranslatorPluginSettings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData());
 		this.settings = writable<TranslatorPluginSettings>(settings);
-
-		this.plugin_data = writable<PluginData>();
-		this.plugin_data.set(DEFAULT_DATA);
 
 		// Save all settings on update of this.settings
 		this.register(this.settings.subscribe((data) => {

@@ -10,7 +10,7 @@
 
 	import type {Writable} from "svelte/store";
 
-	import type {DownloadableModel, PluginData, TranslatorPluginSettings} from "../../types";
+	import type {DownloadableModel, Models, PluginData, TranslatorPluginSettings} from "../../types";
 	import {TRANSLATION_SERVICES_INFO} from "../../constants";
 	import ISO6391 from "iso-639-1";
 
@@ -48,6 +48,7 @@
 	let available_languages_observer: any;
 	let selected_languages_observer: any;
 
+	let model_observer: any;
 
 
 	// Alright, let me explain. Svelte reactivity is - to call it mildly - slightly wacko.
@@ -73,6 +74,7 @@
 	$: display_language_observer = $settings.display_language;
 	$: service_observer = $settings.translation_service;
 	$: security_setting_observer = $settings.security_setting;
+	$: model_observer = $data.models;
 
 
 	export function setupTranslationService() {
@@ -80,7 +82,11 @@
 
 		if (!plugin.detector) {
 			if ($settings.service_settings.fasttext.default_usage || service_observer === 'bergamot') {
-				plugin.detector = new FastTextDetector(plugin);
+				if ($data.models.fasttext) {
+					plugin.detector = new FastTextDetector(plugin);
+				} else {
+					plugin.message_queue("FastText is not installed")
+				}
 			}
 		} else {
 			if (!($settings.service_settings.fasttext.default_usage || service_observer === 'bergamot')) {
@@ -102,12 +108,12 @@
 			plugin.translator = new LibreTranslate(host_observer);
 		else if (service_observer === "bergamot") {
 			plugin.translator = new BergamotTranslate(plugin.detector, plugin,
-				$settings.service_settings.bergamot.available_languages as DownloadableModel[],
+				$data.models.bergamot,
 				$settings.storage_path);
 		} else
 			plugin.translator = new DummyTranslate();
 
-		plugin.translator.valid = valid;
+		plugin.translator.valid = valid && plugin.translator.valid;
 		$data.has_autodetect_capability = plugin.translator.has_autodetect_capability();
 
 		plugin.translator.failure_count_watcher.subscribe(failure_count => {
@@ -122,7 +128,9 @@
 	function getLocales(locales: Array<DownloadableModel> | Array<string>) {
 		if (locales && locales[0] instanceof Object)
 			// English is the pivot language
-			return ['en'].concat(Array.from(locales).map((model: DownloadableModel) => { return model.locale }));
+			return ['en'].concat(Array.from(locales).map((model: DownloadableModel) => {
+				return model.locale
+			}));
 		else
 			return locales;
 	}
@@ -134,7 +142,9 @@
 		} else if (filter_type_observer === 1) {
 			$data.available_languages = $data.spellchecker_languages;
 		} else if (filter_type_observer === 2) {
-			$data.available_languages = Array.from($settings.service_settings[$settings.translation_service].available_languages).map((model: DownloadableModel) => { return model.locale });
+			$data.available_languages = Array.from($settings.service_settings[$settings.translation_service].available_languages).map((model: DownloadableModel) => {
+				return model.locale
+			});
 		}
 	}
 
@@ -142,22 +152,22 @@
 	// in a service changes constantly)
 	export function updateLanguageNames() {
 		let lang = getLocales($settings.service_settings[$settings.translation_service].downloadable_models)
-		|| $settings.service_settings[$settings.translation_service].available_languages
+			|| $settings.service_settings[$settings.translation_service].available_languages
 
 		$data.all_languages =
 			new Map(Array.from(lang.map((locale: string) => {
-					let language: any = locale,
-						extra: string = '';
-					if (language.contains('-')) {
-						[language, extra] = language.split('-');
-						extra = t(extra.toUpperCase());
-						extra = extra ? ` (${extra})` : '';
-					}
-					if ($settings.display_language === 'local')
-						language = ISO6391.getNativeName(language) || t(language)
-					else if ($settings.display_language === 'display')
-						language = t(language)
-					return [locale, language + extra];
+				let language: any = locale,
+					extra: string = '';
+				if (language.contains('-')) {
+					[language, extra] = language.split('-');
+					extra = t(extra.toUpperCase());
+					extra = extra ? ` (${extra})` : '';
+				}
+				if ($settings.display_language === 'local')
+					language = ISO6391.getNativeName(language) || t(language)
+				else if ($settings.display_language === 'display')
+					language = t(language)
+				return [locale, language + extra];
 			})))
 	}
 
@@ -170,7 +180,7 @@
 				invalidated = true;
 				message = "No API key was given";
 
-			// Security setting is password but given API key is still encrypted (ends on '=='), invalid state
+				// Security setting is password but given API key is still encrypted (ends on '=='), invalid state
 			} else if ($settings.security_setting === 'password') {
 				// FIXME: Not every encrypted key ends with '==' for some reason
 				if (api_key_observer.endsWith("==")) {
@@ -210,8 +220,8 @@
 	$: {
 		if (plugin.translator && plugin.translator.hasOwnProperty('region')) {
 			plugin.translator.region = region_observer;
-		plugin.translator.success();
-	}
+			plugin.translator.success();
+		}
 	}
 
 	$: {
@@ -222,6 +232,13 @@
 	}
 
 	$: service_observer, setupTranslationService();
+	$: {
+		// And this is why I shouldn't have chosen for reactivity, the optimal solution would be to
+		// manually set the models localstorage after every write, but I am a lazy coder
+		if (Object.keys(model_observer).length) {
+			localStorage.setItem('models', JSON.stringify(model_observer));
+		}
+	}
 
 	$: filter_type_observer, selected_languages_observer, updateAvailableLanguages();
 	$: getAPIKey(security_setting_observer, service_observer).then(x => $data.api_key = x);
@@ -248,12 +265,6 @@
 				updateAvailableLanguages();
 		}
 
-		// FIXME: Not sure how to go about this in a better way, spellchecker languages should not always be included:
-		//   users should be able to have a persistent selection of languages. This is hopefully a good compromise:
-		//   each time the program is started up, check if the list of selected languages is empty, if so,
-		//	 update it with the spellchecker languages; if possible, I would like this to happen ONCE, when the
-		// 	 user activates the plugin for the first time ever (and technically possible by adding a 'activated' variable
-		//	 inside data), but that seems redundant
 		if ($data.spellchecker_languages.length) {
 			for (let service in $settings.service_settings) {
 				if ($settings.service_settings[service].selected_languages !== undefined && !$settings.service_settings[service].selected_languages.length) {
