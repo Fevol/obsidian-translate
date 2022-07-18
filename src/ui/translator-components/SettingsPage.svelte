@@ -9,10 +9,9 @@
 	import {PasswordModal, PasswordRequestModal} from "../modals";
 
 	import type {
-		DownloadableModel,
 		PluginData,
 		TranslatorPluginSettings,
-		ValidationResult
+		LanguageModelData
 	} from "../../types";
 	import {TRANSLATION_SERVICES_INFO, SECURITY_MODES} from "../../constants";
 
@@ -38,7 +37,7 @@
 			.filter((option) => { return !$settings.service_settings[$settings.translation_service].selected_languages.contains(option.value); })
 			.sort((a, b) => { return a.text.localeCompare(b.text);});
 		selectable_services.unshift({'value': '', 'text': '+'});
-		$data.has_autodetect_capability = plugin.translator.has_autodetect_capability();
+		$data.has_autodetect_capability = plugin.translator?.has_autodetect_capability() === true;
 	}
 
 	$: {
@@ -51,7 +50,7 @@
 					});
 				})
 				.map(model => {
-					return {'value': model.locale, 'text': `${$data.all_languages.get(model.locale)} (${humanFileSize(model.size, true)})${model.development ? ' [DEV]' : ''}`};
+					return {'value': model.locale, 'text': `${$data.all_languages.get(model.locale)} (${humanFileSize(model.size, false)})${model.development ? ' [DEV]' : ''}`};
 				})
 				.sort((a, b) => { return a.text.localeCompare(b.text);});
 			downloadable_models.unshift({'value': '', 'text': '+'});
@@ -260,7 +259,10 @@
 							if (!$data.models.bergamot)
 								$data.models.bergamot = {files: [], size: ''};
 
-							$data.models.bergamot.size = binary_result.arrayBuffer.byteLength;
+							$data.models.bergamot.binary = {
+								name: 'bergamot-translator-worker.wasm',
+								size: binary_result.arrayBuffer.byteLength,
+							}
 
 							plugin.reactivity.setupTranslationService();
 						}}
@@ -271,11 +273,12 @@
 
 				<SettingItem name="Manage Bergamot models">
 					<div slot="control">
+						<!-- TODO: Remove model -->
 						<ButtonList
 							items={ $settings.service_settings[service].available_languages.map((model) => {
 								return {
 									'value': model.locale,
-									'text': `${$data.all_languages.get(model.locale)} (${humanFileSize(model.size, true)})${model.development ? ' [DEV]' : ''}`
+									'text': `${$data.all_languages.get(model.locale)} (${humanFileSize(model.size, false)})${model.development ? ' [DEV]' : ''}`
 								}
 							}) }
 							icon="cross"
@@ -287,40 +290,21 @@
 							options={ downloadable_models }
 							value=""
 							onChange={async (e) => {
-								let model = $settings.service_settings[service].downloadable_models.find(x => x.locale === e.target.value);
-
+								const model = $settings.service_settings[service].downloadable_models.find(x => x.locale === e.target.value);
 								const rootURL = "https://storage.googleapis.com/bergamot-models-sandbox";
 
-								let size = 0;
-
-								for (const filename of Object.values(model.files.from)) {
-									let file = await requestUrl({url: `${rootURL}/${$settings.service_settings[service].version}/${model.locale}en/${filename}`});
-									if (file.status !== 200) {
-										plugin.message_queue(`Failed to download ${t(model.locale)} language models`);
-										return;
-									}
-									size += file.arrayBuffer.byteLength;
-									await writeRecursive(`.obsidian/${$settings.storage_path}/bergamot/${model.locale}/${filename}`, file.arrayBuffer);
-								}
-
-								for (const filename of Object.values(model.files.to)) {
-									let file = await requestUrl({url: `${rootURL}/${$settings.service_settings[service].version}/en${model.locale}/${filename}`});
-									if (file.status !== 200) {
-										plugin.message_queue(`Failed to download ${t(model.locale)} language models`);
-										return;
-									}
-									size += file.arrayBuffer.byteLength;
-									await writeRecursive(`.obsidian/${$settings.storage_path}/bergamot/${model.locale}/${filename}`, file.arrayBuffer);
-								}
 
 								if (!$data.models.bergamot)
-									$data.models.bergamot = {files: [], size: ''}
-								$data.models.bergamot.files.push({size: size, name: model.locale})
+									$data.models.bergamot = {binary: {}, models: []};
+
+								let model_idx = $data.models.bergamot.models.findIndex(x => x.locale === model.locale);
+								if (model_idx)
+									$data.models.bergamot.models.splice(model_idx, 1);
+								$data.models.bergamot.models.push(model);
 
 								plugin.message_queue(`Successfully installed ${t(model.locale)} language models`);
 
 								$settings.service_settings[service].available_languages = [...$settings.service_settings[service].available_languages, model];
-
 							}}
 						/>
 					</div>
@@ -559,30 +543,35 @@
 
 	<button
 		slot="control"
-		class:translator-success={plugin.translator?.has_autodetect_capability()}
-		class:translator-fail={!plugin.translator?.has_autodetect_capability()}
+		class:translator-success={plugin.detector?.valid}
+		class:translator-fail={plugin.detector?.valid === false}
 		class="icon-text"
 		style="justify-content: center"
 		on:click={async () => {
-							let model_path = `.obsidian/${$settings.storage_path}/fasttext/lid.176.ftz`
-							let model_result = await requestUrl({url: "https://dl.fbaipublicfiles.com/fasttext/supervised-models/lid.176.ftz"});
-							await writeRecursive(model_path, model_result.arrayBuffer);
+			let model_path = `.obsidian/${$settings.storage_path}/fasttext/lid.176.ftz`
+			let model_result = await requestUrl({url: "https://dl.fbaipublicfiles.com/fasttext/supervised-models/lid.176.ftz"});
+			await writeRecursive(model_path, model_result.arrayBuffer);
 
-							let binary_path = `.obsidian/${$settings.storage_path}/fasttext/fasttext_wasm.wasm`
-							let binary_result = await requestUrl({url: "https://github.com/Fevol/obsidian-translate/blob/bergamot/models/fasttext_wasm.wasm?raw=true"});
-							await writeRecursive(binary_path, binary_result.arrayBuffer);
+			let binary_path = `.obsidian/${$settings.storage_path}/fasttext/fasttext_wasm.wasm`
+			let binary_result = await requestUrl({url: "https://github.com/Fevol/obsidian-translate/blob/bergamot/models/fasttext_wasm.wasm?raw=true"});
+			await writeRecursive(binary_path, binary_result.arrayBuffer);
 
-							plugin.message_queue("Successfully installed FastText data");
+			plugin.message_queue("Successfully installed FastText data");
 
-							$data.models.fasttext = {
-								size: binary_result.arrayBuffer.byteLength,
-								files: [{
-									name: 'lid.176.ftz',
-									size: model_result.arrayBuffer.byteLength
-								}]
-							}
-							plugin.reactivity.setupTranslationService();
-						}}
+			$data.models.fasttext = {
+				binary: {
+					name: "fasttext_wasm.wasm",
+					size: binary_result.arrayBuffer.byteLength,
+				},
+				models: {
+					"compressed": {
+						name: "lid.176.ftz",
+						size: model_result.arrayBuffer.byteLength,
+					}
+				}
+			}
+			plugin.reactivity.setupTranslationService();
+		}}
 	>
 		<Icon icon={"download"} />
 	</button>

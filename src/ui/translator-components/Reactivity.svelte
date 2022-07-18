@@ -10,7 +10,7 @@
 
 	import type {Writable} from "svelte/store";
 
-	import type {DownloadableModel, Models, PluginData, TranslatorPluginSettings} from "../../types";
+	import type {DownloadableModel, LanguageModelData, Models, PluginData, TranslatorPluginSettings} from "../../types";
 	import {TRANSLATION_SERVICES_INFO} from "../../constants";
 	import ISO6391 from "iso-639-1";
 
@@ -82,9 +82,10 @@
 
 		if (!plugin.detector) {
 			if ($settings.service_settings.fasttext.default_usage || service_observer === 'bergamot') {
-				if ($data.models.fasttext) {
+				if ($data.models?.fasttext) {
 					plugin.detector = new FastTextDetector(plugin);
 				} else {
+					// TODO: Error message probably doesn't make sense here
 					plugin.message_queue("FastText is not installed")
 				}
 			}
@@ -108,13 +109,12 @@
 			plugin.translator = new LibreTranslate(host_observer);
 		else if (service_observer === "bergamot") {
 			plugin.translator = new BergamotTranslate(plugin.detector, plugin,
-				$data.models.bergamot,
-				$settings.storage_path);
+													  $data.models?.bergamot, $settings.storage_path);
 		} else
 			plugin.translator = new DummyTranslate();
 
-		plugin.translator.valid = valid && plugin.translator.valid;
-		$data.has_autodetect_capability = plugin.translator.has_autodetect_capability();
+		plugin.translator.valid = valid && plugin.translator?.valid;
+		$data.has_autodetect_capability = plugin.translator?.has_autodetect_capability() === true;
 
 		plugin.translator.failure_count_watcher.subscribe(failure_count => {
 			if (failure_count >= 10) {
@@ -128,9 +128,7 @@
 	function getLocales(locales: Array<DownloadableModel> | Array<string>) {
 		if (locales && locales[0] instanceof Object)
 			// English is the pivot language
-			return ['en'].concat(Array.from(locales).map((model: DownloadableModel) => {
-				return model.locale
-			}));
+			return ['en'].concat(Array.from(locales).map((model: DownloadableModel) => { return model.locale; }));
 		else
 			return locales;
 	}

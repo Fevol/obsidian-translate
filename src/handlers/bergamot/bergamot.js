@@ -17,7 +17,7 @@ let engineWasmLocalPath;
  */
 class Bergamot {
 
-	constructor(available_models, path) {
+	constructor(available_models = {}, path) {
 		this.available_models = available_models;
 		this.path = path;
 
@@ -127,19 +127,21 @@ class Bergamot {
 			const target_language = from === 'en' ? to : from;
 			const is_from = from === target_language;
 
-			let model = this.available_models.find((other) => {
-				return other.locale === target_language;
-			});
+			let model = this.available_models.models.find((x) => x.locale === target_language);
 
 			if (!model)
 				throw "Model was not found"
 
-			let data = model.files[is_from ? 'from' : 'to'];
-			// TODO: What is quality estimation and where is it used?
-			let has_quality_estimation = data.qualityModel;
+			let data = model.files.filter((x) => x.usage === 'both' || x.usage === (is_from ? "from" : "to"));
 
-			// Gotten from firefox-translations/backgroundScript.js/GetLanguageModels
-			let precision = data.model.endsWith("intgemm8.bin") ? "int8shiftAll" : "int8shiftAlphaAll";
+			let quality_model = data.find((x) => x.name.startsWith("qualityModel"));
+			let language_model = data.find((x) => x.name.startsWith("model"));
+
+			// TODO: What is quality estimation and where is it used?
+			let has_quality_estimation = quality_model !== null;
+
+			// Taken from firefox-translations/backgroundScript.js/GetLanguageModels
+			let precision = language_model.name.endsWith("intgemm8.bin") ? "int8shiftAll" : "int8shiftAlphaAll";
 
 
 			/*
@@ -163,19 +165,25 @@ class Bergamot {
             alignment: soft
             `;
 
-			const alignedModelMemory = await this.loadBinary(target_language, data.model, 'model');
-			const alignedShortlistMemory = await this.loadBinary(target_language, data.lex, 'lex');
+			let lex_model = data.find((x) => x.name.startsWith("lex"));
+			let vocab_model = data.find((x) => x.name.startsWith("vocab"));
+
+			const alignedModelMemory = await this.loadBinary(target_language, language_model.name, 'model');
+			const alignedShortlistMemory = await this.loadBinary(target_language, lex_model.name, 'lex');
 			let alignedVocabMemoryList = new this.WasmEngineModule.AlignedMemoryList();
-			if (data.vocab !== undefined)
-				alignedVocabMemoryList.push_back(await this.loadBinary(target_language, data.vocab, 'vocab'));
+			if (vocab_model)
+				alignedVocabMemoryList.push_back(await this.loadBinary(target_language, vocab_model.name, 'vocab'));
 			else {
-				alignedVocabMemoryList.push_back(await this.loadBinary(target_language, data.srcvocab, 'srcvocab'));
-				alignedVocabMemoryList.push_back(await this.loadBinary(target_language, data.trgvocab, 'trgvocab'));
+				let src_vocab_model = data.find((x) => x.name.startsWith("srcvocab"));
+				let trg_vocab_model = data.find((x) => x.name.startsWith("trgvocab"));
+
+				alignedVocabMemoryList.push_back(await this.loadBinary(target_language, src_vocab_model.name, 'srcvocab'));
+				alignedVocabMemoryList.push_back(await this.loadBinary(target_language, trg_vocab_model.name, 'trgvocab'));
 			}
 
 			let alignedQEMemory = null;
-			if (data.qualityModel !== undefined) {
-				alignedQEMemory = await this.loadBinary(target_language, data.qualityModel, 'qualityModel');
+			if (quality_model) {
+				alignedQEMemory = await this.loadBinary(target_language, quality_model.name, 'qualityModel');
 			}
 
 			// Merge all data and generate Model

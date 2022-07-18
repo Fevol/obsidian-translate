@@ -50,11 +50,8 @@ export default class TranslatorPlugin extends Plugin {
 			new Notice(text, timeout);
 		});
 
-		this.plugin_data = writable<PluginData>();
-		this.plugin_data.set(Object.assign({}, DEFAULT_DATA, {models: JSON.parse(localStorage.getItem('models'))}));
-
-		let settings: TranslatorPluginSettings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData());
-		this.settings = writable<TranslatorPluginSettings>(settings);
+		this.plugin_data = writable<PluginData>(Object.assign({}, DEFAULT_DATA, {models:  JSON.parse(localStorage.getItem('models')) || {}}));
+		this.settings = writable<TranslatorPluginSettings>(Object.assign({}, DEFAULT_SETTINGS, await this.loadData()));
 
 		// Save all settings on update of this.settings
 		this.register(this.settings.subscribe((data) => {
@@ -159,44 +156,46 @@ export default class TranslatorPlugin extends Plugin {
 		this.registerEvent(
 			this.app.workspace.on("editor-menu", (menu, editor) => {
 
-				menu.addItem((item) => {
-					item.setTitle("Translate")
-						.setIcon("translate")
-						.onClick(async () => {
-							// Keep the dropdown open
+				if (this.translator && this.translator.valid) {
+					menu.addItem((item) => {
+						item.setTitle("Translate")
+							.setIcon("translate")
+							.onClick(async () => {
+								// Keep the dropdown open
+							});
+
+						if (requireApiVersion("0.15.3"))
+							item.setSection("translate")
+
+						const element = (item as any).dom as HTMLElement;
+						element.classList.add("translator-dropdown")
+						let dropdown_icon = element.createEl("span", {cls: "translator-dropdown-logo"})
+						setIcon(dropdown_icon, "chevron-right");
+
+						let data = get(this.plugin_data);
+						let dropdown_menu = element.createEl("div", {cls: "menu translator-dropdown-menu"});
+
+
+						// TODO: Sveltelize this?
+
+						let dropdown_menu_items = Array.from(data.available_languages).map((locale) => {
+							return [locale, data.all_languages.get(locale)];
+						}).sort((a, b) => {
+							return a[1].localeCompare(b[1])
 						});
 
-					if (requireApiVersion("0.15.3"))
-						item.setSection("translate")
-
-					const element = (item as any).dom as HTMLElement;
-					element.classList.add("translator-dropdown")
-					let dropdown_icon = element.createEl("span", {cls: "translator-dropdown-logo"})
-					setIcon(dropdown_icon, "chevron-right");
-
-					let data = get(this.plugin_data);
-					let dropdown_menu = element.createEl("div", {cls: "menu translator-dropdown-menu"});
+						for (let [locale, name] of dropdown_menu_items) {
+							let dropdown_item = dropdown_menu.createEl("div", {cls: "menu-item", text: name});
+							this.registerDomEvent(dropdown_item, "click", async () => {
+								await translate_selection(this, editor, locale);
+							});
+						}
 
 
-					// TODO: Sveltelize this?
-
-					let dropdown_menu_items = Array.from(data.available_languages).map((locale) => {
-						return [locale, data.all_languages.get(locale)];
-					}).sort((a, b) => {
-						return a[1].localeCompare(b[1])
 					});
+				}
 
-					for (let [locale, name] of dropdown_menu_items) {
-						let dropdown_item = dropdown_menu.createEl("div", {cls: "menu-item", text: name});
-						this.registerDomEvent(dropdown_item, "click", async () => {
-							await translate_selection(this, editor, locale);
-						});
-					}
-
-
-				});
-
-				if (this.translator.has_autodetect_capability()) {
+				if (this.translator?.has_autodetect_capability()) {
 					menu.addItem((item) => {
 						item.setTitle("Detect Language")
 							.setIcon("detect-selection")

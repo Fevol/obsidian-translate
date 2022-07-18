@@ -2,7 +2,7 @@ import type TranslatorPlugin from "../main";
 import {DummyTranslate} from "./dummy-translate";
 import type {
 	DetectionResult, ValidationResult, TranslationResult, LanguagesFetchResult,
-	DownloadableModel, ModelDatasets, TranslatorPluginSettings, Models, ModelData, ModelFileData, FileData,
+	TranslatorPluginSettings, ModelFileData, LanguageModelData, FileData,
 } from "../types";
 
 import {Bergamot} from "./bergamot/bergamot";
@@ -28,7 +28,7 @@ export class BergamotTranslate extends DummyTranslate {
 			try {
 				this.translator = new Bergamot(available_models, path);
 				this.translator.loadTranslationEngine();
-				this.available_languages = ["en"].concat(available_models.files.map((model: FileData) => model.name));
+				this.available_languages = ["en"].concat(available_models.models.map((x) => x.locale));
 			} catch (e) {
 				this.plugin.message_queue(`Error while loading Bergamot: ${e.message}`);
 				this.translator = null;
@@ -55,20 +55,25 @@ export class BergamotTranslate extends DummyTranslate {
 
 		let settings: TranslatorPluginSettings = get(this.plugin.settings);
 
+
 		// @ts-ignore (find complains that available_languages consists of two different types - only one type will be possible though)
-		let language_data: ModelDatasets = settings.service_settings.bergamot.available_languages.find((x: DownloadableModel) => x.locale === selected_language).files[is_from ? "from" : "to"];
+		let language_data: Array<FileData> = settings.service_settings.bergamot.available_languages.find((x: LanguageModelData) => x.locale === selected_language).files;
+		language_data = language_data.filter((x) => x.usage === 'both' || x.usage === (is_from ? "from" : "to"));
+
 		const base_path = `.obsidian/${settings.storage_path}/bergamot/${selected_language}/`;
 
-		let modelBuffer = await app.vault.adapter.readBinary(`${base_path}/${language_data.model}`);
-		let shortListBuffer = await app.vault.adapter.readBinary(`${base_path}/${language_data.lex}`);
-		let downloadedVocabBuffers = [];
-		if (language_data.vocab !== undefined) {
-			downloadedVocabBuffers = [await app.vault.adapter.readBinary(`${base_path}/${language_data.vocab}`)];
-		} else {
-			downloadedVocabBuffers = [await app.vault.adapter.readBinary(`${base_path}/${language_data.trgvocab}`),
-				await app.vault.adapter.readBinary(`${base_path}/${language_data.srcvocab}`)];
-		}
-		return [modelBuffer, shortListBuffer, downloadedVocabBuffers];
+		console.log(language_data);
+
+		// let modelBuffer = await app.vault.adapter.readBinary(`${base_path}/${language_data.model}`);
+		// let shortListBuffer = await app.vault.adapter.readBinary(`${base_path}/${language_data.lex}`);
+		// let downloadedVocabBuffers = [];
+		// if (language_data.vocab !== undefined) {
+		// 	downloadedVocabBuffers = [await app.vault.adapter.readBinary(`${base_path}/${language_data.vocab}`)];
+		// } else {
+		// 	downloadedVocabBuffers = [await app.vault.adapter.readBinary(`${base_path}/${language_data.trgvocab}`),
+		// 		await app.vault.adapter.readBinary(`${base_path}/${language_data.srcvocab}`)];
+		// }
+		// return [modelBuffer, shortListBuffer, downloadedVocabBuffers];
 	}
 
 
@@ -116,24 +121,30 @@ export class BergamotTranslate extends DummyTranslate {
 		let registry = response.json;
 
 		let available_languages = Object.keys(registry).filter(x => x.startsWith("en"));
-		let mapped_languages: Array<DownloadableModel> = available_languages.map(x => {
-			let lang = x.substring(2, 4);
+		let mapped_languages: Array<LanguageModelData> = available_languages.map(x => {
+			const lang = x.substring(2, 4);
 
-			let files_from_size = Object.values(registry[`${lang}en`]).reduce((a: any, b: any) => a + b.size, 0) as number;
-			let files_to_size = Object.values(registry[`en${lang}`]).reduce((a: any, b: any) => a + b.size, 0) as number;
+			let duplicates = Object.values(registry[`${lang}en`]).map((x: any) => x.name)
+				     .concat(Object.values(registry[`en${lang}`]).map((x: any) => x.name))
+				.filter((e: any, i: any, a: any) => a.indexOf(e) !== i);
 
-			let models_from_files: [any, any][] = Object.keys(registry[`${lang}en`]).map((x: any) => [x, registry[`${lang}en`][x].name]);
-			let models_to_files: [any, any][] = Object.keys(registry[`en${lang}`]).map((x: any) => [x, registry[`en${lang}`][x].name]);
+			const models_from = Object.values(registry[`${lang}en`]).map((x: any) => {
+				return { name: x.name, size: x.size as number, usage: duplicates.contains(x.name) ? "both" : "from" }
+			});
+			const models_to = Object.values(registry[`en${lang}`])
+				.filter((x: any) => !duplicates.includes(x.name))
+				.map((x: any) => {
+					return { name: x.name, size: x.size as number, usage: duplicates.contains(x.name) ? "both" : "to"  }
+				});
+
+			let files = models_from.concat(models_to);
 
 			return {
-				files: {
-					from: Object.fromEntries(models_from_files),
-					to: Object.fromEntries(models_to_files),
-				},
-				locale: lang,
-				size: files_from_size + files_to_size,
-				development: registry[`en${lang}`].lex.modelType === 'dev',
-			}
+					size: files.reduce((acc, x) => acc + x.size, 0),
+					locale: lang,
+					files: models_from.concat(models_to),
+					dev: registry[`en${lang}`].lex.modelType === 'dev',
+			};
 		});
 		return {languages: mapped_languages, data: version};
 	}

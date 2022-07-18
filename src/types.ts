@@ -48,33 +48,13 @@ export interface APIServiceProviders {
 	fasttext: FastTextData;
 }
 
-export interface ModelDatasets {
-	model?: string;
-	lex?: string;
-	vocab?: string;
-	trgvocab?: string;
-	srcvocab?: string;
-}
-
-export interface ModelData {
-	from: ModelDatasets;
-	to: ModelDatasets;
-}
-
-export interface DownloadableModel {
-	locale: string;
-	size: number;
-	development: boolean;
-	files: ModelData;
-}
-
 export interface APIServiceSettings {
 	// What languages did the user select? (locale codes)
 	selected_languages: Array<any>;
 	// What languages are available for *this translation service* (locale codes)
-	available_languages: Array<string> | Array<DownloadableModel>;
+	available_languages: Array<string> | Array<LanguageModelData>;
 
-	downloadable_models?: Array<DownloadableModel>;
+	downloadable_models?: Array<LanguageModelData>;
 	version?: string;
 
 	// Which languages get shown in the translation view selection box
@@ -98,14 +78,20 @@ export interface APIServiceSettings {
 
 export interface FileData {
 	name: string;
-	// Sizes are kept for versioning
-	// TODO: Check if hashes or version numbers could be kept here
-	size: string;
+	size: number;
+	usage?: string;
+}
+
+export interface LanguageModelData {
+	locale?: string;
+	files?: Array<FileData>;
+	dev?: boolean;
+	size?: number;
 }
 
 export interface ModelFileData {
-	files?: Array<FileData>;
-	size: string;
+	binary?: FileData;
+	models?: Array<LanguageModelData>;
 }
 
 export interface Models {
@@ -130,7 +116,7 @@ export interface ValidationResult {
 }
 
 export interface LanguagesFetchResult {
-	languages?: Array<string> | Array<DownloadableModel>;
+	languages?: Array<string> | Array<LanguageModelData>;
 	message?: string;
 	data?: string;
 }

@@ -3,7 +3,6 @@ import {DummyTranslate} from "./dummy-translate";
 import type {
 	DetectionResult,
 	ValidationResult,
-	DownloadableModel
 } from "../types";
 import {FastText, FastTextModel, addOnPostRun} from "./fasttext/fasttext";
 

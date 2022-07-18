@@ -133,210 +133,443 @@ export const DEFAULT_SETTINGS: TranslatorPluginSettings = {
 			version: "0.3.1",
 			downloadable_models: [
 				{
-					"files": {
-						"from": {
-							"model": "model.bgen.intgemm.alphas.bin",
-							"lex": "lex.50.50.bgen.s2t.bin",
-							"vocab": "vocab.bgen.spm"
-						},
-						"to": {
-							"model": "model.enbg.intgemm.alphas.bin",
-							"lex": "lex.50.50.enbg.s2t.bin",
-							"vocab": "vocab.bgen.spm"
-						}
-					},
+					"size": 46992539,
 					"locale": "bg",
-					"size": 47912284,
-					"development": false
+					"files": [
+						{
+							"name": "model.bgen.intgemm.alphas.bin",
+							"size": 17140899,
+							"usage": "from"
+						},
+						{
+							"name": "lex.50.50.bgen.s2t.bin",
+							"size": 6182512,
+							"usage": "from"
+						},
+						{
+							"name": "vocab.bgen.spm",
+							"size": 920621,
+							"usage": "both"
+						},
+						{
+							"name": "model.enbg.intgemm.alphas.bin",
+							"size": 17140899,
+							"usage": "to"
+						},
+						{
+							"name": "lex.50.50.enbg.s2t.bin",
+							"size": 5607608,
+							"usage": "to"
+						}
+					],
+					"dev": false
 				},
 				{
-					"files": {
-						"from": {
-							"model": "model.csen.intgemm.alphas.bin",
-							"lex": "lex.50.50.csen.s2t.bin",
-							"vocab": "vocab.csen.spm"
-						},
-						"to": {
-							"model": "model.encs.intgemm.alphas.bin",
-							"lex": "lex.50.50.encs.s2t.bin",
-							"vocab": "vocab.csen.spm",
-						}
-					},
+					"size": 43143255,
 					"locale": "cs",
-					"size": 43913018,
-					"development": false
+					"files": [
+						{
+							"name": "model.csen.intgemm.alphas.bin",
+							"size": 17140756,
+							"usage": "from"
+						},
+						{
+							"name": "lex.50.50.csen.s2t.bin",
+							"size": 4535788,
+							"usage": "from"
+						},
+						{
+							"name": "vocab.csen.spm",
+							"size": 769763,
+							"usage": "both"
+						},
+						{
+							"name": "model.encs.intgemm.alphas.bin",
+							"size": 17140756,
+							"usage": "to"
+						},
+						{
+							"name": "lex.50.50.encs.s2t.bin",
+							"size": 3556124,
+							"usage": "to"
+						},
+						{
+							"name": "qualityModel.encs.bin",
+							"size": 68,
+							"usage": "to"
+						}
+					],
+					"dev": false
 				},
 				{
-					"files": {
-						"from": {
-							"model": "model.deen.intgemm.alphas.bin",
-							"lex": "lex.50.50.deen.s2t.bin",
-							"vocab": "vocab.deen.spm"
-						},
-						"to": {
-							"model": "model.ende.intgemm.alphas.bin",
-							"lex": "lex.50.50.ende.s2t.bin",
-							"vocab": "vocab.deen.spm"
-						}
-					},
+					"size": 44057153,
 					"locale": "de",
-					"size": 44841422,
-					"development": false
+					"files": [
+						{
+							"name": "model.deen.intgemm.alphas.bin",
+							"size": 17140837,
+							"usage": "from"
+						},
+						{
+							"name": "lex.50.50.deen.s2t.bin",
+							"size": 5047568,
+							"usage": "from"
+						},
+						{
+							"name": "vocab.deen.spm",
+							"size": 784269,
+							"usage": "both"
+						},
+						{
+							"name": "model.ende.intgemm.alphas.bin",
+							"size": 17140835,
+							"usage": "to"
+						},
+						{
+							"name": "lex.50.50.ende.s2t.bin",
+							"size": 3943644,
+							"usage": "to"
+						}
+					],
+					"dev": false
 				},
 				{
-					"files": {
-						"from": {
-							"model": "model.esen.intgemm.alphas.bin",
-							"lex": "lex.50.50.esen.s2t.bin",
-							"vocab": "vocab.esen.spm"
-						},
-						"to": {
-							"model": "model.enes.intgemm.alphas.bin",
-							"lex": "lex.50.50.enes.s2t.bin",
-							"vocab": "vocab.esen.spm",
-						}
-					},
+					"size": 42315033,
 					"locale": "es",
-					"size": 43140496,
-					"development": false
+					"files": [
+						{
+							"name": "model.esen.intgemm.alphas.bin",
+							"size": 17140755,
+							"usage": "from"
+						},
+						{
+							"name": "lex.50.50.esen.s2t.bin",
+							"size": 3860888,
+							"usage": "from"
+						},
+						{
+							"name": "vocab.esen.spm",
+							"size": 825463,
+							"usage": "both"
+						},
+						{
+							"name": "model.enes.intgemm.alphas.bin",
+							"size": 17140755,
+							"usage": "to"
+						},
+						{
+							"name": "lex.50.50.enes.s2t.bin",
+							"size": 3347104,
+							"usage": "to"
+						},
+						{
+							"name": "qualityModel.enes.bin",
+							"size": 68,
+							"usage": "to"
+						}
+					],
+					"dev": false
 				},
 				{
-					"files": {
-						"from": {
-							"model": "model.eten.intgemm.alphas.bin",
-							"lex": "lex.50.50.eten.s2t.bin",
-							"vocab": "vocab.eten.spm"
-						},
-						"to": {
-							"model": "model.enet.intgemm.alphas.bin",
-							"lex": "lex.50.50.enet.s2t.bin",
-							"vocab": "vocab.eten.spm",
-						}
-					},
+					"size": 41785726,
 					"locale": "et",
-					"size": 42614152,
-					"development": false
+					"files": [
+						{
+							"name": "model.eten.intgemm.alphas.bin",
+							"size": 17140754,
+							"usage": "from"
+						},
+						{
+							"name": "lex.50.50.eten.s2t.bin",
+							"size": 3974944,
+							"usage": "from"
+						},
+						{
+							"name": "vocab.eten.spm",
+							"size": 828426,
+							"usage": "both"
+						},
+						{
+							"name": "model.enet.intgemm.alphas.bin",
+							"size": 17140754,
+							"usage": "to"
+						},
+						{
+							"name": "lex.50.50.enet.s2t.bin",
+							"size": 2700780,
+							"usage": "to"
+						},
+						{
+							"name": "qualityModel.enet.bin",
+							"size": 68,
+							"usage": "to"
+						}
+					],
+					"dev": false
 				},
 				{
-					"files": {
-						"from": {
-							"model": "model.fren.intgemm.alphas.bin",
-							"lex": "lex.50.50.fren.s2t.bin",
-							"vocab": "vocab.fren.spm"
-						},
-						"to": {
-							"model": "model.enfr.intgemm.alphas.bin",
-							"lex": "lex.50.50.enfr.s2t.bin",
-							"vocab": "vocab.fren.spm"
-						}
-					},
+					"size": 51818572,
 					"locale": "fr",
-					"size": 52649954,
-					"development": false
+					"files": [
+						{
+							"name": "model.fren.intgemm.alphas.bin",
+							"size": 17140961,
+							"usage": "from"
+						},
+						{
+							"name": "lex.50.50.fren.s2t.bin",
+							"size": 8818768,
+							"usage": "from"
+						},
+						{
+							"name": "vocab.fren.spm",
+							"size": 831382,
+							"usage": "both"
+						},
+						{
+							"name": "model.enfr.intgemm.alphas.bin",
+							"size": 17140961,
+							"usage": "to"
+						},
+						{
+							"name": "lex.50.50.enfr.s2t.bin",
+							"size": 7886500,
+							"usage": "to"
+						}
+					],
+					"dev": false
 				},
 				{
-					"files": {
-						"from": {
-							"model": "model.iten.intgemm.alphas.bin",
-							"lex": "lex.50.50.iten.s2t.bin",
-							"vocab": "vocab.iten.spm"
-						},
-						"to": {
-							"model": "model.enit.intgemm.alphas.bin",
-							"lex": "lex.50.50.enit.s2t.bin",
-							"vocab": "vocab.enit.spm"
-						}
-					},
-					"locale": "it",
 					"size": 45379864,
-					"development": false
+					"locale": "it",
+					"files": [
+						{
+							"name": "model.iten.intgemm.alphas.bin",
+							"size": 17140899,
+							"usage": "from"
+						},
+						{
+							"name": "lex.50.50.iten.s2t.bin",
+							"size": 4977500,
+							"usage": "from"
+						},
+						{
+							"name": "vocab.iten.spm",
+							"size": 812781,
+							"usage": "from"
+						},
+						{
+							"name": "model.enit.intgemm.alphas.bin",
+							"size": 17140899,
+							"usage": "to"
+						},
+						{
+							"name": "lex.50.50.enit.s2t.bin",
+							"size": 4495004,
+							"usage": "to"
+						},
+						{
+							"name": "vocab.enit.spm",
+							"size": 812781,
+							"usage": "to"
+						}
+					],
+					"dev": false
 				},
 				{
-					"files": {
-						"from": {
-							"model": "model.plen.intgemm.alphas.bin",
-							"lex": "lex.50.50.plen.s2t.bin",
-							"vocab": "vocab.plen.spm"
-						},
-						"to": {
-							"model": "model.enpl.intgemm.alphas.bin",
-							"lex": "lex.50.50.enpl.s2t.bin",
-							"vocab": "vocab.enpl.spm"
-						}
-					},
-					"locale": "pl",
 					"size": 44467108,
-					"development": false
+					"locale": "pl",
+					"files": [
+						{
+							"name": "model.plen.intgemm.alphas.bin",
+							"size": 17140899,
+							"usage": "from"
+						},
+						{
+							"name": "lex.50.50.plen.s2t.bin",
+							"size": 4898024,
+							"usage": "from"
+						},
+						{
+							"name": "vocab.plen.spm",
+							"size": 822587,
+							"usage": "from"
+						},
+						{
+							"name": "model.enpl.intgemm.alphas.bin",
+							"size": 17140899,
+							"usage": "to"
+						},
+						{
+							"name": "lex.50.50.enpl.s2t.bin",
+							"size": 3642112,
+							"usage": "to"
+						},
+						{
+							"name": "vocab.enpl.spm",
+							"size": 822587,
+							"usage": "to"
+						}
+					],
+					"dev": false
 				},
 				{
-					"files": {
-						"from": {
-							"model": "model.pten.intgemm.alphas.bin",
-							"lex": "lex.50.50.pten.s2t.bin",
-							"vocab": "vocab.pten.spm"
-						},
-						"to": {
-							"model": "model.enpt.intgemm.alphas.bin",
-							"lex": "lex.50.50.enpt.s2t.bin",
-							"vocab": "vocab.enpt.spm"
-						}
-					},
-					"locale": "pt",
 					"size": 45063626,
-					"development": false
+					"locale": "pt",
+					"files": [
+						{
+							"name": "model.pten.intgemm.alphas.bin",
+							"size": 17140899,
+							"usage": "from"
+						},
+						{
+							"name": "lex.50.50.pten.s2t.bin",
+							"size": 4801740,
+							"usage": "from"
+						},
+						{
+							"name": "vocab.pten.spm",
+							"size": 817234,
+							"usage": "from"
+						},
+						{
+							"name": "model.enpt.intgemm.alphas.bin",
+							"size": 17140899,
+							"usage": "to"
+						},
+						{
+							"name": "lex.50.50.enpt.s2t.bin",
+							"size": 4345620,
+							"usage": "to"
+						},
+						{
+							"name": "vocab.enpt.spm",
+							"size": 817234,
+							"usage": "to"
+						}
+					],
+					"dev": false
 				},
 				{
-					"files": {
-						"from": {
-							"model": "model.faen.intgemm.alphas.bin",
-							"lex": "lex.50.50.faen.s2t.bin",
-							"vocab": "vocab.faen.spm"
-						},
-						"to": {
-							"model": "model.enfa.intgemm.alphas.bin",
-							"lex": "lex.50.50.enfa.s2t.bin",
-							"vocab": "vocab.enfa.spm"
-						}
-					},
-					"locale": "fa",
 					"size": 47215849,
-					"development": true
+					"locale": "fa",
+					"files": [
+						{
+							"name": "model.faen.intgemm.alphas.bin",
+							"size": 17140837,
+							"usage": "from"
+						},
+						{
+							"name": "lex.50.50.faen.s2t.bin",
+							"size": 6197320,
+							"usage": "from"
+						},
+						{
+							"name": "vocab.faen.spm",
+							"size": 845020,
+							"usage": "from"
+						},
+						{
+							"name": "model.enfa.intgemm.alphas.bin",
+							"size": 17140835,
+							"usage": "to"
+						},
+						{
+							"name": "lex.50.50.enfa.s2t.bin",
+							"size": 5097656,
+							"usage": "to"
+						},
+						{
+							"name": "vocab.enfa.spm",
+							"size": 794181,
+							"usage": "to"
+						}
+					],
+					"dev": true
 				},
 				{
-					"files": {
-						"from": {
-							"model": "model.ruen.intgemm.alphas.bin",
-							"lex": "lex.50.50.ruen.s2t.bin",
-							"vocab": "vocab.ruen.spm"
-						},
-						"to": {
-							"model": "model.enru.intgemm.alphas.bin",
-							"lex": "lex.50.50.enru.s2t.bin",
-							"vocab": "vocab.enru.spm"
-						}
-					},
-					"locale": "ru",
 					"size": 44295337,
-					"development": true
+					"locale": "ru",
+					"files": [
+						{
+							"name": "model.ruen.intgemm.alphas.bin",
+							"size": 17140836,
+							"usage": "from"
+						},
+						{
+							"name": "lex.50.50.ruen.s2t.bin",
+							"size": 5090836,
+							"usage": "from"
+						},
+						{
+							"name": "vocab.ruen.spm",
+							"size": 936576,
+							"usage": "from"
+						},
+						{
+							"name": "model.enru.intgemm.alphas.bin",
+							"size": 17140836,
+							"usage": "to"
+						},
+						{
+							"name": "lex.50.50.enru.s2t.bin",
+							"size": 3049096,
+							"usage": "to"
+						},
+						{
+							"name": "vocab.enru.spm",
+							"size": 937157,
+							"usage": "to"
+						}
+					],
+					"dev": true
 				},
 				{
-					"files": {
-						"from": {
-							"model": "model.uken.intgemm8.bin",
-							"lex": "lex.uken.s2t.bin",
-							"srcvocab": "srcvocab.uken.spm",
-							"trgvocab": "trgvocab.uken.spm"
-						},
-						"to": {
-							"model": "model.enuk.intgemm8.bin",
-							"lex": "lex.enuk.s2t.bin",
-							"trgvocab": "trgvocab.enuk.spm",
-							"srcvocab": "srcvocab.enuk.spm"
-						}
-					},
-					"locale": "uk",
 					"size": 74267492,
-					"development": true
+					"locale": "uk",
+					"files": [
+						{
+							"name": "model.uken.intgemm8.bin",
+							"size": 25315747,
+							"usage": "from"
+						},
+						{
+							"name": "lex.uken.s2t.bin",
+							"size": 9761460,
+							"usage": "from"
+						},
+						{
+							"name": "srcvocab.uken.spm",
+							"size": 984214,
+							"usage": "from"
+						},
+						{
+							"name": "trgvocab.uken.spm",
+							"size": 803064,
+							"usage": "from"
+						},
+						{
+							"name": "model.enuk.intgemm8.bin",
+							"size": 25315747,
+							"usage": "to"
+						},
+						{
+							"name": "lex.enuk.s2t.bin",
+							"size": 10294724,
+							"usage": "to"
+						},
+						{
+							"name": "trgvocab.enuk.spm",
+							"size": 1003426,
+							"usage": "to"
+						},
+						{
+							"name": "srcvocab.enuk.spm",
+							"size": 789110,
+							"usage": "to"
+						}
+					],
+					"dev": true
 				}
 			]
 		}
