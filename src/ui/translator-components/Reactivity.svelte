@@ -252,6 +252,14 @@
 	$: available_languages_observer, updateAvailableLanguages(), updateLanguageNames();
 	$: display_language_observer, updateLanguageNames();
 
+	function updateSpellcheckerLanguages() {
+		$data.spellchecker_languages = [...new Set(app.vault.config.spellcheckLanguages.map((x) => {
+			return x.split('-')[0];
+		}))]
+		if (filter_type_observer === 1)
+			filterLanguages();
+	}
+
 	onMount(() => {
 		// There is currently no way to catch when the display language of Obsidian is being changed, as it is not reactive
 		// So 'display languages' setting will only be applied correctly when the program is fully restarted or when
@@ -259,13 +267,15 @@
 		$data.current_language = plugin.fixLanguageCode(moment.locale());
 
 		// @ts-ignore (Config exists in vault)
-		if (app.vault.config.spellcheckLanguages) {
-			$data.spellchecker_languages = [...new Set(app.vault.config.spellcheckLanguages.map((x) => {
-				return x.split('-')[0];
-			}))]
-			if (filter_type_observer === 1)
-				filterLanguages();
-		}
+		if (app.vault.config.spellcheckLanguages)
+			updateSpellcheckerLanguages();
+
+		// This is not an ideal solution, but will be less confusing for the user in the end
+		//@ts-ignore (config-changed event exists)
+		plugin.registerEvent(app.vault.on('config-changed', (e: any) => {
+			updateSpellcheckerLanguages();
+		}));
+
 
 		if ($data.spellchecker_languages.length) {
 			for (let service in $settings.service_settings) {

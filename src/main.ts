@@ -175,7 +175,6 @@ export default class TranslatorPlugin extends Plugin {
 						let data = get(this.plugin_data);
 						let dropdown_menu = element.createEl("div", {cls: "menu translator-dropdown-menu"});
 
-
 						// TODO: Sveltelize this?
 
 						let dropdown_menu_items = Array.from(data.available_languages).map((locale) => {
