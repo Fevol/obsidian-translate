@@ -130,7 +130,7 @@ export const DEFAULT_SETTINGS: TranslatorPluginSettings = {
 			auto_translate: false,
 			auto_translate_interval: 500,
 			available_languages: [],
-			version: "0.3.1",
+			version: "0.3.2",
 			downloadable_models: [
 				{
 					"size": 46992539,

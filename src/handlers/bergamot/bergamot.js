@@ -16,6 +16,9 @@ let engineWasmLocalPath;
  * their states of operation
  */
 class Bergamot {
+	available_models = {};
+	path = "";
+
 
 	constructor(available_models = {}, path) {
 		this.available_models = available_models;

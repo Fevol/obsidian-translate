@@ -19,6 +19,11 @@ export class BergamotTranslate extends DummyTranslate {
 	plugin: TranslatorPlugin;
 	available_languages: Array<string>;
 
+	update_data(available_models: ModelFileData) {
+		this.available_languages = ["en"].concat(available_models.models.map((x) => x.locale));
+		this.translator.available_models = available_models;
+	}
+
 	constructor(detector: DummyTranslate = null, plugin: TranslatorPlugin, available_models: ModelFileData, path: string) {
 		super();
 		this.plugin = plugin;
@@ -120,18 +125,26 @@ export class BergamotTranslate extends DummyTranslate {
 		response = await requestUrl({url: `${rootURL}/${version}/registry.json`});
 		let registry = response.json;
 
-		let available_languages = Object.keys(registry).filter(x => x.startsWith("en"));
-		let mapped_languages: Array<LanguageModelData> = available_languages.map(x => {
-			const lang = x.substring(2, 4);
 
-			let duplicates = Object.values(registry[`${lang}en`]).map((x: any) => x.name)
-				     .concat(Object.values(registry[`en${lang}`]).map((x: any) => x.name))
+		let all_language_pairs = Object.keys(registry);
+
+		// TODO: Check if Bergamot will add bidirectional translation for all languages
+		//  If not, support one-directional translation (will require additional checks)
+		// Only support languages that support translation in both directions
+		let available_languages = all_language_pairs
+			.filter(x => {return x.startsWith("en")})
+			.map(x => {return x.substring(2)})
+			.filter(x => {return all_language_pairs.includes(`${x}en`)});
+		console.log(available_languages)
+		let mapped_languages: Array<LanguageModelData> = available_languages.map(x => {
+			let duplicates = Object.values(registry[`${x}en`]).map((x: any) => x.name)
+				     .concat(Object.values(registry[`en${x}`]).map((x: any) => x.name))
 				.filter((e: any, i: any, a: any) => a.indexOf(e) !== i);
 
-			const models_from = Object.values(registry[`${lang}en`]).map((x: any) => {
+			const models_from = Object.values(registry[`${x}en`]).map((x: any) => {
 				return { name: x.name, size: x.size as number, usage: duplicates.contains(x.name) ? "both" : "from" }
 			});
-			const models_to = Object.values(registry[`en${lang}`])
+			const models_to = Object.values(registry[`en${x}`])
 				.filter((x: any) => !duplicates.includes(x.name))
 				.map((x: any) => {
 					return { name: x.name, size: x.size as number, usage: duplicates.contains(x.name) ? "both" : "to"  }
@@ -141,9 +154,9 @@ export class BergamotTranslate extends DummyTranslate {
 
 			return {
 					size: files.reduce((acc, x) => acc + x.size, 0),
-					locale: lang,
+					locale: x,
 					files: models_from.concat(models_to),
-					dev: registry[`en${lang}`].lex.modelType === 'dev',
+					dev: registry[`en${x}`].lex.modelType === 'dev',
 			};
 		});
 		return {languages: mapped_languages, data: version};
@@ -152,4 +165,6 @@ export class BergamotTranslate extends DummyTranslate {
 	has_autodetect_capability(): boolean {
 		return this.detector != null;
 	}
+
+
 }

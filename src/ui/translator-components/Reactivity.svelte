@@ -4,14 +4,14 @@
 <script lang="ts">
 
 	import {onMount} from "svelte";
-	import {App, moment} from "obsidian";
+	import {App, moment, Platform} from "obsidian";
 
 	import TranslatorPlugin from "../../main";
 
 	import type {Writable} from "svelte/store";
 
-	import type {DownloadableModel, LanguageModelData, Models, PluginData, TranslatorPluginSettings} from "../../types";
-	import {TRANSLATION_SERVICES_INFO} from "../../constants";
+	import type { PluginData, TranslatorPluginSettings, LanguageModelData} from "../../types";
+	import {setAvailableServices, TRANSLATION_SERVICES_INFO} from "../../constants";
 	import ISO6391 from "iso-639-1";
 
 	import t from "../../l10n";
@@ -25,7 +25,7 @@
 		YandexTranslate,
 		FastTextDetector
 	} from "../../handlers";
-	import {aesGcmDecrypt} from "../../util";
+	import {aesGcmDecrypt, toTitleCase} from "../../util";
 	import {PasswordRequestModal} from "../modals";
 
 
@@ -125,22 +125,18 @@
 		});
 	}
 
-	function getLocales(locales: Array<DownloadableModel> | Array<string>) {
-		if (locales && locales[0] instanceof Object)
-			// English is the pivot language
-			return ['en'].concat(Array.from(locales).map((model: DownloadableModel) => { return model.locale; }));
-		else
-			return locales;
-	}
-
 	// Update selection of available languages for the Translation View
-	function updateAvailableLanguages() {
+	export function updateAvailableLanguages() {
 		if (filter_type_observer === 0) {
-			$data.available_languages = getLocales($settings.service_settings[$settings.translation_service].available_languages);
+			// If translation service is installed (currently only Bergamot), available languages = all installed models
+			if ($settings.translation_service === 'bergamot')
+				$data.available_languages = ['en'].concat($data.models?.bergamot?.models.map((model) => model.locale));
+			else
+				$data.available_languages = $settings.service_settings[$settings.translation_service].available_languages;
 		} else if (filter_type_observer === 1) {
 			$data.available_languages = $data.spellchecker_languages;
 		} else if (filter_type_observer === 2) {
-			$data.available_languages = Array.from($settings.service_settings[$settings.translation_service].available_languages).map((model: DownloadableModel) => {
+			$data.available_languages = Array.from($settings.service_settings[$settings.translation_service].available_languages).map((model) => {
 				return model.locale
 			});
 		}
@@ -149,8 +145,12 @@
 	// Fetch names for locales of translation service (this can not be pre-calculated as the set of available languages
 	// in a service changes constantly)
 	export function updateLanguageNames() {
-		let lang = getLocales($settings.service_settings[$settings.translation_service].downloadable_models)
-			|| $settings.service_settings[$settings.translation_service].available_languages
+		let lang = []
+		if ($settings.translation_service === 'bergamot')
+			lang = ['en'].concat(Array.from($settings.service_settings[$settings.translation_service].downloadable_models)
+				.map((model: LanguageModelData) => { return model.locale; }));
+		else
+			lang = $settings.service_settings[$settings.translation_service].available_languages;
 
 		$data.all_languages =
 			new Map(Array.from(lang.map((locale: string) => {
