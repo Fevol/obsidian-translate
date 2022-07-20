@@ -261,9 +261,6 @@
 	}
 
 	onMount(() => {
-		// There is currently no way to catch when the display language of Obsidian is being changed, as it is not reactive
-		// So 'display languages' setting will only be applied correctly when the program is fully restarted or when
-		// the language display name setting is changed.
 		$data.current_language = plugin.fixLanguageCode(moment.locale());
 
 		// @ts-ignore (Config exists in vault)
@@ -273,7 +270,9 @@
 		// This is not an ideal solution, but will be less confusing for the user in the end
 		//@ts-ignore (config-changed event exists)
 		plugin.registerEvent(app.vault.on('config-changed', (e: any) => {
-			updateSpellcheckerLanguages();
+			// @ts-ignore (Config exists in vault)
+			if (app.vault.config.spellcheckLanguages)
+				updateSpellcheckerLanguages();
 		}));
 
 
@@ -286,6 +285,7 @@
 		}
 
 		// If security mode is 'password', but no password was set on the device, prompt the user to enter the password
+		// 	at startup of plugin, this prompt can also be opened in settings
 		if ($settings.security_setting === 'password') {
 			if (!localStorage.getItem('password')) {
 				new PasswordRequestModal(plugin).open();
@@ -298,7 +298,7 @@
 			}
 		}
 
-		// Remove all services that do not work on mobile
+		// Remove all services that do not work on mobile (both in the settings, as their features)
 		if (Platform.isMobile) {
 			if (TRANSLATION_SERVICES_INFO[$settings.translation_service].desktop_only) {
 				plugin.message_queue(`${toTitleCase($settings.translation_service)} is currently not supported on mobile devices, defaulting to Google Translate`, 5000, true);

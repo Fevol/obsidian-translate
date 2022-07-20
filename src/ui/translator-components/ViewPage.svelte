@@ -259,7 +259,7 @@
 			/>
 		</div>
 		<div class="translator-attribution-column">
-			<div style="display: flex; flex-direction: row; gap: 4px">
+			<div style="display: flex; flex-direction: row; gap: 4px; align-items: start">
 				Using
 				<a href={services[$settings.translation_service].url} class="icon-text translator-service-text">
 					<Icon icon={$settings.translation_service}/>
