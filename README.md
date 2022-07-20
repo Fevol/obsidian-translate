@@ -29,17 +29,17 @@ Afterwards, you can open the Translation View by either accessing the left ribbo
 ## Translation Services
 ### Services overview
 
-| Translation Service     | Supported | Free                                    | Offline Support | Preserves Formatting | Languages | Notes                      |
-|-------------------------|-----------|-----------------------------------------|-----------------|----------------------|-----------|----------------------------|
-| Google Translate        | ✅         | ✅ *(0.5M characters **per month**)* ¹ ² |                 | ✅                    | 109       |                            |
-| Deepl                   | ✅         | ✅  *(0.5M characters **per month**)* ¹  |                 | ✅                    | 28        |                            |
-| Yandex Translate        | ❓         | ✅ *(5M characters)* ¹                   |                 | ❓                    | 93        |                            |
-| Libre Translate         | ✅         | ✅                                       | ✅               | ❌                    | 30        | Can be hosted locally      |
-| Bing Translator (Azure) | ✅         | ✅  *(2M characters **per month**)* ¹    |                 | ✅                    | 111       |                            |
-| Amazon Translate        | ⭕         | ✅  *(2M characters **per month**)* ¹ ³  |                 |                      |           |                            |
-| Bergamot                | ⭕         | ✅                                       | ✅               |                      | 14        | Waiting for stable release |
-| QQ                      | ⭕         |                                         |                 |                      |           |                            |
-| Youdao                  | ⭕         |                                         |                 |                      |           |                            |
+| Translation Service     | Supported | Free                                    | Offline Support | Preserves Formatting | Languages | Notes                    |
+|-------------------------|-----------|-----------------------------------------|-----------------|----------------------|-----------|--------------------------|
+| Google Translate        | ✅         | ✅ *(0.5M characters **per month**)* ¹ ² |                 | ✅                    | 109       |                          |
+| Deepl                   | ✅         | ✅  *(0.5M characters **per month**)* ¹  |                 | ✅                    | 28        |                          |
+| Yandex Translate        | ❓         | ✅ *(5M characters)* ¹                   |                 | ❓                    | 93        |                          |
+| Libre Translate         | ✅         | ✅                                       | ✅               | ❌                    | 30        | Can be hosted locally    |
+| Bing Translator (Azure) | ✅         | ✅  *(2M characters **per month**)* ¹    |                 | ✅                    | 111       |                          |
+| Amazon Translate        | ⭕         | ✅  *(2M characters **per month**)* ¹ ³  |                 |                      |           |                          |
+| Bergamot                | ✅         | ✅                                       | ✅               | ✅                    | 12        | No mobile support (yet?) |
+| QQ                      | ⭕         |                                         |                 |                      |           |                          |
+| Youdao                  | ⭕         |                                         |                 |                      |           |                          |
 
 
 _¹ Requires a valid credit card to sign up for a free API key_<br>
