@@ -45,7 +45,7 @@
 		if (models) {
 			downloadable_models = Array.from(models)
 				.filter(model => {
-					return !$settings.service_settings[$settings.translation_service].available_languages.some((other) => {
+					return !$data.models.bergamot?.models.some((other) => {
 						return other.locale === model.locale;
 					});
 				})
@@ -257,7 +257,8 @@
 
 							plugin.message_queue("Successfully installed Bergamot binary");
 							if (!$data.models.bergamot)
-								$data.models.bergamot = {files: [], size: ''};
+								$data.models.bergamot = {binary: {}, models: []};
+							console.log($data.models.bergamot);
 
 							$data.models.bergamot.binary = {
 								name: 'bergamot-translator-worker.wasm',
@@ -273,9 +274,9 @@
 
 				<SettingItem name="Manage Bergamot models">
 					<div slot="control">
-						<!-- TODO: Remove model -->
+						<!-- TODO: Removal should consider whether model was already removed via FS  -->
 						<ButtonList
-							items={ $settings.service_settings[service].available_languages.map((model) => {
+							items={ $data.models.bergamot?.models.map((model) => {
 								return {
 									'value': model.locale,
 									'text': `${$data.all_languages.get(model.locale)} (${humanFileSize(model.size, false)})${model.development ? ' [DEV]' : ''}`
@@ -283,7 +284,21 @@
 							}) }
 							icon="cross"
 							onClick={async (e) => {
+								const model = $data.models.bergamot.models.find(x => x.locale === e);
 
+								const model_dir = `.obsidian/${$settings.storage_path}/bergamot/${model.locale}/`;
+								if (await app.vault.adapter.exists(model_dir))
+									await app.vault.adapter.rmdir(model_dir, true);
+
+								const model_idx = $data.models.bergamot.models.findIndex(x => x.locale === model.locale);
+
+								$data.models.bergamot.models.splice(model_idx, 1);
+
+
+								plugin.reactivity.updateAvailableLanguages();
+								plugin.translator.update_data($data.models.bergamot);
+
+								plugin.message_queue(`Successfully removed ${t(model.locale)} language model`);
 							}}
 						/>
 						<Dropdown
@@ -293,18 +308,29 @@
 								const model = $settings.service_settings[service].downloadable_models.find(x => x.locale === e.target.value);
 								const rootURL = "https://storage.googleapis.com/bergamot-models-sandbox";
 
+								for (const modelfile of model.files) {
+									const file = await requestUrl({url: `${rootURL}/${$settings.service_settings[service].version}/${modelfile.usage === 'from' ? `${model.locale}en` : `en${model.locale}`}/${modelfile.name}`});
+									if (file.status !== 200) {
+										plugin.message_queue(`Failed to download ${t(model.locale)} language model`);
+										return;
+									}
+									await writeRecursive(`.obsidian/${$settings.storage_path}/bergamot/${model.locale}/${modelfile.name}`, file.arrayBuffer);
+								}
 
 								if (!$data.models.bergamot)
 									$data.models.bergamot = {binary: {}, models: []};
 
-								let model_idx = $data.models.bergamot.models.findIndex(x => x.locale === model.locale);
-								if (model_idx)
+								const model_idx = $data.models.bergamot.models.findIndex(x => x.locale === model.locale);
+								if (model_idx !== -1)
 									$data.models.bergamot.models.splice(model_idx, 1);
-								$data.models.bergamot.models.push(model);
+
+								$data.models.bergamot.models = [...$data.models.bergamot.models, model];
+								plugin.reactivity.updateAvailableLanguages();
+								plugin.translator.update_data($data.models.bergamot);
+
 
 								plugin.message_queue(`Successfully installed ${t(model.locale)} language models`);
 
-								$settings.service_settings[service].available_languages = [...$settings.service_settings[service].available_languages, model];
 							}}
 						/>
 					</div>
@@ -533,7 +559,7 @@
 
 <SettingItem
 	name="Setup local text detection"
-	description="Install FastText language models for local text detection"
+	description="Install FastText language models for local text detection (size: 1.72MiB)"
 	type="button"
 >
 	<!-- Download FastText model and binary -->
