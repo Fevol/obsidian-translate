@@ -16,10 +16,10 @@ export default class TranslateModal extends FuzzySuggestModal<string>{
 		let data = get(plugin.plugin_data);
 
 
-		this.options = Array.from(data.all_languages).map(([locale, name]) => {
+		this.options = Array.from(data.available_languages).map(locale => {
 			return {
 				value: locale,
-				label: name,
+				label: data.all_languages.get(locale),
 			}
 		}).sort((a, b) => {
 			return a.label.localeCompare(b.label)

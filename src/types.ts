@@ -21,8 +21,11 @@ export interface PluginData {
 	all_languages: Map<string, string>;
 	api_key: string;
 
-	// Which languages can be selected for translation (unfiltered)
+	// Which languages can be translated to and from (no filters)
 	available_languages: Array<any>;
+
+	// Which languages can be selected for translation (after filters were applied)
+	filtered_languages: Array<any>;
 
 	// Current spellchecker languages (synced at startup of the plugin)
 	spellchecker_languages: Array<any>;

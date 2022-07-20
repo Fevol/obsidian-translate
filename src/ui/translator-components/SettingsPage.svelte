@@ -32,8 +32,8 @@
 
 	// Update list of languages that can be selected in 'Manually select languages' option
 	$: {
-		selectable_services = Array.from($data.all_languages)
-			.map(([locale, name]) => { return {'value': locale, 'text': name} })
+		selectable_services = $data.available_languages
+			.map(locale => { return {'value': locale, 'text': $data.all_languages.get(locale) } })
 			.filter((option) => { return !$settings.service_settings[$settings.translation_service].selected_languages.contains(option.value); })
 			.sort((a, b) => { return a.text.localeCompare(b.text);});
 		selectable_services.unshift({'value': '', 'text': '+'});
@@ -346,7 +346,7 @@
 				>
 					<div slot="control" transition:slide>
 						<ButtonList
-							items={Array.from($data.available_languages)
+							items={Array.from($data.filtered_languages)
 								.map((locale) => {return {'value': locale, 'text': $data.all_languages.get(locale)};})
 								.sort((a, b) => a.text.localeCompare(b.text))
 							}

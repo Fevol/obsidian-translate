@@ -45,11 +45,11 @@
 
 		// If no language from was specified or the saved language_from is not in the list of available languages
 		// for the translation service, auto-detect language
-		if ($settings.language_from !== 'auto' && !$data.available_languages.contains($settings.language_from)) {
+		if ($settings.language_from !== 'auto' && !$data.filtered_languages.contains($settings.language_from)) {
 			$settings.language_from = 'auto';
 		}
 
-		if (!$data.available_languages.contains($settings.language_to)) {
+		if (!$data.filtered_languages.contains($settings.language_to)) {
 			plugin.message_queue("No language to translate to was selected");
 			return;
 		}
@@ -88,7 +88,7 @@
 
 	// If available_languages changes (list of locales that the user has applied filter on), rebuild the selectable_languages
 	// array, representing all languages that the user can select in the Translation view
-	$: $data.available_languages, selectable_languages = Array.from($data.available_languages)
+	$: $data.filtered_languages, selectable_languages = Array.from($data.filtered_languages)
 		.map((locale) => {const language = $data.all_languages.get(locale);return {'value': locale, 'text': language ? language : locale};})
 		.sort((a, b) => a.text.localeCompare(b.text))
 
@@ -222,7 +222,7 @@
 								[$settings.language_from, $settings.language_to] = [$settings.language_to, $data.detected_language];
 								$data.detected_language = undefined;
 							} else
-								$settings.language_from = $data.available_languages[0];
+								$settings.language_from = $data.filtered_languages[0];
 						} else {
 							[$settings.language_from, $settings.language_to] = [$settings.language_to, $settings.language_from];
 						}

@@ -125,20 +125,24 @@
 		});
 	}
 
-	// Update selection of available languages for the Translation View
 	export function updateAvailableLanguages() {
+		// If translation service is installed (currently only Bergamot), available languages = all installed models
+		if ($settings.translation_service === 'bergamot')
+			$data.available_languages = ['en'].concat($data.models?.bergamot?.models.map((model) => model.locale));
+		else
+			$data.available_languages = $settings.service_settings[$settings.translation_service].available_languages;
+		filterLanguages();
+	}
+
+	// Update selection of available languages for the Translation View
+	export function filterLanguages() {
 		if (filter_type_observer === 0) {
-			// If translation service is installed (currently only Bergamot), available languages = all installed models
-			if ($settings.translation_service === 'bergamot')
-				$data.available_languages = ['en'].concat($data.models?.bergamot?.models.map((model) => model.locale));
-			else
-				$data.available_languages = $settings.service_settings[$settings.translation_service].available_languages;
+			$data.filtered_languages = $data.available_languages;
 		} else if (filter_type_observer === 1) {
-			$data.available_languages = $data.spellchecker_languages;
+			$data.filtered_languages = $data.available_languages.filter(x => $data.spellchecker_languages.includes(x));
 		} else if (filter_type_observer === 2) {
-			$data.available_languages = Array.from($settings.service_settings[$settings.translation_service].available_languages).map((model) => {
-				return model.locale
-			});
+			$data.filtered_languages = $data.available_languages.filter(x =>
+				$settings.service_settings[$settings.translation_service].selected_languages.includes(x));
 		}
 	}
 
@@ -238,7 +242,7 @@
 		}
 	}
 
-	$: filter_type_observer, selected_languages_observer, updateAvailableLanguages();
+	$: filter_type_observer, selected_languages_observer, filterLanguages();
 	$: getAPIKey(security_setting_observer, service_observer).then(x => $data.api_key = x);
 
 
@@ -260,7 +264,7 @@
 				return x.split('-')[0];
 			}))]
 			if (filter_type_observer === 1)
-				updateAvailableLanguages();
+				filterLanguages();
 		}
 
 		if ($data.spellchecker_languages.length) {

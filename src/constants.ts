@@ -22,6 +22,7 @@ export const ICONS = {
 export const DEFAULT_DATA: PluginData = {
 	api_key: "",
 	available_languages: [],
+	filtered_languages: [],
 	all_languages: new Map(),
 	current_language: "",
 	spellchecker_languages: [],
