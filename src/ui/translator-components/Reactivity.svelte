@@ -283,6 +283,15 @@
 					$settings.service_settings[service].validated = null;
 			}
 		}
+
+		// Remove all services that do not work on mobile
+		if (Platform.isMobile) {
+			if (TRANSLATION_SERVICES_INFO[$settings.translation_service].desktop_only) {
+				plugin.message_queue(`${toTitleCase($settings.translation_service)} is currently not supported on mobile devices, defaulting to Google Translate`, 5000, true);
+				$settings.translation_service = 'google_translate';
+			}
+			setAvailableServices(Object.fromEntries(Object.entries(TRANSLATION_SERVICES_INFO).filter(([key, value]) => !value.desktop_only)));
+		}
 	});
 
 </script>

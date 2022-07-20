@@ -575,9 +575,7 @@ export const DEFAULT_SETTINGS: TranslatorPluginSettings = {
 		}
 	},
 }
-
-
-export const TRANSLATION_SERVICES_INFO: { [key: string]: any } = {
+export let TRANSLATION_SERVICES_INFO: { [key: string]: any } = {
 	google_translate: {
 		display_name: "Google Translate",
 		requires_api_key: true,
@@ -678,9 +676,12 @@ export const TRANSLATION_SERVICES_INFO: { [key: string]: any } = {
 	bergamot: {
 		display_name: "Bergamot",
 		url: "https://browser.mt/",
+		desktop_only: true,
 	},
-
 }
+
+export function setAvailableServices(services: any) { TRANSLATION_SERVICES_INFO = services };
+
 
 export const DETECTOR_SERVICES_INFO: { [key: string]: any } = {
 	fasttext: {
