@@ -216,14 +216,19 @@
 <SettingItem
 	name="Model path"
 	description="Determine where in the '.obsidian' folder local models should be stored"
+	notices={[{ type: 'text', text: `⚠ It is not possible to nest this folder`, style: 'warning-text'}] }
 	type="input"
 >
+	<!-- FIXME: Currently the path gets renamed as the user types, probably very heavy on the FS	-->
 	<Input
 		slot="control"
 		val={$settings.storage_path}
-		onChange={(e) => {
-							$settings.storage_path = e.target.value;
-						}}
+		onChange={async (e) => {
+			let path = e.target.value.replace(/[/\\?%*:|"<>]/g, '-');
+			if (await app.vault.adapter.exists(`.obsidian/${$settings.storage_path}`))
+				await app.vault.adapter.rename(`.obsidian/${$settings.storage_path}`, `.obsidian/${path}`);
+			$settings.storage_path = path;
+		}}
 		type="text"
 	/>
 </SettingItem>
