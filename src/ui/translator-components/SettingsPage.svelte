@@ -262,7 +262,6 @@
 								plugin.message_queue("Successfully installed Bergamot binary");
 								if (!$data.models.bergamot)
 									$data.models.bergamot = {binary: {}, models: []};
-								console.log($data.models.bergamot);
 
 								$data.models.bergamot.binary = {
 									name: 'bergamot-translator-worker.wasm',
@@ -335,12 +334,17 @@
 								const rootURL = "https://storage.googleapis.com/bergamot-models-sandbox";
 
 								for (const modelfile of model.files) {
+									const path = `.obsidian/${$settings.storage_path}/bergamot/${model.locale}/${modelfile.name}`;
+									const stats = await app.vault.adapter.stat(path);
+									if (stats && stats.size === modelfile.size)
+										continue;
+
 									const file = await requestUrl({url: `${rootURL}/${$settings.service_settings[service].version}/${modelfile.usage === 'from' ? `${model.locale}en` : `en${model.locale}`}/${modelfile.name}`});
 									if (file.status !== 200) {
 										plugin.message_queue(`Failed to download ${t(model.locale)} language model`);
 										return;
 									}
-									await writeRecursive(`.obsidian/${$settings.storage_path}/bergamot/${model.locale}/${modelfile.name}`, file.arrayBuffer);
+									await writeRecursive(path, file.arrayBuffer);
 								}
 
 								if (!$data.models.bergamot)
