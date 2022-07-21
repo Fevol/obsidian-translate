@@ -710,19 +710,19 @@
 			<button
 				transition:slide
 				on:click={async (e) => {
-									new ConfirmationModal(
-										plugin,
-										"Confirm uninstallation of FastText",
-										"Are you sure you want to uninstall FastText?</div>",
-										async () => {
-											if (await app.vault.adapter.exists(`.obsidian/${$settings.storage_path}/fasttext`))
-												await app.vault.adapter.rmdir(`.obsidian/${$settings.storage_path}/fasttext`, true);
-											$data.models.fasttext = undefined;
-											$data.models = $data.models;
-											plugin.message_queue("Successfully uninstalled FastText");
-										},
-									).open();
-							}}>
+						new ConfirmationModal(
+							plugin,
+							"Confirm uninstallation of FastText",
+							"Are you sure you want to uninstall FastText?</div>",
+							async () => {
+								if (await app.vault.adapter.exists(`.obsidian/${$settings.storage_path}/fasttext`))
+									await app.vault.adapter.rmdir(`.obsidian/${$settings.storage_path}/fasttext`, true);
+								$data.models.fasttext = undefined;
+								$data.models = $data.models;
+								plugin.message_queue("Successfully uninstalled FastText");
+							},
+						).open();
+				}}>
 				Uninstall
 			</button>
 		{/if}
@@ -738,7 +738,8 @@
 		slot="control"
 		value={ $settings.service_settings.fasttext.default_usage }
 		onChange={(val) => {
-						$settings.service_settings.fasttext.default_usage = val;
+			$settings.service_settings.fasttext.default_usage = val;
+			plugin.reactivity.setupLanguageDetector();
 		}}
 	/>
 </SettingItem>

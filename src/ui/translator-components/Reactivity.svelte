@@ -77,16 +77,14 @@
 	$: model_observer = $data.models;
 
 
-	export function setupTranslationService() {
-		let valid = $settings.service_settings[service_observer]?.validated;
-
+	export function setupLanguageDetector() {
 		if (!plugin.detector) {
 			if ($settings.service_settings.fasttext.default_usage || service_observer === 'bergamot') {
 				if ($data.models?.fasttext) {
 					plugin.detector = new FastTextDetector(plugin);
-				} else {
+				} else if (service_observer === 'bergamot') {
 					// TODO: Error message probably doesn't make sense here
-					plugin.message_queue("FastText is not installed")
+					plugin.message_queue("FastText is not installed, automatic detection of language is disabled.");
 				}
 			}
 		} else {
@@ -95,6 +93,12 @@
 				plugin.detector = null;
 			}
 		}
+	}
+
+	export function setupTranslationService() {
+		let valid = $settings.service_settings[service_observer]?.validated;
+
+		setupLanguageDetector();
 
 		// TODO: Check if downloadable models got updated
 		if (service_observer === "google_translate")

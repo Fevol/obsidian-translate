@@ -41,7 +41,7 @@ export class BergamotTranslate extends DummyTranslate {
 				this.valid = false;
 			}
 		} else {
-			this.plugin.message_queue("Bergamot binary was not properly installed");
+			this.plugin.message_queue("Bergamot binary is not installed");
 			this.translator = null;
 			this.valid = false;
 		}
