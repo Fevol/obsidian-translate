@@ -93,6 +93,7 @@ export interface LanguageModelData {
 }
 
 export interface ModelFileData {
+	version?: string;
 	binary?: FileData;
 	models?: Array<LanguageModelData>;
 }

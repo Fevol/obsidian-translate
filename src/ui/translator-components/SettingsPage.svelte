@@ -11,15 +11,14 @@
 	import type {
 		PluginData,
 		TranslatorPluginSettings,
-		LanguageModelData
 	} from "../../types";
-	import {TRANSLATION_SERVICES_INFO, SECURITY_MODES} from "../../constants";
+	import {TRANSLATION_SERVICES_INFO, SECURITY_MODES, DEFAULT_SETTINGS} from "../../constants";
 
 	import {aesGcmDecrypt, aesGcmEncrypt, humanFileSize, toTitleCase} from "../../util";
-	import {requestUrl, TFile} from "obsidian";
+	import {requestUrl} from "obsidian";
 	import t from "../../l10n";
+	import {onMount} from "svelte";
 
-	// export let plugin: TranslatorPlugin;
 	export let plugin: TranslatorPlugin;
 	export let settings: Writable<TranslatorPluginSettings>;
 	export let data: Writable<PluginData>;
@@ -29,6 +28,8 @@
 	let selectable_services: any[];
 	let downloadable_models: any[];
 
+
+	let bergamot_update_available = false;
 
 	// Update list of languages that can be selected in 'Manually select languages' option
 	$: {
@@ -127,6 +128,67 @@
 	}
 
 
+	async function updateBergamot() {
+		let updatable_models = $settings.service_settings.bergamot.downloadable_models.filter(model => {
+			const other = $data.models.bergamot.models.find(x => x.locale === model.locale);
+			return other && model.size !== other.size;
+		})
+
+		// TODO: To my knowledge, it is not possible to check the filesize of a file on Github without downloading it
+		//  but the wasm could change between versions of Bergamot, with older models being incompatible with the newer binary
+		//  or vice versa; plus new features could be introduced (such as support for mobile platforms).
+		//  So to be safe, we will always download the latest version of Bergamot when an update is available.
+		let binary_path = `.obsidian/${$settings.storage_path}/bergamot/bergamot-translator-worker.wasm`
+		let binary_result = await requestUrl({url: "https://github.com/mozilla/firefox-translations/blob/main/extension/model/static/translation/bergamot-translator-worker.wasm?raw=true"});
+		await writeRecursive(binary_path, binary_result.arrayBuffer);
+
+
+
+		const rootURL = "https://storage.googleapis.com/bergamot-models-sandbox";
+
+		let current_models = $data.models.bergamot.models;
+
+		for (let model of updatable_models) {
+			for (let modelfile of model.files) {
+				const path = `.obsidian/${$settings.storage_path}/bergamot/${model.locale}/${modelfile.name}`;
+				const stats = await app.vault.adapter.stat(path);
+				// If file does not exist (new file of model), or filesizes differ (updated file of model), download new version
+				if (!stats || stats.size !== modelfile.size) {
+					const file = await requestUrl({url: `${rootURL}/${$settings.service_settings.bergamot.version}/${modelfile.usage === 'from' ? `${model.locale}en` : `en${model.locale}`}/${modelfile.name}`});
+					if (file.status !== 200) {
+						plugin.message_queue(`Failed to update ${t(model.locale)} language model, aborting update`);
+						return;
+					}
+					await app.vault.adapter.writeBinary(path, file.arrayBuffer);
+				}
+			}
+			const model_index = current_models.findIndex(x => x.locale === model.locale);
+
+			// Remove files that are no longer included in the model
+			let to_remove = current_models[model_index].files.filter(x => !model.files.find(y => y.name === x.name));
+			for (let file of to_remove)
+				await app.vault.adapter.remove(`.obsidian/${$settings.storage_path}/bergamot/${model.locale}/${file.name}`);
+
+			current_models[model_index] = model;
+		}
+		$data.models.bergamot.models = current_models;
+		$data.models.bergamot.version = $settings.service_settings.bergamot.version;
+		bergamot_update_available = false;
+		plugin.message_queue(`Bergamot language models updated successfully`);
+	}
+
+	onMount(() => {
+		if ($settings.translation_service === 'bergamot' && $data.models?.bergamot?.models) {
+			// Iff the version number is larger than both the currently installed version, and the most up-to-date data
+			// 	(stored in data.json), update the downloadable data.
+			if ( $data.models.bergamot.version < DEFAULT_SETTINGS.service_settings.bergamot.version &&
+				 $settings.service_settings.bergamot.version < DEFAULT_SETTINGS.service_settings.bergamot.version) {
+				$settings.service_settings.bergamot.version = DEFAULT_SETTINGS.service_settings.bergamot.version;
+				$settings.service_settings.bergamot.downloadable_models = DEFAULT_SETTINGS.service_settings.bergamot.downloadable_models;
+			}
+			bergamot_update_available = $data.models.bergamot.version < $settings.service_settings.bergamot.version;
+		}
+	});
 
 </script>
 
@@ -251,24 +313,31 @@
 					<div slot="control">
 						<!-- FIXME: WASM location in repo might not be very stable (but would be most up-to-date) -->
 						<button
-							class:translator-success={$data.models?.bergamot}
+							aria-label={bergamot_update_available ? "Bergamot update available": "Install"}
+							class:translator-extra={bergamot_update_available}
+							class:translator-success={!bergamot_update_available && $data.models?.bergamot}
 							class="icon-text"
 							style="justify-content: center; flex: 1;"
 							on:click={async () => {
-								let binary_path = `.obsidian/${$settings.storage_path}/bergamot/bergamot-translator-worker.wasm`
-								let binary_result = await requestUrl({url: "https://github.com/mozilla/firefox-translations/blob/main/extension/model/static/translation/bergamot-translator-worker.wasm?raw=true"});
-								await writeRecursive(binary_path, binary_result.arrayBuffer);
+								if (bergamot_update_available) {
+									await updateBergamot();
+									plugin.reactivity.updateAvailableLanguages();
+									plugin.translator.update_data($data.models.bergamot);
+								} else {
+									let binary_path = `.obsidian/${$settings.storage_path}/bergamot/bergamot-translator-worker.wasm`
+									let binary_result = await requestUrl({url: "https://github.com/mozilla/firefox-translations/blob/main/extension/model/static/translation/bergamot-translator-worker.wasm?raw=true"});
+									await writeRecursive(binary_path, binary_result.arrayBuffer);
 
-								plugin.message_queue("Successfully installed Bergamot binary");
-								if (!$data.models.bergamot)
-									$data.models.bergamot = {binary: {}, models: []};
+									plugin.message_queue("Successfully installed Bergamot binary");
+									if (!$data.models.bergamot)
+										$data.models.bergamot = {binary: {}, models: [], version: $settings.service_settings.bergamot.version};
 
-								$data.models.bergamot.binary = {
-									name: 'bergamot-translator-worker.wasm',
-									size: binary_result.arrayBuffer.byteLength,
+									$data.models.bergamot.binary = {
+										name: 'bergamot-translator-worker.wasm',
+										size: binary_result.arrayBuffer.byteLength,
+									}
+									plugin.reactivity.setupTranslationService();
 								}
-
-								plugin.reactivity.setupTranslationService();
 							}}
 						>
 							<Icon icon={"download"} />
@@ -333,22 +402,23 @@
 								const model = $settings.service_settings[service].downloadable_models.find(x => x.locale === e.target.value);
 								const rootURL = "https://storage.googleapis.com/bergamot-models-sandbox";
 
+								// If there are already models installed, use the same Bergamot version as all other models,
+								// otherwise use the most up-to-date version (given in data.json)
+								const version = $data.models.bergamot.models ? $data.models.bergamot.version : $settings.service_settings.bergamot.version;
+
 								for (const modelfile of model.files) {
 									const path = `.obsidian/${$settings.storage_path}/bergamot/${model.locale}/${modelfile.name}`;
 									const stats = await app.vault.adapter.stat(path);
 									if (stats && stats.size === modelfile.size)
 										continue;
 
-									const file = await requestUrl({url: `${rootURL}/${$settings.service_settings[service].version}/${modelfile.usage === 'from' ? `${model.locale}en` : `en${model.locale}`}/${modelfile.name}`});
+									const file = await requestUrl({url: `${rootURL}/${version}/${modelfile.usage === 'from' ? `${model.locale}en` : `en${model.locale}`}/${modelfile.name}`});
 									if (file.status !== 200) {
 										plugin.message_queue(`Failed to download ${t(model.locale)} language model`);
 										return;
 									}
 									await writeRecursive(path, file.arrayBuffer);
 								}
-
-								if (!$data.models.bergamot)
-									$data.models.bergamot = {binary: {}, models: []};
 
 								const model_idx = $data.models.bergamot.models.findIndex(x => x.locale === model.locale);
 								if (model_idx !== -1)
@@ -567,6 +637,8 @@
 							plugin.message_queue(return_values.message);
 						if (return_values.languages) {
 							if (return_values.data) {
+								if (return_values.data > $data.models.bergamot.version)
+									bergamot_update_available = true;
 								$settings.service_settings[service].downloadable_models = return_values.languages;
 								$settings.service_settings[service].version = return_values.data;
 								plugin.reactivity.updateLanguageNames();
@@ -600,6 +672,7 @@
 			class:translator-success={$data.models?.fasttext}
 			class="icon-text"
 			style="justify-content: center; flex: 1"
+			aria-label="Install"
 			on:click={async () => {
 				let model_path = `.obsidian/${$settings.storage_path}/fasttext/lid.176.ftz`
 				let model_result = await requestUrl({url: "https://dl.fbaipublicfiles.com/fasttext/supervised-models/lid.176.ftz"});

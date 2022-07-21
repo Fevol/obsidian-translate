@@ -59,6 +59,11 @@
 	justify-content: space-between;
 }
 
+.translator-extra {
+	background-color: var(--text-accent) !important;
+	color: var(--text-on-accent) !important;
+}
+
 .translator-success {
 	background-color: var(--background-modifier-success) !important;
 }

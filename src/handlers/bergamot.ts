@@ -135,7 +135,6 @@ export class BergamotTranslate extends DummyTranslate {
 			.filter(x => {return x.startsWith("en")})
 			.map(x => {return x.substring(2)})
 			.filter(x => {return all_language_pairs.includes(`${x}en`)});
-		console.log(available_languages)
 		let mapped_languages: Array<LanguageModelData> = available_languages.map(x => {
 			let duplicates = Object.values(registry[`${x}en`]).map((x: any) => x.name)
 				     .concat(Object.values(registry[`en${x}`]).map((x: any) => x.name))
