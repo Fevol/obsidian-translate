@@ -127,10 +127,12 @@
 
 	export function updateAvailableLanguages() {
 		// If translation service is installed (currently only Bergamot), available languages = all installed models
-		if ($settings.translation_service === 'bergamot')
-			$data.available_languages = ['en'].concat($data.models?.bergamot?.models.map((model) => model.locale));
-		else
+		if ($settings.translation_service === 'bergamot') {
+			const languages = $data.models?.bergamot?.models.map((model) => model.locale);
+			$data.available_languages = ['en'].concat(languages ? languages : []);
+		} else {
 			$data.available_languages = $settings.service_settings[$settings.translation_service].available_languages;
+		}
 		filterLanguages();
 	}
 

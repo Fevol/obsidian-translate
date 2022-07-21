@@ -6,7 +6,7 @@
 	import {horizontalSlide} from "../animations";
 	import {Button, Dropdown, Slider, Toggle, Input, Icon, ToggleButton, ButtonList} from ".././components";
 	import {SettingItem} from "../obsidian-components";
-	import {PasswordModal, PasswordRequestModal} from "../modals";
+	import {ConfirmationModal, PasswordModal, PasswordRequestModal} from "../modals";
 
 	import type {
 		PluginData,
@@ -224,7 +224,7 @@
 		slot="control"
 		val={$settings.storage_path}
 		onChange={async (e) => {
-			let path = e.target.value.replace(/[/\\?%*:|"<>]/g, '-');
+			let path = e.target.value.replace(/[/\\?%*:|\"<>]/g, '-');
 			if (await app.vault.adapter.exists(`.obsidian/${$settings.storage_path}`))
 				await app.vault.adapter.rename(`.obsidian/${$settings.storage_path}`, `.obsidian/${path}`);
 			$settings.storage_path = path;
@@ -238,43 +238,63 @@
 	{#if service === $settings.translation_service}
 		<div in:horizontalSlide="{{duration: 600, delay: 300 }}" out:slide={{  duration: 400 }}>
 			<h2 class="icon-text translator-title">
-				<Icon icon={service} size=22 />
+				<Icon icon={service} size="22" />
 				{toTitleCase(service.replace('_', ' '))}
 			</h2>
 
 			{#if service === 'bergamot'}
 				<SettingItem
 					name="Setup local translation"
-					description="Install Bergamot translation engine"
+					description="Install Bergamot translation engine (size: 5.05MiB)"
 					type="button"
 				>
-					<!-- FIXME: WASM location in repo might not be very stable (but would be most up-to-date) -->
-					<button
-						slot="control"
-						class:translator-success={plugin.translator?.valid}
-						class:translator-fail={plugin.translator?.valid === false}
-						class="icon-text"
-						style="justify-content: center"
-						on:click={async () => {
-							let binary_path = `.obsidian/${$settings.storage_path}/bergamot/bergamot-translator-worker.wasm`
-							let binary_result = await requestUrl({url: "https://github.com/mozilla/firefox-translations/blob/main/extension/model/static/translation/bergamot-translator-worker.wasm?raw=true"});
-							await writeRecursive(binary_path, binary_result.arrayBuffer);
+					<div slot="control">
+						<!-- FIXME: WASM location in repo might not be very stable (but would be most up-to-date) -->
+						<button
+							class:translator-success={$data.models?.bergamot}
+							class="icon-text"
+							style="justify-content: center; flex: 1;"
+							on:click={async () => {
+								let binary_path = `.obsidian/${$settings.storage_path}/bergamot/bergamot-translator-worker.wasm`
+								let binary_result = await requestUrl({url: "https://github.com/mozilla/firefox-translations/blob/main/extension/model/static/translation/bergamot-translator-worker.wasm?raw=true"});
+								await writeRecursive(binary_path, binary_result.arrayBuffer);
 
-							plugin.message_queue("Successfully installed Bergamot binary");
-							if (!$data.models.bergamot)
-								$data.models.bergamot = {binary: {}, models: []};
-							console.log($data.models.bergamot);
+								plugin.message_queue("Successfully installed Bergamot binary");
+								if (!$data.models.bergamot)
+									$data.models.bergamot = {binary: {}, models: []};
+								console.log($data.models.bergamot);
 
-							$data.models.bergamot.binary = {
-								name: 'bergamot-translator-worker.wasm',
-								size: binary_result.arrayBuffer.byteLength,
-							}
+								$data.models.bergamot.binary = {
+									name: 'bergamot-translator-worker.wasm',
+									size: binary_result.arrayBuffer.byteLength,
+								}
 
-							plugin.reactivity.setupTranslationService();
-						}}
-					>
-						<Icon icon={"download"} />
-					</button>
+								plugin.reactivity.setupTranslationService();
+							}}
+						>
+							<Icon icon={"download"} />
+						</button>
+
+						{#if $data.models?.bergamot}
+							<button
+								transition:slide
+								on:click={async (e) => {
+									new ConfirmationModal(
+										plugin,
+										"Confirm uninstallation of Bergamot",
+										"Are you sure you want to uninstall Bergamot?<br><div class='warning-text'>⚠ This will also remove all local models you've installed.</div>",
+										async () => {
+											if (await app.vault.adapter.exists(`.obsidian/${$settings.storage_path}/bergamot`))
+												await app.vault.adapter.rmdir(`.obsidian/${$settings.storage_path}/bergamot`, true);
+											$data.models.bergamot = undefined;
+											plugin.message_queue("Successfully uninstalled Bergamot and its language models");
+										},
+									).open();
+							}}>
+								Uninstall
+							</button>
+						{/if}
+					</div>
 				</SettingItem>
 
 				<SettingItem name="Manage Bergamot models">
@@ -567,45 +587,64 @@
 	description="Install FastText language models for local text detection (size: 1.72MiB)"
 	type="button"
 >
-	<!-- Download FastText model and binary -->
 	<!-- FIXME: Official FastText repo does not contain wasm file, so the binary was added to the plugin's repo
 		  users would probably prefer if the file was downloaded from an official place -- look for this! -->
-	<!-- FIXME: Find a better way to reinitialize FastText -->
 
-	<button
-		slot="control"
-		class:translator-success={plugin.detector?.valid}
-		class:translator-fail={plugin.detector?.valid === false}
-		class="icon-text"
-		style="justify-content: center"
-		on:click={async () => {
-			let model_path = `.obsidian/${$settings.storage_path}/fasttext/lid.176.ftz`
-			let model_result = await requestUrl({url: "https://dl.fbaipublicfiles.com/fasttext/supervised-models/lid.176.ftz"});
-			await writeRecursive(model_path, model_result.arrayBuffer);
+	<div slot="control">
+		<button
+			class:translator-success={$data.models?.fasttext}
+			class="icon-text"
+			style="justify-content: center; flex: 1"
+			on:click={async () => {
+				let model_path = `.obsidian/${$settings.storage_path}/fasttext/lid.176.ftz`
+				let model_result = await requestUrl({url: "https://dl.fbaipublicfiles.com/fasttext/supervised-models/lid.176.ftz"});
+				await writeRecursive(model_path, model_result.arrayBuffer);
 
-			let binary_path = `.obsidian/${$settings.storage_path}/fasttext/fasttext_wasm.wasm`
-			let binary_result = await requestUrl({url: "https://github.com/Fevol/obsidian-translate/blob/bergamot/models/fasttext_wasm.wasm?raw=true"});
-			await writeRecursive(binary_path, binary_result.arrayBuffer);
+				let binary_path = `.obsidian/${$settings.storage_path}/fasttext/fasttext_wasm.wasm`
+				let binary_result = await requestUrl({url: "https://github.com/Fevol/obsidian-translate/blob/bergamot/models/fasttext_wasm.wasm?raw=true"});
+				await writeRecursive(binary_path, binary_result.arrayBuffer);
 
-			plugin.message_queue("Successfully installed FastText data");
+				plugin.message_queue("Successfully installed FastText data");
 
-			$data.models.fasttext = {
-				binary: {
-					name: "fasttext_wasm.wasm",
-					size: binary_result.arrayBuffer.byteLength,
-				},
-				models: {
-					"compressed": {
-						name: "lid.176.ftz",
-						size: model_result.arrayBuffer.byteLength,
+				$data.models.fasttext = {
+					binary: {
+						name: "fasttext_wasm.wasm",
+						size: binary_result.arrayBuffer.byteLength,
+					},
+					models: {
+						"compressed": {
+							name: "lid.176.ftz",
+							size: model_result.arrayBuffer.byteLength,
+						}
 					}
 				}
-			}
-			plugin.reactivity.setupTranslationService();
-		}}
-	>
-		<Icon icon={"download"} />
-	</button>
+				plugin.reactivity.setupTranslationService();
+			}}
+		>
+			<Icon icon={"download"} />
+		</button>
+
+		{#if $data.models?.fasttext}
+			<button
+				transition:slide
+				on:click={async (e) => {
+									new ConfirmationModal(
+										plugin,
+										"Confirm uninstallation of FastText",
+										"Are you sure you want to uninstall FastText?</div>",
+										async () => {
+											if (await app.vault.adapter.exists(`.obsidian/${$settings.storage_path}/fasttext`))
+												await app.vault.adapter.rmdir(`.obsidian/${$settings.storage_path}/fasttext`, true);
+											$data.models.fasttext = undefined;
+											$data.models = $data.models;
+											plugin.message_queue("Successfully uninstalled FastText");
+										},
+									).open();
+							}}>
+				Uninstall
+			</button>
+		{/if}
+	</div>
 </SettingItem>
 
 <SettingItem
@@ -633,3 +672,4 @@
 	}
 
 </style>
+
