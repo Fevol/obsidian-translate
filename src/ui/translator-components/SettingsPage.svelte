@@ -328,7 +328,6 @@
 									let binary_result = await requestUrl({url: "https://github.com/mozilla/firefox-translations/blob/main/extension/model/static/translation/bergamot-translator-worker.wasm?raw=true"});
 									await writeRecursive(binary_path, binary_result.arrayBuffer);
 
-									plugin.message_queue("Successfully installed Bergamot binary");
 									if (!$data.models.bergamot)
 										$data.models.bergamot = {binary: {}, models: [], version: $settings.service_settings.bergamot.version};
 
@@ -336,7 +335,10 @@
 										name: 'bergamot-translator-worker.wasm',
 										size: binary_result.arrayBuffer.byteLength,
 									}
+
+									$settings.service_settings[$settings.translation_service].validated = true;
 									plugin.reactivity.setupTranslationService();
+									plugin.message_queue("Successfully installed Bergamot binary");
 								}
 							}}
 						>
@@ -355,6 +357,7 @@
 											if (await app.vault.adapter.exists(`.obsidian/${$settings.storage_path}/bergamot`))
 												await app.vault.adapter.rmdir(`.obsidian/${$settings.storage_path}/bergamot`, true);
 											$data.models.bergamot = undefined;
+											$settings.service_settings[$settings.translation_service].validated = null;
 											plugin.message_queue("Successfully uninstalled Bergamot and its language models");
 										},
 									).open();
@@ -555,29 +558,30 @@
 				</SettingItem>
 			{/if}
 
-			<SettingItem
-				name="Validate"
-				description="Ensure that the translation service is set-up properly"
-				type="button"
-			>
-				<!-- FIXME: Check if there is a way to merge the setting's writeable and the translation service's writeable, currently implementation is ugly-->
-				<ToggleButton
-					text="Test"
-					slot="control"
-					value={$settings.service_settings[service].validated}
-					fn={async () => {
-						let validation_results = await plugin.translator.validate();
-						plugin.translator.valid = validation_results.valid;
-						if (validation_results.message)
-							plugin.message_queue(validation_results.message, !validation_results.valid ? 5000 : 3000);
-						if (validation_results.host)
-							$settings.service_settings[service].host = validation_results.host;
-						$settings.service_settings[service].validated = validation_results.valid;
-						return validation_results.valid;
-					}}
-				/>
-			</SettingItem>
-
+			{#if service !== 'bergamot'}
+				<SettingItem
+					name="Validate"
+					description="Ensure that the translation service is set-up properly"
+					type="button"
+				>
+					<!-- FIXME: Check if there is a way to merge the setting's writeable and the translation service's writeable, currently implementation is ugly-->
+					<ToggleButton
+						text="Test"
+						slot="control"
+						value={$settings.service_settings[service].validated}
+						fn={async () => {
+							let validation_results = await plugin.translator.validate();
+							plugin.translator.valid = validation_results.valid;
+							if (validation_results.message)
+								plugin.message_queue(validation_results.message, !validation_results.valid ? 5000 : 3000);
+							if (validation_results.host)
+								$settings.service_settings[service].host = validation_results.host;
+							$settings.service_settings[service].validated = validation_results.valid;
+							return validation_results.valid;
+						}}
+					/>
+				</SettingItem>
+			{/if}
 
 			<SettingItem
 				name="Automatic translate"

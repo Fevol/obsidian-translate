@@ -34,6 +34,7 @@ export class BergamotTranslate extends DummyTranslate {
 				this.translator = new Bergamot(available_models, path);
 				this.translator.loadTranslationEngine();
 				this.available_languages = ["en"].concat(available_models.models.map((x) => x.locale));
+				this.valid = true;
 			} catch (e) {
 				this.plugin.message_queue(`Error while loading Bergamot: ${e.message}`);
 				this.translator = null;
