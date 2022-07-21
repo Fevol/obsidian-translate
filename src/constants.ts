@@ -730,7 +730,7 @@ export const VIEW_MODES = {
 }
 
 export const SECURITY_MODES = [
-	{ value: 'none', text: 'No security', info: "API key are currently stored as plaintext strings in data.json" },
+	{ value: 'none', text: 'No security', info: "API keys are currently stored as plaintext strings in data.json" },
 	{ value: 'password', text: 'Encrypt with password', info: "API keys are currently stored as encrypted strings in data.json" },
 	{ value: 'local_only', text: 'Only save locally', info: "API keys will not be saved to data.json, keys are only stored locally" },
 	{ value: 'dont_save', text: "Only keep for session", info: "API keys will be cleared if Obsidian is closed" },

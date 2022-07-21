@@ -3,6 +3,7 @@
 
 	export let text: string;
 	export let icon: string = '';
+	export let tooltip: string;
 	export let size: number = 16;
 	export let onClick: () => void;
 
@@ -11,6 +12,7 @@
 <button
 	class={$$props.class}
 	class:icon-text={icon}
+	aria-label={tooltip}
 	on:click={() => onClick()}
 >
 	{#if text}

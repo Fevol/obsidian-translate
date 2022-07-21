@@ -259,7 +259,7 @@
 			/>
 		</div>
 		<div class="translator-attribution-column">
-			<div style="display: flex; flex-direction: row; gap: 4px; align-items: start">
+			<div class="translator-attribution-column-text">
 				Using
 				<a href={services[$settings.translation_service].url} class="icon-text translator-service-text">
 					<Icon icon={$settings.translation_service}/>
@@ -324,6 +324,19 @@
 		grid-area: bottom;
 		justify-content: space-between;
 		display: flex;
+		overflow: hidden;
+	}
+
+	.translator-attribution-column-text {
+		display: flex;
+		flex-direction: row;
+		gap: 4px;
+		align-items:start;
+
+		min-width: 0;
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
 	}
 
 	.translator-column {

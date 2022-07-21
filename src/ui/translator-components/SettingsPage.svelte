@@ -234,7 +234,7 @@
 	description="Determine how the API key is stored on the device"
 	type="dropdown"
 	notices={[
-		{ type: 'text', text: `🛈 ${security_options.find(x => x.value === $settings.security_setting).info}`}
+		{ type: 'text', text: `🛈 ${security_options.find(x => x.value === $settings.security_setting).info}`, style: 'info-text' }
 	]}
 >
 	<Dropdown
@@ -278,7 +278,7 @@
 <SettingItem
 	name="Model path"
 	description="Determine where in the '.obsidian' folder local models should be stored"
-	notices={[{ type: 'text', text: `⚠ It is not possible to nest this folder`, style: 'warning-text'}] }
+	notices={[{ type: 'text', text: `⚠ You cannot nest this folder`, style: 'warning-text'}] }
 	type="input"
 >
 	<!-- FIXME: Currently the path gets renamed as the user types, probably very heavy on the FS	-->
@@ -342,7 +342,7 @@
 								}
 							}}
 						>
-							<Icon icon={"download"} />
+							<Icon icon={bergamot_update_available ? "refresh-cw" : "download"} />
 						</button>
 
 						{#if $data.models?.bergamot}
@@ -589,7 +589,7 @@
 				type="text"
 				notices={
 					service === 'bergamot' ? [] :
-					[{text: "⚠ May quickly use up the API's character quota", style: 'warning-text'}]
+					[{text: "⚠ May quickly use up the character quota for the service", style: 'warning-text'}]
 				}
 			>
 				<Toggle
@@ -635,6 +635,7 @@
 				<Button
 					slot="control"
 					icon="switch"
+					tooltip="Update languages"
 					onClick={async () => {
 						let return_values = await plugin.translator.get_languages();
 						if (return_values.message)
