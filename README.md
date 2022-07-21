@@ -29,17 +29,17 @@ Afterwards, you can open the Translation View by either accessing the left ribbo
 ## Translation Services
 ### Services overview
 
-| Translation Service     | Supported | Free                                    | Offline Support | Preserves Formatting | Languages | Notes                    |
-|-------------------------|-----------|-----------------------------------------|-----------------|----------------------|-----------|--------------------------|
-| Google Translate        | ✅         | ✅ *(0.5M characters **per month**)* ¹ ² |                 | ✅                    | 109       |                          |
-| Deepl                   | ✅         | ✅  *(0.5M characters **per month**)* ¹  |                 | ✅                    | 28        |                          |
-| Yandex Translate        | ❓         | ✅ *(5M characters)* ¹                   |                 | ❓                    | 93        |                          |
-| Libre Translate         | ✅         | ✅                                       | ✅               | ❌                    | 30        | Can be hosted locally    |
-| Bing Translator (Azure) | ✅         | ✅  *(2M characters **per month**)* ¹    |                 | ✅                    | 111       |                          |
-| Amazon Translate        | ⭕         | ✅  *(2M characters **per month**)* ¹ ³  |                 |                      |           |                          |
-| Bergamot                | ✅         | ✅                                       | ✅               | ✅                    | 12        | No mobile support (yet?) |
-| QQ                      | ⭕         |                                         |                 |                      |           |                          |
-| Youdao                  | ⭕         |                                         |                 |                      |           |                          |
+| Translation Service     | Supported | Free                                  | Offline Support | Mobile Support | Preserves Formatting | Languages |
+|-------------------------|-----------|---------------------------------------|-----------------|:---------------|----------------------|-----------|
+| Google Translate        | ✅         | *(0.5M characters **per month**)* ¹ ² |                 |                | ✅                    | 109       |
+| Deepl                   | ✅         | *(0.5M characters **per month**)* ¹   |                 |                | ✅                    | 28        |
+| Yandex Translate        | ❓         | *(5M characters)* ¹                   |                 |                | ❓                    | 93        |
+| Libre Translate         | ✅         | ✅                                     | ✅               |                | ❌                    | 30        |
+| Bing Translator (Azure) | ✅         | *(2M characters **per month**)* ¹     |                 |                | ✅                    | 111       |
+| Amazon Translate        | ⭕         | *(2M characters **per month**)* ¹ ³   |                 |                |                      |           |
+| Bergamot                | ✅         | ✅                                     | ✅               | ❌              | ✅                    | 12        |
+| QQ                      | ⭕         |                                       |                 |                |                      |           |
+| Youdao                  | ⭕         |                                       |                 |                |                      |           |
 
 
 _¹ Requires a valid credit card to sign up for a free API key_<br>
@@ -55,14 +55,15 @@ _³ Free for a year after signing up_
 
 ### Notes
 
-- Most services require an _active_ internet connection to work. If you want to translate text offline, you could host [Libre Translate](https://libretranslate.com) 
-on your computer/network on any operating system, using Docker or Flask.
+- Most services require an _active_ internet connection to work. If you want to translate text offline, you can use
+  [Bergamot](https://browser.mt) translation engine by installing the binary and its models, or host [Libre Translate](https://libretranslate.com) 
+on your computer/network on any operating system with Docker or Flask.
 - Most services require a valid credit card to sign up for a free API key. Furthermore, the credit card will get charged if you go beyond the free character limit.
 - Not every translation service respects the formatting of the source text. It may be possible that this gets lost in
   the translation process. Reference the table above to see if your service supports preserving formatting.
   More complex formatting will have a higher likelihood of breaking when being translated.
 - Make sure that you _only_ enable automatic translation if you have a sufficiently high character cap on your API
-  account, or  locally host your own translation service (e.g. with Libre Translate).
+  account, or the translation service is locally hosted (e.g. Docker or Libre Translate).
 
 ---
 
@@ -89,7 +90,6 @@ For more informations, head over to the [documentation](https://github.com/Fevol
 ### Features
 - Add more options to determine when to automatically translate current text
 - Integration of more translation services
-  - Fully local translation via FastText (text detection) and Bergamot (translation)
   - QQ/Youdao
   - ...
 - Add proper localization support to the plugin
@@ -100,15 +100,23 @@ For more informations, head over to the [documentation](https://github.com/Fevol
 - Find ways to reduce the amount of characters that are sent to the translation service
   - Caching translation results of sentence (continuous typing in translation view will not result in linear growth of amount of characters being sent over)
   - ...
+
+Most up-to-date plans can be found [here](https://github.com/users/Fevol/projects/1)
+
 ---
 
-## Security
-A lot of work has been put in to ensure that the plugin is as secure as possible.
-The following are some of the implemented security features:
-- Requests will only be sent to the translation service on explicit user input (e.g. clicking translate button,
-  validating service, ...) -- unless the user has enabled the auto translate option.
-- You can set how the API keys are stored on the device/plugin data, such that there is a smaller likelihood
-  of them being read/stolen, below are some of the implemented storage methods:
+## Security and privacy considerations
+### Privacy
+The plugin will only send requests to a translation service on user request. The only exception to this is when the user
+has enabled automatic translation, which will send a translation request for text in the Translator View after a
+certain amount of time has passed since the last keystroke of the user.
+
+If you don't want to use cloud-hosted translation services, it's possible to host your own translation service locally,
+using either Bergamot or Libre Translate. The text you translate will not leave your computer, and will work offline.
+
+### Security
+You can set how the API keys are stored on the device/plugin data, such that there is a smaller likelihood
+  of them being read/stolen by a third party, below are some of the implemented storage methods:
   - **No security:** the API keys are stored as plaintext in `data.json`.
   - **Encrypted with password:** the API keys are stored as ciphertext in `data.json`, with the password
     being user-provided. The password only needs to be entered _once_ for each device.
