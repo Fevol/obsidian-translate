@@ -297,7 +297,8 @@
 					</div>
 				</SettingItem>
 
-				<SettingItem name="Manage Bergamot models">
+				{#if $data.models.bergamot}
+					<SettingItem name="Manage Bergamot models">
 					<div slot="control">
 						<!-- TODO: Removal should consider whether model was already removed via FS  -->
 						<ButtonList
@@ -360,7 +361,7 @@
 						/>
 					</div>
 				</SettingItem>
-
+				{/if}
 
 			{/if}
 
