@@ -93,3 +93,4 @@ as Bergamot does not include language detection functionality.
 #### Description
 [FastText](https://fasttext.cc/) is an open-source library for text classification (language detection) developed by 
 Facebook (now Meta). Due to the models used being very compressed, the size of the entire package is very small -- its full size is only 1.72MB.
+
