@@ -14,8 +14,8 @@
 	} from "../../types";
 	import {TRANSLATION_SERVICES_INFO, SECURITY_MODES, DEFAULT_SETTINGS} from "../../constants";
 
-	import {aesGcmDecrypt, aesGcmEncrypt, humanFileSize, toTitleCase} from "../../util";
-	import {requestUrl} from "obsidian";
+	import {aesGcmDecrypt, aesGcmEncrypt, humanFileSize, randn_bm, toTitleCase} from "../../util";
+	import {Notice, requestUrl} from "obsidian";
 	import t from "../../l10n";
 	import {onMount} from "svelte";
 
@@ -411,18 +411,49 @@
 								// otherwise use the most up-to-date version (given in data.json)
 								const version = $data.models.bergamot.models ? $data.models.bergamot.version : $settings.service_settings.bergamot.version;
 
-								for (const modelfile of model.files) {
+								// Connection speed in Bps
+								let avg_download_speed = navigator.connection.downlink * 1000000;
+								let total_size = model.files.reduce((acc, cur) => acc + cur.size, 0);
+								const progress_bar_length = 10;
+								let progress_bar = new Notice(`Downloading ${model.files.length} files\nProgress:\t\t   [${' '.repeat(progress_bar_length)}]\nRemaining time: ???s`, 0)
+
+								// Sort files of model by size, descending
+								// Larger files have a higher download speed, which will offer a better upper limit on the remaining time
+								for (const [index, modelfile] of model.files.sort((a, b) => { return b.size - a.size; }).entries()) {
+									const start_time = Date.now();
 									const path = `.obsidian/${$settings.storage_path}/bergamot/${model.locale}/${modelfile.name}`;
 									const stats = await app.vault.adapter.stat(path);
 									if (stats && stats.size === modelfile.size)
 										continue;
-
 									const file = await requestUrl({url: `${rootURL}/${version}/${modelfile.usage === 'from' ? `${model.locale}en` : `en${model.locale}`}/${modelfile.name}`});
+
+
+									let execution_time = (Date.now() - start_time) / 1000;
+									// Add artificial slowdown to simulate slow connection (my PC is too fast to properly see progress)
+									// const slowdown = 20;
+									// await sleep(execution_time * slowdown * randn_bm() * 2 * 1000);
+									// execution_time *= slowdown;
+
+									// Maintain moving average of download speed
+									if (!index)
+										avg_download_speed = modelfile.size / execution_time
+									else
+										avg_download_speed = (avg_download_speed * index / (index + 1)) + ((modelfile.size / execution_time) / (index + 1));
+
 									if (file.status !== 200) {
+										progress_bar.hide();
 										plugin.message_queue(`Failed to download ${t(model.locale)} language model`);
 										return;
 									}
 									await writeRecursive(path, file.arrayBuffer);
+
+									if (progress_bar.noticeEl.isConnected) {
+										const progress = Math.round((index / model.files.length) * progress_bar_length);
+										// Remaining time is multiplied by 1.2 to account for FS overhead
+										const remaining_time = ((total_size / avg_download_speed) * 1.2).toFixed(2);
+										total_size -= modelfile.size;
+										progress_bar.setMessage(`Downloading ${model.files.length} files\nProgress:\t\t   [${'█'.repeat(progress)+' '.repeat(progress_bar_length - progress)}]\nRemaining time: ${remaining_time}s [${humanFileSize(avg_download_speed, true)+'/s'}]`);
+									}
 								}
 
 								const model_idx = $data.models.bergamot.models.findIndex(x => x.locale === model.locale);
@@ -433,9 +464,15 @@
 								plugin.reactivity.updateAvailableLanguages();
 								plugin.translator.update_data($data.models.bergamot);
 
-
-								plugin.message_queue(`Successfully installed ${t(model.locale)} language models`);
-
+								if (progress_bar.noticeEl.isConnected) {
+									progress_bar.setMessage(`Successfully installed ${t(model.locale)} model\nProgress:\t\t   [${'█'.repeat(progress_bar_length)}]\nRemaining time: Finished!`);
+									// Hide progress bar after 4 seconds
+									setTimeout(() => {
+										progress_bar.hide();
+									}, 4000);
+								} else {
+									plugin.message_queue(`Successfully installed ${t(model.locale)} model`, 4000);
+								}
 							}}
 						/>
 					</div>
