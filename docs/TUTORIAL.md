@@ -62,3 +62,34 @@ You can set the layout for the translation view in the quick access commands, th
 - **Vertical:** Text areas and buttons are vertically aligned
 - **Mixed**: Text areas and buttons are vertically aligned, but the text area is split into two columns
 - **Horizontal:** Text areas and buttons are horizontally aligned
+
+## Translation Services
+### Bergamot
+#### Description
+[Bergamot](https://browser.mt) is an open-source translation engine developed by the Bergamot Project Consortium, 
+consisting of Mozilla (Firefox), and the universities of Edinburgh, Sheffield, Tartu and Charles University in Prague; with funding by the EU.
+
+The translation happens completely locally using machine learning models, which also enables you to use the service when
+not connected to the internet. All text you translate will only be processed on your computer, and will not be sent to
+third-party servers (as opposed to Google Translate, Bing, ...).
+
+If you're wondering how the quality of the translations compare to more well-known translation services,
+such as Google Translate and Bing, you can find empirical data [here](https://github.com/mozilla/firefox-translations-models/blob/main/evaluation/prod/results.md).
+
+#### Installation
+
+To use the Bergamot service, you need to install the Bergamot binary, this is the 'engine' that will be used to translate the text.
+Afterwards, you can install any language model you wish to use. The model is a highly compressed, pre-trained neural network
+that is fed to the translation engine, and will allow you to translate from English to the language you've chosen, and vice-versa.
+
+The base size of Bergamot is 5.05MB, and each additional language model takes up about 40MB (the largest model is 70MB in size).
+
+If you wish to have the ability to detect the language of the text you want to translate, also install the FastText binary,
+as Bergamot does not include language detection functionality.
+
+<img src="https://raw.githubusercontent.com/Fevol/obsidian-translate/master/images/bergamot.gif" width="800">
+
+### FastText
+#### Description
+[FastText](https://fasttext.cc/) is an open-source library for text classification (language detection) developed by 
+Facebook (now Meta). Due to the models used being very compressed, the size of the entire package is very small -- its full size is only 1.72MB.
