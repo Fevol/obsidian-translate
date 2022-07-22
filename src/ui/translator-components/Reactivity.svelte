@@ -185,7 +185,7 @@
 			let message = '';
 			// API key is required but not provided, invalid state
 			if (!api_key_observer) {
-				invalidated = true;
+				invalidated = null;
 				message = "No API key was given";
 
 				// Security setting is password but given API key is still encrypted (ends on '=='), invalid state
@@ -199,6 +199,9 @@
 			if (invalidated) {
 				$settings.service_settings[service_observer].validated = false;
 				plugin.translator.valid = false;
+			} else if (invalidated === null) {
+				$settings.service_settings[service_observer].validated = null;
+				plugin.translator.valid = null;
 			}
 			if (message && !plugin.settings_open)
 				plugin.message_queue(message, 5000, true);
