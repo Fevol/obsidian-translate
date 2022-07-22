@@ -290,6 +290,8 @@
 			if (await app.vault.adapter.exists(`.obsidian/${$settings.storage_path}`))
 				await app.vault.adapter.rename(`.obsidian/${$settings.storage_path}`, `.obsidian/${path}`);
 			$settings.storage_path = path;
+			if (plugin.translator.valid && $settings.translation_service === 'bergamot')
+				plugin.translator.update_data(null, path);
 		}}
 		type="text"
 	/>

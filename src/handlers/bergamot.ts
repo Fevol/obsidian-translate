@@ -19,9 +19,13 @@ export class BergamotTranslate extends DummyTranslate {
 	plugin: TranslatorPlugin;
 	available_languages: Array<string>;
 
-	update_data(available_models: ModelFileData) {
-		this.available_languages = ["en"].concat(available_models.models.map((x) => x.locale));
-		this.translator.available_models = available_models;
+	update_data(available_models: ModelFileData, path: string) {
+		if (available_models) {
+			this.available_languages = ["en"].concat(available_models.models.map((x) => x.locale));
+			this.translator.available_models = available_models;
+		}
+		if (path && this.translator)
+			this.translator.path = path;
 	}
 
 	constructor(detector: DummyTranslate = null, plugin: TranslatorPlugin, available_models: ModelFileData, path: string) {
