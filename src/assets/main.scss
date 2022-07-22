@@ -55,6 +55,18 @@
 	}
 }
 
+.translator-button {
+	border-radius: 100%;
+	width: 50px;
+	height: 50px;
+	background: var(--background-primary);
+	border: 1px solid var(--background-modifier-border);
+	display: grid !important;
+	justify-content: center;
+	align-content: center;
+	margin-right: 0;
+}
+
 .translator-toggle-button {
 	justify-content: space-between;
 }

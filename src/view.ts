@@ -45,6 +45,7 @@ export class TranslatorView extends ItemView {
 		//  find a better way to write this though (or find an actual solution instead of a hack)
 		this.contentEl.style.display = "flex";
 		this.contentEl.style.flexDirection = "column";
+		this.contentEl.style.background = "var(--background-secondary)";
 	}
 
 	async onClose() {

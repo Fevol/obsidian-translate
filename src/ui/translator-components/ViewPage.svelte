@@ -355,17 +355,6 @@
 		gap: 8px;
 	}
 
-	.translator-button {
-		border-radius: 100%;
-		width: 50px;
-		height: 50px;
-		filter: brightness(1.2);
-		display: grid !important;
-		justify-content: center;
-		align-content: center;
-		margin-right: 0;
-	}
-
 	.translator-service-text {
 		text-transform: capitalize;
 		font-style: italic;

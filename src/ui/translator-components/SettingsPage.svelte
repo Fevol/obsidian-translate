@@ -219,7 +219,7 @@
 >
 	<Dropdown
 		slot="control"
-		options={[{"value": "display", "text": "Display"}, {"value": "local", "text": "Localised"}]}
+		options={[{"value": "display", "text": "Display"}, {"value": "local", "text": "Native"}]}
 		value={ $settings.display_language }
 		onChange={(e) => {
 			$settings.display_language = e.target.value;
@@ -382,6 +382,7 @@
 								}
 							}) }
 							icon="cross"
+							tooltip="Uninstall"
 							onClick={async (e) => {
 								const model = $data.models.bergamot.models.find(x => x.locale === e);
 
