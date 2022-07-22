@@ -57,7 +57,8 @@
 
 .translator-button {
 	border-radius: 100%;
-	width: 50px;
+	// On mobile, the width of the button is overwritten
+	width: 50px !important;
 	height: 50px;
 	background: var(--background-primary);
 	border: 1px solid var(--background-modifier-border);
