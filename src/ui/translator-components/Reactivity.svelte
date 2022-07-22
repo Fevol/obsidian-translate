@@ -82,8 +82,7 @@
 			if ($settings.service_settings.fasttext.default_usage || service_observer === 'bergamot') {
 				if ($data.models?.fasttext) {
 					plugin.detector = new FastTextDetector(plugin);
-				} else if (service_observer === 'bergamot') {
-					// TODO: Error message probably doesn't make sense here
+				} else if (service_observer === 'bergamot' && !plugin.settings_open) {
 					plugin.message_queue("FastText is not installed, automatic detection of language is disabled.");
 				}
 			}
