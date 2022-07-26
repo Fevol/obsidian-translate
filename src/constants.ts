@@ -136,7 +136,7 @@ export const DEFAULT_SETTINGS: TranslatorPluginSettings = {
 			auto_translate: false,
 			auto_translate_interval: 500,
 			available_languages: [],
-			version: "0.3.2",
+			version: "0.3.3",
 			downloadable_models: [
 				{
 					"size": 46992539,
@@ -488,6 +488,43 @@ export const DEFAULT_SETTINGS: TranslatorPluginSettings = {
 						{
 							"name": "vocab.enfa.spm",
 							"size": 794181,
+							"usage": "to"
+						}
+					],
+					"dev": true
+				},
+				{
+					"size": 45332265,
+					"locale": "nl",
+					"files": [
+						{
+							"name": "model.nlen.intgemm.alphas.bin",
+							"size": 17140899,
+							"usage": "from"
+						},
+						{
+							"name": "model.ennl.intgemm.alphas.bin",
+							"size": 17140899,
+							"usage": "to"
+						},
+						{
+							"name": "lex.50.50.nlen.s2t.bin",
+							"size": 4940304,
+							"usage": "from"
+						},
+						{
+							"name": "lex.50.50.ennl.s2t.bin",
+							"size": 4494892,
+							"usage": "to"
+						},
+						{
+							"name": "vocab.nlen.spm",
+							"size": 807730,
+							"usage": "from"
+						},
+						{
+							"name": "vocab.ennl.spm",
+							"size": 807541,
 							"usage": "to"
 						}
 					],
