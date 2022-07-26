@@ -205,6 +205,9 @@
 		})}
 		value={ $settings.translation_service }
 		onChange={(e) => {
+			// If translation service data does not exist in settings, add it
+			if (!$settings.service_settings[e.target.value])
+				$settings.service_settings[e.target.value] = DEFAULT_SETTINGS.service_settings[e.target.value];
 			$settings.translation_service = e.target.value;
 		}}
 	>

@@ -1,6 +1,7 @@
 import { FuzzySuggestModal, App } from "obsidian";
 import type TranslatorPlugin from "src/main";
-import { TRANSLATION_SERVICES_INFO } from "../../constants";
+import {DEFAULT_SETTINGS, TRANSLATION_SERVICES_INFO} from "../../constants";
+import type {APIServiceProviders} from "../../types";
 
 export default class SwitchService extends FuzzySuggestModal<string>{
 	plugin: TranslatorPlugin;
@@ -27,6 +28,13 @@ export default class SwitchService extends FuzzySuggestModal<string>{
 	async onChooseItem(item: any): Promise<void> {
 		this.plugin.settings.update(x => {
 			x.translation_service = item.value;
+			// If translation service data does not exist in settings, add it
+			// @ts-ignore (Service will always be index in service_settings)
+			if (!x.service_settings[item.value as keyof typeof APIServiceProviders]) {
+				// @ts-ignore (Idem)
+				x.service_settings[item.value] = DEFAULT_SETTINGS.service_settings[item.value];
+			}
+
 			return x;
 		});
 		this.close();
