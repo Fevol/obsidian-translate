@@ -15,7 +15,7 @@ import type {
 } from "./types";
 import {ICONS, DEFAULT_SETTINGS, TRANSLATOR_VIEW_ID, DEFAULT_DATA} from "./constants";
 import type {DummyTranslate} from "./handlers";
-import {rateLimit} from "./util";
+import {nested_object_assign, rateLimit} from "./util";
 
 import ISO6391 from "iso-639-1";
 import {detect_selection, translate_selection} from "./helpers";
@@ -51,7 +51,7 @@ export default class TranslatorPlugin extends Plugin {
 		});
 
 		this.plugin_data = writable<PluginData>(Object.assign({}, DEFAULT_DATA, {models:  JSON.parse(localStorage.getItem('models')) || {}}));
-		this.settings = writable<TranslatorPluginSettings>(Object.assign({}, DEFAULT_SETTINGS, await this.loadData()));
+		this.settings = writable<TranslatorPluginSettings>(nested_object_assign(await this.loadData(), DEFAULT_SETTINGS));
 
 		// Save all settings on update of this.settings
 		this.register(this.settings.subscribe((data) => {
@@ -155,7 +155,6 @@ export default class TranslatorPlugin extends Plugin {
 
 		this.registerEvent(
 			this.app.workspace.on("editor-menu", (menu, editor) => {
-
 				if (this.translator && this.translator.valid) {
 					menu.addItem((item) => {
 						item.setTitle("Translate")

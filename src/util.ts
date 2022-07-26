@@ -204,3 +204,14 @@ export function randn_bm(): number {
 	if (num > 1 || num < 0) return randn_bm() // resample between 0 and 1
 	return num
 }
+
+export function nested_object_assign (source: any, target: any) {
+	Object.keys(source).forEach(key => {
+		const s_val = source[key]
+		const t_val = target[key]
+		target[key] = t_val && s_val && typeof t_val === 'object' && typeof s_val === 'object'
+			? nested_object_assign(t_val, s_val)
+			: s_val
+	})
+	return target
+}
