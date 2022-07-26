@@ -51,7 +51,7 @@
 					});
 				})
 				.map(model => {
-					return {'value': model.locale, 'text': `${$data.all_languages.get(model.locale)} (${humanFileSize(model.size, false)})${model.development ? ' [DEV]' : ''}`};
+					return {'value': model.locale, 'text': `${$data.all_languages.get(model.locale)} (${humanFileSize(model.size, false)})${model.dev ? ' [DEV]' : ''}`};
 				})
 				.sort((a, b) => { return a.text.localeCompare(b.text);});
 			downloadable_models.unshift({'value': '', 'text': '+'});
@@ -375,7 +375,7 @@
 							items={ $data.models.bergamot?.models.map((model) => {
 								return {
 									'value': model.locale,
-									'text': `${$data.all_languages.get(model.locale)} (${humanFileSize(model.size, false)})${model.development ? ' [DEV]' : ''}`
+									'text': `${$data.all_languages.get(model.locale)} (${humanFileSize(model.size, false)})${model.dev ? ' [DEV]' : ''}`
 								}
 							}) }
 							icon="cross"
