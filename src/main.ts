@@ -51,7 +51,37 @@ export default class TranslatorPlugin extends Plugin {
 		});
 
 		this.plugin_data = writable<PluginData>(Object.assign({}, DEFAULT_DATA, {models:  JSON.parse(localStorage.getItem('models')) || {}}));
-		this.settings = writable<TranslatorPluginSettings>(nested_object_assign(await this.loadData(), DEFAULT_SETTINGS));
+
+
+		let loaded_settings: TranslatorPluginSettings = await this.loadData();
+		const translation_service = loaded_settings?.translation_service || DEFAULT_SETTINGS.translation_service;
+
+		// Translation services should only be added to the data.json if the user wants to use it
+		// Settings keys that may only be updated if they exist
+		const set_if_exists = Object.keys(TRANSLATION_SERVICES_INFO).filter(key => translation_service !== key);
+
+		// Adds newly introduced settings to the data.json if they're not already there, this ensures that older settings
+		// are forwards compatible with newer versions of the plugin
+		loaded_settings = nested_object_assign(DEFAULT_SETTINGS, loaded_settings ? loaded_settings : {}, new Set(set_if_exists));
+
+		// Check for any updates on the translation services
+		// In order to improve future compatibility, the user can manually update the available_languages/... with
+		//    the 'update languages' button in the settings (and thus fetch a more recent version than default);
+		//    these settings may not be overwritten by the plugin
+		for (const [key, value] of Object.entries(loaded_settings.service_settings as APIServiceProviders)) {
+			// @ts-ignore (key is also keyof service_settings)
+			if (value.version < DEFAULT_SETTINGS.service_settings[key].version) {
+				// @ts-ignore (because this should never crash, and can't get add keyof APIServiceProvider to LHS)
+				loaded_settings.service_settings[key].available_languages = DEFAULT_SETTINGS.service_settings[key].available_languages;
+				// @ts-ignore (idem)
+				loaded_settings.service_settings[key].downloadable_models = DEFAULT_SETTINGS.service_settings[key].downloadable_models;
+				// @ts-ignore (idem)
+				loaded_settings.service_settings[key].version = DEFAULT_SETTINGS.service_settings[key].version;
+			}
+		}
+
+		this.settings = writable<TranslatorPluginSettings>(loaded_settings);
+
 
 		// Save all settings on update of this.settings
 		this.register(this.settings.subscribe((data) => {
