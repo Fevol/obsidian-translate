@@ -99,7 +99,6 @@
 
 		setupLanguageDetector();
 
-		// TODO: Check if downloadable models got updated
 		if (service_observer === "google_translate")
 			plugin.translator = new GoogleTranslate(api_key_observer);
 		else if (service_observer === "bing_translator")
@@ -116,7 +115,9 @@
 		} else
 			plugin.translator = new DummyTranslate();
 
-		plugin.translator.valid = valid && plugin.translator?.valid;
+		// Bergamot already sets its validity correctly
+		if (service_observer !== 'bergamot')
+			plugin.translator.valid = valid && plugin.translator?.valid;
 		$data.has_autodetect_capability = plugin.translator?.has_autodetect_capability() === true;
 
 		plugin.translator.failure_count_watcher.subscribe(failure_count => {

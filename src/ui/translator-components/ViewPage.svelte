@@ -37,7 +37,7 @@
 	async function translate() {
 		// While validation is also checked within the translator, if we don't check if the settings are open,
 		// 	we don't want the message to be displayed
-		if (!$settings.service_settings[$settings.translation_service].validated) {
+		if (!plugin.translator.valid) {
 			if (!plugin.settings_open)
 				plugin.message_queue("Translation service is not validated");
 			return;
