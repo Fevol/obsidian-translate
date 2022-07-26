@@ -9,11 +9,12 @@ import {SwitchService, TranslateModal} from "./ui/modals";
 
 import type {
 	APIServiceProviders,
-	APIServiceSettings, DetectionResult,
+	APIServiceSettings,
 	PluginData,
 	TranslatorPluginSettings
 } from "./types";
-import {ICONS, DEFAULT_SETTINGS, TRANSLATOR_VIEW_ID, DEFAULT_DATA} from "./constants";
+
+import {ICONS, DEFAULT_SETTINGS, TRANSLATOR_VIEW_ID, DEFAULT_DATA, TRANSLATION_SERVICES_INFO} from "./constants";
 import type {DummyTranslate} from "./handlers";
 import {nested_object_assign, rateLimit} from "./util";
 
@@ -46,6 +47,8 @@ export default class TranslatorPlugin extends Plugin {
 	message_queue: ((...args: any[]) => void)
 
 	async onload() {
+		// Set up message queue for the plugin, this rate limits the number of messages the plugin can send at the same time,
+		// and allows for the messages to be ordered in a certain way
 		this.message_queue = rateLimit(5, 3000, true,(text: string, timeout: number = 4000, priority: boolean = false) => {
 			new Notice(text, timeout);
 		});

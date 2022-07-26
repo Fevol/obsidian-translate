@@ -178,15 +178,9 @@
 	}
 
 	onMount(() => {
-		if ($settings.translation_service === 'bergamot' && $data.models?.bergamot?.models) {
-			// Iff the version number is larger than both the currently installed version, and the most up-to-date data
-			// 	(stored in data.json), update the downloadable data.
-			if ( $data.models.bergamot.version < DEFAULT_SETTINGS.service_settings.bergamot.version &&
-				 $settings.service_settings.bergamot.version < DEFAULT_SETTINGS.service_settings.bergamot.version) {
-				$settings.service_settings.bergamot.version = DEFAULT_SETTINGS.service_settings.bergamot.version;
-				$settings.service_settings.bergamot.downloadable_models = DEFAULT_SETTINGS.service_settings.bergamot.downloadable_models;
-			}
-			bergamot_update_available = $data.models.bergamot.version < $settings.service_settings.bergamot.version;
+		if ($settings.translation_service === 'bergamot') {
+			// We need to wait for $data.models to be loaded in before the version can be checked
+			bergamot_update_available = $data.models?.bergamot?.models && $data.models.bergamot.version < $settings.service_settings.bergamot.version;
 		}
 	});
 

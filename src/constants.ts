@@ -60,7 +60,8 @@ export const DEFAULT_SETTINGS: TranslatorPluginSettings = {
 				'no', 'ny', 'or', 'pa', 'pl', 'ps', 'pt', 'ro', 'ru', 'rw', 'sd', 'si', 'sk', 'sl', 'sm', 'sn', 'so',
 				'sq', 'sr', 'st', 'su', 'sv', 'sw', 'ta', 'te', 'tg', 'th', 'tk', 'tl', 'tr', 'tt', 'ug', 'uk', 'ur',
 				'uz', 'vi', 'xh', 'yi', 'yo', 'zh', 'zh-CN', 'zh-TW', 'zu'
-			]
+			],
+			version: "1.0.0"
 		},
 		bing_translator: {
 			selected_languages: [],
@@ -80,7 +81,8 @@ export const DEFAULT_SETTINGS: TranslatorPluginSettings = {
 				"ru", "sk", "sl", "sm", "so", "sq", "sr-Cyrl", "sr-Latn", "sv", "sw", "ta", "te", "th", "ti", "tk",
 				"tlh-Latn", "tlh-Piqd", "to", "tr", "tt", "ty", "ug", "uk", "ur", "uz", "vi", "yua", "yue", "zh-Hans",
 				"zh-Hant", "zu"
-			]
+			],
+			version: "1.0.0"
 		},
 		yandex_translate: {
 			selected_languages: [],
@@ -96,7 +98,8 @@ export const DEFAULT_SETTINGS: TranslatorPluginSettings = {
 				'mhr', 'mi', 'mk', 'ml', 'mn', 'mr', 'mrj', 'ms', 'mt', 'my', 'ne', 'nl', 'no', 'pa', 'pap', 'pl',
 				'pt', 'ro', 'ru', 'si', 'sk', 'sl', 'sq', 'sr', 'su', 'sv', 'sw', 'ta', 'te', 'tg', 'th', 'tl',
 				'tr', 'tt', 'udm', 'uk', 'ur', 'uz', 'vi', 'xh', 'yi', 'zh'
-			]
+			],
+			version: "1.0.0"
 		},
 		libre_translate: {
 			selected_languages: [],
@@ -108,7 +111,8 @@ export const DEFAULT_SETTINGS: TranslatorPluginSettings = {
 			available_languages: [
 				"en", "ar", "az", "zh", "cs", "da", "nl", "eo", "fi", "fr", "de", "el", "he", "hi", "hu", "id", "ga",
 				"it", "ja", "ko", "fa", "pl", "pt", "ru", "sk", "es", "sv", "tr", "uk", "vi"
-			]
+			],
+			version: "1.0.0"
 		},
 		deepl: {
 			selected_languages: [],
@@ -121,7 +125,8 @@ export const DEFAULT_SETTINGS: TranslatorPluginSettings = {
 			available_languages: [
 				"bg", "cs", "da", "de", "el", "en", "es", "et", "fi", "fr", "hu", "id", "it", "ja", "lt", "lv", "nl",
 				"pl", "pt", "ro", "ru", "sk", "sl", "sv", "tr", "zh"
-			]
+			],
+			version: "1.0.0"
 		},
 		bergamot: {
 			selected_languages: [],
