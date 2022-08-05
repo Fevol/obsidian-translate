@@ -1,0 +1,158 @@
+.translator-textarea {
+	width: 100%;
+	//min-height: 140px;
+	//margin: 4px;
+	flex: 1;
+}
+
+.translator-select {
+	width: 100%;
+	//margin: 4px;
+	margin-top: 8px;
+}
+
+.icon-text {
+	display: flex;
+	align-items: center;
+	gap: 4px;
+}
+
+.icon-text > * {
+	display: flex;
+}
+
+.rounded-icon {
+	border-radius: 100%;
+	width: 20px;
+	height: 20px;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	margin-left: 8px;
+}
+
+
+
+
+.spinner {
+	width: 16px;
+	height: 16px;
+	border: 3px solid;
+	border-color: initial;
+	border-bottom-color: transparent;
+	border-radius: 50%;
+	display: inline-block;
+	box-sizing: border-box;
+	animation: rotation 1.5s linear infinite;
+}
+
+@keyframes rotation {
+	0% {
+		transform: rotate(0deg);
+	}
+	100% {
+		transform: rotate(360deg);
+	}
+}
+
+.translator-button {
+	border-radius: 100%;
+	// On mobile, the width of the button is overwritten
+	// FIXME: On Android at least, the width of the button gets changed, adding !important causes the horizontalSlide animation to break
+	width: 50px;
+	max-width: 50px;
+
+	height: 50px;
+	background: var(--background-primary);
+	border: 1px solid var(--background-modifier-border);
+	display: grid !important;
+	justify-content: center;
+	align-content: center;
+	margin-right: 0;
+}
+
+.translator-toggle-button {
+	justify-content: space-between;
+}
+
+.translator-extra {
+	background-color: var(--text-accent) !important;
+	color: var(--text-on-accent) !important;
+}
+
+.translator-success {
+	background-color: var(--background-modifier-success) !important;
+}
+
+.translator-fail {
+	background-color: var(--background-modifier-error) !important;
+	color: var(--text-on-accent);
+}
+
+.translator_input_success {
+	color: var(--interactive-success) !important;
+	border-color: var(--interactive-success) !important;
+	filter: brightness(1.2);
+}
+
+.translator_input_fail {
+	color: var(--text-error) !important;
+	border-color: var(--text-error) !important;
+}
+
+
+
+
+.translator-fail > * {
+	color: var(--text-on-accent);
+}
+
+.warning-text {
+	color: var(--text-error);
+}
+
+.info-text {
+	color: var(--text-accent);
+}
+
+.hide-element {
+	display: none !important;
+}
+
+.translator-dropdown-logo {
+	position: sticky;
+	left: 100%;
+	top: 50%;
+}
+
+.translator-dropdown-menu {
+	display: none;
+	position: absolute;
+	left: 100%;
+	// FIXME: Figure out if relative positioning is possible
+	bottom: 0%;
+	flex-direction: column;
+	flex: 1;
+	max-height: 100%;
+	overflow-y: scroll !important;
+}
+
+.translator-dropdown:hover .translator-dropdown-menu {
+	display: flex;
+}
+
+.menu {
+	// Temporary solution: overflow: hidden causes the dropdown menu to not be drawn
+	overflow: unset;
+	// Temporary solution: padding makes it hard to reach the dropdown menu, without deactivating the :hover selector
+	padding-left: 0;
+	padding-right: 0;
+}
+
+
+.disable-animations * {
+	animation-duration: 0.01ms !important;
+	animation-iteration-count: 1 !important;
+	transition-duration: 0.01ms !important;
+	animation-delay: 0.01ms !important;
+}
