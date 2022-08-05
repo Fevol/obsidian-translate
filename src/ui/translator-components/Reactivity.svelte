@@ -190,41 +190,8 @@
 		return translator;
 	}
 	
-	
-
-	// function validateAPIKey() {
-	// 	if (SERVICES_INFO[service_observer].requires_api_key) {
-	// 		let invalidated = false;
-	// 		let message = '';
-	// 		// API key is required but not provided, invalid state
-	// 		if (!api_key_observer) {
-	// 			invalidated = null;
-	// 			message = "No API key was given";
-	//
-	// 			// Security setting is password but given API key is still encrypted (ends on '=='), invalid state
-	// 		} else if ($settings.security_setting === 'password') {
-	// 			// FIXME: Not every encrypted key ends with '==' for some reason
-	// 			if (api_key_observer.endsWith("==")) {
-	// 				invalidated = true;
-	// 				message = "Password is still encrypted";
-	// 			}
-	// 		}
-	// 		if (invalidated) {
-	// 			$settings.service_settings[service_observer].validated = false;
-	// 			plugin.translator.valid = false;
-	// 		} else if (invalidated === null) {
-	// 			$settings.service_settings[service_observer].validated = null;
-	// 			plugin.translator.valid = null;
-	// 		}
-	// 		if (message && !plugin.settings_open)
-	// 			plugin.message_queue(message, 5000, true);
-	// 	}
-	// }
-
 
 	$: {
-		// And this is why I shouldn't have chosen for reactivity, the optimal solution would be to
-		// manually set the models localstorage after every write, but I am a lazy coder
 		if (Object.keys(model_observer).length) {
 			localStorage.setItem('models', JSON.stringify(model_observer));
 		}
@@ -236,7 +203,7 @@
 		}))];
 	}
 
-	onMount(() => {
+	onMount(async () => {
 		// @ts-ignore (Config exists in vault)
 		if (app.vault.config.spellcheckLanguages)
 			$data.spellchecker_languages = [...new Set(app.vault.config.spellcheckLanguages.map(x => x.split('-')[0]))]
@@ -267,6 +234,11 @@
 		if ($settings.security_setting === 'password') {
 			if (!localStorage.getItem('password')) {
 				new PasswordRequestModal(plugin).open();
+			} else if (Object.entries($settings.service_settings).some(async ([service, settings]) => {
+				if (SERVICES_INFO[service].requires_api_key && settings.api_key)
+					return (await aesGcmDecrypt(settings.api_key, localStorage.getItem('password'))).endsWith('==');
+			})) {
+				new PasswordRequestModal(plugin).open();
 			}
 		} else if ($settings.security_setting === 'dont_save') {
 			for (let service in $settings.service_settings) {
@@ -276,7 +248,7 @@
 			}
 		}
 
-		// Remove all services that do not work on mobile (both in the settings, as their features)
+		// Remove all services that do not work on mobile (both in the settings, as well as their features)
 		if (Platform.isMobile) {
 			// FIXME: Also check all translation views for usage of bergamot
 

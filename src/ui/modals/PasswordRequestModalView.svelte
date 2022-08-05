@@ -14,6 +14,8 @@
 	let encrypted_api_key = "";
 	let decrypted_api_key = "";
 
+	let invalid = false;
+
 	$: encrypted_api_key = Object.values($settings.service_settings).find(x => x.api_key?.endsWith("=="))?.api_key;
 	$: aesGcmDecrypt(encrypted_api_key, input).then(x => decrypted_api_key = x);
 
@@ -25,6 +27,7 @@
 			// If encrypted and decrypted key are the same, the input is probably empty
 			if (encrypted_api_key === decrypted_api_key) {
 				new Notice("Password is invalid");
+				invalid = true;
 			} else {
 				localStorage.setItem("password", input);
 				$data.api_key = await aesGcmDecrypt(encrypted_api_key, localStorage.getItem('password'));
@@ -40,7 +43,7 @@
 
 <div style="margin-bottom: 32px">
 	<h3 style="text-align: center">Enter your password</h3>
-	Some of the keys were encrypted, please enter your password to decrypt them.
+	The API keys are still encrypted, please enter your password to decrypt them.
 </div>
 
 <div class="translator-password-modal-inputs">
@@ -49,7 +52,9 @@
 		type="password"
 		value={input}
 		placeholder="Type here..."
+		class:translator_input_fail={invalid}
 		on:keyup={(e) => {
+			invalid = false;
 			if (e.key === "Enter")
 				test_password();
 			else
