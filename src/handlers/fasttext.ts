@@ -5,7 +5,7 @@ import type {
 	ValidationResult,
 	ModelFileData
 } from "../types";
-import {FastText, FastTextModel, addOnPostRun} from "./fasttext/fasttext";
+import {FastText, FastTextModel} from "./fasttext/fasttext";
 
 export class FastTextDetector extends DummyTranslate {
 	detector: FastTextModel;

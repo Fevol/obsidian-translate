@@ -1,20 +1,9 @@
-// Import plugin settings
-
 import {DummyTranslate} from "./dummy-translate";
 import type {APIServiceSettings, DetectionResult, LanguagesFetchResult, TranslationResult, ValidationResult} from "../types";
+import {requestUrl} from "obsidian";
 
 export class GoogleTranslate extends DummyTranslate {
 	api_key: string;
-
-	// TODO: Internally ensure that requests are not spammed
-	// // Keep track of requests
-	// limit_count: number = 0
-	//
-	// // Request limiter for service
-	// request_limiter: object = {
-	// 	max_requests: 10,
-	// 	interval: "second",
-	// }
 
 	constructor(settings: APIServiceSettings) {
 		super();
@@ -27,21 +16,24 @@ export class GoogleTranslate extends DummyTranslate {
 			return {valid: false, message: "API key was not specified"};
 
 		try {
-			const response = await fetch(`https://translation.googleapis.com/language/translate/v2/languages?` +
-				new URLSearchParams({
-					key: this.api_key,
-					target: 'en',
-					model: 'nmt',
-				}), {
+			const response = await requestUrl({
+				throw: false,
+				url:`https://translation.googleapis.com/language/translate/v2/languages?` +
+					new URLSearchParams({
+						key: this.api_key,
+						target: 'en',
+						model: 'nmt',
+					}),
 				headers: {
 					'Content-Type': 'application/json',
 					'Accept': 'application/json',
 				},
 			});
-			if(response.ok) this.success();
 
-			const data = await response.json();
-			return {valid: response.ok, message: response.ok ? "" : `Validation failed:\n${data.error.message}`};
+			if (response.status === 200) this.success();
+			const data = response.json;
+
+			return {valid: response.status === 200, message: response.status === 200 ? "" : `Validation failed:\n${data.error.message}`};
 		} catch (e) {
 			return {valid: false, message: `Validation failed:\n${e.message}`};
 		}
@@ -56,22 +48,25 @@ export class GoogleTranslate extends DummyTranslate {
 			return [{message: "No text was provided"}];
 
 		try {
-			const response = await fetch(`https://translation.googleapis.com/language/translate/v2/detect?` +
-				new URLSearchParams({
-					key: this.api_key,
-				}), {
+			const response = await requestUrl({
+				throw: false,
 				method: 'POST',
-				body: JSON.stringify({
-					q: text,
-				}),
+				url:`https://translation.googleapis.com/language/translate/v2/detect?` +
+					new URLSearchParams({
+						key: this.api_key,
+					}),
 				headers: {
 					'Content-Type': 'application/json',
 					'Accept': 'application/json',
 				},
+				body: JSON.stringify({
+					q: text,
+				}),
 			});
+
 			// Data = {"detections":[[{"language":"en", "confidence":1}], ...], ...}
-			const data = await response.json();
-			if (!response.ok)
+			const data = response.json;
+			if (response.status !== 200)
 				throw new Error(data.error.message);
 
 			const return_values = [{language: data.data.detections[0][0].language, confidence: data.data.detections[0][0].confidence}];
@@ -94,11 +89,17 @@ export class GoogleTranslate extends DummyTranslate {
 			return {message: "No target language was provided"};
 
 		try {
-			const response = await fetch(`https://translation.googleapis.com/language/translate/v2?` +
-				new URLSearchParams({
-					key: this.api_key,
-				}), {
-				method: 'POST',
+			const response = await requestUrl({
+				throw: false,
+				method: "POST",
+				url:`https://translation.googleapis.com/language/translate/v2?` +
+					new URLSearchParams({
+						key: this.api_key,
+					}),
+				headers: {
+					'Content-Type': 'application/json',
+					'Accept': 'application/json',
+				},
 				body: JSON.stringify({
 					q: text,
 					source: from === 'auto' ? undefined : from,
@@ -106,16 +107,11 @@ export class GoogleTranslate extends DummyTranslate {
 					format: 'text',
 					model: 'nmt',
 				}),
-				headers: {
-					'Content-Type': 'application/json',
-					'Accept': 'application/json',
-				},
 			});
 
-
 			// Data = [{"text":"Hello", "detected_source_language":"en", "model":"nmt"}, ...]
-			const data = await response.json();
-			if (!response.ok)
+			const data = response.json;
+			if (response.status !== 200)
 				throw new Error(data.error.message);
 			const return_values = {translation: data.data.translations[0].translatedText,
 								   detected_language: (from === "auto" &&  data.data.translations[0].detectedSourceLanguage) ?
@@ -132,21 +128,25 @@ export class GoogleTranslate extends DummyTranslate {
 		if (!this.valid)
 			return {message: "Translation service is not validated"};
 		try {
-			const response = await fetch(`https://translation.googleapis.com/language/translate/v2/languages?` +
-				new URLSearchParams({
-					key: this.api_key,
-					target: 'en',
-					model: 'nmt',
-				}), {
+			const response = await requestUrl({
+				throw: false,
+				method: "POST",
+				url:`https://translation.googleapis.com/language/translate/v2/languages?` +
+					new URLSearchParams({
+						key: this.api_key,
+						target: 'en',
+						model: 'nmt',
+					}),
 				headers: {
 					'Content-Type': 'application/json',
 					'Accept': 'application/json',
 				},
 			});
-			// Data = [{"language":"en", "name":"English"}, ...]
-			const data = await response.json();
 
-			if (!response.ok)
+			// Data = [{"language":"en", "name":"English"}, ...]
+			const data = response.json;
+
+			if (response.status !== 200)
 				throw new Error(data.error.message);
 
 			const return_values = {languages: data.data.languages.map((l: { language: any; name: any; }) => l.language)};

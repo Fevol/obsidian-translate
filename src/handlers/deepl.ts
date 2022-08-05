@@ -6,31 +6,16 @@ import type {
 	TranslationResult,
 	ValidationResult
 } from "../types";
-import {request} from "obsidian";
+import {requestUrl} from "obsidian";
 
 // TODO: Allow for formality features to be accessed
 // TODO: Allow for formatting to be preserved
 // Check if split_sentences option causes problems
 //   --> .join all the translations together
-// Check if language code being lower/uppercase makes a difference
-
-
-// Due to CORS limitations, this package is using obsidian's request function
 
 export class Deepl extends DummyTranslate {
 	api_key: string;
 	host: string;
-
-	// // Keep track of requests
-	// limit_count: number = 0
-	//
-	// // Request limiter for service
-	// request_limiter: object = {
-	// 	// Max amount of characters per interval
-	// 	max_requests: 10,
-	// 	interval: "second",
-	// }
-
 
 	constructor(settings: APIServiceSettings) {
 		super();
@@ -45,15 +30,14 @@ export class Deepl extends DummyTranslate {
 
 		this.host = "https://api.deepl.com/v2";
 		try {
-			let response = JSON.parse(await request({
+			const response = await requestUrl({
 				url: `${this.host}/usage`,
 				method: "GET",
 				headers: {
 					"Authorization": "DeepL-Auth-Key " + this.api_key
 				}
-			}));
-
-			if ("character_count" in response) {
+			});
+			if (response.status === 200) {
 				this.success();
 				return {valid: true, message: "Using DeepL Pro API", host: this.host};
 			}
@@ -63,14 +47,15 @@ export class Deepl extends DummyTranslate {
 		} catch (e) {
 			this.host = "https://api-free.deepl.com/v2";
 			try {
-				let response = JSON.parse(await request({
+				let response = await requestUrl({
 					url: `${this.host}/usage`,
 					method: "GET",
 					headers: {
 						"Authorization": "DeepL-Auth-Key " + this.api_key
 					}
-				}));
-				if (!("character_count" in response))
+				});
+
+				if (response.status !== 200)
 					return {valid: false, message: "Validation failed:\nVerify correctness of API key"};
 
 				this.success();
@@ -91,7 +76,7 @@ export class Deepl extends DummyTranslate {
 			return [{message: "No text was provided"}];
 
 		try {
-			const response = await request({
+			const response = await requestUrl({
 				url: `${this.host}/translate?` + new URLSearchParams({
 					text: text,
 					target_lang: "en"
@@ -103,11 +88,11 @@ export class Deepl extends DummyTranslate {
 				}
 			});
 
-			if (!response)
+			if (response.status !== 200)
 				throw new Error("Check API key")
 
 			// Data = [{"text":"Hello", "detected_source_language":"en"}, ...]
-			const data = JSON.parse(response);
+			const data = response.json;
 
 			const return_values = [{language: data.translations[0].detected_source_language.toLowerCase()}];
 			this.success();
@@ -128,7 +113,7 @@ export class Deepl extends DummyTranslate {
 			return {message: "No target language was provided"};
 
 		try {
-			const response = await request({
+			const response = await requestUrl({
 				url: `${this.host}/translate?` + new URLSearchParams({
 					text: text,
 					source_lang: from === "auto" ? "" : from,
@@ -143,11 +128,11 @@ export class Deepl extends DummyTranslate {
 				}
 			});
 
-			if (!response)
+			if (response.status !== 200)
 				throw new Error("Check API key")
 
 			// Data = [{"text":"Hello", "detected_source_language":"en"}, ...]
-			const data = JSON.parse(response);
+			const data = response.json;
 			const return_values = {translation: data.translations[0].text,
 				detected_language: (from === "auto" && data.translations[0].detected_source_language) ?
 									data.translations[0].detected_source_language.toLowerCase() : null}
@@ -165,7 +150,7 @@ export class Deepl extends DummyTranslate {
 		if (!this.valid)
 			return {message: "Translation service is not validated"};
 		try {
-			const response = await request({
+			const response = await requestUrl({
 				url: `${this.host}/languages`,
 				method: "POST",
 				contentType: "application/json",
@@ -174,11 +159,11 @@ export class Deepl extends DummyTranslate {
 				}
 			});
 
-			if (!response)
+			if (response.status !== 200)
 				throw new Error("Check API key")
 
 			// Data = [{"language":"EN", "name":"English", supports_formality: true}, ...]
-			const data = JSON.parse(response);
+			const data = response.json;
 			const return_values = {languages: data.map((o: any) => o.language.toLowerCase())};
 			this.success();
 

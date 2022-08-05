@@ -7,7 +7,7 @@ import type {
 	ValidationResult
 } from "../types";
 import {TextDecoder} from "util";
-import type {RequestUrlParam, RequestUrlResponse} from "obsidian";
+import type {RequestUrlResponse} from "obsidian";
 import {requestUrl} from "obsidian";
 
 export class FanyiQq extends DummyTranslate {

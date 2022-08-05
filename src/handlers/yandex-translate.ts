@@ -1,5 +1,6 @@
 import {DummyTranslate} from "./dummy-translate";
 import type {APIServiceSettings, DetectionResult, LanguagesFetchResult, TranslationResult, ValidationResult} from "../types";
+import {requestUrl} from "obsidian";
 
 // FIXME: Check what translate returns when no language_from was specified
 
@@ -16,19 +17,22 @@ export class YandexTranslate extends DummyTranslate {
 			return {valid: false, message: "API key was not specified"};
 
 		try {
-			const response = await fetch("https://translate.yandex.net/api/v1.5/tr.json/getLangs?" +
-				new URLSearchParams({
-					key: this.api_key,
-					ui: "en"
-				}), {
+			const response = await requestUrl({
+				throw: false,
 				method: "POST",
+				url:`https://translate.yandex.net/api/v1.5/tr.json/getLangs?` +
+					new URLSearchParams({
+						key: this.api_key,
+						ui: "en"
+					}),
 			});
-			if (response.ok) this.success();
 
-			const data = await response.json();
-			return {valid: response.ok, message: response.ok ? "" : `(UNTESTED SERVICE) Validation failed:\n${data.message}`};
+			if (response.status === 200) this.success();
+
+			const data = response.json;
+			return {valid: response.status === 200, message: response.status === 200 ? "" : `Validation failed:\n${data.message}`};
 		} catch (e) {
-			return {valid: false, message: `(UNTESTED SERVICE) Validation failed:\n${e.message}`};
+			return {valid: false, message: `Validation failed:\n${e.message}`};
 		}
 	}
 
@@ -41,25 +45,29 @@ export class YandexTranslate extends DummyTranslate {
 			return [{message: "No text was provided"}];
 
 		try {
-			const response = await fetch("https://translate.yandex.net/api/v1.5/tr.json/detect?" +
-				new URLSearchParams({
-					key: this.api_key,
-					text: text
-				}), {
-				method: "POST"
+			const response = await requestUrl({
+				throw: false,
+				method: "POST",
+				url:`https://translate.yandex.net/api/v1.5/tr.json/detect?` +
+					new URLSearchParams({
+						key: this.api_key,
+						text: text
+					}),
 			});
+
+
 			// Data = {code: 200, lang: "en"}
-			const data = await response.json();
-			if (!response.ok)
+			const data = response.json;
+			if (response.status !== 200)
 				throw new Error(data.message);
 
-			const return_values = [{language: data.language, message: "(UNTESTED SERVICE) Results may be incorrect"}];
+			const return_values = [{language: data.language}];
 			this.success();
 
 			return return_values;
 		}	catch (e) {
 			this.failed();
-			return [{message: `(UNTESTED SERVICE) Language detection failed:\n(${e.message})`}];
+			return [{message: `Language detection failed:\n(${e.message})`}];
 		}
 	}
 
@@ -72,30 +80,33 @@ export class YandexTranslate extends DummyTranslate {
 			return {message: "No target language was provided"};
 
 		try {
-			const response = await fetch("https://translate.yandex.net/api/v1.5/tr.json/translate?" +
-				new URLSearchParams({
-					key: this.api_key,
-					text: text,
-					lang: from === 'auto' ? to : `${from}-${to}`,
-					format: "plain"
-				}), {
+			const response = await requestUrl({
+				throw: false,
 				method: "POST",
+				url:`https://translate.yandex.net/api/v1.5/tr.json/translate?` +
+					new URLSearchParams({
+						key: this.api_key,
+						text: text,
+						lang: from === 'auto' ? to : `${from}-${to}`,
+						format: "plain"
+					}),
 			});
+
+
 			// Data = {code: 200, lang: "ru-en", text: ["Good day comrade!"]}
-			const data = await response.json();
-			if (!response.ok)
+			const data = response.json;
+			if (response.status !== 200)
 				throw new Error(data.message);
 
-			const return_values = {translation: data.text[0],
-				                   detected_language: from === "auto" && data.lang ? data.lang : null,
-									message: "(UNTESTED SERVICE) Results may be incorrect"};
+			const return_values = { translation: data.text[0],
+				                    detected_language: from === "auto" && data.lang ? data.lang : null };
 			this.success();
 
 			return return_values;
 
 		} catch (e) {
 			this.failed();
-			return {message: `(UNTESTED SERVICE) Translation failed:\n(${e.message})`};
+			return {message: `Translation failed:\n(${e.message})`};
 		}
 	}
 
@@ -103,17 +114,19 @@ export class YandexTranslate extends DummyTranslate {
 		if (!this.valid)
 			return {message: "Translation service is not validated"};
 		try {
-			const response = await fetch("https://translate.yandex.net/api/v1.5/tr.json/getLangs?" +
-				new URLSearchParams({
-					key: this.api_key,
-					// Display language for format code, can be discarded
-					ui: "en"
-				}), {
+			const response = await requestUrl({
+				throw: false,
 				method: "POST",
+				url:`https://translate.yandex.net/api/v1.5/tr.json/getLangs?` +
+					new URLSearchParams({
+						key: this.api_key,
+						ui: "en"
+					}),
 			});
+
 			// Data = {langs: {en: "English", ...}}
-			const data = await response.json();
-			if (!response.ok)
+			const data = response.json;
+			if (response.status !== 200)
 				throw new Error(data.message);
 
 			const return_values = {languages: Object.keys(data.langs)};

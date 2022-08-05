@@ -1,15 +1,13 @@
 import type TranslatorPlugin from "../main";
 import {DummyTranslate} from "./dummy-translate";
 import type {
-	DetectionResult, ValidationResult, TranslationResult, LanguagesFetchResult,
-	TranslatorPluginSettings, ModelFileData, LanguageModelData, FileData,
+	DetectionResult, ValidationResult, TranslationResult,
+	LanguagesFetchResult, ModelFileData, LanguageModelData
 } from "../types";
 
 import {Bergamot} from "./bergamot/bergamot";
 
-
 import {requestUrl} from "obsidian";
-import {get} from "svelte/store";
 import t from "../l10n";
 
 
@@ -94,10 +92,7 @@ export class BergamotTranslate extends DummyTranslate {
 		if (!this.available_languages.includes(to))
 			return {message: `${t(to)} is not installed as a language model`};
 
-		// @ts-ignore (new_translate does not have specific return value, but it is guaranteed to be string)
-		let translation = await this.translator.translate(text, from, to) as string;
-
-		return {translation: translation, detected_language: detected_language};
+		return {translation: await this.translator.translate(text, from, to), detected_language: detected_language};
 	}
 
 	async get_languages(): Promise<LanguagesFetchResult> {

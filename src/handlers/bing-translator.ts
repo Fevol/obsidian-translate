@@ -1,19 +1,10 @@
 import {DummyTranslate} from "./dummy-translate";
 import type {APIServiceSettings, DetectionResult, LanguagesFetchResult, TranslationResult, ValidationResult} from "../types";
+import {requestUrl} from "obsidian";
 
 export class BingTranslator extends DummyTranslate {
 	api_key: string;
 	region: string;
-
-	// // Keep track of requests
-	// limit_count: number = 0
-	//
-	// // Request limiter for service
-	// request_limiter: object = {
-	// 	// Max amount of characters per interval
-	// 	max_characters: 1000000,
-	// 	interval: "hour",
-	// }
 
 	constructor(settings: APIServiceSettings) {
 		super();
@@ -34,21 +25,23 @@ export class BingTranslator extends DummyTranslate {
 			if (this.region)
 				headers["Ocp-Apim-Subscription-Region"] = this.region;
 
-			const response = await fetch("https://api.cognitive.microsofttranslator.com/translate?api-version=3.0&"
-				+ new URLSearchParams({
-					from: "",
-					to: "en",
-					textType: "plain"
-				}), {
+			const response = await requestUrl({
+				throw: false,
 				method: "POST",
-				body: JSON.stringify([{'Text': ''}]),
-				headers: headers
+				url:`https://api.cognitive.microsofttranslator.com/translate?api-version=3.0&` +
+					new URLSearchParams({
+						from: "",
+						to: "en",
+						textType: "plain"
+					}),
+				headers: headers,
+				body: JSON.stringify([{Text: ''}]),
 			});
 
-			if(response.ok) this.success();
+			if (response.status === 200) this.success();
+			const data = response.json;
 
-			const data = await response.json();
-			return {valid: response.ok, message: !response.ok ? `Validation failed:\n${data.error.message}` : ""};
+			return {valid: response.status === 200, message: response.status === 200 ? "" : `Validation failed:\n${data.error.message}`};
 		} catch (e) {
 			return {valid: false, message: `Validation failed:\n${e.message}`};
 		}
@@ -70,18 +63,20 @@ export class BingTranslator extends DummyTranslate {
 			headers["Ocp-Apim-Subscription-Region"] = this.region;
 
 		try {
-			const response = await fetch("https://api.cognitive.microsofttranslator.com/detect?api-version=3.0&scope=text"
-				+ new URLSearchParams({
-					textType: "plain"
-				}), {
+			const response = await requestUrl({
+				throw: false,
 				method: "POST",
-				body: JSON.stringify([{
-					Text: text
-				}]),
-				headers: headers
+				url:`https://api.cognitive.microsofttranslator.com/detect?api-version=3.0&scope=text` +
+					new URLSearchParams({
+						textType: "plain"
+					}),
+				headers: headers,
+				body: JSON.stringify([{Text: text}]),
 			});
-			const data = await response.json();
-			if (!response.ok)
+
+
+			const data = response.json;
+			if (response.status !== 200)
 				throw new Error(data.error.message);
 			let results = [{language: data[0].language, confidence: data[0].score}];
 			if (data[0].alternatives)
@@ -114,19 +109,21 @@ export class BingTranslator extends DummyTranslate {
 			if (this.region)
 				headers["Ocp-Apim-Subscription-Region"] = this.region;
 
-			const response = await fetch("https://api.cognitive.microsofttranslator.com/translate?api-version=3.0&"
-				+ new URLSearchParams({
-					from: from === "auto" ? "" : from,
-					to: to,
-					textType: "plain"
-				}), {
+			const response = await requestUrl({
+				throw: false,
 				method: "POST",
-				body: JSON.stringify([{'Text': text}]),
-				headers: headers
+				url:`https://api.cognitive.microsofttranslator.com/translate?api-version=3.0&` +
+					new URLSearchParams({
+						from: from === "auto" ? "" : from,
+						to: to,
+						textType: "plain"
+					}),
+				headers: headers,
+				body: JSON.stringify([{Text: text}]),
 			});
 
-			const data = await response.json();
-			if (!response.ok)
+			const data = response.json;
+			if (response.status !== 200)
 				throw new Error(data.error.message);
 			const return_values = {translation: data[0].translations[0].text,
 								 detected_language: (from === "auto" && data[0].detectedLanguage.language) ? data[0].detectedLanguage.language : null}
@@ -141,21 +138,20 @@ export class BingTranslator extends DummyTranslate {
 	// No API key required, service may be invalid
 	async get_languages(): Promise<LanguagesFetchResult> {
 		try {
-			const response = await fetch("https://api.cognitive.microsofttranslator.com/languages?api-version=3.0&scope=translation", {
+			const response = await requestUrl({
+				throw: false,
 				method: "GET",
-				headers: {
-					"Content-Type": "application/json",
-				}
+				url:`https://api.cognitive.microsofttranslator.com/languages?api-version=3.0&scope=translation`,
+				headers: { "Content-Type": "application/json" },
 			});
-			const data = await response.json();
 
-			if (!response.ok)
+			const data = response.json;
+
+			if (response.status !== 200)
 				throw new Error(data.error.message);
-			// TODO: Add successful message
-			const return_values = {languages: Object.keys(data.translation)}
 			this.success();
 
-			return return_values;
+			return {languages: Object.keys(data.translation)};
 		}
 		catch (e) {
 			this.failed();

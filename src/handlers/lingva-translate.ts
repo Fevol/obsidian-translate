@@ -59,6 +59,7 @@ export class LingvaTranslate extends DummyTranslate {
 			return {message: "No target language was provided"};
 		try {
 			const response = await requestUrl({url: `https://${this.host}/api/v1/${from}/${to}/${text}`});
+
 			// Data = {"translation": "...", "info": {
 			// 		"detectedSource": "en",
 			// 		"pronunciation": {"query": "..."},
