@@ -7,7 +7,7 @@ import type {
 	ValidationResult
 } from "../types";
 import {TextDecoder} from "util";
-import type {RequestUrlResponse} from "obsidian";
+import type {RequestUrlParam, RequestUrlResponse} from "obsidian";
 import {requestUrl} from "obsidian";
 
 export class FanyiQq extends DummyTranslate {
@@ -47,7 +47,7 @@ export class FanyiQq extends DummyTranslate {
 		}
 
 		const date = new Date();
-		const timestamp = date.getTime();
+		const timestamp = (date.getTime() / 1000).toFixed(0);
 		const full_date = `${date.getUTCFullYear()}-${('0' + (date.getUTCMonth() + 1)).slice(-2)}-${('0' + date.getUTCDate()).slice(-2)}`;
 
 		const version = "2018-03-21";
@@ -65,7 +65,7 @@ export class FanyiQq extends DummyTranslate {
 		const keyed_date = await hmac_hash_string(full_date, 'TC3' + this.api_key);
 		const keyed_service = await hmac_hash_string('tmt', keyed_date);
 		const keyed_signing = await hmac_hash_string('tc3_request', keyed_service);
-		const signature = await hmac_hash_string(message_string, keyed_signing);
+		const signature = await hmac_hash_string(message_string, keyed_signing, 'hex');
 
 		const authorization = [
 			'TC3-HMAC-SHA256 Credential=' + this.api_key + '/' + credential_scope,
@@ -94,20 +94,24 @@ export class FanyiQq extends DummyTranslate {
 			const signature = await this.sign_message(payload);
 
 			const response = await requestUrl({
-				url: `https://tmt.tencentcloudapi.com/`, method: 'POST', headers: {
-					'Authorization': signature.authorization,
+				url: `https://tmt.tencentcloudapi.com/?` + new URLSearchParams(payload), method: 'POST',
+				headers: {
 					'Content-Type': 'application/json',
-					'Host': 'tmt.tencentcloudapi.com',
-					'X-TC-Action': 'LanguageDetect',
+					'Authorization': signature.authorization,
 					'X-TC-Timestamp': signature.timestamp,
+					'X-TC-Action': 'LanguageDetect',
 					'X-TC-Version': '2018-03-21',
 				}
 			});
 
-			if(response.status === 200) this.success();
-
 			const data = response.json;
-			return {valid: response.status === 200, message: response.status === 200 ? "" : `Validation failed:\n${data.error.message}`};
+
+			const success = response.status === 200 && !data.Response.Error;
+
+			if (success)
+				this.success();
+
+			return {valid: success, message:  success ? "" : `Validation failed:\n${data.Response.Error.Message}`};
 		} catch (e) {
 			return {valid: false, message: `Validation failed:\n${e.message}`};
 		}
@@ -131,20 +135,21 @@ export class FanyiQq extends DummyTranslate {
 			}
 			const signature = await this.sign_message(payload);
 
+			// FIXME: Host causes crash (do I need to add it?)
 			const response = await requestUrl({
-				url: `https://tmt.tencentcloudapi.com/`, method: 'POST', headers: {
-					'Authorization': signature.authorization,
+				url: `https://tmt.tencentcloudapi.com/?` + new URLSearchParams(payload), method: 'POST',
+				headers: {
 					'Content-Type': 'application/json',
-					'Host': 'tmt.tencentcloudapi.com',
-					'X-TC-Action': 'LanguageDetect',
+					'Authorization': signature.authorization,
 					'X-TC-Timestamp': signature.timestamp,
+					'X-TC-Action': 'LanguageDetect',
 					'X-TC-Version': '2018-03-21',
 				}
 			});
 
 			// Data = {"Response": {"Lang":"en", "RequestId": "..." } }
 			const data = response.json;
-			if (response.status !== 200)
+			if (response.status !== 200 || data.Response.Error)
 				throw new Error(data.Response.Error.Message);
 
 			const return_values = [{language: data.Response.Lang}];
@@ -180,14 +185,13 @@ export class FanyiQq extends DummyTranslate {
 			const signature = await this.sign_message(payload);
 
 			return requestUrl({
-				url: `https://tmt.tencentcloudapi.com/`, method: 'POST', headers: {
-					'Authorization': signature.authorization,
+				url: `https://tmt.tencentcloudapi.com/?` + new URLSearchParams(payload), method: 'POST',
+				headers: {
 					'Content-Type': 'application/json',
-					'Host': 'tmt.tencentcloudapi.com',
-					'X-TC-Action': 'TextTranslate',
+					'Authorization': signature.authorization,
 					'X-TC-Timestamp': signature.timestamp,
+					'X-TC-Action': 'LanguageDetect',
 					'X-TC-Version': '2018-03-21',
-
 				}
 			});
 		}
@@ -198,7 +202,7 @@ export class FanyiQq extends DummyTranslate {
 			// Data = {"Response": {"TargetText":"Hello", "Source":"en", "Target":"zh", "RequestId": "..." } }
 			let data = response.json;
 			let detected_language = data.Response?.Source;
-			if (response.status !== 200) {
+			if (response.status !== 200 || data.Response.Error) {
 				if (data.Response.Error.Code === 'UnsupportedOperation.UnsupportedSourceLanguage') {
 					// TODO: Warn user of doubled character usage due to indirect translation via pivoting
 					// Use English as the pivot language (as QQ does not support translation between all language pairs)
