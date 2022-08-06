@@ -361,6 +361,9 @@
 		justify-content: space-between;
 		display: flex;
 		overflow: hidden;
+
+		flex-flow: row wrap;
+		height: calc(var(--font-text-size)*1.5);
 	}
 
 	.translator-attribution-column-text {
