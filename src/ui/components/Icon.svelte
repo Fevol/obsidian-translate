@@ -19,13 +19,11 @@
 		}
 
 	});
-	// TODO: Find a way to call Obsidian icon library to get the direct SVG's, because this is getting stupid
 
 	// function resize() {
 	// 	// If size was of type [width, height], resize the SVG such that it fits for one of the dimensions
 	// 	if (size instanceof Array) {
 	// 		icon_element = icon_element.children[0].children[0] as HTMLElement;
-	// 		// FIXME: Fix this janky-ass shit,
 	// 		// let child = icon_element.children[0];
 	//
 	// 		// let [width, height] = child.getAttribute("viewBox").split(" ").splice(2).map((x) => parseInt(x));

@@ -1,4 +1,4 @@
-import { Modal, App } from "obsidian";
+import { Modal } from "obsidian";
 import type {SvelteComponent} from "svelte"
 import PasswordRequestModalView from "./PasswordRequestModalView.svelte";
 import type TranslatorPlugin from "../../main";

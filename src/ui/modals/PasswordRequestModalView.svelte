@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { Button, Input, ValidateInput } from "../components";
+	import { Input } from "../components";
 	import {createEventDispatcher} from "svelte";
 
 	import {aesGcmDecrypt} from "../../util";

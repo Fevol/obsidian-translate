@@ -1,6 +1,6 @@
 <script lang="ts">
 	import {Icon} from "./index";
-	import {slide, fade} from "svelte/transition"
+	import {slide} from "svelte/transition"
 	import {horizontalSlide} from "../animations";
 
 	interface IOption {

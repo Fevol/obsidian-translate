@@ -58,10 +58,6 @@ export interface APIServiceSettings {
 	downloadable_models?: Array<LanguageModelData>;
 	version?: string;
 
-	// Which languages get shown in the translation view selection box
-	// (0 = all, 1 = synced with spell checker, 2 = only selected languages)
-	filter_type: number;
-
 	// Authentication settings for translation services
 	api_key?: string;
 	app_id?: string;

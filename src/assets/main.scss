@@ -57,8 +57,6 @@
 
 .translator-button {
 	border-radius: 100%;
-	// On mobile, the width of the button is overwritten
-	// FIXME: On Android at least, the width of the button gets changed, adding !important causes the horizontalSlide animation to break
 	width: 50px;
 	max-width: 50px;
 
@@ -130,7 +128,6 @@
 	display: none;
 	position: absolute;
 	left: 100%;
-	// FIXME: Figure out if relative positioning is possible
 	bottom: 0%;
 	flex-direction: column;
 	flex: 1;

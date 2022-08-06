@@ -23,9 +23,10 @@ export class FastTextDetector extends DummyTranslate {
 				// FIXME: For some reason, you cannot catch the abort of fasttext_wasm here, so this is done in the fasttext wrapper
 				//  by returning the error
 				try {
-					if (ft instanceof WebAssembly.RuntimeError)
+					if (ft instanceof WebAssembly.RuntimeError) {
+						this.valid = false;
 						this.plugin.message_queue(ft.message.match(/\(([^)]+)\)/)[0].slice(1, -1));
-					else {
+					} else {
 						// @ts-ignore
 						ft.loadModel(Object.values(available_models.models)[0].name).then((model: FastTextModel) => {
 							this.detector = model;
@@ -40,6 +41,7 @@ export class FastTextDetector extends DummyTranslate {
 				}
 			})
 		} else {
+			this.valid = false;
 			this.plugin.message_queue("FastText is not installed, automatic detection of language is disabled.");
 		}
 	}

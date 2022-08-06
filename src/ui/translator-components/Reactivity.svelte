@@ -3,7 +3,7 @@
 <script lang="ts">
 
 	import {onMount} from "svelte";
-	import {App, moment, Platform} from "obsidian";
+	import {App, Platform} from "obsidian";
 
 	import TranslatorPlugin from "../../main";
 
@@ -48,15 +48,6 @@
 
 	let all_languages: Set<string>;
 
-	// Alright, let me explain. Svelte reactivity is - to call it mildly - slightly wacko.
-	//  First of, the reactivity works great... as long as you're not using it on an object;
-	//  	if you do decide to use it on an object, ANY change on the object will trigger a reactivity update.
-	//      This is fine for rendering, but not when you're trying to minimize the number of requests made to a server.
-	//  Luckily, you can fix this by making an observer on the object, which essentially makes a new writeable solely
-	//      on that key value. This way, the reactivity will only trigger when the value of the key changes.
-	//  Now, this hack ONLY works if the value you're observing is NOT an object (numbers, strings, etc). If you want
-	//      to observe an array inside an object, you'll need to check one of its static values (such as its length,
-	//      or the value of its first element).
 	$: service_observer = $settings.translation_service;
 	$: filter_mode_observer = $settings.filter_mode;
 	$: model_observer = $data.models;
@@ -133,9 +124,6 @@
 		} else {
 			const service_settings = $settings.service_settings[service];
 
-			if ($settings.security_setting !== 'none' && SERVICES_INFO[service].requires_api_key)
-				service_settings.api_key = await getAPIKey(service, $settings.security_setting);
-
 			let translation_service: DummyTranslate = null;
 			if (service === "google_translate")
 				translation_service = new GoogleTranslate(service_settings);
@@ -161,6 +149,9 @@
 			else if (service === 'fasttext') {
 				translation_service = new FastTextDetector(plugin, $data.models?.fasttext);
 			}
+
+			if ($settings.security_setting !== 'none' && SERVICES_INFO[service].requires_api_key)
+				translation_service.api_key = await getAPIKey(service, $settings.security_setting);
 
 			if (service !== 'bergamot' && service !== 'fasttext') {
 				translation_service.valid &&= $settings.service_settings[service].validated;
@@ -189,7 +180,7 @@
 			delete active_services[old_service];
 		return translator;
 	}
-	
+
 
 	$: {
 		if (Object.keys(model_observer).length) {
@@ -234,11 +225,15 @@
 		if ($settings.security_setting === 'password') {
 			if (!localStorage.getItem('password')) {
 				new PasswordRequestModal(plugin).open();
-			} else if (Object.entries($settings.service_settings).some(async ([service, settings]) => {
-				if (SERVICES_INFO[service].requires_api_key && settings.api_key)
-					return (await aesGcmDecrypt(settings.api_key, localStorage.getItem('password'))).endsWith('==');
-			})) {
-				new PasswordRequestModal(plugin).open();
+			} else {
+				for (const [service, service_settings] of Object.entries($settings.service_settings)) {
+					if (SERVICES_INFO[service].requires_api_key && service_settings.api_key) {
+						if ((await aesGcmDecrypt(service_settings.api_key, localStorage.getItem('password'))).endsWith('==')) {
+							new PasswordRequestModal(plugin).open();
+							break;
+						}
+					}
+				}
 			}
 		} else if ($settings.security_setting === 'dont_save') {
 			for (let service in $settings.service_settings) {
@@ -250,8 +245,6 @@
 
 		// Remove all services that do not work on mobile (both in the settings, as well as their features)
 		if (Platform.isMobile) {
-			// FIXME: Also check all translation views for usage of bergamot
-
 			if (SERVICES_INFO[$settings.translation_service].desktop_only) {
 				plugin.message_queue(`${toTitleCase($settings.translation_service)} is currently not supported on mobile devices, defaulting to Google Translate`, 5000, true);
 				$settings.translation_service = 'google_translate';

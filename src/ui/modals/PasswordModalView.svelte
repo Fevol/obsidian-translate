@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { Button, Input, ValidateInput } from "../components";
+	import { Input } from "../components";
 	import {Notice} from "obsidian";
 	import {createEventDispatcher} from "svelte";
 	import type {Writable} from "svelte/store";
@@ -43,9 +43,11 @@
 	if (valid) {
 		for (const service of Object.keys($settings.service_settings)) {
 			let api_key = $settings.service_settings[service].api_key;
-			if (current_password)
-				api_key = await aesGcmDecrypt(api_key, current_password);
-			$settings.service_settings[service].api_key = await aesGcmEncrypt(api_key, input_1);
+			if (api_key) {
+				if (current_password)
+					api_key = await aesGcmDecrypt(api_key, current_password);
+				$settings.service_settings[service].api_key = await aesGcmEncrypt(api_key, input_1);
+			}
 		}
 		localStorage.setItem("password", input_1);
 		dispatch("close");

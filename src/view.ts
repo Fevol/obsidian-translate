@@ -20,6 +20,7 @@ export class TranslatorView extends ItemView {
 	auto_translate: boolean;
 	view_mode: number = 0;
 	filter_mode: number = 0;
+	navigation = true;
 
 	constructor(leaf: WorkspaceLeaf, plugin: TranslatorPlugin) {
 		super(leaf);
@@ -61,8 +62,6 @@ export class TranslatorView extends ItemView {
 			}
 		});
 
-		// FIXME: This ensures that content in the view is using the available space, and nothing more,
-		//  find a better way to write this though (or find an actual solution instead of a hack)
 		this.contentEl.style.display = "flex";
 		this.contentEl.style.flexDirection = "column";
 	}

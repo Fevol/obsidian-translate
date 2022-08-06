@@ -98,11 +98,6 @@
 		else if (filter_mode === 2)
 			languages = languages.filter(x => $settings.service_settings[translation_service].selected_languages.includes(x));
 
-		// if (!languages.includes(language_from))
-		// 	language_from = autodetect_capability ? 'auto' : null;
-		// if (!languages.includes(language_to))
-		// 	language_to = null;
-
 		return Array.from(languages)
 			.map((locale) => {return {'value': locale, 'text': $data.all_languages.get(locale) || locale};})
 			.sort((a, b) => a.text.localeCompare(b.text))
@@ -327,8 +322,6 @@
 </View>
 
 <style class="scss">
-	/* TODO: Improve flex to allow multiple grid layouts based on the side panel width and height
-	  (e.g.: <200px = (FIELD) (BUTTON) (FIELD), 200px > ... > 400px = (FIELD, FIELD) (BUTTON), >400px (FIELD, BUTTON, FIELD) */
 	.translator-view {
 		display: grid;
 		margin: 12px;
@@ -401,7 +394,6 @@
 	.translator-service-text {
 		text-transform: capitalize;
 		font-style: italic;
-		/*filter: brightness(0.5);*/
 	}
 
 	.vertical {
