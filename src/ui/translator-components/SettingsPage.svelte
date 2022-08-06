@@ -284,7 +284,7 @@
 				<SettingItem
 					name="Translation Service"
 					notices={[
-						{ type: 'text', text: `🛈 This service will be used for the editor context menu and translating files`, style: 'info-text' }
+						{ type: 'text', text: `🛈 Used in the editor context menu and for translating files`, style: 'info-text' }
 					]}
 					type="dropdown"
 				>
@@ -430,8 +430,8 @@
 			{:else}
 				{#if info.type === "detection"}
 					<SettingItem
-						name="Setup local text detection"
-						description="Install FastText language models for local text detection (size: 1.72MiB)"
+						name="Setup local language detection"
+						description="Install FastText language models for local language detection (size: 1.72MiB)"
 						type="button"
 					>
 						<!-- FIXME: Official FastText repo does not contain wasm file, so the binary was added to the plugin's repo
@@ -506,7 +506,7 @@
 
 					<SettingItem
 						name="Always use FastText"
-						description="FastText will be used as the default text detection engine"
+						description="FastText will be used as the default language detection service"
 						type="text"
 					>
 						<Toggle
@@ -712,7 +712,7 @@
 							description="API key for translation service"
 							type="text"
 							notices={[
-								{ type: 'href', text: "🛈 Sign up for API key here", url: info.request_key},
+								{ type: 'href', text: "🛈 Sign up for an API key here", url: info.request_key},
 								...(api_key?.endsWith("==") ? [{ type: 'text', text: `⚠ API key is still encrypted`, style: 'warning-text'}] : [])
 							]}
 						>
