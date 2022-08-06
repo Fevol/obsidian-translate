@@ -156,7 +156,7 @@ export async function aesGcmDecrypt(ciphertext: string, password: string) {
 
 		return plaintext;                                                                  // return the plaintext
 	} catch (e) {
-		console.log("Error decrypting: " + e);
+		console.log("Error decrypting: password is incorrect");
 		return ciphertext;
 	}
 

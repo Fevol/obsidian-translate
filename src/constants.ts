@@ -34,6 +34,7 @@ export const DEFAULT_DATA: PluginData = {
 	has_autodetect_capability: false,
 	models: {},
 	tab: 'general',
+	password_are_encrypted: false,
 }
 
 export const DEFAULT_SETTINGS: TranslatorPluginSettings = {

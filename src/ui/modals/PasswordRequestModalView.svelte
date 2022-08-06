@@ -1,38 +1,45 @@
 <script lang="ts">
-	import { Input } from "../components";
 	import {createEventDispatcher} from "svelte";
+	import type {Writable} from "svelte/store";
+
+	import {Notice} from "obsidian";
+	import TranslatorPlugin from "../../main";
 
 	import {aesGcmDecrypt} from "../../util";
-	import {Notice} from "obsidian";
-	import type {Writable} from "svelte/store";
 	import type {PluginData, TranslatorPluginSettings} from "../../types";
 
 	export let settings: Writable<TranslatorPluginSettings>;
 	export let data: Writable<PluginData>;
+	export let plugin: TranslatorPlugin;
 
 	let input = "";
-	let encrypted_api_key = "";
-	let decrypted_api_key = "";
-
 	let invalid = false;
-
-	$: encrypted_api_key = Object.values($settings.service_settings).find(x => x.api_key?.endsWith("=="))?.api_key;
-	$: aesGcmDecrypt(encrypted_api_key, input).then(x => decrypted_api_key = x);
+	const active_services = plugin.reactivity.getAllServices();
 
 	const dispatch = createEventDispatcher();
 
 	async function test_password() {
 		try {
-			let decrypted_api_key = await aesGcmDecrypt(encrypted_api_key, input);
-			// If encrypted and decrypted key are the same, the input is probably empty
-			if (encrypted_api_key === decrypted_api_key) {
-				new Notice("Password is invalid");
-				invalid = true;
-			} else {
-				localStorage.setItem("password", input);
-				$data.api_key = await aesGcmDecrypt(encrypted_api_key, localStorage.getItem('password'));
-				dispatch("close");
+			let decrypted_keys: Map<string, string> = new Map();
+			for (const service of Object.keys(active_services)) {
+				const key = await aesGcmDecrypt($settings.service_settings[service].api_key, input);
+
+				decrypted_keys.set(<string>service, key);
+				if (key && key.endsWith("==")) {
+					new Notice("Password is invalid");
+					invalid = true
+					return;
+				}
 			}
+
+			localStorage.setItem("password", input);
+			for (const [service, key] of decrypted_keys.entries())
+				active_services[service].api_key = key;
+
+			$data.password_are_encrypted = false;
+
+			dispatch("close");
+
 		} catch (e) {
 			// If decryption fails, the input is too long/wrong
 			new Notice("Password is invalid");

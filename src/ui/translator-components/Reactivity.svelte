@@ -112,6 +112,10 @@
 		return active_services[service];
 	}
 
+	export function getAllServices(): Map<string, DummyTranslate> {
+		return active_services;
+	};
+
 	export async function getTranslationService(service: string, old_service: string): Promise<DummyTranslate> {
 		if (!service || !(service in SERVICES_INFO))
 			return null;
@@ -229,6 +233,7 @@
 				for (const [service, service_settings] of Object.entries($settings.service_settings)) {
 					if (SERVICES_INFO[service].requires_api_key && service_settings.api_key) {
 						if ((await aesGcmDecrypt(service_settings.api_key, localStorage.getItem('password'))).endsWith('==')) {
+							$data.password_are_encrypted = true;
 							new PasswordRequestModal(plugin).open();
 							break;
 						}

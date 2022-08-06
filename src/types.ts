@@ -33,6 +33,8 @@ export interface PluginData {
 	has_autodetect_capability: boolean;
 	models: Models;
 	tab: string;
+
+	password_are_encrypted: boolean;
 }
 
 export interface APIServiceProviders {

@@ -367,17 +367,17 @@
 						description="Update locally stored password"
 					>
 						<div slot="control" style="display: flex; flex-direction: column; gap: 16px">
+							{#if !$data.password_are_encrypted}
+								<Button
+									text="Set new password"
+									onClick={ () => new PasswordModal(plugin.app, plugin).open() }
+								/>
+							{/if}
 							<Button
-								text="Set new password"
-								onClick={() => {
-								new PasswordModal(plugin.app, plugin).open()
-							}}
-							/>
-							<Button
+								class={$data.password_are_encrypted ? 'translator-fail' : ''}
 								text="Set password"
-								onClick={() => {
-								new PasswordRequestModal(plugin).open();
-							}}
+								tooltip={$data.password_are_encrypted ? 'Passwords are still encrypted' : ''}
+								onClick={ () => new PasswordRequestModal(plugin).open() }
 							/>
 						</div>
 					</SettingItem>
