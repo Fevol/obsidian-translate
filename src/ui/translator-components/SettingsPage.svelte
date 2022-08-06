@@ -952,7 +952,7 @@
 		flex-wrap: wrap;
 		gap: 12px;
 
-		padding-bottom: 16px;
+		padding: 4px 4px 16px;
 		margin-bottom: 16px;
 		border-bottom: 1px solid var(--background-modifier-border);
 	}
@@ -968,6 +968,7 @@
 		padding: 4px 6px;
 		align-items: center;
 		gap: 4px;
+		outline: 0 solid transparent;
 
 		overflow: hidden;
 
@@ -976,22 +977,25 @@
 
 		transition: color 0.25s ease-in-out,
 					background-color 0.35s cubic-bezier(0.45, 0.25, 0.83, 0.67),
-					max-width 0.45s cubic-bezier(0.57, 0.04, 0.58, 1);
+					max-width 0.45s cubic-bezier(0.57, 0.04, 0.58, 1),
+					outline 0.15s ease-in-out;
 		max-width: 34px;
 	}
 
 	.translator-navigation-item:hover {
 		background-color: var(--background-primary);
+		outline: 3px solid var(--text-accent);
 	}
 
 	.translator-navigation-item-selected {
+		outline: unset !important;
 		background-color: var(--text-accent) !important;
 		color: var(--text-on-accent);
 		padding: 4px 9px !important;
 		max-width: 200px;
 		transition: color 0.25s ease-in-out,
-		background-color 0.35s cubic-bezier(0.45, 0.25, 0.83, 0.67),
-		max-width 0.65s cubic-bezier(0.57, 0.04, 0.58, 1);
+					background-color 0.35s cubic-bezier(0.45, 0.25, 0.83, 0.67),
+					max-width 0.65s cubic-bezier(0.57, 0.04, 0.58, 1);
 	}
 
 	.translator-navigation-item-selected:hover {
