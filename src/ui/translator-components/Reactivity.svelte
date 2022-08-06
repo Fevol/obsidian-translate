@@ -24,9 +24,10 @@
 		YandexTranslate,
 		FanyiQq,
 		FanyiYoudao,
+		FanyiBaidu,
 		AmazonTranslate,
 		LingvaTranslate,
-		FastTextDetector
+		FastTextDetector,
 	} from "../../handlers";
 	import {aesGcmDecrypt, toTitleCase} from "../../util";
 	import {PasswordRequestModal} from "../modals";
@@ -142,16 +143,18 @@
 			else if (service === "bergamot")
 				translation_service = new BergamotTranslate('fasttext' in active_services ? active_services['fasttext'] : await getTranslationService('fasttext', ''),
 					plugin, $data.models?.bergamot, $settings.storage_path);
-			else if (service === "fanyi_youdao")
-				translation_service = new FanyiYoudao(service_settings);
-			else if (service === "fanyi_qq")
-				translation_service = new FanyiQq(service_settings);
 			else if (service === "amazon_translate")
 				translation_service = new AmazonTranslate(service_settings);
 			else if (service === "lingva_translate")
 				translation_service = new LingvaTranslate(service_settings);
 			else if (service === 'fasttext')
 				translation_service = new FastTextDetector(plugin, $data.models?.fasttext);
+			else if (service === "fanyi_youdao")
+				translation_service = new FanyiYoudao(service_settings);
+			else if (service === "fanyi_qq")
+				translation_service = new FanyiQq(service_settings);
+			else if (service === "fanyi_baidu")
+				translation_service = new FanyiBaidu(service_settings);
 
 
 			if ($settings.security_setting !== 'none' && SERVICES_INFO[service].requires_api_key)

@@ -135,7 +135,6 @@ export class FanyiQq extends DummyTranslate {
 			}
 			const signature = await this.sign_message(payload);
 
-			// FIXME: Host causes crash (do I need to add it?)
 			const response = await requestUrl({
 				url: `https://tmt.tencentcloudapi.com/?` + new URLSearchParams(payload), method: 'POST',
 				headers: {
@@ -171,14 +170,14 @@ export class FanyiQq extends DummyTranslate {
 		if (!to)
 			return {message: "No target language was provided"};
 
-		async function attempt_translation(sourceText: string, target: string): Promise<RequestUrlResponse> {
+		async function attempt_translation(sourceText: string, source: string, target: string): Promise<RequestUrlResponse> {
 		// const attempt_translation: (sourceText: string, target: string) => Promise<RequestUrlResponse> = async (sourceText: string, target: string) => {
 			const payload = {
 				Action: 'TextTranslate',
 				Version: '2018-03-21',
 				Region: this.region,
 				SourceText: sourceText,
-				Source: from,
+				Source: source,
 				Target: target,
 				ProjectId: this.app_id,
 			}
@@ -197,7 +196,7 @@ export class FanyiQq extends DummyTranslate {
 		}
 
 		try {
-			let response = await attempt_translation(text, to);
+			let response = await attempt_translation(text, from, to);
 
 			// Data = {"Response": {"TargetText":"Hello", "Source":"en", "Target":"zh", "RequestId": "..." } }
 			let data = response.json;
@@ -206,7 +205,7 @@ export class FanyiQq extends DummyTranslate {
 				if (data.Response.Error.Code === 'UnsupportedOperation.UnsupportedSourceLanguage') {
 					// TODO: Warn user of doubled character usage due to indirect translation via pivoting
 					// Use English as the pivot language (as QQ does not support translation between all language pairs)
-					response = await attempt_translation(text, 'en');
+					response = await attempt_translation(text,  from,'en');
 					data = response.json;
 					detected_language = data.Response?.Source;
 
@@ -214,7 +213,7 @@ export class FanyiQq extends DummyTranslate {
 					if (response.status !== 200)
 						throw new Error(data.Response.Error.Message);
 
-					response = await attempt_translation(data.Response.TargetText, to);
+					response = await attempt_translation(data.Response.TargetText, 'en', to);
 					data = response.json;
 				} else {
 					throw new Error(data.Response.Error.Message);

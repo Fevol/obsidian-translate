@@ -641,6 +641,31 @@ export const DEFAULT_SETTINGS: TranslatorPluginSettings = {
 			],
 			version: "1.0.0"
 		},
+		fanyi_baidu: {
+			selected_languages: [],
+			api_key: "",
+			app_id: "",
+			auto_translate: false,
+			auto_translate_interval: 500,
+			validated: null,
+			available_languages: [
+				"ach", "afr", "aka", "alb", "amh", "ara", "arg", "arm", "arq", "asm", "ast", "aym", "aze", "bak", "bal",
+				"baq", "bel", "bem", "ben", "ber", "bho", "bis", "bli", "bos", "bre", "bul", "bur", "cat", "ceb", "chr",
+				"cht", "chv", "cor", "cos", "cre", "cri", "cs", "dan", "de", "div", "el", "en", "eno", "epo", "est",
+				"fao", "fil", "fin", "fra", "fri", "frm", "frn", "fry", "ful", "geo", "gla", "gle", "glg", "glv", "gra",
+				"grn", "guj", "hak", "hau", "haw", "heb", "hi", "hil", "hkm", "hmn", "hrv", "ht", "hu", "hup", "ibo",
+				"ice", "id", "ido", "iku", "ina", "ing", "ir", "it", "jav", "jp", "kab", "kah", "kal", "kan", "kas",
+				"kau", "kin", "kir", "kli", "kok", "kon", "kor", "kur", "lag", "lao", "lat", "lav", "lim", "lin", "lit",
+				"log", "loj", "los", "ltz", "lug", "mac", "mah", "mai", "mal", "mao", "mar", "mau", "may", "mg", "mlt",
+				"mot", "nbl", "nea", "nep", "nl", "nno", "nob", "nor", "nqo", "nya", "oci", "oji", "ori", "orm", "oss",
+				"pam", "pan", "pap", "ped", "per", "pl", "pot", "pt", "pus", "que", "ro", "roh", "rom", "ru", "ruy",
+				"san", "sec", "sha", "sil", "sin", "sk", "slo", "sm", "sme", "sna", "snd", "sol", "som", "sot", "spa",
+				"src", "srd", "srp", "sun", "swa", "swe", "syr", "tam", "tat", "tel", "tet", "tgk", "tgl", "th", "tir",
+				"tr", "tso", "tua", "tuk", "twi", "ukr", "ups", "urd", "ven", "vie", "wel", "wln", "wol", "wyw", "xho",
+				"yid", "yor", "yue", "zaz", "zh", "zul"
+			],
+			version: "1.0.0"
+		},
 		/*amazon_translate: {
 			selected_languages: [],
 			filter_type: 0,
@@ -819,6 +844,14 @@ export let SERVICES_INFO: { [key: string]: any } = {
 		url: "https://fanyi.youdao.com/",
 		type: 'translation'
 	},
+	fanyi_baidu: {
+		display_name: "Fanyi Baidu",
+		requires_api_key: true,
+		requires_app_id: true,
+		request_key: "https://passport.baidu.com/v2/?login&u=https%3A%2F%2Ffanyi-api.baidu.com%2Fapi%2Ftrans%2Fproduct%2Fdesktop",
+		url: "https://fanyi.baidu.com/",
+		type: 'translation'
+	},
 	/*amazon_translate: {
 		display_name: "Amazon Translate",
 		requires_api_key: true,
@@ -939,4 +972,4 @@ export let SETTINGS_TABS = [{
 }, ...Object.keys(SERVICES_INFO).map(service => ({id: service, name: SERVICES_INFO[service].display_name, icon: service}))];
 
 
-export const UNTESTED_SERVICES = ['yandex_translate', 'fanyi_qq', 'fanyi_youdao'];
+export const UNTESTED_SERVICES = ['yandex_translate', 'fanyi_qq', 'fanyi_youdao', 'fanyi_baidu'];

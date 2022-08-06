@@ -6,6 +6,7 @@ export * from './deepl';
 export * from './bergamot';
 export * from './fanyi-qq';
 export * from './fanyi-youdao';
+export * from './fanyi-baidu';
 export * from './amazon-translate';
 export * from './lingva-translate';
 export * from './fasttext';

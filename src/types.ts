@@ -46,6 +46,7 @@ export interface APIServiceProviders {
 	deepl: APIServiceSettings;
 	fanyi_qq: APIServiceSettings;
 	fanyi_youdao: APIServiceSettings;
+	fanyi_baidu: APIServiceSettings;
 	/*amazon_translate: APIServiceSettings;*/
 	lingva_translate: APIServiceSettings;
 	bergamot: APIServiceSettings;

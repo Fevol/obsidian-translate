@@ -4,6 +4,12 @@ export function toTitleCase(str: string) {
 	});
 }
 
+export function toSentenceCase(str: string) {
+	return str.toLowerCase().replace(/(^\w|\.\s*\w)/gi, (txt) => {
+		return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
+	});
+}
+
 export function getKeyValue<T extends object, U extends keyof T> (obj: T, key: U) {
 	return obj[key]
 }
