@@ -17,14 +17,8 @@ export interface PluginData {
 	// Cache the available language locales, and their corresponding names
 	all_languages: Map<string, string>;
 
-	// Which languages can be translated to and from (no filters)
+	// Which languages can be translated to and from for default translation service (with filters applied)
 	available_languages: Array<any>;
-
-	// Which languages can be selected for translation (after filters were applied)
-	filtered_languages: Array<any>;
-
-	// Contains locales and corresponding names of all available languages after filter)
-	selectable_languages: Array<any>;
 
 	// Current spellchecker languages (synced at startup of the plugin)
 	spellchecker_languages: Array<any>;
@@ -35,6 +29,7 @@ export interface PluginData {
 	// Selected tab of the settings page
 	tab: string;
 
+	// If any of the services API keys are still encrypted, this will be true
 	password_are_encrypted: boolean;
 }
 

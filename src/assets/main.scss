@@ -132,7 +132,7 @@
 	flex-direction: column;
 	flex: 1;
 	max-height: 100%;
-	overflow-y: scroll !important;
+	overflow-y: auto !important;
 }
 
 .translator-dropdown:hover .translator-dropdown-menu {

@@ -101,14 +101,21 @@
 				.sort((a, b) => { return a.text.localeCompare(b.text);});
 			selectable_languages.unshift({'value': '', 'text': '+'});
 
-			filtered_languages = Array.from($settings.service_settings[tab].filter_type === 1 ?
-				$data.spellchecker_languages : $settings.service_settings[tab].selected_languages)
+			filtered_languages = $settings.service_settings[tab].selected_languages
 				.filter(locale => languages.contains(locale))
 				.map(locale => {return {'value': locale, 'text': $data.all_languages.get(<string>locale) || locale}})
-				.sort((a, b) => a.text.localeCompare(b.text))
+				.sort((a, b) => a.text.localeCompare(b.text));
+
+			if (tab === $settings.translation_service) {
+				if ($settings.filter_mode === '0')
+					$data.available_languages = languages;
+				else if ($settings.filter_mode === '1')
+					$data.available_languages = languages.filter(locale => { return $data.spellchecker_languages.contains(locale); });
+				else if ($settings.filter_mode === '2')
+					$data.available_languages = languages.filter(locale => { return $settings.service_settings[tab].selected_languages.contains(locale); });
+			}
 		}
 	}
-
 
 	$: {
 		if (tab === 'bergamot') {
@@ -886,7 +893,7 @@
 
 					<SettingItem
 						name="Language selection"
-						description="Languages that will be available in 'Selection Mode' filter"
+						description="Languages available when using the 'Selection Mode' filter"
 					>
 						<div slot="control" transition:slide>
 							<ButtonList

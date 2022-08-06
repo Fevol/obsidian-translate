@@ -43,16 +43,9 @@
 	let available_languages: string[] = [];
 	let selectable_languages: {text: string, value: string}[];
 
+	let spellchecker_languages_observer: any;
+	let selected_languages_observer: any;
 	let models_observer: any;
-	$: models_observer = $data.models?.bergamot?.models.length;
-
-	$: models_observer, updateAvailableLanguages();
-
-	function updateAvailableLanguages() {
-		if (translation_service === 'bergamot')
-			available_languages = translator.available_languages;
-	}
-
 
 	// Implements Cmd+Enter functionality for quick translation
 	const view_scope = new Scope(app.scope);
@@ -60,6 +53,18 @@
 		translate();
 		return false;
 	});
+
+	$: spellchecker_languages_observer = $data.spellchecker_languages.length;
+	$: selected_languages_observer = $settings.service_settings[translation_service].selected_languages.length;
+	$: spellchecker_languages_observer, selected_languages_observer, available_languages, filter_mode, filterLanguages();
+
+	$: models_observer = $data.models?.bergamot?.models.length
+	$: models_observer, updateAvailableLanguages();
+
+	function updateAvailableLanguages() {
+		if (translation_service === 'bergamot')
+			available_languages = translator.available_languages;
+	}
 
 	$: {
 		auto_translate = auto_translate && $settings.service_settings[translation_service].auto_translate;
@@ -90,15 +95,13 @@
 
 	$: translation_service, updateService();
 
-	$: selectable_languages = filterLanguages(available_languages, filter_mode);
-
-	function filterLanguages(languages: Array<string>, filter_mode: number): {text: string, value: string}[] {
+	function filterLanguages() {
+		let languages = available_languages;
 		if (filter_mode === 1)
 			languages = languages.filter(x => $data.spellchecker_languages.includes(x));
 		else if (filter_mode === 2)
 			languages = languages.filter(x => $settings.service_settings[translation_service].selected_languages.includes(x));
-
-		return Array.from(languages)
+		selectable_languages = Array.from(languages)
 			.map((locale) => {return {'value': locale, 'text': $data.all_languages.get(locale) || locale};})
 			.sort((a, b) => a.text.localeCompare(b.text))
 	}
