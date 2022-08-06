@@ -976,8 +976,9 @@
 		border: 1px solid var(--background-modifier-border);
 
 		transition: color 0.25s ease-in-out,
+					padding 0.25s ease-in-out,
 					background-color 0.35s cubic-bezier(0.45, 0.25, 0.83, 0.67),
-					max-width 0.45s cubic-bezier(0.57, 0.04, 0.58, 1),
+					max-width 0.35s cubic-bezier(0.57, 0.04, 0.58, 1),
 					outline 0.15s ease-in-out;
 		max-width: 34px;
 	}
@@ -994,8 +995,9 @@
 		padding: 4px 9px !important;
 		max-width: 200px;
 		transition: color 0.25s ease-in-out,
+					padding 0.25s ease-in-out,
 					background-color 0.35s cubic-bezier(0.45, 0.25, 0.83, 0.67),
-					max-width 0.65s cubic-bezier(0.57, 0.04, 0.58, 1);
+					max-width 0.45s cubic-bezier(0.57, 0.04, 0.58, 1) 0.2s;
 	}
 
 	.translator-navigation-item-selected:hover {
