@@ -272,8 +272,15 @@
 					<Icon icon="alert-triangle" size="60" />
 					<div>
 						<b>WARNING:</b> {info.display_name} has not been tested, so it is very likely that it does not work properly.<br><br>
-						If you encounter issues, please open an issue over on <a href="https://github.com/Fevol/obsidian-translate/issues/new">GitHub</a>,
-						and I will try to fix it as soon as possible.<br>
+						If you encounter any issue, please open an issue over on <a href={`https://github.com/Fevol/obsidian-translate/issues/new?` + new URLSearchParams({
+							title: `[BUG] ${info.display_name} –`,
+							body: `# User report\n**Description:** \n\n\n\n---\n# Debugger data (do not alter)\n${Array.from(Object.entries({
+								service_version: $settings.service_settings[tab].version,
+								obsidian_version: navigator.userAgent.match(/obsidian\/([\d\.]+\d+)/)[1] || undefined,
+							})).map((x) => `**${x[0]}**: ${JSON.stringify(x[1])}`).join("\n")}`,
+							labels: `bug`
+						})}>GitHub</a>,
+						I will try to fix it as soon as possible.<br>
 						Likewise, if the service works properly, let me know!
 					</div>
 				</div>
