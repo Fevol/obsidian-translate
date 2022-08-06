@@ -370,7 +370,10 @@
 					>
 						<div slot="control" style="display: flex; flex-direction: column; gap: 16px">
 							{#if !$data.password_are_encrypted}
+								<!-- FIXME: Localstorage is not reactive -->
 								<Button
+									class={!localStorage.getItem('password') ? 'translator-success' : ''}
+									tooltip={!localStorage.getItem('password') ? 'No password is set' : ''}
 									text="Set new password"
 									onClick={ () => new PasswordModal(plugin.app, plugin).open() }
 								/>
