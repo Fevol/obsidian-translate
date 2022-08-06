@@ -150,9 +150,9 @@
 				translation_service = new AmazonTranslate(service_settings);
 			else if (service === "lingva_translate")
 				translation_service = new LingvaTranslate(service_settings);
-			else if (service === 'fasttext') {
+			else if (service === 'fasttext')
 				translation_service = new FastTextDetector(plugin, $data.models?.fasttext);
-			}
+
 
 			if ($settings.security_setting !== 'none' && SERVICES_INFO[service].requires_api_key)
 				translation_service.api_key = await getAPIKey(service, $settings.security_setting);
@@ -168,7 +168,7 @@
 				});
 			}
 
-			if ($settings.service_settings[service].available_languages)
+			if ($settings.service_settings[service]?.available_languages)
 				$settings.service_settings[service].available_languages
 					.filter(locale => !$data.all_languages.has(locale))
 					.forEach(locale => { $data.all_languages.set(locale, formatLocale(locale)) });
