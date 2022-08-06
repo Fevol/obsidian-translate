@@ -183,10 +183,10 @@
 			return other && model.size !== other.size;
 		})
 
-		// TODO: To my knowledge, it is not possible to check the filesize of a file on Github without downloading it
-		//  but the wasm could change between versions of Bergamot, with older models being incompatible with the newer binary
-		//  or vice versa; plus new features could be introduced (such as support for mobile platforms).
-		//  So to be safe, we will always download the latest version of Bergamot when an update is available.
+		/*  TODO: To my knowledge, it is not possible to check the filesize of a file on Github without downloading it
+		          but the wasm could change between versions of Bergamot, with older models being incompatible with the newer binary
+		          or vice versa; plus new features could be introduced (such as support for mobile platforms).
+		          So to be safe, we will always download the latest version of Bergamot when an update is available. */
 		let binary_path = `.obsidian/${$settings.storage_path}/bergamot/bergamot-translator-worker.wasm`
 		let binary_result = await requestUrl({url: "https://github.com/mozilla/firefox-translations/blob/main/extension/model/static/translation/bergamot-translator-worker.wasm?raw=true"});
 		await writeRecursive(binary_path, binary_result.arrayBuffer);
@@ -283,7 +283,9 @@
 			{#if tab === 'general'}
 				<SettingItem
 					name="Translation Service"
-					description="Default translation service used"
+					notices={[
+						{ type: 'text', text: `🛈 This service will be used for the editor context menu and translating files`, style: 'info-text' }
+					]}
 					type="dropdown"
 				>
 					<Dropdown
@@ -304,16 +306,16 @@
 				</SettingItem>
 
 				<SettingItem
-					name="Filter languages"
-					description="Determine which languages should be visible when translating"
+					name="Filter language selection"
+					description="Determine which languages are available for the global commands"
 					type="dropdown"
 				>
 					<Dropdown
 						slot="control"
 						options={ [
-							{"value": "0", "text": 'Show all languages'},
-							{"value": "1", "text": 'Sync with spellchecker'},
-							{"value": "2", "text": 'Select languages manually'}
+							{"value": "0", "text": 'All languages'},
+							{"value": "1", "text": 'Spellchecker languages'},
+							{"value": "2", "text": 'Manually selected languages'}
 						] }
 						value={$settings.filter_mode}
 						onChange={(e) => {
@@ -518,6 +520,9 @@
 							name="Setup local translation"
 							description="Install Bergamot translation engine (size: 5.05MiB)"
 							type="button"
+							notices={translator.has_autodetect_capability() ? [] : [
+								{ type: 'text', text: `🛈 Automatic language detection is <b>disabled</b>, install FastText to enable this feature`, style: 'info-text' }
+							]}
 						>
 							<div slot="control">
 								<!-- FIXME: WASM location in repo might not be very stable (but would be most up-to-date) -->
@@ -697,32 +702,6 @@
 
 					{/if}
 
-					<SettingItem
-						name="Language selection"
-						description="Determine subset of languages that are available in filtered selection mode"
-					>
-						<div slot="control" transition:slide>
-							<ButtonList
-								items={ filtered_languages }
-								icon="cross"
-								onClick={(locale) => {
-									$settings.service_settings[tab].selected_languages =
-										$settings.service_settings[tab].selected_languages.filter((l) => l !== locale);
-								}}
-							/>
-							<Dropdown
-								options={ selectable_languages }
-								value=""
-								onChange={(e) => {
-								$settings.service_settings[tab].selected_languages =
-								 [...$settings.service_settings[tab].selected_languages, e.target.value];
-								e.target.value = "";
-							}}
-							/>
-						</div>
-					</SettingItem>
-
-
 					{#if info.request_key !== undefined}
 						<SettingItem
 							name="API Key"
@@ -831,7 +810,6 @@
 							description="Ensure that the translation service is set-up properly"
 							type="button"
 						>
-							<!-- FIXME: Check if there is a way to merge the setting's writeable and the translation service's writeable, currently implementation is ugly-->
 							<ToggleButton
 								text="Test"
 								slot="control"
@@ -896,6 +874,33 @@
 
 
 					<SettingItem
+						name="Language selection"
+						description="Languages that will be available in 'Selection Mode' filter"
+					>
+						<div slot="control" transition:slide>
+							<ButtonList
+								items={ filtered_languages }
+								icon="cross"
+								onClick={(locale) => {
+									$settings.service_settings[tab].selected_languages =
+										$settings.service_settings[tab].selected_languages.filter((l) => l !== locale);
+									filterLanguages(available_languages);
+								}}
+							/>
+							<Dropdown
+								options={ selectable_languages }
+								value=""
+								onChange={(e) => {
+									$settings.service_settings[tab].selected_languages =
+									 [...$settings.service_settings[tab].selected_languages, e.target.value];
+									filterLanguages(available_languages);
+									e.target.value = "";
+							}}
+							/>
+						</div>
+					</SettingItem>
+
+					<SettingItem
 						name="Update Languages"
 						description="Update the list of available languages"
 					>
@@ -913,7 +918,6 @@
 											bergamot_update_available = true;
 										$settings.service_settings[tab].downloadable_models = return_values.languages;
 										$settings.service_settings[tab].version = return_values.data;
-										plugin.reactivity.updateLanguageNames();
 									} else {
 										$settings.service_settings[tab].available_languages = return_values.languages;
 									}
@@ -1012,6 +1016,5 @@
 		border-radius: 10px;
 		gap: 16px;
 	}
-
 </style>
 

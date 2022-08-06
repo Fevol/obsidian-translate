@@ -31,7 +31,7 @@
 					{#if notice.type === "href"}
 						<a href={notice.url}> {notice.text} </a>
 					{:else}
-						<span class={notice.style}> {notice.text} </span>
+						<span class={notice.style}> {@html notice.text} </span>
 					{/if}
 				{/each}
 			</div>

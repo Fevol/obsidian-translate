@@ -16,7 +16,6 @@ export interface TranslatorPluginSettings {
 export interface PluginData {
 	// Cache the available language locales, and their corresponding names
 	all_languages: Map<string, string>;
-	api_key: string;
 
 	// Which languages can be translated to and from (no filters)
 	available_languages: Array<any>;
@@ -30,8 +29,10 @@ export interface PluginData {
 	// Current spellchecker languages (synced at startup of the plugin)
 	spellchecker_languages: Array<any>;
 
-	has_autodetect_capability: boolean;
+	// Installed models of the current vault (used for Bergamot and FastText)
 	models: Models;
+
+	// Selected tab of the settings page
 	tab: string;
 
 	password_are_encrypted: boolean;

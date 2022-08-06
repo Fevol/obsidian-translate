@@ -20,7 +20,9 @@ export class TranslatorView extends ItemView {
 	auto_translate: boolean;
 	view_mode: number = 0;
 	filter_mode: number = 0;
-	navigation = true;
+
+	// TODO: navigation causes notes to be replaced
+	// navigation = true;
 
 	constructor(leaf: WorkspaceLeaf, plugin: TranslatorPlugin) {
 		super(leaf);
