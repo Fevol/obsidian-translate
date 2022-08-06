@@ -26,7 +26,7 @@
 
 				decrypted_keys.set(<string>service, key);
 				if (key && key.endsWith("==")) {
-					new Notice("Password is invalid");
+					new Notice("Password is invalid, keys are still encrypted");
 					invalid = true
 					return;
 				}
@@ -42,7 +42,7 @@
 
 		} catch (e) {
 			// If decryption fails, the input is too long/wrong
-			new Notice("Password is invalid");
+			new Notice("Password is invalid, keys are still encrypted");
 		}
 	}
 

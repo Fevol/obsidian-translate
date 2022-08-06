@@ -227,16 +227,12 @@
 		// If security mode is 'password', but no password was set on the device, prompt the user to enter the password
 		// 	at startup of plugin, this prompt can also be opened in settings
 		if ($settings.security_setting === 'password') {
-			if (!localStorage.getItem('password')) {
-				new PasswordRequestModal(plugin).open();
-			} else {
-				for (const [service, service_settings] of Object.entries($settings.service_settings)) {
-					if (SERVICES_INFO[service].requires_api_key && service_settings.api_key) {
-						if ((await aesGcmDecrypt(service_settings.api_key, localStorage.getItem('password'))).endsWith('==')) {
-							$data.password_are_encrypted = true;
-							new PasswordRequestModal(plugin).open();
-							break;
-						}
+			for (const [service, service_settings] of Object.entries($settings.service_settings)) {
+				if (SERVICES_INFO[service].requires_api_key && service_settings.api_key) {
+					if ((await aesGcmDecrypt(service_settings.api_key, localStorage.getItem('password'))).endsWith('==')) {
+						$data.password_are_encrypted = true;
+						new PasswordRequestModal(plugin).open();
+						break;
 					}
 				}
 			}

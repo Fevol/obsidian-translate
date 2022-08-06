@@ -374,13 +374,14 @@
 									text="Set new password"
 									onClick={ () => new PasswordModal(plugin.app, plugin).open() }
 								/>
+							{:else}
+								<Button
+									class='translator-fail'
+									text="Set password"
+									tooltip='Passwords are still encrypted'
+									onClick={ () => new PasswordRequestModal(plugin).open() }
+								/>
 							{/if}
-							<Button
-								class={$data.password_are_encrypted ? 'translator-fail' : ''}
-								text="Set password"
-								tooltip={$data.password_are_encrypted ? 'Passwords are still encrypted' : ''}
-								onClick={ () => new PasswordRequestModal(plugin).open() }
-							/>
 						</div>
 					</SettingItem>
 				{/if}
@@ -520,7 +521,7 @@
 							name="Setup local translation"
 							description="Install Bergamot translation engine (size: 5.05MiB)"
 							type="button"
-							notices={translator.has_autodetect_capability() ? [] : [
+							notices={translator?.has_autodetect_capability() ? [] : [
 								{ type: 'text', text: `🛈 Automatic language detection is <b>disabled</b>, install FastText to enable this feature`, style: 'info-text' }
 							]}
 						>
