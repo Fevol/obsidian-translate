@@ -13,8 +13,13 @@ Enable the plugin by manually downloading one of the releases from Github, or by
 using [BRAT](https://github.com/TfTHacker/obsidian42-brat).
 
 To start using the program, head over to the plugin's settings page and enter the authentication details for any of the
-services you wish to use. Note that unless you host the service locally, you _will_ need to sign up for an API key.
-***This plugin does not provide any API keys by default.***
+services you wish to use. Note that for most services, you _will_ need to sign up for an API key.
+Reference the [table below](https://github.com/fevol/obsidian-translate#services-overview)
+to see which services can be used without having to sign up.
+
+***This plugin does not provide any API keys.*** 
+
+
 
 **Make sure to validate settings by pressing the 'Test' button. The program will not 
 allow you to translate text until you do!**
@@ -33,37 +38,40 @@ Afterwards, you can open the Translation View by either accessing the left ribbo
 |-------------------------|-----------|---------------------------------------|-----------------|:---------------|----------------------|-----------|
 | Google Translate        | ✅         | *(0.5M characters **per month**)* ¹ ² |                 |                | ✅                    | 109       |
 | Deepl                   | ✅         | *(0.5M characters **per month**)* ¹   |                 |                | ✅                    | 28        |
-| Yandex Translate        | ❓         | *(5M characters)* ¹                   |                 |                | ❓                    | 93        |
+| Yandex Translate        | ❓         | *(5M characters)* ¹                   |                 |                |                      | 93        |
 | Libre Translate         | ✅         | ✅                                     | ✅               |                | ❌                    | 30        |
 | Bing Translator (Azure) | ✅         | *(2M characters **per month**)* ¹     |                 |                | ✅                    | 111       |
 | Amazon Translate        | ⭕         | *(2M characters **per month**)* ¹ ³   |                 |                |                      |           |
-| Bergamot                | ✅         | ✅                                     | ✅               | ❌              | ✅                    | 12        |
-| QQ                      | ⭕         |                                       |                 |                |                      |           |
-| Youdao                  | ⭕         |                                       |                 |                |                      |           |
+| Bergamot                | ✅         | ✅                                     | ✅               | ❌              | ✅                    | 14        |
+| Fanyi QQ                | ❓         |                                       |                 |                |                      | 18        |
+| Fanyi Youdao            | ❓         |                                       |                 |                |                      | 112       |
+| Fanyi Baidu             | ❓         |                                       |                 |                |                      | 201       |
+| Lingva Translate        | ✅         | ✅                                     |                 |                |                      | 109       |
 
 
 _¹ Requires a valid credit card to sign up for a free API key_<br>
 _² Free 300$ credit when signing up (valid for three months)_<br>
 _³ Free for a year after signing up_
 
-| Symbol | Description                       |
-|--------|-----------------------------------|
-| ✅      | Fully tested, **_should_** work   |
-| ❌      | Fully tested, **does _not_** work |
-| ❓      | Implemented, needs to be tested   |
-| ⭕      | Plans to implement                |
+| Symbol | Description                         |
+|--------|-------------------------------------|
+| ✅      | Fully tested, **_should_** work     |
+| ❌      | Fully tested, **does _not_** work   |
+| ❓      | Implemented, **needs to be tested** |
+| ⭕      | Plans to implement                  |
 
 ### Notes
 
 - Most services require an _active_ internet connection to work. If you want to translate text offline, you can use
   [Bergamot](https://browser.mt) translation engine by installing the binary and its models, or host [Libre Translate](https://libretranslate.com) 
 on your computer/network on any operating system with Docker or Flask.
-- Most services require a valid credit card to sign up for a free API key. Furthermore, the credit card will get charged if you go beyond the free character limit.
+- Some services require a valid credit card to sign up for a free API key. Furthermore, the credit card will get charged if you go beyond the free character limit,
+make sure to keep your eyes on it!
 - Not every translation service respects the formatting of the source text. It may be possible that this gets lost in
   the translation process. Reference the table above to see if your service supports preserving formatting.
   More complex formatting will have a higher likelihood of breaking when being translated.
 - Make sure that you _only_ enable automatic translation if you have a sufficiently high character cap on your API
-  account, or the translation service is locally hosted (e.g. Docker or Libre Translate).
+  account, or the translation service is locally hosted (e.g. Bergamot or Libre Translate).
 
 ---
 
@@ -82,22 +90,24 @@ For more informations, head over to the [documentation](https://github.com/Fevol
 - Translation view
   - Manually/automatic translation
   - Quick access to most important settings (change providers, automatic translate, language filter, layout, plugin settings)
+  - Multiple views allowed
 - Right mouse (context menu) contains dropdown to translate selection 
 
 ---
 
 ## Future plans
 ### Features
-- Add more options to determine when to automatically translate current text
-- Integration of more translation services
-  - QQ/Youdao
-  - ...
-- Add proper localization support to the plugin
+- More auto-translate options
+- Localization support
+- Glosary support
+- Integration with Translation Memories
+- Custom view for translation paragraph per paragraph
+- Keep track of character limit
 
 ### Improvements
 - General UIX improvements
 - Improving reliability of the translation service handlers
-- Find ways to reduce the amount of characters that are sent to the translation service
+- Reducing the amount of characters sent to the translation services
   - Caching translation results of sentence (continuous typing in translation view will not result in linear growth of amount of characters being sent over)
   - ...
 
@@ -136,4 +146,4 @@ This was mainly a passion project to implement something I personally really wan
 Currently, I'm looking for feedback on the following topics:
 - Integration of more translation service providers
 - UX improvements (more shortcuts, commands, ...)
-- UI improvements (removal/improvement of animations)
+- UI improvements (additional layouts, tweaks, ...)
