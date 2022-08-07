@@ -43,10 +43,6 @@
 	let available_languages: string[] = [];
 	let selectable_languages: {text: string, value: string}[];
 
-	let spellchecker_languages_observer: any;
-	let selected_languages_observer: any;
-	let models_observer: any;
-
 	// Implements Cmd+Enter functionality for quick translation
 	const view_scope = new Scope(app.scope);
 	view_scope.register(['Mod'], 'Enter', (e) => {
@@ -56,7 +52,8 @@
 
 	$: spellchecker_languages_observer = $data.spellchecker_languages.length;
 	$: selected_languages_observer = $settings.service_settings[translation_service].selected_languages.length;
-	$: spellchecker_languages_observer, selected_languages_observer, available_languages, filter_mode, filterLanguages();
+	$: display_language_observer = $settings.display_language;
+	$: spellchecker_languages_observer, selected_languages_observer, available_languages, filter_mode, display_language_observer, filterLanguages();
 
 	$: models_observer = $data.models?.bergamot?.models?.length
 	$: models_observer, updateAvailableLanguages();

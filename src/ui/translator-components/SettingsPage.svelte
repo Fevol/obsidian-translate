@@ -349,8 +349,8 @@
 						options={[{"value": "display", "text": "Display language"}, {"value": "local", "text": "Native language"}]}
 						value={ $settings.display_language }
 						onChange={(e) => {
-						$settings.display_language = e.target.value;
-					}}
+							$settings.display_language = e.target.value;
+						}}
 					>
 					</Dropdown>
 

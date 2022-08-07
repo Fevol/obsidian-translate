@@ -90,9 +90,9 @@
 			extra = extra ? ` (${extra})` : '';
 		}
 
-		if (display_language_observer === 'local')
+		if ($settings.display_language === 'local')
 			language = ISO6391.getNativeName(language) || t(language);
-		else if (display_language_observer === 'display')
+		else if ($settings.display_language === 'display')
 			language = t(language);
 
 		return language + extra;
