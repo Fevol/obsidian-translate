@@ -55,8 +55,10 @@
 	$: display_language_observer = $settings.display_language;
 	$: spellchecker_languages_observer, selected_languages_observer, available_languages, filter_mode, display_language_observer, filterLanguages();
 
-	$: models_observer = $data.models?.bergamot?.models?.length
-	$: models_observer, updateAvailableLanguages();
+	$: bergamot_models_observer = $data.models?.bergamot?.models?.length
+	$: bergamot_models_observer, updateAvailableLanguages();
+	$: fasttext_models_observer = $data.models?.fasttext;
+	$: autodetect_capability = fasttext_models_observer
 
 	function updateAvailableLanguages() {
 		if (translation_service === 'bergamot')
