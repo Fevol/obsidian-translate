@@ -22,7 +22,7 @@
 		<span class="setting-hotkey icon-text" in:horizontalSlide out:horizontalSlide>
 			{text}
 			{#if !disabled}
-				<span on:click={onClick(value)} class="setting-hotkey-icon setting-delete-hotkey icon-center" style="justify-content: center" aria-label={tooltip}>
+				<span on:click={onClick(value)} class="setting-hotkey-icon setting-delete-hotkey icon-center" style="justify-content: center; align-items: center" aria-label={tooltip}>
 					<Icon icon={icon} size={size} />
 				</span>
 			{/if}
