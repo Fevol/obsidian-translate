@@ -14,7 +14,7 @@
 	import {SERVICES_INFO, SECURITY_MODES, DEFAULT_SETTINGS, SETTINGS_TABS, UNTESTED_SERVICES} from "../../constants";
 	import {DummyTranslate} from "../../handlers";
 
-	import {Notice, requestUrl} from "obsidian";
+	import {Notice, Platform, requestUrl} from "obsidian";
 	import {aesGcmDecrypt, aesGcmEncrypt, humanFileSize, toTitleCase} from "../../util";
 	import t from "../../l10n";
 
@@ -283,7 +283,8 @@
 							title: `[BUG] ${info.display_name} –`,
 							body: `# User report\n**Description:** \n\n\n\n---\n# Debugger data (do not alter)\n${Array.from(Object.entries({
 								service_version: $settings.service_settings[tab].version,
-								obsidian_version: navigator.userAgent.match(/obsidian\/([\d\.]+\d+)/)[1] || undefined,
+								obsidian_version: navigator.userAgent.match(/obsidian\/([\d\.]+\d+)/)?.[1] || "unknown",
+								mobile: Platform.isMobileApp,
 							})).map((x) => `**${x[0]}**: ${JSON.stringify(x[1])}`).join("\n")}`,
 							labels: `bug`
 						})}>GitHub</a>,

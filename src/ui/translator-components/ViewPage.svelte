@@ -58,7 +58,7 @@
 	$: selected_languages_observer = $settings.service_settings[translation_service].selected_languages.length;
 	$: spellchecker_languages_observer, selected_languages_observer, available_languages, filter_mode, filterLanguages();
 
-	$: models_observer = $data.models?.bergamot?.models.length
+	$: models_observer = $data.models?.bergamot?.models?.length
 	$: models_observer, updateAvailableLanguages();
 
 	function updateAvailableLanguages() {
@@ -302,13 +302,13 @@
 		<div class="translator-attribution-column">
 			<div class="translator-attribution-column-text">
 				Using
-				<a href={services[translation_service].url} class="icon-text translator-service-text">
+				<a href={services[translation_service].url} target="_blank" class="icon-text translator-service-text">
 					<Icon icon={translation_service}/>
 					{`${translation_service.replace('_', ' ')}`}
 				</a>
 				{#if plugin.detector}
 					with
-					<a href={services["fasttext"].url} class="icon-text translator-service-text">
+					<a href={services["fasttext"].url} target="_blank" class="icon-text translator-service-text">
 						<Icon icon="fasttext"/>
 						FastText
 					</a>
