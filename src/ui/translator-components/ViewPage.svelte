@@ -105,38 +105,20 @@
 
 
 	async function translate() {
-		// While validation is also checked within the translator, if we don't check if the settings are open,
-		// 	we don't want the message to be displayed
-		if (!translator.valid) {
-			if (!plugin.settings_open)
-				plugin.message_queue("Translation service is not validated");
-			return;
-		}
-
 		// If no language from was specified or the saved language_from is not in the list of available languages
 		// for the translation service, auto-detect language
 		if (!selectable_languages.some(x => x.value === language_from))
 			language_from = 'auto';
 
-		if (!selectable_languages.some(x => x.value === language_to)) {
-			plugin.message_queue("No language to translate to was selected");
-			return;
-		}
+		let return_values = await translator.translate(
+			text_from,
+			selectable_languages.some(x => x.value === language_from) ? language_from : 'auto',
+			selectable_languages.some(x => x.value === language_to) ? language_to : '',
+		);
 
-		// Check if there is actually something to be translated, or if the text is just whitespace
-		if (language_from === language_to || !/[a-zA-Z]/g.test(text_from)) {
-			text_to = text_from;
-			return;
-		}
-
-		let return_values = await translator.translate(text_from, language_from, language_to);
-
-
-		if (return_values.message) {
+		// We'd rather not have messages displayed while in the settings
+		if (return_values.message && !plugin.settings_open)
 			plugin.message_queue(return_values.message);
-			if (translator.failure_count >= 10)
-				$settings.service_settings[translation_service].validated = false;
-		}
 
 		if (return_values.translation) {
 			detected_language = return_values.detected_language;

@@ -169,6 +169,8 @@ export class FanyiQq extends DummyTranslate {
 			return {message: "No text was provided"};
 		if (!to)
 			return {message: "No target language was provided"};
+		if (from === to)
+			return {translation: text};
 
 		async function attempt_translation(sourceText: string, source: string, target: string): Promise<RequestUrlResponse> {
 		// const attempt_translation: (sourceText: string, target: string) => Promise<RequestUrlResponse> = async (sourceText: string, target: string) => {

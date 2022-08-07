@@ -64,12 +64,17 @@ export class BergamotTranslate extends DummyTranslate {
 	}
 
 	async translate(text: string, from: string = 'auto', to: string): Promise<TranslationResult> {
+		if (!this.translator)
+			return {message: "Bergamot is not installed"};
 		if (!this.valid)
 			return {message: "Translation service is not validated"};
 		if (!text.trim())
 			return {message: "No text was provided"};
 		if (!to)
 			return {message: "No target language was provided"};
+		if (from === to)
+			return {translation: text};
+
 
 		let detected_language = '';
 		if (from === 'auto') {

@@ -78,6 +78,8 @@ export class YandexTranslate extends DummyTranslate {
 			return {message: "No text was provided"};
 		if (!to)
 			return {message: "No target language was provided"};
+		if (from === to)
+			return {translation: text};
 
 		try {
 			const response = await requestUrl({

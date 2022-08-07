@@ -98,6 +98,8 @@ export class FanyiYoudao extends DummyTranslate {
 			return {message: "No text was provided"};
 		if (!to)
 			return {message: "No target language was provided"};
+		if (from === to)
+			return {translation: text};
 
 		try {
 			const signed_message = await this.sign_message(text);
