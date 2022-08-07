@@ -147,3 +147,4 @@ Currently, I'm looking for feedback on the following topics:
 - Integration of more translation service providers
 - UX improvements (more shortcuts, commands, ...)
 - UI improvements (additional layouts, tweaks, ...)
+
