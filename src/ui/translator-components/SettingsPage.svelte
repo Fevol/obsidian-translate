@@ -299,7 +299,7 @@
 				<SettingItem
 					name="Translation Service"
 					notices={[
-						{ type: 'text', text: `🛈 Used in the editor context menu and for translating files`, style: 'info-text' }
+						{ type: 'text', text: `ⓘ Used in the editor context menu and for translating files`, style: 'info-text' }
 					]}
 					type="dropdown"
 				>
@@ -361,7 +361,7 @@
 					description="Determine how API keys are stored on the device"
 					type="dropdown"
 					notices={[
-						{ type: 'text', text: `🛈 ${SECURITY_MODES.find(x => x.value === $settings.security_setting).info}`, style: 'info-text' }
+						{ type: 'text', text: `ⓘ ${SECURITY_MODES.find(x => x.value === $settings.security_setting).info}`, style: 'info-text' }
 					]}
 				>
 					<Dropdown
@@ -540,7 +540,7 @@
 							description="Install Bergamot translation engine (size: 5.05MiB)"
 							type="button"
 							notices={translator?.has_autodetect_capability() ? [] : [
-								{ type: 'text', text: `🛈 Automatic language detection is <b>disabled</b>, install FastText to enable this feature`, style: 'info-text' }
+								{ type: 'text', text: `ⓘ Automatic language detection is <b>disabled</b>, install FastText to enable this feature`, style: 'info-text' }
 							]}
 						>
 							<div slot="control">
@@ -727,7 +727,7 @@
 							description="API key for translation service"
 							type="text"
 							notices={[
-								{ type: 'href', text: "🛈 Sign up for an API key here", url: info.request_key},
+								{ type: 'href', text: "ⓘ Sign up for an API key here", url: info.request_key},
 								...(api_key?.endsWith("==") ? [{ type: 'text', text: `⚠ API key is still encrypted`, style: 'warning-text'}] : [])
 							]}
 						>
@@ -792,7 +792,7 @@
 							description="Enter the URL of the translation service"
 							type="text"
 							notices={[
-							{ type: 'href', text: "🛈 You can host this service locally", url: info.local_host}
+							{ type: 'href', text: "ⓘ You can host this service locally", url: info.local_host}
 						]}
 						>
 							<div slot="control">
