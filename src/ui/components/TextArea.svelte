@@ -19,7 +19,7 @@
 		readonly={readonly}
 		placeholder={placeholder}
 		bind:value={text}
-		on:keyup={onChange} {text}
+		on:input={onChange} {text}
 	/>
 {:else}
 	<textarea
@@ -27,7 +27,7 @@
 		readonly={readonly}
 		placeholder={placeholder}
 		value={text}
-		on:keyup={
+		on:input={
 			(e) => {
 				if (timer) {
 					clearTimeout(timer);
