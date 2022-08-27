@@ -1,0 +1,1 @@
+This subbranch is used to track the data insights of Obsidian Translate, as Github only shows the last 14 days of traffic for your repo. I haven't found a fast way to make branches private, so I guess this data will have to stay public, enjoy!
