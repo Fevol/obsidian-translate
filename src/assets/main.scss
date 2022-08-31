@@ -133,8 +133,12 @@
 	overflow-y: auto !important;
 }
 
-.translator-dropdown:hover .translator-dropdown-menu {
+.translator-dropdown:hover:not(.is-disabled) > .translator-dropdown-menu {
 	display: flex;
+}
+
+.is-disabled > .translator-dropdown-logo {
+	display: none;
 }
 
 .menu {

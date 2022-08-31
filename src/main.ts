@@ -199,12 +199,13 @@ export default class TranslatorPlugin extends Plugin {
 
 		this.registerEvent(
 			this.app.workspace.on("editor-menu", (menu, editor) => {
-				if (this.translator && this.translator.valid && this.translator.has_autodetect_capability()) {
+				if (this.translator.has_autodetect_capability()) {
 					let data = get(this.plugin_data);
 					if (data.available_languages.length) {
 						menu.addItem((item) => {
 							item.setTitle("Translate")
 								.setIcon("translate")
+								.setDisabled(!this.translator.valid || !editor.getSelection())
 								.onClick(async () => {
 									// Keep the dropdown open
 								});
@@ -240,6 +241,7 @@ export default class TranslatorPlugin extends Plugin {
 					menu.addItem((item) => {
 						item.setTitle("Detect Language")
 							.setIcon("detect-selection")
+							.setDisabled(!this.translator.valid || !editor.getSelection())
 							.onClick(async () => {
 								await detect_selection(this, editor);
 							});
