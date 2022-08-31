@@ -10,7 +10,7 @@ export class LibreTranslate extends DummyTranslate {
 		this.host = settings.host;
 	}
 
-	async validate(): Promise<ValidationResult> {
+	async service_validate(): Promise<ValidationResult> {
 		if (!this.host)
 			return {valid: false, message: "Host was not specified"};
 
@@ -20,8 +20,6 @@ export class LibreTranslate extends DummyTranslate {
 				method: "GET",
 				url:`${this.host}/languages`,
 			});
-
-			if (response.status === 200) this.success();
 
 			const data = response.json;
 			return {valid: response.status === 200, message: response.status === 200 ? "" : `Validation failed:\n${data.error.message}`};
@@ -36,99 +34,56 @@ export class LibreTranslate extends DummyTranslate {
 		}
 	}
 
-	async detect(text: string): Promise<Array<DetectionResult>> {
-		if (!this.valid)
-			return [{message: "Translation service is not validated"}];
-
-		if (!text.trim())
-			return [{message: "No text was provided"}];
-
-		try {
-			const response = await requestUrl({
-				throw: false,
-				method: "GET",
-				url:`${this.host}/detect`,
-				body: JSON.stringify({ q: text }),
-				headers: {"Content-Type": "application/json"}
-			});
+	async service_detect(text: string): Promise<Array<DetectionResult>> {
+		const response = await requestUrl({
+			throw: false,
+			method: "GET",
+			url:`${this.host}/detect`,
+			body: JSON.stringify({ q: text }),
+			headers: {"Content-Type": "application/json"}
+		});
 
 
-			const data = response.json;
-			if (response.status !== 200)
-				throw Error(data.error.message);
+		const data = response.json;
+		if (response.status !== 200)
+			throw Error(data.error);
 
-			const return_values = [{language: data[0].language, confidence: data[0].confidence/100}];
-			this.success();
-
-			return return_values;
-		} catch (e) {
-			this.failed();
-			return [{message: `Language detection failed:\n(${e.message})`}];
-		}
+		return [{language: data[0].language, confidence: data[0].confidence/100}];
 	}
 
-	async translate(text: string, from: string, to: string): Promise<TranslationResult> {
-		if (!this.valid)
-			return {message: "Translation service is not validated"};
-		if (!text.trim())
-			return {message: "No text was provided"};
-		if (!to)
-			return {message: "No target language was provided"};
-		if (from === to)
-			return {translation: text};
+	async service_translate(text: string, from: string, to: string): Promise<TranslationResult> {
+		const response = await requestUrl({
+			throw: false,
+			method: "POST",
+			url:`${this.host}/translate`,
+			body: JSON.stringify({
+				q: text,
+				source: from,
+				target: to
+			}),
+			headers: {"Content-Type": "application/json"}
+		});
 
-		try {
-			const response = await requestUrl({
-				throw: false,
-				method: "POST",
-				url:`${this.host}/translate`,
-				body: JSON.stringify({
-					q: text,
-					source: from,
-					target: to
-				}),
-				headers: {"Content-Type": "application/json"}
-			});
+		const data = response.json;
+		if (response.status !== 200)
+			throw Error(data.error);
 
-			const data = response.json;
-			if (response.status !== 200)
-				throw Error(data.error.message);
-
-			const return_values = {translation: data.translatedText,
-								   detected_language: (from === "auto" && data.detectedLanguage.language  ?
-									   				   data.detectedLanguage.language : null)};
-			this.success();
-
-			return return_values;
-		} catch (e) {
-			this.failed();
-			return {message: `Translation failed:\n(${e.message})`};
-		}
-
+		return {translation: data.translatedText,
+			    detected_language: (from === "auto" && data.detectedLanguage.language  ? data.detectedLanguage.language : null)};
 	}
 
-	async get_languages(): Promise<LanguagesFetchResult> {
-		if (!this.valid)
-			return {message: "Translation service is not validated"};
-		try {
-			const response = await requestUrl({
-				throw: false,
-				method: "GET",
-				url:`${this.host}/languages`,
-			});
+	async service_languages(): Promise<LanguagesFetchResult> {
+		const response = await requestUrl({
+			throw: false,
+			method: "GET",
+			url:`${this.host}/languages`,
+		});
 
-			const data = response.json;
-			if (response.status !== 200)
-				throw Error(data.error.message);
+		const data = response.json;
+		if (response.status !== 200)
+			throw Error(data.error);
 
-			const return_values = {languages: Array.from(data).map((x: any) => x.code)};
-			this.success();
-
-			return return_values
-		} catch (e) {
-			this.failed();
-			return {message: `Languages fetching failed:\n(${e.message})`};
-		}
+		return {languages: Array.from(data).map((x: any) => x.code)};
 	}
 
 	has_autodetect_capability(): boolean {

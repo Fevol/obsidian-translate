@@ -744,8 +744,8 @@
 									invalidateService();
 								}}
 								type="text"
-								class="obfuscate-text"
 							/>
+							<!--class="obfuscate-text"-->
 						</SettingItem>
 
 						{#if info.requires_app_id}
@@ -931,7 +931,7 @@
 							icon="switch"
 							tooltip="Update languages"
 							onClick={async () => {
-								let return_values = await translator.get_languages();
+								let return_values = await translator.languages();
 								if (return_values.message)
 									plugin.message_queue(return_values.message);
 								if (return_values.languages) {

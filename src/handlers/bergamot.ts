@@ -55,27 +55,15 @@ export class BergamotTranslate extends DummyTranslate {
 		this.setup_service(available_models, path);
 	}
 
-	async validate(): Promise<ValidationResult> {
+	async service_validate(): Promise<ValidationResult> {
 		return {valid: this.translator != null};
 	}
 
-	async detect(text: string): Promise<Array<DetectionResult>> {
+	async service_detect(text: string): Promise<Array<DetectionResult>> {
 		return this.detector.detect(text);
 	}
 
-	async translate(text: string, from: string = 'auto', to: string): Promise<TranslationResult> {
-		if (!this.translator)
-			return {message: "Bergamot is not installed"};
-		if (!this.valid)
-			return {message: "Translation service is not validated"};
-		if (!text.trim())
-			return {message: "No text was provided"};
-		if (!to)
-			return {message: "No target language was provided"};
-		if (from === to)
-			return {translation: text};
-
-
+	async service_translate(text: string, from: string = 'auto', to: string): Promise<TranslationResult> {
 		let detected_language = '';
 		if (from === 'auto') {
 			if (this.has_autodetect_capability()) {
@@ -100,7 +88,7 @@ export class BergamotTranslate extends DummyTranslate {
 		return {translation: await this.translator.translate(text, from, to), detected_language: detected_language};
 	}
 
-	async get_languages(): Promise<LanguagesFetchResult> {
+	async service_languages(): Promise<LanguagesFetchResult> {
 		const rootURL = "https://storage.googleapis.com/bergamot-models-sandbox";
 
 		let response = await requestUrl({url: `${rootURL}/latest.txt`});

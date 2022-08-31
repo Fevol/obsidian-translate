@@ -31,121 +31,82 @@ export class FanyiBaidu extends DummyTranslate {
 		}
 	}
 
-	async validate(): Promise<ValidationResult> {
+	async service_validate(): Promise<ValidationResult> {
 		if (!this.api_key)
 			return {valid: false, message: "API key was not specified"};
 
-		try {
-			const signature = await this.sign_message('I');
-			const payload = {
-				q: 'I',
-				appid: this.app_id,
-				salt: signature.salt,
-				sign: signature.signature,
-			}
-
-			const response = await requestUrl({
-				url: `http://api.fanyi.baidu.com/api/trans/vip/language/?` + new URLSearchParams(payload),
-				method: 'POST',
-				headers: { 'Content-Type': 'application/json', }
-			});
-
-			const data = response.json;
-
-			const success = response.status === 200 && !data.error_msg;
-			if (success)
-				this.success();
-
-			return {valid: success, message:  success ? "" : `Validation failed:\n${toSentenceCase(data.error_msg)}`};
-		} catch (e) {
-			return {valid: false, message: `Validation failed:\n${e.message}`};
+		const signature = await this.sign_message('I');
+		const payload = {
+			q: 'I',
+			appid: this.app_id,
+			salt: signature.salt,
+			sign: signature.signature,
 		}
+
+		const response = await requestUrl({
+			url: `http://api.fanyi.baidu.com/api/trans/vip/language/?` + new URLSearchParams(payload),
+			method: 'POST',
+			headers: { 'Content-Type': 'application/json', }
+		});
+
+		const data = response.json;
+
+		const success = response.status === 200 && !data.error_msg;
+		return {valid: success, message:  success ? "" : `Validation failed:\n${toSentenceCase(data.error_msg)}`};
 	}
 
 
-	async detect(text: string): Promise<Array<DetectionResult>> {
-		if (!this.valid)
-			return [{message: "Translation service is not validated"}];
-
-		if (!text.trim())
-			return [{message: "No text was provided"}];
-
-		try {
-			const signature = await this.sign_message(text);
-			const payload = {
-				q: text,
-				appid: this.app_id,
-				salt: signature.salt,
-				sign: signature.signature,
-			}
-
-			const response = await requestUrl({
-				url: `http://api.fanyi.baidu.com/api/trans/vip/language/?` + new URLSearchParams(payload),
-				method: 'POST',
-				headers: { 'Content-Type': 'application/json', }
-			});
-
-			// Data = {"data":{"src": "en"} }
-			const data = response.json;
-			if (response.status !== 200)
-				throw new Error(toSentenceCase(data.error_msg));
-
-			const return_values = [{language: data.src}];
-			this.success();
-			return return_values;
-
-		} catch (e) {
-			this.failed();
-			return [{message: `Language detection failed:\n(${e.message})`}];
+	async service_detect(text: string): Promise<Array<DetectionResult>> {
+		const signature = await this.sign_message(text);
+		const payload = {
+			q: text,
+			appid: this.app_id,
+			salt: signature.salt,
+			sign: signature.signature,
 		}
 
+		const response = await requestUrl({
+			url: `http://api.fanyi.baidu.com/api/trans/vip/language/?` + new URLSearchParams(payload),
+			method: 'POST',
+			headers: { 'Content-Type': 'application/json', }
+		});
+
+		// Data = {"data":{"src": "en"} }
+		const data = response.json;
+		if (response.status !== 200)
+			throw new Error(toSentenceCase(data.error_msg));
+
+		return [{language: data.src}];
 	}
 
-	async translate(text: string, from: string, to: string): Promise<TranslationResult> {
-		if (!this.valid)
-			return {message: "Translation service is not validated"};
-		if (!text.trim())
-			return {message: "No text was provided"};
-		if (!to)
-			return {message: "No target language was provided"};
-		if (from === to)
-			return {translation: text};
+	async service_translate(text: string, from: string, to: string): Promise<TranslationResult> {
+		const signature = await this.sign_message(text);
 
-		try {
-			const signature = await this.sign_message(text);
-
-			const payload = {
-				q: text,
-				from: from,
-				to: to,
-				appid: this.app_id,
-				salt: signature.salt,
-				sign: signature.signature,
-			}
-
-			const response = await requestUrl({
-				url: `http://api.fanyi.baidu.com/api/trans/vip/translate/?` + new URLSearchParams(payload),
-				method: 'POST',
-				headers: { 'Content-Type': 'application/json', }
-			});
-
-			// Data = {"from":"en", "to":"zh", "trans_result":[{"src": "Hello", "dst": "你好"}] }
-			let data = response.json;
-			if (response.status !== 200)
-				throw new Error(toSentenceCase(data.error_msg));
-
-			const return_values = {translation: data.trans_result[0].dst,
-				  				   detected_language: (from === "auto" &&  data.to) ? data.to : null};
-
-			this.success();
-			return return_values;
-		} catch (e) {
-			this.failed();
-			return {message: `Translation failed:\n(${e.message})`};
+		const payload = {
+			q: text,
+			from: from,
+			to: to,
+			appid: this.app_id,
+			salt: signature.salt,
+			sign: signature.signature,
 		}
+
+		const response = await requestUrl({
+			url: `http://api.fanyi.baidu.com/api/trans/vip/translate/?` + new URLSearchParams(payload),
+			method: 'POST',
+			headers: { 'Content-Type': 'application/json', }
+		});
+
+		// Data = {"from":"en", "to":"zh", "trans_result":[{"src": "Hello", "dst": "你好"}] }
+		let data = response.json;
+		if (response.status !== 200)
+			throw new Error(toSentenceCase(data.error_msg));
+
+		return {translation: data.trans_result[0].dst,
+			    detected_language: (from === "auto" &&  data.to) ? data.to : null};
 	}
 
-	async get_languages(): Promise<LanguagesFetchResult> {
+	async service_languages(): Promise<LanguagesFetchResult> {
 		return {languages:
 			[
 				'ach', 'afr', 'aka', 'alb', 'amh', 'ara', 'arg', 'arm', 'arq', 'asm', 'ast', 'aym', 'aze', 'bak', 'bal',

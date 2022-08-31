@@ -24,7 +24,7 @@ export class Deepl extends DummyTranslate {
 	}
 
 
-	async validate(): Promise<ValidationResult> {
+	async service_validate(): Promise<ValidationResult> {
 		if (!this.api_key)
 			return {valid: false, message: "API key was not specified"};
 
@@ -38,7 +38,6 @@ export class Deepl extends DummyTranslate {
 				}
 			});
 			if (response.status === 200) {
-				this.success();
 				return {valid: true, message: "Using DeepL Pro API", host: this.host};
 			}
 
@@ -58,7 +57,6 @@ export class Deepl extends DummyTranslate {
 				if (response.status !== 200)
 					return {valid: false, message: "Validation failed:\nVerify correctness of API key"};
 
-				this.success();
 				return {valid: true, message: "Using DeepL Free API", host: this.host};
 			} catch (e) {
 				return {valid: false, message: "Validation failed:\nVerify correctness of API key"};
@@ -68,114 +66,71 @@ export class Deepl extends DummyTranslate {
 
 	// FIXME: DeepL doesn't actually support language detection, this is translating the text to get the language
 	//         Obviously this is not desirable, might just disable this feature for DeepL
-	async detect(text: string): Promise<Array<DetectionResult>> {
-		if (!this.valid)
-			return [{message: "Translation service is not validated"}];
+	async service_detect(text: string): Promise<Array<DetectionResult>> {
+		const response = await requestUrl({
+			url: `${this.host}/translate?` + new URLSearchParams({
+				text: text,
+				target_lang: "en"
+			}),
+			method: "POST",
+			contentType: "application/json",
+			headers: {
+				"Authorization": "DeepL-Auth-Key " + this.api_key
+			}
+		});
 
-		if (!text.trim())
-			return [{message: "No text was provided"}];
+		if (response.status !== 200)
+			throw new Error("Check API key")
 
-		try {
-			const response = await requestUrl({
-				url: `${this.host}/translate?` + new URLSearchParams({
-					text: text,
-					target_lang: "en"
-				}),
-				method: "POST",
-				contentType: "application/json",
-				headers: {
-					"Authorization": "DeepL-Auth-Key " + this.api_key
-				}
-			});
+		// Data = [{"text":"Hello", "detected_source_language":"en"}, ...]
+		const data = response.json;
 
-			if (response.status !== 200)
-				throw new Error("Check API key")
-
-			// Data = [{"text":"Hello", "detected_source_language":"en"}, ...]
-			const data = response.json;
-
-			const return_values = [{language: data.translations[0].detected_source_language.toLowerCase()}];
-			this.success();
-
-			return return_values
-		} catch (e) {
-			this.failed();
-			return [{message: `Language detection failed:\n(${e.message})`}];
-		}
+		return [{language: data.translations[0].detected_source_language.toLowerCase()}];
 	}
 
-	async translate(text: string, from: string, to: string): Promise<TranslationResult> {
-		if (!this.valid)
-			return {message: "Translation service is not validated"};
-		if (!text.trim())
-			return {message: "No text was provided"};
-		if (!to)
-			return {message: "No target language was provided"};
-		if (from === to)
-			return {translation: text};
+	async service_translate(text: string, from: string, to: string): Promise<TranslationResult> {
+		const response = await requestUrl({
+			url: `${this.host}/translate?` + new URLSearchParams({
+				text: text,
+				source_lang: from === "auto" ? "" : from,
+				target_lang: to,
+				split_sentences: "0",
+				preserve_formatting: "0",
+			}),
+			method: "POST",
+			contentType: "application/json",
+			headers: {
+				"Authorization": "DeepL-Auth-Key " + this.api_key
+			}
+		});
 
-		try {
-			const response = await requestUrl({
-				url: `${this.host}/translate?` + new URLSearchParams({
-					text: text,
-					source_lang: from === "auto" ? "" : from,
-					target_lang: to,
-					split_sentences: "0",
-					preserve_formatting: "0",
-				}),
-				method: "POST",
-				contentType: "application/json",
-				headers: {
-					"Authorization": "DeepL-Auth-Key " + this.api_key
-				}
-			});
+		if (response.status !== 200)
+			throw new Error("Check API key")
 
-			if (response.status !== 200)
-				throw new Error("Check API key")
-
-			// Data = [{"text":"Hello", "detected_source_language":"en"}, ...]
-			const data = response.json;
-			const return_values = {translation: data.translations[0].text,
+		// Data = [{"text":"Hello", "detected_source_language":"en"}, ...]
+		const data = response.json;
+		return {translation: data.translations[0].text,
 				detected_language: (from === "auto" && data.translations[0].detected_source_language) ?
 									data.translations[0].detected_source_language.toLowerCase() : null}
-			this.success();
-
-			return return_values;
-		} catch (e) {
-			this.failed();
-			return {message: `Translation failed:\n(${e.message})`};
-		}
 	}
 
 
-	async get_languages(): Promise<LanguagesFetchResult> {
-		if (!this.valid)
-			return {message: "Translation service is not validated"};
-		try {
-			const response = await requestUrl({
-				url: `${this.host}/languages`,
-				method: "POST",
-				contentType: "application/json",
-				headers: {
-					"Authorization": "DeepL-Auth-Key " + this.api_key
-				}
-			});
+	async service_languages(): Promise<LanguagesFetchResult> {
+		const response = await requestUrl({
+			url: `${this.host}/languages`,
+			method: "POST",
+			contentType: "application/json",
+			headers: {
+				"Authorization": "DeepL-Auth-Key " + this.api_key
+			}
+		});
 
-			if (response.status !== 200)
-				throw new Error("Check API key")
+		if (response.status !== 200)
+			throw new Error("Check API key")
 
-			// Data = [{"language":"EN", "name":"English", supports_formality: true}, ...]
-			const data = response.json;
-			const return_values = {languages: data.map((o: any) => o.language.toLowerCase())};
-			this.success();
-
-			return return_values;
-		} catch (e) {
-			this.failed();
-			return {message: `Languages fetching failed:\n(${e.message})`};
-		}
-
-
+		// Data = [{"language":"EN", "name":"English", supports_formality: true}, ...]
+		const data = response.json;
+		return {languages: data.map((o: any) => o.language.toLowerCase())};
 	}
 
 	has_autodetect_capability(): boolean {

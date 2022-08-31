@@ -12,57 +12,38 @@ export class FanyiYoudao extends DummyTranslate {
 		this.app_id = settings.app_id;
 	}
 
-	async validate(): Promise<ValidationResult> {
+	async service_validate(): Promise<ValidationResult> {
 		if (!this.api_key)
 			return {valid: false, message: "API key was not specified"};
 
-		try {
-			const signed_message = await this.sign_message('I');
-			const response = await requestUrl({url: `https://openapi.youdao.com/api?` +
-				new URLSearchParams({
-					q: 'I',
-					appKey: this.app_id,
-					salt: signed_message.salt,
-					from: 'en',
-					to: 'en',
-					sign: signed_message.signature,
-					signtype: "v3",
-					curtime: signed_message.current_time,
-					vocabId: "",
-				}), method: "POST"});
+		const signed_message = await this.sign_message('I');
+		const response = await requestUrl({url: `https://openapi.youdao.com/api?` +
+			new URLSearchParams({
+				q: 'I',
+				appKey: this.app_id,
+				salt: signed_message.salt,
+				from: 'en',
+				to: 'en',
+				sign: signed_message.signature,
+				signtype: "v3",
+				curtime: signed_message.current_time,
+				vocabId: "",
+			}), method: "POST"});
 
-			const data = response.json;
-			if(!data.errorCode) this.success();
+		const data = response.json;
 
-			return {valid: !data.errorCode, message: !data.errorCode ? "" : `Validation failed:\n${data.errorCode}`};
-		} catch (e) {
-			return {valid: false, message: `Validation failed:\n${e.message}`};
-		}
+		return {valid: !data.errorCode, message: !data.errorCode ? "" : `Validation failed:\n${data.errorCode}`};
 	}
 
 
-	async detect(text: string): Promise<Array<DetectionResult>> {
-		if (!this.valid)
-			return [{message: "Translation service is not validated"}];
-
-		if (!text.trim())
-			return [{message: "No text was provided"}];
-
-		try {
-			// Get first 20 words of text, not all words need to be included to get proper detection
-			const words = text.split(/\s+/).slice(0, 20).join(" ");
-			let result = await this.translate(text, 'auto', 'en');
-			if (result.message)
-				throw new Error(result.message);
-			else if (!result.detected_language)
-				throw new Error("Could not detect language");
-			else {
-				this.success();
-				return [{language: result.detected_language}];
-			}
-		} catch (e) {
-			return [{message: `Language detection failed:\n(${e.message})`}];
-		}
+	async service_detect(text: string): Promise<Array<DetectionResult>> {
+		// Get first 20 words of text, not all words need to be included to get proper detection
+		const words = text.split(/\s+/).slice(0, 20).join(" ");
+		let result = await this.service_translate(text, 'auto', 'en');
+		if (result.message)
+			throw new Error(result.message);
+		else
+			return [{language: result.detected_language}];
 	}
 
 	async sign_message(message: string) {
@@ -91,54 +72,38 @@ export class FanyiYoudao extends DummyTranslate {
 		}
 	}
 
-	async translate(text: string, from: string, to: string): Promise<TranslationResult> {
-		if (!this.valid)
-			return {message: "Translation service is not validated"};
-		if (!text.trim())
-			return {message: "No text was provided"};
-		if (!to)
-			return {message: "No target language was provided"};
-		if (from === to)
-			return {translation: text};
-
-		try {
-			const signed_message = await this.sign_message(text);
-			const response = await requestUrl({url: `https://openapi.youdao.com/api?` +
-				new URLSearchParams({
-					q: text,
-					appKey: this.app_id,
-					salt: signed_message.salt,
-					from: from,
-					to: to,
-					sign: signed_message.signature,
-					signtype: "v3",
-					curtime: signed_message.current_time,
-					vocabId: "",
-				}), method: "POST"});
+	async service_translate(text: string, from: string, to: string): Promise<TranslationResult> {
+		const signed_message = await this.sign_message(text);
+		const response = await requestUrl({url: `https://openapi.youdao.com/api?` +
+			new URLSearchParams({
+				q: text,
+				appKey: this.app_id,
+				salt: signed_message.salt,
+				from: from,
+				to: to,
+				sign: signed_message.signature,
+				signtype: "v3",
+				curtime: signed_message.current_time,
+				vocabId: "",
+			}), method: "POST"});
 
 
-			// Data = {"errorCode":"0", "query":"good", "translation":["好"],
-			// 			"basic":{"us-phonetic":"good", "phonetic":"good", "uk-phonetic":"good", "explains":["好"]},
-			// 			"web":[{"key":"good", "value":["好"]}]}
-			const data = response.json;
+		// Data = {"errorCode":"0", "query":"good", "translation":["好"],
+		// 			"basic":{"us-phonetic":"good", "phonetic":"good", "uk-phonetic":"good", "explains":["好"]},
+		// 			"web":[{"key":"good", "value":["好"]}]}
+		const data = response.json;
 
-			if (data.errorCode)
-				throw new Error(data.errorCode);
+		if (data.errorCode)
+			throw new Error(data.errorCode);
 
-			let detected_language = null;
-			if (from === 'auto')
-				detected_language = data.l.split("2")[0].toLowerCase();
+		let detected_language = null;
+		if (from === 'auto')
+			detected_language = data.l.split("2")[0].toLowerCase();
 
-			const return_values = {translation: data.translation.join('\n'), detected_language: detected_language};
-			this.success();
-			return return_values;
-		} catch (e) {
-			this.failed();
-			return {message: `Translation failed:\n(${e.message})`};
-		}
+		return {translation: data.translation.join('\n'), detected_language: detected_language};
 	}
 
-	async get_languages(): Promise<LanguagesFetchResult> {
+	async service_languages(): Promise<LanguagesFetchResult> {
 		// TODO: Figure out if Youdao has an endpoint for getting the current languages
 		return {
 			languages: [

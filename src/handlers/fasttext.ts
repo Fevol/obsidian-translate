@@ -52,17 +52,11 @@ export class FastTextDetector extends DummyTranslate {
 		this.setup_service(available_models);
 	}
 
-	async validate(): Promise<ValidationResult> {
+	async service_validate(): Promise<ValidationResult> {
 		return {valid: this.has_autodetect_capability()};
 	}
 
-	async detect(text: string): Promise<Array<DetectionResult>> {
-		if (!this.valid)
-			return [{message: "Detection service is not validated"}];
-
-		if (!text.trim())
-			return [{message: "No text was provided"}];
-
+	async service_detect(text: string): Promise<Array<DetectionResult>> {
 		let predictions: any = this.detector.predict(text, 5, 0.0);
 		let results = [];
 

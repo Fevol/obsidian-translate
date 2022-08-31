@@ -12,7 +12,7 @@ export class BingTranslator extends DummyTranslate {
 		this.region = settings.region;
 	}
 
-	async validate(): Promise<ValidationResult> {
+	async service_validate(): Promise<ValidationResult> {
 		if (!this.api_key)
 			return {valid: false, message: "API key was not specified"};
 
@@ -38,7 +38,6 @@ export class BingTranslator extends DummyTranslate {
 				body: JSON.stringify([{Text: ''}]),
 			});
 
-			if (response.status === 200) this.success();
 			const data = response.json;
 
 			return {valid: response.status === 200, message: response.status === 200 ? "" : `Validation failed:\n${data.error.message}`};
@@ -48,13 +47,7 @@ export class BingTranslator extends DummyTranslate {
 
 	}
 
-	async detect(text: string): Promise<Array<DetectionResult>> {
-		if (!this.valid)
-			return [{message: "Translation service is not validated"}];
-
-		if (!text.trim())
-			return [{message: "No text was provided"}];
-
+	async service_detect(text: string): Promise<Array<DetectionResult>> {
 		const headers: any = {
 			"Content-Type": "application/json",
 			"Ocp-Apim-Subscription-Key": this.api_key,
@@ -62,103 +55,76 @@ export class BingTranslator extends DummyTranslate {
 		if (this.region)
 			headers["Ocp-Apim-Subscription-Region"] = this.region;
 
-		try {
-			const response = await requestUrl({
-				throw: false,
-				method: "POST",
-				url:`https://api.cognitive.microsofttranslator.com/detect?api-version=3.0&scope=text` +
-					new URLSearchParams({
-						textType: "plain"
-					}),
-				headers: headers,
-				body: JSON.stringify([{Text: text}]),
-			});
+		const response = await requestUrl({
+			throw: false,
+			method: "POST",
+			url:`https://api.cognitive.microsofttranslator.com/detect?api-version=3.0&scope=text` +
+				new URLSearchParams({
+					textType: "plain"
+				}),
+			headers: headers,
+			body: JSON.stringify([{Text: text}]),
+		});
 
 
-			const data = response.json;
-			if (response.status !== 200)
-				throw new Error(data.error.message);
-			let results = [{language: data[0].language, confidence: data[0].score}];
-			if (data[0].alternatives)
-				results = results.concat(data[0].alternatives.map((alternative: any) => ({
-					language: alternative.language,
-					confidence: alternative.score
-				})));
-			this.success();
+		const data = response.json;
+		if (response.status !== 200)
+			throw new Error(data.error.message);
 
-			return results;
-		} catch (e) {
-			this.failed();
-			return [{message: `Language detection failed:\n(${e.message})`}];
-		}
+		let results = [{language: data[0].language, confidence: data[0].score}];
+		if (data[0].alternatives)
+			results = results.concat(data[0].alternatives.map((alternative: any) => ({
+				language: alternative.language,
+				confidence: alternative.score
+			})));
+
+		return results;
 	}
 
-	async translate(text: string, from: string = 'auto', to: string): Promise<TranslationResult> {
-		if (!this.valid)
-			return {message: "Translation service is not validated"};
-		if (!text.trim())
-			return {message: "No text was provided"};
-		if (!to)
-			return {message: "No target language was provided"};
-		if (from === to)
-			return {translation: text};
-
-		try {
-			const headers: any = {
-				"Content-Type": "application/json",
-				"Ocp-Apim-Subscription-Key": this.api_key,
-			}
-			if (this.region)
-				headers["Ocp-Apim-Subscription-Region"] = this.region;
-
-			const response = await requestUrl({
-				throw: false,
-				method: "POST",
-				url:`https://api.cognitive.microsofttranslator.com/translate?api-version=3.0&` +
-					new URLSearchParams({
-						from: from === "auto" ? "" : from,
-						to: to,
-						textType: "plain"
-					}),
-				headers: headers,
-				body: JSON.stringify([{Text: text}]),
-			});
-
-			const data = response.json;
-			if (response.status !== 200)
-				throw new Error(data.error.message);
-			const return_values = {translation: data[0].translations[0].text,
-								 detected_language: (from === "auto" && data[0].detectedLanguage.language) ? data[0].detectedLanguage.language : null}
-			this.success();
-			return return_values;
-		} catch (e) {
-			this.failed();
-			return {message: `Translation failed:\n(${e.message})`};
+	async service_translate(text: string, from: string = 'auto', to: string): Promise<TranslationResult> {
+		const headers: any = {
+			"Content-Type": "application/json",
+			"Ocp-Apim-Subscription-Key": this.api_key,
 		}
+		if (this.region)
+			headers["Ocp-Apim-Subscription-Region"] = this.region;
+
+		const response = await requestUrl({
+			throw: false,
+			method: "POST",
+			url:`https://api.cognitive.microsofttranslator.com/translate?api-version=3.0&` +
+				new URLSearchParams({
+					from: from === "auto" ? "" : from,
+					to: to,
+					textType: "plain"
+				}),
+			headers: headers,
+			body: JSON.stringify([{Text: text}]),
+		});
+
+		const data = response.json;
+		if (response.status !== 200)
+			throw new Error(data.error.message);
+
+		return {translation: data[0].translations[0].text,
+			    detected_language: (from === "auto" && data[0].detectedLanguage.language) ? data[0].detectedLanguage.language : null}
 	}
 
 	// No API key required, service may be invalid
-	async get_languages(): Promise<LanguagesFetchResult> {
-		try {
-			const response = await requestUrl({
-				throw: false,
-				method: "GET",
-				url:`https://api.cognitive.microsofttranslator.com/languages?api-version=3.0&scope=translation`,
-				headers: { "Content-Type": "application/json" },
-			});
+	async service_languages(): Promise<LanguagesFetchResult> {
+		const response = await requestUrl({
+			throw: false,
+			method: "GET",
+			url:`https://api.cognitive.microsofttranslator.com/languages?api-version=3.0&scope=translation`,
+			headers: { "Content-Type": "application/json" },
+		});
 
-			const data = response.json;
+		const data = response.json;
 
-			if (response.status !== 200)
-				throw new Error(data.error.message);
-			this.success();
+		if (response.status !== 200)
+			throw new Error(data.error.message);
 
-			return {languages: Object.keys(data.translation)};
-		}
-		catch (e) {
-			this.failed();
-			return {message: `Languages fetching failed:\n(${e.message})`};
-		}
+		return {languages: Object.keys(data.translation)};
 	}
 
 	has_autodetect_capability(): boolean {

@@ -79,99 +79,67 @@ export class FanyiQq extends DummyTranslate {
 		}
 	}
 
-	async validate(): Promise<ValidationResult> {
+	async service_validate(): Promise<ValidationResult> {
 		if (!this.api_key)
 			return {valid: false, message: "API key was not specified"};
 
-		try {
-			const payload = {
-				Action: 'LanguageDetect',
-				Version: '2018-03-21',
-				Region: this.region,
-				Text: 'I',
-				ProjectId: this.app_id,
-			}
-			const signature = await this.sign_message(payload);
-
-			const response = await requestUrl({
-				url: `https://tmt.tencentcloudapi.com/?` + new URLSearchParams(payload), method: 'POST',
-				headers: {
-					'Content-Type': 'application/json',
-					'Authorization': signature.authorization,
-					'X-TC-Timestamp': signature.timestamp,
-					'X-TC-Action': 'LanguageDetect',
-					'X-TC-Version': '2018-03-21',
-				}
-			});
-
-			const data = response.json;
-
-			const success = response.status === 200 && !data.Response.Error;
-
-			if (success)
-				this.success();
-
-			return {valid: success, message:  success ? "" : `Validation failed:\n${data.Response.Error.Message}`};
-		} catch (e) {
-			return {valid: false, message: `Validation failed:\n${e.message}`};
+		const payload = {
+			Action: 'LanguageDetect',
+			Version: '2018-03-21',
+			Region: this.region,
+			Text: 'I',
+			ProjectId: this.app_id,
 		}
+		const signature = await this.sign_message(payload);
+
+		const response = await requestUrl({
+			url: `https://tmt.tencentcloudapi.com/?` + new URLSearchParams(payload), method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+				'Authorization': signature.authorization,
+				'X-TC-Timestamp': signature.timestamp,
+				'X-TC-Action': 'LanguageDetect',
+				'X-TC-Version': '2018-03-21',
+			}
+		});
+
+		const data = response.json;
+		const success = response.status === 200 && !data.Response.Error;
+
+		return {valid: success, message:  success ? "" : `Validation failed:\n${data.Response.Error.Message}`};
 	}
 
 
-	async detect(text: string): Promise<Array<DetectionResult>> {
-		if (!this.valid)
-			return [{message: "Translation service is not validated"}];
-
-		if (!text.trim())
-			return [{message: "No text was provided"}];
-
-		try {
-			const payload = {
-				Action: 'LanguageDetect',
-				Version: '2018-03-21',
-				Region: this.region,
-				Text: text,
-				ProjectId: this.app_id,
-			}
-			const signature = await this.sign_message(payload);
-
-			const response = await requestUrl({
-				url: `https://tmt.tencentcloudapi.com/?` + new URLSearchParams(payload), method: 'POST',
-				headers: {
-					'Content-Type': 'application/json',
-					'Authorization': signature.authorization,
-					'X-TC-Timestamp': signature.timestamp,
-					'X-TC-Action': 'LanguageDetect',
-					'X-TC-Version': '2018-03-21',
-				}
-			});
-
-			// Data = {"Response": {"Lang":"en", "RequestId": "..." } }
-			const data = response.json;
-			if (response.status !== 200 || data.Response.Error)
-				throw new Error(data.Response.Error.Message);
-
-			const return_values = [{language: data.Response.Lang}];
-			this.success();
-			return return_values;
-
-		} catch (e) {
-			this.failed();
-			return [{message: `Language detection failed:\n(${e.message})`}];
+	async service_detect(text: string): Promise<Array<DetectionResult>> {
+		const payload = {
+			Action: 'LanguageDetect',
+			Version: '2018-03-21',
+			Region: this.region,
+			Text: text,
+			ProjectId: this.app_id,
 		}
+		const signature = await this.sign_message(payload);
 
+		const response = await requestUrl({
+			url: `https://tmt.tencentcloudapi.com/?` + new URLSearchParams(payload), method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+				'Authorization': signature.authorization,
+				'X-TC-Timestamp': signature.timestamp,
+				'X-TC-Action': 'LanguageDetect',
+				'X-TC-Version': '2018-03-21',
+			}
+		});
+
+		// Data = {"Response": {"Lang":"en", "RequestId": "..." } }
+		const data = response.json;
+		if (response.status !== 200 || data.Response.Error)
+			throw new Error(data.Response.Error.Message);
+
+		return [{language: data.Response.Lang}];
 	}
 
-	async translate(text: string, from: string, to: string): Promise<TranslationResult> {
-		if (!this.valid)
-			return {message: "Translation service is not validated"};
-		if (!text.trim())
-			return {message: "No text was provided"};
-		if (!to)
-			return {message: "No target language was provided"};
-		if (from === to)
-			return {translation: text};
-
+	async service_translate(text: string, from: string, to: string): Promise<TranslationResult> {
 		async function attempt_translation(sourceText: string, source: string, target: string): Promise<RequestUrlResponse> {
 		// const attempt_translation: (sourceText: string, target: string) => Promise<RequestUrlResponse> = async (sourceText: string, target: string) => {
 			const payload = {
@@ -197,41 +165,34 @@ export class FanyiQq extends DummyTranslate {
 			});
 		}
 
-		try {
-			let response = await attempt_translation(text, from, to);
+		let response = await attempt_translation(text, from, to);
 
-			// Data = {"Response": {"TargetText":"Hello", "Source":"en", "Target":"zh", "RequestId": "..." } }
-			let data = response.json;
-			let detected_language = data.Response?.Source;
-			if (response.status !== 200 || data.Response.Error) {
-				if (data.Response.Error.Code === 'UnsupportedOperation.UnsupportedSourceLanguage') {
-					// TODO: Warn user of doubled character usage due to indirect translation via pivoting
-					// Use English as the pivot language (as QQ does not support translation between all language pairs)
-					response = await attempt_translation(text,  from,'en');
-					data = response.json;
-					detected_language = data.Response?.Source;
+		// Data = {"Response": {"TargetText":"Hello", "Source":"en", "Target":"zh", "RequestId": "..." } }
+		let data = response.json;
+		let detected_language = data.Response?.Source;
+		if (response.status !== 200 || data.Response.Error) {
+			if (data.Response.Error.Code === 'UnsupportedOperation.UnsupportedSourceLanguage') {
+				// TODO: Warn user of doubled character usage due to indirect translation via pivoting
+				// Use English as the pivot language (as QQ does not support translation between all language pairs)
+				response = await attempt_translation(text,  from,'en');
+				data = response.json;
+				detected_language = data.Response?.Source;
 
-					// If it still manages to fail, so be it
-					if (response.status !== 200)
-						throw new Error(data.Response.Error.Message);
-
-					response = await attempt_translation(data.Response.TargetText, 'en', to);
-					data = response.json;
-				} else {
+				// If it still manages to fail, so be it
+				if (response.status !== 200)
 					throw new Error(data.Response.Error.Message);
-				}
+
+				response = await attempt_translation(data.Response.TargetText, 'en', to);
+				data = response.json;
+			} else {
+				throw new Error(data.Response.Error.Message);
 			}
-			const return_values = {translation: data.Response.TargetText,
-								   detected_language: (from === "auto" &&  detected_language) ? detected_language : null};
-			this.success();
-			return return_values;
-		} catch (e) {
-			this.failed();
-			return {message: `Translation failed:\n(${e.message})`};
 		}
+		return {translation: data.Response.TargetText,
+			    detected_language: (from === "auto" &&  detected_language) ? detected_language : null};
 	}
 
-	async get_languages(): Promise<LanguagesFetchResult> {
+	async service_languages(): Promise<LanguagesFetchResult> {
 		// TODO: Figure out if QQ has an endpoint for getting the current languages
 		return {languages: ["ar", "de", "en", "es", "fr", "hi", "id", "it", "ja",
 							"ko", "ms", "pt", "ru", "th", "tr", "vi", "zh", "zh-TW"]
