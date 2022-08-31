@@ -305,9 +305,11 @@
 				>
 					<Dropdown
 						slot="control"
-						options={Object.keys(SERVICES_INFO).map((x) => {
-						return {'value': x, 'text': toTitleCase(x.replace('_', ' '))};
-					})}
+						options={Object.entries(SERVICES_INFO)
+							.filter(([k,v]) => v.type === 'translation')
+							.map(([k,v]) => {
+								return {'value': k, 'text': v.display_name};
+							})}
 						value={ $settings.translation_service }
 						onChange={(e) => {
 							// If translation service data does not exist in settings, add it
@@ -742,6 +744,7 @@
 									invalidateService();
 								}}
 								type="text"
+								class="obfuscate-text"
 							/>
 						</SettingItem>
 
@@ -995,7 +998,8 @@
 					background-color 0.35s cubic-bezier(0.45, 0.25, 0.83, 0.67),
 					max-width 0.35s cubic-bezier(0.57, 0.04, 0.58, 1),
 					outline 0.15s ease-in-out;
-		max-width: 34px;
+		max-width: 32px;
+		height: 32px;
 	}
 
 	.translator-navigation-item:hover {
@@ -1021,6 +1025,7 @@
 	}
 
 	.translator-navigation-item-text {
+		//display: none;
 		color: transparent;
 		overflow: clip;
 		flex: 0;

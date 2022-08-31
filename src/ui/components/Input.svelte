@@ -15,6 +15,7 @@
 	placeholder={placeholder}
 	readonly={readonly}
 	on:input={onChange} {val}
+	class={$$props.class}
 	class:translator_input_success={valid}
 	class:translator_input_fail={valid === false}
 >

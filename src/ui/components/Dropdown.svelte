@@ -10,7 +10,7 @@
 	export let disabled: boolean = false;
 </script>
 
-<select class={$$props.class || "" + " dropdown"} disabled={disabled} on:change={onChange} {value}>
+<select class={$$props.class ? $$props.class + " dropdown" : "dropdown"} disabled={disabled} on:change={onChange} {value}>
 	{#each options as { value, text }}
 		<option {value}>{text}</option>
 	{/each}
