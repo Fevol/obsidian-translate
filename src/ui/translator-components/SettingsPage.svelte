@@ -454,7 +454,7 @@
 						<!-- FIXME: Official FastText repo does not contain wasm file, so the binary was added to the plugin's repo
 							  users would probably prefer if the file was downloaded from an official place -- look for this! -->
 
-						<div slot="control">
+						<div slot="control" class="setting-item-control">
 							<button
 								class:translator-success={$data.models?.fasttext}
 								class="icon-text"
@@ -545,7 +545,7 @@
 								{ type: 'text', text: `ⓘ Automatic language detection is <b>disabled</b>, install FastText to enable this feature`, style: 'info-text' }
 							]}
 						>
-							<div slot="control">
+							<div slot="control" class="setting-item-control">
 								<!-- FIXME: WASM location in repo might not be very stable (but would be most up-to-date) -->
 								<button
 									aria-label={bergamot_update_available ? "Bergamot update available": "Install"}
