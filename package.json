@@ -28,6 +28,7 @@
 	},
 	"dependencies": {
 		"esbuild-plugin-inline-worker": "^0.1.1",
-		"iso-639-1": "^2.1.14"
+		"iso-639-1": "^2.1.14",
+		"monkey-around": "^2.3.0"
 	}
 }

@@ -7,6 +7,8 @@ import {TranslatorSettingsTab} from "./settings";
 import {TranslatorView} from "./view";
 import {SwitchService, TranslateModal} from "./ui/modals";
 
+import {around} from 'monkey-around';
+
 import type {
 	APIServiceProviders,
 	APIServiceSettings,
@@ -30,6 +32,8 @@ export default class TranslatorPlugin extends Plugin {
 	current_language: string;
 	detected_language: string;
 	service_data: APIServiceSettings;
+
+	uninstall: any;
 
 	available_languages: any[] = [];
 
@@ -90,27 +94,20 @@ export default class TranslatorPlugin extends Plugin {
 			this.saveSettings(data);
 		}));
 
-		// ------------------------  Setup plugin pages  ----------------------
 		// This adds a settings tab so the user can configure various aspects of the plugin
 		this.addSettingTab(new TranslatorSettingsTab(this.app, this));
 
 		// Register the view to the app.
-
 		this.registerView(
 			TRANSLATOR_VIEW_ID,
 			(leaf) => new TranslatorView(leaf, this)
 		);
 
-		// --------------------------------------------------------------------
 
-
-		// ------------------  Load in custom icons  ------------------
 
 		// Load icons into Obsidian
 		for (const [id, icon] of Object.entries(ICONS))
 			addIcon(id, icon);
-
-		// ------------------------------------------------------------
 
 		this.reactivity = new Reactivity({
 			target: document.body,
@@ -252,10 +249,32 @@ export default class TranslatorPlugin extends Plugin {
 				}
 			})
 		);
+
+
+
+		//@ts-ignore
+		this.uninstall = around(app.plugins, {
+			// @ts-expect-error, not typed
+			uninstallPlugin: (oldMethod) => {
+				// @ts-ignore
+				return async (...args) => {
+					const settings = get(this.settings);
+					// @ts-ignore
+					const result = oldMethod && oldMethod.apply(app.plugins, args);
+					if (args[0] === 'obsidian-translate') {
+						localStorage.removeItem("password");
+						localStorage.removeItem("models");
+						if (await app.vault.adapter.exists(`.obsidian/${settings.storage_path}`))
+							await app.vault.adapter.rmdir(`.obsidian/${settings.storage_path}`, true);
+					}
+				};
+			}
+		})
 	}
 
 	async onunload() {
 		this.reactivity.$destroy();
+		this.uninstall();
 	}
 
 	async activateTranslatorView() {
