@@ -383,7 +383,7 @@
 						type="password"
 						description="Update locally stored password"
 					>
-						<div slot="control" style="display: flex; flex-direction: column; gap: 16px">
+						<div slot="control">
 							{#if !$data.password_are_encrypted}
 								<!-- FIXME: Localstorage is not reactive -->
 								<Button
@@ -896,7 +896,7 @@
 						name="Language selection"
 						description="Languages available when using the 'Selection Mode' filter"
 					>
-						<div slot="control" transition:slide>
+						<div slot="control" transition:slide class="setting-item-control">
 							<ButtonList
 								items={ filtered_languages }
 								icon="cross"

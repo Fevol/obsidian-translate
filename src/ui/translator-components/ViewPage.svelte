@@ -310,7 +310,7 @@
 <style class="scss">
 	.translator-view {
 		display: grid;
-		margin: 12px;
+		/*margin: var(--size-4-2);*/
 		flex-grow: 1;
 		gap: 16px;
 	}

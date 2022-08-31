@@ -10,8 +10,11 @@
 
 	onMount(() => {
 		if (icon !== 'spinner') {
-			if (!content)
+			if (!content) {
 				setIcon(icon_element, icon, size);
+				icon_element.style.display = 'flex';
+			}
+
 			// resize();
 			// Custom loader for SVG icons that does not restrict the size of the icon
 			else
@@ -43,8 +46,10 @@
 		if (icon_element) {
 			icon_element.empty();
 			if (icon !== 'spinner') {
-				if (!content)
+				if (!content) {
 					setIcon(icon_element, icon, size);
+					icon_element.style.display = 'flex';
+				}
 				// resize();
 				else
 					icon_element.innerHTML = content.trim();
@@ -56,4 +61,4 @@
 </script>
 
 <!--FIXME: Icon div has extra height (about 15% extra) if inline style is not set, investigate 	-->
-<div bind:this={icon_element} class={$$props.class}  class:spinner={icon==='spinner'} style="height: {size}px"></div>
+<div bind:this={icon_element} class={$$props.class}  class:spinner={icon==='spinner'}></div>

@@ -78,35 +78,33 @@
 }
 
 .translator-success {
-	background-color: var(--background-modifier-success) !important;
+	background-color: var(--color-green) !important;
+	color: var(--text-on-accent);
 }
 
 .translator-fail {
-	background-color: var(--background-modifier-error) !important;
+	background-color: var(--color-red) !important;
 	color: var(--text-on-accent);
 }
 
 .translator_input_success {
-	color: var(--interactive-success) !important;
-	border-color: var(--interactive-success) !important;
+	color: var(--color-green) !important;
+	border-color: var(--color-green) !important;
 	filter: brightness(1.2);
 }
 
 .translator_input_fail {
-	color: var(--text-error) !important;
-	border-color: var(--text-error) !important;
+	color: var(--color-red) !important;
+	border-color: var(--color-red) !important;
 	border-width: 2px !important;
 }
-
-
-
 
 .translator-fail > * {
 	color: var(--text-on-accent);
 }
 
 .warning-text {
-	color: var(--text-error);
+	color: var(--color-red);
 	font-weight: bold;
 }
 

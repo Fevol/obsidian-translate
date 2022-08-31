@@ -10,6 +10,7 @@ export default class PasswordModal extends Modal {
 	constructor(app: App, plugin: TranslatorPlugin) {
 		super(app);
 		this.plugin = plugin;
+		this.titleEl.innerText = "Set new password";
 	}
 
 	async onOpen() {

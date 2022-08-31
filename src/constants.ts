@@ -966,7 +966,7 @@ export const TRANSLATOR_VIEW_ID = "translator-view";
 export let SETTINGS_TABS = [{
 	id: 'general',
 	name: 'General',
-	icon: 'Settings',
+	icon: 'settings',
 }, ...Object.keys(SERVICES_INFO).map(service => ({id: service, name: SERVICES_INFO[service].display_name, icon: service}))];
 
 
