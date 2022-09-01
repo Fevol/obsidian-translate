@@ -1,5 +1,5 @@
 import {FuzzySuggestModal, App, MarkdownView, Editor} from "obsidian";
-import type TranslatorPlugin from "src/main";
+import type TranslatorPlugin from "main";
 import {get} from "svelte/store";
 import {translate_file, translate_selection} from "../../helpers";
 

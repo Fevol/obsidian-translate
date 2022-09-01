@@ -1,5 +1,5 @@
 import { FuzzySuggestModal, App } from "obsidian";
-import type TranslatorPlugin from "src/main";
+import type TranslatorPlugin from "main";
 import {SERVICES_INFO} from "../../constants";
 
 export default class SwitchService extends FuzzySuggestModal<string>{
