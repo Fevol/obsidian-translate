@@ -191,7 +191,8 @@
 
 	$: {
 		if (Object.keys(model_observer).length) {
-			localStorage.setItem('models', JSON.stringify(model_observer));
+			// @ts-ignore (Undocumented API method)
+			app.saveLocalStorage('models', JSON.stringify(model_observer));
 		}
 	}
 

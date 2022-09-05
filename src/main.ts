@@ -56,8 +56,8 @@ export default class TranslatorPlugin extends Plugin {
 			new Notice(text, timeout);
 		});
 
-		this.plugin_data = writable<PluginData>(Object.assign({}, DEFAULT_DATA, {models:  JSON.parse(localStorage.getItem('models')) || {}}));
-
+		// @ts-ignore (Undocumented API method)
+		this.plugin_data = writable<PluginData>(Object.assign({}, DEFAULT_DATA, {models:  JSON.parse(app.loadLocalStorage('models')) || {}}));
 
 		let loaded_settings: TranslatorPluginSettings = await this.loadData();
 		const translation_service = loaded_settings?.translation_service || DEFAULT_SETTINGS.translation_service;
