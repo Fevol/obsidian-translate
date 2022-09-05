@@ -117,9 +117,19 @@
 }
 
 .translator-dropdown-logo {
+	display: flex;
 	position: sticky;
 	left: 100%;
 	top: 50%;
+}
+
+
+.menu {
+	// Temporary solution: overflow: hidden causes the dropdown menu to not be drawn
+	overflow: unset;
+	// Temporary solution: padding makes it hard to reach the dropdown menu, without deactivating the :hover selector
+	//padding-left: 0;
+	//padding-right: 0;
 }
 
 .translator-dropdown-menu {
@@ -133,6 +143,11 @@
 	overflow-y: auto !important;
 }
 
+.translator-dropdown {
+	margin: 0 calc(-1 * var(--size-2-3));
+	padding: var(--size-4-1) calc(var(--size-2-3) + var(--size-4-2));
+}
+
 .translator-dropdown:hover:not(.is-disabled) > .translator-dropdown-menu {
 	display: flex;
 }
@@ -141,13 +156,6 @@
 	display: none;
 }
 
-.menu {
-	// Temporary solution: overflow: hidden causes the dropdown menu to not be drawn
-	overflow: unset;
-	// Temporary solution: padding makes it hard to reach the dropdown menu, without deactivating the :hover selector
-	padding-left: 0;
-	padding-right: 0;
-}
 
 
 .disable-animations * {
