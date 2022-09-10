@@ -15,7 +15,9 @@ fetchMock.dontMock()
 
 const fs = require('fs');
 // Load correct-data.json (warning, this contains secret API keys)
-export const filled_settings: TranslatorPluginSettings = JSON.parse(fs.readFileSync('tests/correct-data.json').toString());
+export const filled_settings: TranslatorPluginSettings =
+	fs.existsSync('tests/correct-data.json') ? JSON.parse(fs.readFileSync('tests/correct-data.json').toString())
+											: undefined;
 
 import {
 	BingTranslator,

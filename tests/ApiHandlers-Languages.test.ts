@@ -1,7 +1,7 @@
 import {empty_settings, filled_settings, input_desc, services} from "./services";
 import type {APIServiceProviders, APIServiceSettings} from "../src/types";
 
-test('Load correct-data.json', () => {
+test('Load correct-data.json (required for test)', () => {
 	expect(filled_settings).not.toBe(undefined);
 });
 
