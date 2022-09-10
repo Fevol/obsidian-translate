@@ -117,9 +117,9 @@ export const DEFAULT_SETTINGS: TranslatorPluginSettings = {
 			validated: null,
 			available_languages: [
 				"bg", "cs", "da", "de", "el", "en", "es", "et", "fi", "fr", "hu", "id", "it", "ja", "lt", "lv", "nl",
-				"pl", "pt", "ro", "ru", "sk", "sl", "sv", "tr", "zh"
+				"pl", "pt", "ro", "ru", "sk", "sl", "sv", "tr", "uk", "zh"
 			],
-			version: "1.0.0"
+			version: "1.0.1"
 		},
 		bergamot: {
 			selected_languages: [],
