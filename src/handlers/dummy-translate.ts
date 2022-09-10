@@ -34,7 +34,10 @@ export class DummyTranslate {
 				this.failure_count = 0;
 			return output;
 		} catch (e) {
-			return {valid: false, message: `Validation failed:\n${e.message}`};
+			output = {valid: false, message: `Validation failed:\n${e.message}`};
+			return output;
+		} finally {
+			this.valid = output.valid;
 		}
 	}
 

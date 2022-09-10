@@ -838,7 +838,6 @@
 								value={$settings.service_settings[tab].validated}
 								fn={async () => {
 									let validation_results = await translator.validate();
-									translator.valid = validation_results.valid;
 									if (validation_results.message)
 										plugin.message_queue(validation_results.message, !validation_results.valid ? 5000 : 3000);
 									if (validation_results.host)

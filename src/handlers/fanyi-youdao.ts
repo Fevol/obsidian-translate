@@ -15,6 +15,8 @@ export class FanyiYoudao extends DummyTranslate {
 	async service_validate(): Promise<ValidationResult> {
 		if (!this.api_key)
 			return {valid: false, message: "API key was not specified"};
+		if (!this.app_id)
+			return {valid: false, message: "App ID was not specified"};
 
 		const signed_message = await this.sign_message('I');
 		const response = await requestUrl({url: `https://openapi.youdao.com/api?` +

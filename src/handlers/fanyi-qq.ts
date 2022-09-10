@@ -82,6 +82,8 @@ export class FanyiQq extends DummyTranslate {
 	async service_validate(): Promise<ValidationResult> {
 		if (!this.api_key)
 			return {valid: false, message: "API key was not specified"};
+		if (!this.app_id)
+			return {valid: false, message: "App ID was not specified"};
 
 		const payload = {
 			Action: 'LanguageDetect',
