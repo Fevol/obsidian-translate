@@ -206,6 +206,9 @@
 		// @ts-ignore (Config exists in vault)
 		if (app.vault.config.spellcheckLanguages)
 			$data.spellchecker_languages = [...new Set(app.vault.config.spellcheckLanguages.map(x => x.split('-')[0]))]
+		else
+			// Mobile (iOS and Android) do not have the
+			$data.spellchecker_languages = [plugin.current_language];
 
 		// This is not an ideal solution, as config-changed gets called quite a bit
 		//@ts-ignore (config-changed event exists)
