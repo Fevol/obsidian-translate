@@ -143,9 +143,12 @@
 	overflow-y: auto !important;
 }
 
-.translator-dropdown {
-	margin: 0 calc(-1 * var(--size-2-3));
-	padding: var(--size-4-1) calc(var(--size-2-3) + var(--size-4-2));
+.translator-dropdown::after {
+	content: "";
+	width: calc(1.5 * var(--size-2-3));
+	height: 50px;
+	position: absolute;
+	right: -1px;
 }
 
 .translator-dropdown:hover:not(.is-disabled) > .translator-dropdown-menu {
