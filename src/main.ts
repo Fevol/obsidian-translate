@@ -256,14 +256,15 @@ export default class TranslatorPlugin extends Plugin {
 		this.uninstall = around(app.plugins, {
 			// @ts-expect-error, not typed
 			uninstallPlugin: (oldMethod) => {
-				// @ts-ignore
-				return async (...args) => {
+				return async (...args: string[]) => {
 					const settings = get(this.settings);
-					// @ts-ignore
+					// @ts-ignore (app.plugins exists)
 					const result = oldMethod && oldMethod.apply(app.plugins, args);
 					if (args[0] === 'obsidian-translate') {
-						localStorage.removeItem("password");
-						localStorage.removeItem("models");
+						// @ts-ignore (app.appId exists)
+						localStorage.removeItem(`${app.appId}-password`);
+						// @ts-ignore (app.appId exists)
+						localStorage.removeItem(`${app.appId}-models`);
 						if (await app.vault.adapter.exists(`.obsidian/${settings.storage_path}`))
 							await app.vault.adapter.rmdir(`.obsidian/${settings.storage_path}`, true);
 					}
