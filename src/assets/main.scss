@@ -172,3 +172,13 @@
 	font-family: 'Flow Circular', sans-serif !important;
 	line-height: 1.45em !important;
 }
+
+.translator-warning-message {
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	padding: 10px;
+	margin: 8px;
+	border-radius: 10px;
+	gap: 16px;
+}
