@@ -52,7 +52,8 @@ export default class TranslatorPlugin extends Plugin {
 
 		// Set up message queue for the plugin, this rate limits the number of messages the plugin can send at the same time,
 		// and allows for the messages to be ordered in a certain way
-		this.message_queue = rateLimit(5, 3000, true,(text: string, timeout: number = 4000, priority: boolean = false) => {
+		const default_timeout = 4000;
+		this.message_queue = rateLimit(5, 3000, true, default_timeout,(text: string, timeout: number = default_timeout, priority: boolean = false) => {
 			new Notice(text, timeout);
 		});
 

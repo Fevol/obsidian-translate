@@ -27,29 +27,31 @@ function array_cmp(a1: Array<any>, a2: Array<any>) {
 
 
 // Adapted from https://github.com/wankdanker/node-function-rate-limit/
-export function rateLimit(limitCount: number, interval: number, unique: boolean, fn: (...args: any) => void) {
+export function rateLimit(limitCount: number, interval: number, unique: boolean, default_timeout: number, fn: (...args: any) => void) {
 	// Contains set of function calls that need to be executed, limited by limitCount and executed every interval
 	const fifo: any[] = [];
-	const args_handler: any[] = [];
+	const currently_running: any[] = [];
 	let running = false;
+
 	function next_call(args: any[] = []) {
-		// If priority was given, bypass FIFO queue and execute immediately
-		if (args[2]) {
-			fn.apply(args[0], args[1]);
-			return;
-		}
-
-
-		// If queue is empty, throttler can stop running
-		if (!args.length) {
-			running = false;
-			return;
-		}
-
 		// Set up the next call to be executed after given interval
 		setTimeout(function() {
-			next_call(fifo.shift());
+			if (fifo.length)
+				next_call(fifo.shift());
+			else
+				running = false;
 		}, interval);
+
+		// If the limiter requires unique calls, set the function to be running for args[2] specified time
+		if (unique) {
+			setTimeout(function() {
+				if (!fifo)
+					// Safeguard: clear currently_running if fifo is empty
+					currently_running.length = 0;
+				else
+					currently_running.shift();
+			}, args[2] || default_timeout);
+		}
 
 		// Execute the function
 		fn.apply(args[0], args[1]);
@@ -59,18 +61,25 @@ export function rateLimit(limitCount: number, interval: number, unique: boolean,
 		const ctx = this;
 		const args = Array.prototype.slice.call(arguments);
 
-		// If queue is full, ignore incomming function call
+		// If queue is full, ignore incoming function call
 		// LimitCount of 0 means that only one function call can be executed at a time
-		if (!fifo.length || fifo.length < limitCount) {
-			if ((unique && !args_handler.find(x => array_cmp(x, args))) || !unique) {
-				args_handler.push(args);
-				fifo.push([ctx, args]);
-			}
-			if (!running) {
-				running = true;
-				args_handler.shift();
-				next_call(fifo.shift());
-				return;
+		if (!limitCount || fifo.length < limitCount) {
+			// When call has priority, bypass FIFO queue and execute immediately (also disregards uniqueness property)
+			if (args[2]) {
+				fn.apply(ctx, args);
+			} else {
+				// If limiter is unique, only one function call with the same arguments can be executed at a time
+				if ((unique && !currently_running.find(x => array_cmp(x, args))) || !unique) {
+					if (unique)
+						currently_running.push(args);
+					fifo.push([ctx, args]);
+				}
+
+				// Start up rate limiter when not active
+				if (!running && fifo.length) {
+					running = true;
+					next_call(fifo.shift());
+				}
 			}
 		}
 	}
