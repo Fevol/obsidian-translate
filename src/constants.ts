@@ -31,6 +31,7 @@ export const DEFAULT_DATA: PluginData = {
 	models: {},
 	tab: 'general',
 	password_are_encrypted: false,
+	password: '',
 }
 
 export const DEFAULT_SETTINGS: TranslatorPluginSettings = {
@@ -954,10 +955,10 @@ export const VIEW_MODES = {
 }
 
 export const SECURITY_MODES = [
-	{ value: 'none', text: 'No security', info: "API keys are currently stored as plaintext strings in data.json" },
+	{ value: 'none', text: 'Plaintext (no security)', info: "API keys are currently stored as plaintext strings in data.json" },
 	{ value: 'password', text: 'Encrypt with password', info: "API keys are currently stored as encrypted strings in data.json" },
-	{ value: 'local_only', text: 'Only save locally', info: "API keys will not be saved to data.json, keys are only stored locally" },
-	{ value: 'dont_save', text: "Only keep for session", info: "API keys will be cleared if Obsidian is closed" },
+	{ value: 'local_only', text: 'Stored in local storage', info: "API keys will not be saved to data.json, keys are only stored locally" },
+	{ value: 'dont_save', text: "Stored for single session", info: "API keys will be cleared if Obsidian is closed" },
 ]
 
 export const TRANSLATOR_VIEW_ID = "translator-view";

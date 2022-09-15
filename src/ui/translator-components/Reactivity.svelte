@@ -29,7 +29,7 @@
 		LingvaTranslate,
 		FastTextDetector,
 	} from "../../handlers";
-	import {aesGcmDecrypt, toTitleCase} from "../../util";
+	import {aesGcmDecrypt, aesGcmEncrypt, toTitleCase} from "../../util";
 	import {PasswordRequestModal} from "../modals";
 
 
@@ -98,16 +98,28 @@
 		return language + extra;
 	}
 
-	async function getAPIKey(service: string, mode: string) {
+	export async function getAPIKey(service: string, mode: string) {
 		if (mode === 'password')
-			return await aesGcmDecrypt($settings.service_settings[service].api_key, localStorage.getItem('password'));
+			return await aesGcmDecrypt($settings.service_settings[service].api_key, $data.password);
 		else if (mode === 'local_only')
-			return localStorage.getItem(`${service}_api_key`);
+			return app.loadLocalStorage(`${service}_api_key`);
 		else if (mode === 'dont_save')
 			return sessionStorage.getItem(`${service}_api_key`);
 		else
 			return $settings.service_settings[service].api_key;
 	}
+
+	export async function setAPIKey(service: string, mode: string, key: string) {
+		if (mode === "password")
+			$settings.service_settings[service].api_key = await aesGcmEncrypt(key, $data.password);
+		else if (mode === "local_only")
+			app.saveLocalStorage(service + '_api_key', key);
+		else if (mode === "dont_save")
+			sessionStorage.setItem(service + '_api_key', key);
+		else
+			$settings.service_settings[service].api_key = key;
+	}
+
 
 	export function getExistingService(service: string) {
 		return active_services[service];
@@ -236,7 +248,7 @@
 		if ($settings.security_setting === 'password') {
 			for (const [service, service_settings] of Object.entries($settings.service_settings)) {
 				if (SERVICES_INFO[service].requires_api_key && service_settings.api_key) {
-					if ((await aesGcmDecrypt(service_settings.api_key, localStorage.getItem('password'))).endsWith('==')) {
+					if ((await aesGcmDecrypt(service_settings.api_key, $data.password)).endsWith('==')) {
 						$data.password_are_encrypted = true;
 						new PasswordRequestModal(plugin).open();
 						break;

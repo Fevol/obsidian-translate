@@ -18,6 +18,7 @@ export default class PasswordModal extends Modal {
 			target: this.contentEl,
 			props: {
 				settings: this.plugin.settings,
+				data: this.plugin.plugin_data,
 			}
 		});
 		this.view.$on("close", async (e) => {

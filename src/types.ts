@@ -31,6 +31,9 @@ export interface PluginData {
 
 	// If any of the services API keys are still encrypted, this will be true
 	password_are_encrypted: boolean;
+
+	// This will be used to make password difference operations reactive
+	password: string;
 }
 
 export interface APIServiceProviders {

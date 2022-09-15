@@ -90,13 +90,13 @@
 .translator_input_success {
 	color: var(--color-green) !important;
 	border-color: var(--color-green) !important;
-	filter: brightness(1.2);
+	border-width: 3px !important;
 }
 
 .translator_input_fail {
 	color: var(--color-red) !important;
 	border-color: var(--color-red) !important;
-	border-width: 2px !important;
+	border-width: 3px !important;
 }
 
 .translator-fail > * {

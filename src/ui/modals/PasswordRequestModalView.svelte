@@ -5,6 +5,8 @@
 	import {Notice} from "obsidian";
 	import TranslatorPlugin from "../../main";
 
+	import {Icon} from "../components";
+
 	import {aesGcmDecrypt} from "../../util";
 	import type {PluginData, TranslatorPluginSettings} from "../../types";
 
@@ -32,7 +34,8 @@
 				}
 			}
 
-			localStorage.setItem("password", input);
+			app.saveLocalStorage("password", input);
+			$data.password = input;
 			for (const [service, key] of decrypted_keys.entries())
 				active_services[service].api_key = key;
 
@@ -49,8 +52,10 @@
 </script>
 
 <div style="margin-bottom: 32px">
-	<h3 style="text-align: center">Enter your password</h3>
-	The API keys are still encrypted, please enter your password to decrypt them.
+	<h3 style="text-align: center">Enter your password <div style="font-weight: 100; font-size: 15px; letter-spacing: 0.7px">(Obsidian Translate)</div></h3>
+	Recover encrypted API keys from your settings by entering your password.
+	<br><br>
+	You can reopen this modal via the plugin settings at any time.
 </div>
 
 <div class="translator-password-modal-inputs">

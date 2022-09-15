@@ -25,7 +25,7 @@
 		</div>
 			<div class="setting-item-description">
 				{#if description}
-					{description}
+					{@html description}
 					{#each notices as notice}
 						<br>
 						{#if notice.type === "href"}

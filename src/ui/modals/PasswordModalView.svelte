@@ -3,16 +3,17 @@
 	import {Notice} from "obsidian";
 	import {createEventDispatcher} from "svelte";
 	import type {Writable} from "svelte/store";
-	import type {TranslatorPluginSettings} from "../../types";
+	import type {PluginData, TranslatorPluginSettings} from "../../types";
 
 	import {aesGcmEncrypt, aesGcmDecrypt} from "../../util";
 
 	export let settings: Writable<TranslatorPluginSettings>;
+	export let data: Writable<PluginData>;
 
 	let valid = null;
 	let input_1 = "";
 	let input_2 = "";
-	let current_password = localStorage.getItem("password");
+	let current_password = $data.password;
 	const dispatch = createEventDispatcher();
 
 	$: valid = (input_1 && input_2) ? input_1 === input_2 : null;
@@ -38,8 +39,8 @@
 </div>
 
 <button class="translator-password-modal-button" on:click={async () => {
-	// FIXME: I'm not entirely sure what I could do here: close() or this.close() cause the program to shutdown,
-	// so best choice is to communicate directly to the parent
+	// FIXME: I'm not entirely sure what I could do here: close() or this.close() cause the program to shut down,
+	// so the best choice is to communicate directly to the parent
 	if (valid) {
 		for (const service of Object.keys($settings.service_settings)) {
 			let api_key = $settings.service_settings[service].api_key;
@@ -49,7 +50,8 @@
 				$settings.service_settings[service].api_key = await aesGcmEncrypt(api_key, input_1);
 			}
 		}
-		localStorage.setItem("password", input_1);
+		app.saveLocalStorage("password", input_1);
+		$data.password = input_1;
 		dispatch("close");
 	} else if (current_password && !input_1 && !input_2) {
 		// Password already existed and did not change, no need to re-encrypt passwords
