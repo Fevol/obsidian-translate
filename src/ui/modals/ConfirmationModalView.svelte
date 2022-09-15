@@ -33,5 +33,6 @@
 		display: flex;
 		justify-content: right;
 		margin-top: 1em;
+		gap: var(--size-4-2);
 	}
 </style>

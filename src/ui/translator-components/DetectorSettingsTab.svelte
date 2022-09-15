@@ -4,14 +4,12 @@
 	import type {Writable} from "svelte/store";
 	import {slide} from "svelte/transition";
 
-	import {Button, Dropdown, Slider, Toggle, Input, Icon, ToggleButton, ButtonList} from ".././components";
+	import {Toggle, Icon} from ".././components";
 	import {SettingItem} from "../obsidian-components";
 
-	import {ConfirmationModal, PasswordModal, PasswordRequestModal} from "../modals";
+	import {ConfirmationModal} from "../modals";
 
 	import type {PluginData, TranslatorPluginSettings} from "../../types";
-	import {SERVICES_INFO, SECURITY_MODES, DEFAULT_SETTINGS, SETTINGS_TABS, UNTESTED_SERVICES} from "../../constants";
-	import {DummyTranslate} from "../../handlers";
 
 	import {requestUrl} from "obsidian";
 	import {writeRecursive} from "../../obsidian-util";
@@ -20,7 +18,6 @@
 	export let plugin: TranslatorPlugin;
 	export let settings: Writable<TranslatorPluginSettings>;
 	export let data: Writable<PluginData>;
-	export let translator: DummyTranslate;
 
 </script>
 
