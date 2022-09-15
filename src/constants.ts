@@ -40,6 +40,7 @@ export const DEFAULT_SETTINGS: TranslatorPluginSettings = {
 	translation_service: 'google_translate',
 	security_setting: 'none',
 	storage_path: "models",
+	switch_button_action: 'switch-both',
 	enable_animations: true,
 	hide_attribution: false,
 	service_settings: {

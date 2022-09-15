@@ -241,16 +241,20 @@
 		<div class="translator-button-container translator-center-column">
 			<button class="translator-button" aria-label="Switch languages around"
 					on:click={async () => {
-						if (language_from === 'auto') {
-							if (detected_language) {
-								[language_from, language_to] = [language_to, detected_language];
-								detected_language = undefined;
-							} else
-							[language_from, language_to] = [language_to, null];
-						} else {
-							[language_from, language_to] = [language_to, language_from];
+						if ($settings.switch_button_action === 'switch-both' || $settings.switch_button_action === 'switch-language') {
+							if (language_from === 'auto') {
+								if (detected_language) {
+									[language_from, language_to] = [language_to, detected_language];
+									detected_language = undefined;
+								} else
+								[language_from, language_to] = [language_to, null];
+							} else {
+								[language_from, language_to] = [language_to, language_from];
+							}
 						}
-						[text_from, text_to] = [text_to, text_from];
+						if ($settings.switch_button_action === 'switch-both' || $settings.switch_button_action === 'switch-text') {
+							[text_from, text_to] = [text_to, text_from];
+						}
 					}}
 			>
 					<Icon icon=switch size={20}/>

@@ -2,6 +2,7 @@ export interface TranslatorPluginSettings {
 	security_setting: "none" | "password" | "local_only" | "no_save";
 	display_language: "local" | "display";
 	filter_mode: string;
+	switch_button_action: "switch-both" | "switch-language" | "switch-text";
 
 	translation_service: string;
 	service_settings: APIServiceProviders;
