@@ -1,15 +1,15 @@
 <script lang="ts">
-	import TranslatorPlugin from "../../main";
+	import TranslatorPlugin from "../../../main";
 
 	import type {Writable} from "svelte/store";
 
-	import {Button, Dropdown, Slider, Toggle, Input, Icon, ToggleButton, ButtonList} from ".././components";
-	import {SettingItem} from "../obsidian-components";
+	import {Button, Dropdown, Slider, Toggle, Input, Icon, ToggleButton, ButtonList} from "../../components";
+	import {SettingItem} from "../../obsidian-components";
 
-	import {PasswordModal, PasswordRequestModal} from "../modals";
+	import {PasswordModal, PasswordRequestModal} from "../../modals";
 
-	import type {PluginData, TranslatorPluginSettings} from "../../types";
-	import {SERVICES_INFO, SECURITY_MODES, DEFAULT_SETTINGS} from "../../constants";
+	import type {PluginData, TranslatorPluginSettings} from "../../../types";
+	import {SERVICES_INFO, SECURITY_MODES, DEFAULT_SETTINGS} from "../../../constants";
 
 	export let plugin: TranslatorPlugin;
 	export let settings: Writable<TranslatorPluginSettings>;

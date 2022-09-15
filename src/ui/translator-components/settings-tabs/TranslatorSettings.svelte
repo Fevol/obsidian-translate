@@ -1,25 +1,25 @@
 <script lang="ts">
-	import TranslatorPlugin from "../../main";
+	import TranslatorPlugin from "../../../main";
 
 
 	import {onMount} from "svelte";
 	import type {Writable} from "svelte/store";
 	import {slide} from "svelte/transition";
 
-	import {Button, Dropdown, Toggle, Input, Icon, ToggleButton, ButtonList} from ".././components";
-	import {SettingItem} from "../obsidian-components";
+	import {Button, Dropdown, Toggle, Input, Icon, ToggleButton, ButtonList} from "../../components";
+	import {SettingItem} from "../../obsidian-components";
 
-	import {ConfirmationModal} from "../modals";
+	import {ConfirmationModal} from "../../modals";
 
-	import type {PluginData, TranslatorPluginSettings} from "../../types";
-	import {SERVICES_INFO, UNTESTED_SERVICES} from "../../constants";
-	import {DummyTranslate} from "../../handlers";
+	import type {PluginData, TranslatorPluginSettings} from "../../../types";
+	import {SERVICES_INFO, UNTESTED_SERVICES} from "../../../constants";
+	import {DummyTranslate} from "../../../handlers";
 
 	import {Notice, requestUrl, Platform} from "obsidian";
-	import {humanFileSize} from "../../util";
-	import {writeRecursive} from "../../obsidian-util";
+	import {humanFileSize} from "../../../util";
+	import {writeRecursive} from "../../../obsidian-util";
 
-	import t from "../../l10n";
+	import t from "../../../l10n";
 
 
 	export let plugin: TranslatorPlugin;
@@ -236,20 +236,20 @@
 				<button
 					transition:slide
 					on:click={async (e) => {
-							new ConfirmationModal(
-								plugin,
-								"Confirm uninstallation of Bergamot",
-								"Are you sure you want to uninstall Bergamot?<br><div class='warning-text'>⚠ This will also remove all local models you've installed.</div>",
-								async () => {
-									if (await app.vault.adapter.exists(`.obsidian/${$settings.storage_path}/bergamot`))
-										await app.vault.adapter.rmdir(`.obsidian/${$settings.storage_path}/bergamot`, true);
-									$data.models.bergamot = undefined;
-									$settings.service_settings[service].validated = null;
-									plugin.message_queue("Successfully uninstalled Bergamot and its language models");
-									translator.valid = false;
-									available_languages = [];
-								},
-							).open();
+						new ConfirmationModal(
+							plugin,
+							"Confirm uninstallation of Bergamot",
+							"Are you sure you want to uninstall Bergamot?<br><div class='warning-text'>⚠ This will also remove all local models you've installed.</div>",
+							async () => {
+								if (await app.vault.adapter.exists(`.obsidian/${$settings.storage_path}/bergamot`))
+									await app.vault.adapter.rmdir(`.obsidian/${$settings.storage_path}/bergamot`, true);
+								$data.models.bergamot = undefined;
+								$settings.service_settings[service].validated = null;
+								plugin.message_queue("Successfully uninstalled Bergamot and its language models");
+								translator.valid = false;
+								available_languages = [];
+							},
+						).open();
 					}}>
 					Uninstall
 				</button>

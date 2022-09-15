@@ -1,18 +1,18 @@
 <script lang="ts">
-	import TranslatorPlugin from "../../main";
+	import TranslatorPlugin from "../../../main";
 
 	import type {Writable} from "svelte/store";
 	import {slide} from "svelte/transition";
 
-	import {Toggle, Icon} from ".././components";
-	import {SettingItem} from "../obsidian-components";
+	import {Toggle, Icon} from "../../components";
+	import {SettingItem} from "../../obsidian-components";
 
-	import {ConfirmationModal} from "../modals";
+	import {ConfirmationModal} from "../../modals";
 
-	import type {PluginData, TranslatorPluginSettings} from "../../types";
+	import type {PluginData, TranslatorPluginSettings} from "../../../types";
 
 	import {requestUrl} from "obsidian";
-	import {writeRecursive} from "../../obsidian-util";
+	import {writeRecursive} from "../../../obsidian-util";
 
 
 	export let plugin: TranslatorPlugin;
