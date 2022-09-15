@@ -62,6 +62,7 @@
 				let detector = await plugin.reactivity.getTranslationService('fasttext');
 				if (!detector?.detector)
 					detector.setup_service($data.models.fasttext);
+				detector.valid = true;
 			}}
 		>
 			<Icon icon={"download"} />

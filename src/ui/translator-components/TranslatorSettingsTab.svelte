@@ -15,19 +15,19 @@
 	import {SERVICES_INFO, UNTESTED_SERVICES} from "../../constants";
 	import {DummyTranslate} from "../../handlers";
 
-	import {requestUrl, Platform} from "obsidian";
-	import {writeRecursive} from "../../obsidian-util";
+	import {Notice, requestUrl, Platform} from "obsidian";
 	import {humanFileSize} from "../../util";
-	import {getAPIKey, setAPIKey} from "../../obsidian-util";
+	import {writeRecursive} from "../../obsidian-util";
+
 	import t from "../../l10n";
 
 
 	export let plugin: TranslatorPlugin;
 	export let settings: Writable<TranslatorPluginSettings>;
 	export let data: Writable<PluginData>;
-	export let translator: DummyTranslate;
 	export let service: string;
 
+	let translator: DummyTranslate;
 	let old_service = '';
 	
 	let available_languages: string[] = [];
@@ -43,30 +43,21 @@
 	$: service, changedService();
 
 	onMount(() => {
-		if ($settings.translation_service === 'bergamot') {
-			// We need to wait for $data.models to be loaded in before the version can be checked
-			bergamot_update_available = $data.models?.bergamot?.models && $data.models.bergamot.version < $settings.service_settings.bergamot.version;
-		}
+		// We need to wait for $data.models to be loaded in before the version can be checked
+		bergamot_update_available = $data.models?.bergamot?.models && $data.models.bergamot.version < $settings.service_settings.bergamot.version;
 	});
 
 	async function changedService() {
+		// Set translator to the selected service
 		info = SERVICES_INFO[service];
-		getAPIKey(service, $settings.security_setting, $settings.service_settings).then(key => api_key = key)
-		plugin.reactivity.getTranslationService(service, '').then(service => {
-			translator = service
-			available_languages = translator.available_languages || $settings.service_settings[service].available_languages;
-		});
-
 		if (info?.requires_api_key)
-			api_key = await getAPIKey(service, $settings.security_setting, $settings.service_settings);
+			api_key = await plugin.reactivity.getAPIKey(service, $settings.security_setting);
+
 		translator = await plugin.reactivity.getTranslationService(service, old_service);
 		available_languages = translator.available_languages || $settings.service_settings[service].available_languages;
 		
 		old_service = service;
 	}
-	
-
-
 
 	async function updateBergamot() {
 		let updatable_models = $settings.service_settings.bergamot.downloadable_models.filter(model => {
@@ -173,20 +164,23 @@
 
 </script>
 
+<!-- Show warning when service is untested -->
 {#if UNTESTED_SERVICES.contains(service)}
 	<div class="translator-fail translator-warning-message">
 		<Icon icon="alert-triangle" size="60" />
 		<div>
 			<b>WARNING:</b> {info.display_name} has not been tested, so it is very likely that it does not work properly.<br><br>
-			If you encounter any issue, please open an issue over on <a href={`https://github.com/Fevol/obsidian-translate/issues/new?` + new URLSearchParams({
-							title: `[BUG] ${info.display_name} –`,
-							body: `# User report\n**Description:** \n\n\n\n---\n# Debugger data (do not alter)\n${Array.from(Object.entries({
-								service_version: $settings.service_settings[service].version,
-								obsidian_version: navigator.userAgent.match(/obsidian\/([\d\.]+\d+)/)?.[1] || "unknown",
-								mobile: Platform.isMobileApp,
-							})).map((x) => `**${x[0]}**: ${JSON.stringify(x[1])}`).join("\n")}`,
-							labels: `bug`
-						})}>GitHub</a>,
+			If you encounter any issue, please open an issue over on
+				<a href={`https://github.com/Fevol/obsidian-translate/issues/new?` + new URLSearchParams({
+					title: `[BUG] ${info.display_name} –`,
+					body: `# User report\n**Description:** \n\n\n\n---\n# Debugger data (do not alter)\n${Array.from(Object.entries({
+						service_version: $settings.service_settings[service].version,
+						obsidian_version: navigator.userAgent.match(/obsidian\/([\d\.]+\d+)/)?.[1] || "unknown",
+						platform: Platform.isMobileApp ? (Platform.isAndroidApp ? 'Android' : Platform.isIosApp ? 'iOS' : 'mobile') :
+						                                 (Platform.isMacOS ? 'macOS' : 'Desktop'),
+					})).map((x) => `**${x[0]}**: ${JSON.stringify(x[1])}`).join("\n")}`,
+					labels: `bug`
+				})}>GitHub</a>,
 			I will try to fix it as soon as possible.<br>
 			Likewise, if the service works properly, let me know!
 		</div>
@@ -201,8 +195,8 @@
 		description="Install Bergamot translation engine (size: 5.05MiB)"
 		type="button"
 		notices={translator?.has_autodetect_capability() ? [] : [
-								{ type: 'text', text: `ⓘ Automatic language detection is <b>disabled</b>, install FastText to enable this feature`, style: 'info-text' }
-							]}
+			{ type: 'text', text: `ⓘ Automatic language detection is <b>disabled</b>, install FastText to enable this feature`, style: 'info-text' }
+		]}
 	>
 		<div slot="control" class="setting-item-control">
 			<!-- FIXME: WASM location in repo might not be very stable (but would be most up-to-date) -->
@@ -265,7 +259,7 @@
 
 	{#if $data.models.bergamot}
 		<SettingItem name="Manage Bergamot models">
-			<div slot="control">
+			<div slot="control" class="setting-item-control">
 				<!-- TODO: Removal should consider whether model was already removed via FS  -->
 				<ButtonList
 					items={ $data.models.bergamot?.models.map((model) => {
@@ -399,7 +393,7 @@
 				api_key = e.target.value;
 				translator.api_key = e.target.value;
 
-				setAPIKey(service, $settings.security_setting, e.target.value);
+				plugin.reactivity.setAPIKey(service, $settings.security_setting, e.target.value);
 				invalidateService();
 			}}
 			type="text"
