@@ -282,28 +282,31 @@
 				readonly={true}
 			/>
 		</div>
-		<div class="translator-attribution-column">
-			<div class="translator-attribution-column-text">
-				Using
-				<a href={services[translation_service].url} target="_blank" class="icon-text translator-service-text">
-					<Icon icon={translation_service}/>
-					{`${translation_service.replace('_', ' ')}`}
-				</a>
-				{#if plugin.detector}
-					with
-					<a href={services["fasttext"].url} target="_blank" class="icon-text translator-service-text">
-						<Icon icon="fasttext"/>
-						FastText
+
+		{#if !$settings.hide_attribution}
+			<div class="translator-attribution-column">
+				<div class="translator-attribution-column-text">
+					Using
+					<a href={services[translation_service].url} target="_blank" class="icon-text translator-service-text">
+						<Icon icon={translation_service}/>
+						{`${translation_service.replace('_', ' ')}`}
 					</a>
+					{#if plugin.detector}
+						with
+						<a href={services["fasttext"].url} target="_blank" class="icon-text translator-service-text">
+							<Icon icon="fasttext"/>
+							FastText
+						</a>
+					{/if}
+				</div>
+
+
+				{#if services[translation_service].attribution !== undefined}
+					<Icon content={ICONS[translation_service + '_attribution']} size={40} svg_size={[160, 40]}/>
 				{/if}
+
 			</div>
-
-
-			{#if services[translation_service].attribution !== undefined}
-				<Icon content={ICONS[translation_service + '_attribution']} size={40} svg_size={[160, 40]}/>
-			{/if}
-
-		</div>
+		{/if}
 	</div>
 </View>
 

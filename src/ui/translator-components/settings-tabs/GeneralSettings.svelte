@@ -213,16 +213,3 @@
 </SettingItem>
 
 
-<SettingItem
-	name="Enable plugin animations"
-	type="toggle"
->
-	<Toggle
-		slot="control"
-		value={ $settings.enable_animations }
-		onChange={async (e) => {
-			 $settings.enable_animations = !$settings.enable_animations;
-		}}
-	>
-	</Toggle>
-</SettingItem>

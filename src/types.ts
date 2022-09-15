@@ -8,6 +8,7 @@ export interface TranslatorPluginSettings {
 
 
 	enable_animations: boolean;
+	hide_attribution: boolean;
 
 	// Where the local models are stored, if applicable
 	storage_path?: string;

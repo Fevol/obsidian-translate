@@ -41,6 +41,7 @@ export const DEFAULT_SETTINGS: TranslatorPluginSettings = {
 	security_setting: 'none',
 	storage_path: "models",
 	enable_animations: true,
+	hide_attribution: false,
 	service_settings: {
 		fasttext: {
 			default_usage: false,
@@ -964,11 +965,19 @@ export const SECURITY_MODES = [
 export const TRANSLATOR_VIEW_ID = "translator-view";
 
 
-export let SETTINGS_TABS = [{
-	id: 'general',
-	name: 'General',
-	icon: 'settings',
-}, ...Object.keys(SERVICES_INFO).map(service => ({id: service, name: SERVICES_INFO[service].display_name, icon: service}))];
+export let SETTINGS_TABS = [
+	{
+		id: 'general',
+		name: 'General',
+		icon: 'settings',
+	},
+	{
+		id: 'appearance',
+		name: 'Appearance',
+		icon: 'palette',
+	},
+	...Object.keys(SERVICES_INFO).map(service => ({id: service, name: SERVICES_INFO[service].display_name, icon: service}))
+];
 
 
 export const UNTESTED_SERVICES = ['yandex_translate', 'fanyi_qq', 'fanyi_youdao', 'fanyi_baidu'];

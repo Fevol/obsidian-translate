@@ -13,7 +13,7 @@
 	import {SERVICES_INFO, DEFAULT_SETTINGS, SETTINGS_TABS} from "../../constants";
 	import {DummyTranslate} from "../../handlers";
 
-	import {GeneralSettings, DetectorSettings, TranslatorSettings} from "./settings-tabs";
+	import {GeneralSettings, AppearanceSettings, DetectorSettings, TranslatorSettings} from "./settings-tabs";
 
 	export let plugin: TranslatorPlugin;
 	export let settings: Writable<TranslatorPluginSettings>;
@@ -29,6 +29,8 @@
 		switch (tab) {
 			case "general":
 				return GeneralSettings;
+			case "appearance":
+				return AppearanceSettings;
 			case "fasttext":
 				return DetectorSettings;
 			default:

@@ -170,8 +170,13 @@
 
 .obfuscate-text {
 	font-family: 'Flow Circular', sans-serif !important;
-	line-height: 1.45em !important;
+	line-height: 1.45em;
 }
+
+.obfuscate-text:focus {
+	font-family: unset !important;
+}
+
 
 .translator-warning-message {
 	display: flex;

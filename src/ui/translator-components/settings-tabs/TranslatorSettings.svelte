@@ -40,6 +40,8 @@
 	let api_key = null;
 	let info: any = {};
 
+	let obfuscate_api_key = app.loadLocalStorage("obfuscate_keys") || false;
+
 	$: service, changedService();
 
 	onMount(() => {
@@ -388,6 +390,7 @@
 	>
 		<Input
 			slot="control"
+			class={obfuscate_api_key ? 'obfuscate-text' : ''}
 			val={api_key}
 			onChange={(e) => {
 				api_key = e.target.value;
@@ -410,6 +413,7 @@
 			<Input
 				slot="control"
 				val={$settings.service_settings[service].app_id}
+				class={obfuscate_api_key ? 'obfuscate-text' : ''}
 				onChange={(e) => {
 					$settings.service_settings[service].app_id = e.target.value;
 					translator.app_id = e.target.value;
