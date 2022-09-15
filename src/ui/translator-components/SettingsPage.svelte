@@ -13,8 +13,6 @@
 	import {SERVICES_INFO, DEFAULT_SETTINGS, SETTINGS_TABS} from "../../constants";
 	import {DummyTranslate} from "../../handlers";
 
-	import t from "../../l10n";
-
 	import {GeneralSettingsTab, DetectorSettingsTab, TranslatorSettingsTab} from "./";
 
 	export let plugin: TranslatorPlugin;
@@ -24,14 +22,23 @@
 	let bergamot_update_available = false;
 	let tab = $data.tab;
 	let tab_idx = SETTINGS_TABS.findIndex(t => t.id === tab);
-	let info = SERVICES_INFO[tab];
 
 	let translator: DummyTranslate;
 
+	function getComponent() {
+		switch (tab) {
+			case "general":
+				return GeneralSettingsTab;
+			case "fasttext":
+				return DetectorSettingsTab;
+			default:
+				return TranslatorSettingsTab;
+		}
+	}
 
 	async function changedTabs(index) {
 		tab_idx = index;
-		let new_tab = SETTINGS_TABS[index].id;
+		const new_tab = SETTINGS_TABS[index].id;
 
 		if (new_tab in SERVICES_INFO && !$settings.service_settings[new_tab])
 			$settings.service_settings[new_tab] = DEFAULT_SETTINGS.service_settings[new_tab];
@@ -42,7 +49,6 @@
 
 	onMount(() => {
 		tab = $data.tab;
-		info = SERVICES_INFO[tab];
 	});
 
 </script>
@@ -76,32 +82,12 @@
 
 	{#key tab}
 		<div in:horizontalSlide={{duration: 400, delay: 400}} out:slide={{duration: 300}}>
-			{#if tab === 'general'}
-				<GeneralSettingsTab
-					plugin={plugin}
-					settings={settings}
-					data={data}
-					translator={translator}
-
-				/>
-			{:else}
-				{#if info.type === "detection"}
-					<DetectorSettingsTab
-						plugin={plugin}
-						settings={settings}
-						data={data}
-						translator={translator}
-					/>
-				{:else}
-					<TranslatorSettingsTab
-						plugin={plugin}
-						settings={settings}
-						data={data}
-						translator={translator}
-						service={tab}
-					/>
-				{/if}
-			{/if}
+			<svelte:component this={getComponent()}
+				plugin={plugin}
+				settings={settings}
+				data={data}
+				service={tab}
+			/>
 		</div>
 	{/key}
 </div>
