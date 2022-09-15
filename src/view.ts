@@ -6,7 +6,7 @@ import type TranslatorPlugin from "./main";
 import type {SvelteComponent} from "svelte";
 import {ViewPage} from "./ui/translator-components";
 
-import {TRANSLATOR_VIEW_ID} from "./constants";
+import {TRANSLATOR_VIEW_ID, SERVICES_INFO} from "./constants";
 import {get} from "svelte/store";
 
 
@@ -34,7 +34,7 @@ export class TranslatorView extends ItemView {
 	}
 
 	getDisplayText() {
-		return "Translator";
+		return `Translator (${SERVICES_INFO[this.translation_service].display_name})`;
 	}
 
 	getIcon(): string {
