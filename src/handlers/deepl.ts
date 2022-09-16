@@ -17,6 +17,9 @@ export class Deepl extends DummyTranslate {
 	api_key: string;
 	host: string;
 
+	// Body size may maximally be 128KiB
+	character_limit = 130000;
+
 	constructor(settings: APIServiceSettings) {
 		super();
 		this.api_key = settings.api_key;

@@ -7,6 +7,8 @@ import {requestUrl} from "obsidian";
 export class YandexTranslate extends DummyTranslate {
 	api_key: string;
 
+	character_limit = 10000;
+
 	constructor(settings: APIServiceSettings) {
 		super();
 		this.api_key = settings.api_key;

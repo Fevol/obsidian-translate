@@ -15,6 +15,8 @@ export class FanyiBaidu extends DummyTranslate {
 	api_key: string;
 	app_id: string;
 
+	character_limit = 6000;
+
 	constructor(settings: APIServiceSettings) {
 		super();
 		this.api_key = settings.api_key;

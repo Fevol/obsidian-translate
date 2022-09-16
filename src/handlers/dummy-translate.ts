@@ -1,6 +1,7 @@
 import type {DetectionResult, LanguagesFetchResult, TranslationResult, ValidationResult} from "../types";
 import type {Writable} from "svelte/store";
 import {writable} from "svelte/store";
+import {DefaultDict, regexLastIndexOf} from "../util";
 
 export class DummyTranslate {
 	// Due to the fact that failure_count will be accessed many times, it's best if we don't have to call get from
@@ -9,6 +10,9 @@ export class DummyTranslate {
 	failure_count_watcher: Writable<number>;
 
 	valid: boolean;
+
+	// Character limit of translation request in bytes
+	character_limit: number = Infinity;
 
 	constructor() {
 		this.failure_count = 0;
@@ -54,7 +58,10 @@ export class DummyTranslate {
 
 		let output: Array<DetectionResult>;
 		try {
-			output = await this.service_detect(text);
+			// Only the first dozen words are required to detect the language of a piece of text
+			// Get first 20 words of text, not all words need to be included to get proper detection
+			const words = text.split(/\s+/).slice(0, 20).join(" ");
+			output = await this.service_detect(words);
 			if (output.length === 1 && !output[0].message && !output[0].language)
 				output = [{message: "Language detection failed:\n(Could not detect language)"}];
 
@@ -85,8 +92,43 @@ export class DummyTranslate {
 
 		let output: TranslationResult;
 		try {
-			output = await this.service_translate(text, from, to);
-			this.success();
+			if (text.length < this.character_limit) {
+				output = await this.service_translate(text, from, to);
+				this.success();
+			} else {
+				let idx = 0;
+				let translation = '';
+				const languages_occurrences = new DefaultDict(0);
+
+				// This does *not* preserve sentence meaning when translating, as it splits sentences at spaces.
+				// However, this is the best (most efficient in both space and time) approach, without having to
+				//	perform sentence tokenization.
+				while (idx < text.length) {
+					let r_idx: number;
+					if (idx + this.character_limit >= text.length)
+						r_idx = Infinity;
+					else {
+						r_idx = regexLastIndexOf(text, idx + this.character_limit, /\p{Zs}/gu);
+						if (r_idx === -1 || r_idx < idx)
+							r_idx = idx + this.character_limit;
+					}
+
+					const chunk = text.slice(idx, r_idx).trim();
+					const result = await this.service_translate(chunk, from, to);
+					if (result.message) {
+						throw new Error(result.message);
+					} else {
+						translation += (idx ? text.at(idx - 1) : '') + result.translation;
+						if (result.detected_language)
+							languages_occurrences[result.detected_language as keyof typeof languages_occurrences]++;
+						idx = r_idx + 1;
+					}
+				}
+				output = {
+					translation: translation,
+					detected_language: Object.entries(languages_occurrences).reduce((a, b) => a[1] > b[1] ? a : b)[0]
+				};
+			}
 		} catch (e) {
 			output = {message: `Translation failed:\n(${e.message})`};
 			this.failed();

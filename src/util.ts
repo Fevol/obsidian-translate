@@ -1,3 +1,11 @@
+export class DefaultDict {
+	constructor(defaultVal: any) {
+		return new Proxy({}, {
+			get: (target, name) => name in target ? target[name as keyof typeof target] : defaultVal
+		})
+	}
+}
+
 export function toTitleCase(str: string) {
 	return str.replace(/\w\S*/g, (txt) => {
 		return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
@@ -23,6 +31,23 @@ function array_cmp(a1: Array<any>, a2: Array<any>) {
 	return true
 }
 
+export function regexLastIndexOf(searchString: string, position: number, regex: RegExp) {
+	regex = regex.global ? regex : new RegExp(regex.source, "g" + (regex.ignoreCase ? "i" : "") + (regex.multiline ? "m" : ""));
+	if (position == null)
+		position = searchString.length;
+	else if (position < 0)
+		position = 0;
+
+	const stringToWorkWith = searchString.substring(0, position + 1);
+	let lastIndexOf = -1;
+	let nextStop = 0;
+	let result;
+	while ((result = regex.exec(stringToWorkWith)) != null) {
+		lastIndexOf = result.index;
+		regex.lastIndex = ++nextStop;
+	}
+	return lastIndexOf;
+}
 
 
 

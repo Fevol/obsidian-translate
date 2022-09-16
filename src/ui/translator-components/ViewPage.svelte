@@ -116,7 +116,7 @@
 
 		let return_values = await translator.translate(
 			text_from,
-			selectable_languages.some(x => x.value === language_from) ? language_from : 'auto',
+			language_from,
 			selectable_languages.some(x => x.value === language_to) ? language_to : '',
 		);
 

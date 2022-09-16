@@ -6,6 +6,8 @@ export class BingTranslator extends DummyTranslate {
 	api_key: string;
 	region: string;
 
+	character_limit = 50000;
+
 	constructor(settings: APIServiceSettings) {
 		super();
 		this.api_key = settings.api_key;

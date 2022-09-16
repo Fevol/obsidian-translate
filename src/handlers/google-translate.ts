@@ -5,6 +5,8 @@ import {requestUrl} from "obsidian";
 export class GoogleTranslate extends DummyTranslate {
 	api_key: string;
 
+	character_limit = 100000;
+
 	constructor(settings: APIServiceSettings) {
 		super();
 		this.api_key = settings.api_key;

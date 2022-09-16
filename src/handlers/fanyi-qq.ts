@@ -15,6 +15,8 @@ export class FanyiQq extends DummyTranslate {
 	app_id: string;
 	region: string;
 
+	character_limit = 2000;
+
 	constructor(settings: APIServiceSettings) {
 		super();
 		this.api_key = settings.api_key;

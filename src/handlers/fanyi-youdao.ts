@@ -6,6 +6,8 @@ export class FanyiYoudao extends DummyTranslate {
 	api_key: string;
 	app_id: string;
 
+	character_limit = 5000;
+
 	constructor(settings: APIServiceSettings) {
 		super();
 		this.api_key = settings.api_key;
@@ -39,8 +41,6 @@ export class FanyiYoudao extends DummyTranslate {
 
 
 	async service_detect(text: string): Promise<Array<DetectionResult>> {
-		// Get first 20 words of text, not all words need to be included to get proper detection
-		const words = text.split(/\s+/).slice(0, 20).join(" ");
 		let result = await this.service_translate(text, 'auto', 'en');
 		if (result.message)
 			throw new Error(result.message);
