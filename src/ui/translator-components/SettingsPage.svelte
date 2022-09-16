@@ -1,8 +1,9 @@
 <script lang="ts">
 	import TranslatorPlugin from "../../main";
 
+	import {settings, data} from "../../stores";
+
 	import {onMount} from "svelte";
-	import type {Writable} from "svelte/store";
 	import {slide} from "svelte/transition";
 	import {horizontalSlide} from "../animations";
 
@@ -16,8 +17,6 @@
 	import {GeneralSettings, AppearanceSettings, DetectorSettings, TranslatorSettings} from "./settings-tabs";
 
 	export let plugin: TranslatorPlugin;
-	export let settings: Writable<TranslatorPluginSettings>;
-	export let data: Writable<PluginData>;
 
 	let bergamot_update_available = false;
 	let tab = $data.tab;

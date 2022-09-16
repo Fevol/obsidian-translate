@@ -1,7 +1,7 @@
 <script lang="ts">
 	import TranslatorPlugin from "../../../main";
 
-	import type {Writable} from "svelte/store";
+	import {settings, data} from "../../../stores";
 
 	import {Button, Dropdown, Slider, Toggle, Input, Icon, ToggleButton, ButtonList} from "../../components";
 	import {SettingItem} from "../../obsidian-components";
@@ -12,9 +12,6 @@
 	import {SERVICES_INFO, SECURITY_MODES, DEFAULT_SETTINGS} from "../../../constants";
 
 	export let plugin: TranslatorPlugin;
-	export let settings: Writable<TranslatorPluginSettings>;
-	export let data: Writable<PluginData>;
-
 
 	// const example_languages = ['en', 'fr', 'zh']
 	// Fun aside, let's people learn what the name of a language looks like in the native languages

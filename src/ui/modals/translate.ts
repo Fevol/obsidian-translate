@@ -2,6 +2,7 @@ import {FuzzySuggestModal, App, MarkdownView, Editor} from "obsidian";
 import type TranslatorPlugin from "main";
 import {get} from "svelte/store";
 import {translate_file, translate_selection} from "../../helpers";
+import {data} from "../../stores";
 
 export default class TranslateModal extends FuzzySuggestModal<string>{
 	plugin: TranslatorPlugin;
@@ -13,13 +14,13 @@ export default class TranslateModal extends FuzzySuggestModal<string>{
 		super(app);
 		this.plugin = plugin;
 		this.translation_type = translation_type;
-		let data = get(plugin.plugin_data);
+		const plugin_data = get(data);
 
 
-		this.options = Array.from(data.available_languages).map(locale => {
+		this.options = Array.from(plugin_data.available_languages).map(locale => {
 			return {
 				value: locale,
-				label: data.all_languages.get(locale),
+				label: plugin_data.all_languages.get(locale),
 			}
 		}).sort((a, b) => {
 			return a.label.localeCompare(b.label)

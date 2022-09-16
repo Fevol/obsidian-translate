@@ -2,13 +2,9 @@
 	import { Input } from "../components";
 	import {Notice} from "obsidian";
 	import {createEventDispatcher} from "svelte";
-	import type {Writable} from "svelte/store";
-	import type {PluginData, TranslatorPluginSettings} from "../../types";
+	import {settings, data} from "../../stores";
 
 	import {aesGcmEncrypt, aesGcmDecrypt} from "../../util";
-
-	export let settings: Writable<TranslatorPluginSettings>;
-	export let data: Writable<PluginData>;
 
 	let valid = null;
 	let input_1 = "";

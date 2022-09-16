@@ -16,8 +16,6 @@ export default class PasswordModal extends Modal {
 		this.view = new PasswordRequestModalView({
 			target: this.contentEl,
 			props: {
-				settings: this.plugin.settings,
-				data: this.plugin.plugin_data,
 				plugin: this.plugin,
 			}
 		});

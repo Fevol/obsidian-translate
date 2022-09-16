@@ -6,8 +6,8 @@ import type TranslatorPlugin from "./main";
 import type {SvelteComponent} from "svelte";
 import {ViewPage} from "./ui/translator-components";
 
-import type {Writable} from "svelte/store";
-import {writable} from "svelte/store";
+import {writable, type Writable} from "svelte/store";
+import {settings} from "./stores";
 import {get} from "svelte/store";
 
 
@@ -60,8 +60,6 @@ export class TranslatorView extends ItemView {
 			target: this.contentEl,
 			props: {
 				plugin: this.plugin,
-				settings: this.plugin.settings,
-				data: this.plugin.plugin_data,
 
 				id: this.contentEl.id,
 
@@ -96,7 +94,7 @@ export class TranslatorView extends ItemView {
 	}
 
 	async setState(state: any, result: ViewStateResult): Promise<void> {
-		this.translation_service.set(state.translation_service || get(this.plugin.settings).translation_service);
+		this.translation_service.set(state.translation_service || get(settings).translation_service);
 
 		this.view.$set({
 			language_from: state.language_from,

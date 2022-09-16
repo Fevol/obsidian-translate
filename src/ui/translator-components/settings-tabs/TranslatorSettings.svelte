@@ -3,7 +3,7 @@
 
 
 	import {onMount} from "svelte";
-	import type {Writable} from "svelte/store";
+	import {settings, data} from "../../../stores";
 	import {slide} from "svelte/transition";
 
 	import {Button, Dropdown, Toggle, Input, Icon, ToggleButton, ButtonList} from "../../components";
@@ -23,8 +23,6 @@
 
 
 	export let plugin: TranslatorPlugin;
-	export let settings: Writable<TranslatorPluginSettings>;
-	export let data: Writable<PluginData>;
 	export let service: string;
 
 	let translator: DummyTranslate;

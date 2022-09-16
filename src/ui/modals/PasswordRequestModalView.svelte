@@ -1,6 +1,6 @@
 <script lang="ts">
 	import {createEventDispatcher} from "svelte";
-	import type {Writable} from "svelte/store";
+	import {settings, data} from "../../stores";
 
 	import {Notice} from "obsidian";
 	import TranslatorPlugin from "../../main";
@@ -10,8 +10,6 @@
 	import {aesGcmDecrypt} from "../../util";
 	import type {PluginData, TranslatorPluginSettings} from "../../types";
 
-	export let settings: Writable<TranslatorPluginSettings>;
-	export let data: Writable<PluginData>;
 	export let plugin: TranslatorPlugin;
 
 	let input = "";

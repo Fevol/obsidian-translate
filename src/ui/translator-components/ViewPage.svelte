@@ -3,6 +3,7 @@
 
 	import {onDestroy} from "svelte";
 	import type {Writable} from "svelte/store";
+	import {settings, data} from "../../stores";
 	import {horizontalSlide} from "../animations";
 
 	import {Dropdown, TextArea, Icon} from "../components";
@@ -17,8 +18,6 @@
 	import t from "../../l10n";
 
 	export let plugin: TranslatorPlugin;
-	export let settings: Writable<TranslatorPluginSettings>;
-	export let data: Writable<PluginData>;
 
 	export let id: string;
 

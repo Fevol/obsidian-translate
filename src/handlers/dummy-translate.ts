@@ -1,6 +1,5 @@
 import type {DetectionResult, LanguagesFetchResult, TranslationResult, ValidationResult} from "../types";
-import type {Writable} from "svelte/store";
-import {writable} from "svelte/store";
+import {writable, type Writable} from "svelte/store";
 import {DefaultDict, regexLastIndexOf} from "../util";
 
 export class DummyTranslate {
@@ -60,8 +59,7 @@ export class DummyTranslate {
 		try {
 			// Only the first dozen words are required to detect the language of a piece of text
 			// Get first 20 words of text, not all words need to be included to get proper detection
-			const words = text.split(/\s+/).slice(0, 20).join(" ");
-			output = await this.service_detect(words);
+			output = await this.service_detect(text.split(/\s+/).slice(0, 20).join(" "));
 			if (output.length === 1 && !output[0].message && !output[0].language)
 				output = [{message: "Language detection failed:\n(Could not detect language)"}];
 

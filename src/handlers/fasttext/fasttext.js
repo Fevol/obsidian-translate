@@ -9,6 +9,7 @@
 
 import fastTextModularized from './fasttext_wasm.js';
 import {App, TFile} from "obsidian";
+import {settings} from "../../stores";
 import {get} from "svelte/store";
 
 
@@ -78,9 +79,8 @@ class FastText {
 		// let adapter = app.vault.adapter;
 		const fastTextNative = this.f;
 		try {
-			await app.plugins.loadManifests();
-			let settings = get(this.plugin.settings);
-			let bytes = await app.vault.adapter.readBinary(`.obsidian/${settings.storage_path}/fasttext/${url}`);
+			let settings_data = get(settings);
+			let bytes = await app.vault.adapter.readBinary(`.obsidian/${settings_data.storage_path}/fasttext/${url}`);
 			const FS = fastTextModule.FS
 			FS.writeFile(modelFileInWasmFs, new Uint8Array(bytes));
 			fastTextNative.loadModel(modelFileInWasmFs);

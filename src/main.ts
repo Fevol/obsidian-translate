@@ -1,6 +1,7 @@
 import {addIcon, Editor, MarkdownView, Notice, Plugin, setIcon, Platform, requireApiVersion, moment} from 'obsidian';
 
 import {writable, type Writable, get} from "svelte/store";
+import {settings, data} from "./stores";
 import {Reactivity, ViewPage} from "./ui/translator-components";
 
 import {TranslatorSettingsTab} from "./settings";
@@ -12,7 +13,6 @@ import {around} from 'monkey-around';
 import type {
 	APIServiceProviders,
 	APIServiceSettings,
-	PluginData,
 	TranslatorPluginSettings
 } from "./types";
 
@@ -24,9 +24,6 @@ import ISO6391 from "iso-639-1";
 import {detect_selection, translate_selection} from "./helpers";
 
 export default class TranslatorPlugin extends Plugin {
-	settings: Writable<TranslatorPluginSettings>;
-	plugin_data: Writable<PluginData>;
-
 	reactivity: Reactivity;
 
 	current_language: string;
@@ -57,7 +54,7 @@ export default class TranslatorPlugin extends Plugin {
 			new Notice(text, timeout);
 		});
 
-		this.plugin_data = writable<PluginData>(Object.assign({}, DEFAULT_DATA,  {
+		data.set(Object.assign({}, DEFAULT_DATA,  {
 			// @ts-ignore (Undocumented API method)
 			models:  JSON.parse(app.loadLocalStorage('models')) || {},
 			// @ts-ignore (Undocumented API method)
@@ -91,12 +88,12 @@ export default class TranslatorPlugin extends Plugin {
 			}
 		}
 
-		this.settings = writable<TranslatorPluginSettings>(loaded_settings);
+		settings.set(loaded_settings);
 
 
 		// Save all settings on update of this.settings
-		this.register(this.settings.subscribe((data) => {
-			this.saveSettings(data);
+		this.register(settings.subscribe((settings_data) => {
+			this.saveSettings(settings_data);
 		}));
 
 		// This adds a settings tab so the user can configure various aspects of the plugin
@@ -119,8 +116,6 @@ export default class TranslatorPlugin extends Plugin {
 			props: {
 				app: this.app,
 				plugin: this,
-				settings: this.settings,
-				data: this.plugin_data,
 			}
 		});
 
@@ -142,7 +137,7 @@ export default class TranslatorPlugin extends Plugin {
 				name: "Change Translator Service",
 				icon: "cloud",
 				func: () => {new SwitchService(this.app, this, (service) => {
-					this.settings.update((x: TranslatorPluginSettings) => {
+					settings.update((x: TranslatorPluginSettings) => {
 						x.translation_service = service;
 						if (!x.service_settings[service as keyof APIServiceProviders]) {
 							// @ts-ignore (Service will always be a key)
@@ -202,8 +197,8 @@ export default class TranslatorPlugin extends Plugin {
 		this.registerEvent(
 			this.app.workspace.on("editor-menu", (menu, editor) => {
 				if (this.translator.has_autodetect_capability()) {
-					let data = get(this.plugin_data);
-					if (data.available_languages.length) {
+					let plugin_data = get(data);
+					if (plugin_data.available_languages.length) {
 						menu.addItem((item) => {
 							item.setTitle("Translate")
 								.setIcon("translate")
@@ -224,8 +219,8 @@ export default class TranslatorPlugin extends Plugin {
 							let dropdown_menu = element.createEl("div", {cls: "menu translator-dropdown-menu"});
 
 							// TODO: Sveltelize this?
-							let dropdown_menu_items = Array.from(data.available_languages)
-								.map((locale) => { return [locale, data.all_languages.get(locale)]; })
+							let dropdown_menu_items = Array.from(plugin_data.available_languages)
+								.map((locale) => { return [locale, plugin_data.all_languages.get(locale)]; })
 								.sort((a, b) => a[1].localeCompare(b[1]));
 
 							for (let [locale, name] of dropdown_menu_items) {
@@ -262,7 +257,7 @@ export default class TranslatorPlugin extends Plugin {
 			// @ts-expect-error, not typed
 			uninstallPlugin: (oldMethod) => {
 				return async (...args: string[]) => {
-					const settings = get(this.settings);
+					const var_settings = get(settings);
 					// @ts-ignore (app.plugins exists)
 					const result = oldMethod && oldMethod.apply(app.plugins, args);
 					if (args[0] === 'obsidian-translate') {
@@ -270,8 +265,8 @@ export default class TranslatorPlugin extends Plugin {
 						localStorage.removeItem(`${app.appId}-password`);
 						// @ts-ignore (app.appId exists)
 						localStorage.removeItem(`${app.appId}-models`);
-						if (await app.vault.adapter.exists(`.obsidian/${settings.storage_path}`))
-							await app.vault.adapter.rmdir(`.obsidian/${settings.storage_path}`, true);
+						if (await app.vault.adapter.exists(`.obsidian/${var_settings.storage_path}`))
+							await app.vault.adapter.rmdir(`.obsidian/${var_settings.storage_path}`, true);
 					}
 				};
 			}
@@ -290,7 +285,7 @@ export default class TranslatorPlugin extends Plugin {
 			state: {
 				language_from: 'auto',
 				language_to: this.current_language,
-				translation_service: get(this.settings).translation_service,
+				translation_service: get(settings).translation_service,
 			}
 		};
 

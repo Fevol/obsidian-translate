@@ -23,8 +23,6 @@ export class TranslatorSettingsTab extends PluginSettingTab {
 			target: containerEl,
 			props: {
 				plugin: this.plugin,
-				settings: this.plugin.settings,
-				data: this.plugin.plugin_data,
 			}
 		});
 	}

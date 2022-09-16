@@ -1,7 +1,7 @@
 <script lang="ts">
 	import TranslatorPlugin from "../../../main";
 
-	import type {Writable} from "svelte/store";
+	import {settings, data} from "../../../stores";
 	import {slide} from "svelte/transition";
 
 	import {Toggle, Icon} from "../../components";
@@ -16,9 +16,6 @@
 
 
 	export let plugin: TranslatorPlugin;
-	export let settings: Writable<TranslatorPluginSettings>;
-	export let data: Writable<PluginData>;
-
 </script>
 
 <SettingItem

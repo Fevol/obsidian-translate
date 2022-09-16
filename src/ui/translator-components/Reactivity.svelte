@@ -7,7 +7,7 @@
 
 	import TranslatorPlugin from "../../main";
 
-	import type {Writable} from "svelte/store";
+	import {settings, data} from "../../stores";
 
 	import type { PluginData, TranslatorPluginSettings} from "../../types";
 	import {setAvailableServices, SERVICES_INFO} from "../../constants";
@@ -35,8 +35,6 @@
 
 	export let app: App;
 	export let plugin: TranslatorPlugin;
-	export let settings: Writable<TranslatorPluginSettings>;
-	export let data: Writable<PluginData>;
 
 	let service_observer: any;
 	let previous_service: string;
