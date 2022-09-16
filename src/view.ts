@@ -1,4 +1,4 @@
-import {ItemView, WorkspaceLeaf} from "obsidian";
+import {ItemView, setIcon, WorkspaceLeaf} from "obsidian";
 import type {ViewStateResult} from "obsidian";
 
 import type TranslatorPlugin from "./main";
@@ -6,8 +6,12 @@ import type TranslatorPlugin from "./main";
 import type {SvelteComponent} from "svelte";
 import {ViewPage} from "./ui/translator-components";
 
-import {TRANSLATOR_VIEW_ID, SERVICES_INFO} from "./constants";
+import type {Writable} from "svelte/store";
+import {writable} from "svelte/store";
 import {get} from "svelte/store";
+
+
+import {TRANSLATOR_VIEW_ID, SERVICES_INFO} from "./constants";
 
 
 export class TranslatorView extends ItemView {
@@ -16,7 +20,7 @@ export class TranslatorView extends ItemView {
 
 	language_from: string;
 	language_to: string;
-	translation_service: string = 'google_translate';
+	translation_service: Writable<string> = writable('google_translate');
 	auto_translate: boolean;
 	view_mode: number = 0;
 	filter_mode: number = 0;
@@ -27,6 +31,12 @@ export class TranslatorView extends ItemView {
 	constructor(leaf: WorkspaceLeaf, plugin: TranslatorPlugin) {
 		super(leaf);
 		this.plugin = plugin;
+		this.translation_service.subscribe((value) => {
+			// @ts-ignore (tabHeaderInnerIconEl exists)
+			setIcon(this.leaf.tabHeaderInnerIconEl, value);
+			// @ts-ignore (tabHeaderInnerTitleEl exists)
+			this.leaf.tabHeaderInnerTitleEl.innerText = SERVICES_INFO[value]?.display_name || 'Translator';
+		})
 	}
 
 	getViewType() {
@@ -34,11 +44,11 @@ export class TranslatorView extends ItemView {
 	}
 
 	getDisplayText() {
-		return `Translator (${SERVICES_INFO[this.translation_service].display_name})`;
+		return SERVICES_INFO[get(this.translation_service)].display_name;
 	}
 
 	getIcon(): string {
-		return "translate";
+		return get(this.translation_service);
 	}
 
 
@@ -73,7 +83,7 @@ export class TranslatorView extends ItemView {
 
 		state.language_from = this.view.$$.ctx[this.view.$$.props.language_from];
 		state.language_to = this.view.$$.ctx[this.view.$$.props.language_to];
-		state.translation_service = this.view.$$.ctx[this.view.$$.props.translation_service];
+		state.translation_service = get(this.translation_service);
 		state.auto_translate = this.view.$$.ctx[this.view.$$.props.auto_translate];
 		state.view_mode = this.view.$$.ctx[this.view.$$.props.view_mode];
 		state.filter_mode = this.view.$$.ctx[this.view.$$.props.filter_mode];
@@ -86,10 +96,11 @@ export class TranslatorView extends ItemView {
 	}
 
 	async setState(state: any, result: ViewStateResult): Promise<void> {
+		this.translation_service.set(state.translation_service || get(this.plugin.settings).translation_service);
+
 		this.view.$set({
 			language_from: state.language_from,
 			language_to: state.language_to,
-			translation_service: state.translation_service || get(this.plugin.settings).translation_service,
 			auto_translate: state.auto_translate || false,
 			view_mode: state.view_mode || 0,
 			filter_mode: state.filter_mode || 0,

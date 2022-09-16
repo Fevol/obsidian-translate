@@ -17,8 +17,6 @@ export class BergamotTranslate extends DummyTranslate {
 	plugin: TranslatorPlugin;
 	available_languages: Array<string> = ['en'];
 
-	character_limit = 50;
-
 	update_data(available_models: ModelFileData, path: string) {
 		if (available_models) {
 			this.available_languages = ["en"].concat(available_models.models.map((x) => x.locale));

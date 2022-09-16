@@ -24,7 +24,7 @@
 
 	export let language_from: string;
 	export let language_to: string;
-	export let translation_service: string;
+	export let translation_service: Writable<string>;
 	export let auto_translate: boolean;
 	export let view_mode: number;
 	export let filter_mode: number;
@@ -51,7 +51,7 @@
 	});
 
 	$: spellchecker_languages_observer = $data.spellchecker_languages.length;
-	$: selected_languages_observer = $settings.service_settings[translation_service].selected_languages.length;
+	$: selected_languages_observer = $settings.service_settings[$translation_service].selected_languages.length;
 	$: display_language_observer = $settings.display_language;
 	$: spellchecker_languages_observer, selected_languages_observer, available_languages, filter_mode, display_language_observer, filterLanguages();
 
@@ -60,15 +60,17 @@
 	$: fasttext_models_observer = $data.models?.fasttext;
 	$: autodetect_capability = fasttext_models_observer;
 
+	$: language_from, language_to, $translation_service, auto_translate, view_mode, filter_mode, app.workspace.requestSaveLayout();
+
 	function updateAvailableLanguages() {
-		if (translation_service === 'bergamot') {
+		if ($translation_service === 'bergamot') {
 			available_languages = translator.available_languages;
 			filterLanguages();
 		}
 	}
 
 	$: {
-		auto_translate = auto_translate && $settings.service_settings[translation_service].auto_translate;
+		auto_translate = auto_translate && $settings.service_settings[$translation_service].auto_translate;
 		if (auto_translate)
 			translate();
 	};
@@ -82,26 +84,26 @@
 	}
 
 	function updateService() {
-		if (Platform.isMobile && translation_service === 'bergamot')
-			translation_service = $settings.translation_service;
+		if (Platform.isMobile && $translation_service === 'bergamot')
+			$translation_service = $settings.translation_service;
 
-		plugin.reactivity.getTranslationService(translation_service, previous_service).then(service => {
+		plugin.reactivity.getTranslationService($translation_service, previous_service).then(service => {
 			autodetect_capability = service.has_autodetect_capability();
 			translator = service;
-			previous_service = translation_service;
-			available_languages = translator.available_languages || $settings.service_settings[translation_service].available_languages;
+			previous_service = $translation_service;
+			available_languages = translator.available_languages || $settings.service_settings[$translation_service].available_languages;
 
 		});
 	}
 
-	$: translation_service, updateService();
+	$: $translation_service, updateService();
 
 	function filterLanguages() {
 		let languages = available_languages;
 		if (filter_mode === 1)
 			languages = languages.filter(x => $data.spellchecker_languages.includes(x));
 		else if (filter_mode === 2)
-			languages = languages.filter(x => $settings.service_settings[translation_service].selected_languages.includes(x));
+			languages = languages.filter(x => $settings.service_settings[$translation_service].selected_languages.includes(x));
 		selectable_languages = Array.from(languages)
 			.map((locale) => {return {'value': locale, 'text': $data.all_languages.get(locale) || locale};})
 			.sort((a, b) => a.text.localeCompare(b.text))
@@ -169,15 +171,15 @@
 		   onClick: () => new SwitchService(plugin.app, plugin, (service) => {
 				if (!$settings.service_settings[service])
 					$settings.service_settings[service] = DEFAULT_SETTINGS.service_settings[service];
-				previous_service = translation_service;
-				translation_service = service;
+				previous_service = $translation_service;
+				$translation_service = service;
 		   }).open(),
 	   },
 	   {
 		   icon: auto_translate ? "zap" : "hand",
 		   tooltip: auto_translate ? "Automatically translating" : "Translating manually",
 		   onClick: () => { auto_translate = !auto_translate },
-		   disabled: !$settings.service_settings[translation_service].auto_translate
+		   disabled: !$settings.service_settings[$translation_service].auto_translate
 	   },
 	   {
 		   icon: FILTER_MODES[filter_mode].icon,
@@ -193,7 +195,7 @@
 		   icon: "settings",
 		   tooltip: "Open Settings",
 		   onClick: () => {
-				$data.tab = translation_service;
+				$data.tab = $translation_service;
 				plugin.app.setting.open();
 				plugin.app.setting.openTabById("obsidian-translate");
 		   }
@@ -224,7 +226,7 @@
 				placeholder="Type here..."
 				class="translator-textarea"
 				text={text_from}
-				typingdelay={auto_translate && $settings.service_settings[translation_service]?.auto_translate_interval}
+				typingdelay={auto_translate && $settings.service_settings[$translation_service]?.auto_translate_interval}
 				onChange={async (e) => {
 					text_from = e.target.value;
 					if (!text_from) {
@@ -291,9 +293,9 @@
 			<div class="translator-attribution-column">
 				<div class="translator-attribution-column-text">
 					Using
-					<a href={services[translation_service].url} target="_blank" class="icon-text translator-service-text">
-						<Icon icon={translation_service}/>
-						{`${translation_service.replace('_', ' ')}`}
+					<a href={services[$translation_service].url} target="_blank" class="icon-text translator-service-text">
+						<Icon icon={$translation_service}/>
+						{`${$translation_service.replace('_', ' ')}`}
 					</a>
 					{#if plugin.detector}
 						with
@@ -305,8 +307,8 @@
 				</div>
 
 
-				{#if services[translation_service].attribution !== undefined}
-					<Icon content={ICONS[translation_service + '_attribution']} size={40} svg_size={[160, 40]}/>
+				{#if services[$translation_service].attribution !== undefined}
+					<Icon content={ICONS[$translation_service + '_attribution']} size={40} svg_size={[160, 40]}/>
 				{/if}
 
 			</div>
