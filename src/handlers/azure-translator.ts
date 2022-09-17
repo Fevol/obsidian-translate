@@ -2,7 +2,7 @@ import {DummyTranslate} from "./dummy-translate";
 import type {APIServiceSettings, DetectionResult, LanguagesFetchResult, TranslationResult, ValidationResult} from "../types";
 import {requestUrl} from "obsidian";
 
-export class BingTranslator extends DummyTranslate {
+export class AzureTranslator extends DummyTranslate {
 	api_key: string;
 	region: string;
 

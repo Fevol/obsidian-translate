@@ -20,7 +20,7 @@ export const filled_settings: TranslatorPluginSettings =
 											: undefined;
 
 import {
-	BingTranslator,
+	AzureTranslator,
 	Deepl,
 	DummyTranslate,
 	FanyiBaidu,
@@ -34,7 +34,7 @@ import type {TranslatorPluginSettings} from "../src/types";
 /** @public Test config for a Translation Service */
 interface ServiceConfig {
 	/** @public Constructor for Translation Service object */
-	service: typeof GoogleTranslate | typeof BingTranslator | typeof YandexTranslate | typeof FanyiBaidu |
+	service: typeof GoogleTranslate | typeof AzureTranslator | typeof YandexTranslate | typeof FanyiBaidu |
 			 typeof FanyiQq | typeof FanyiYoudao | typeof Deepl | typeof DummyTranslate | typeof LibreTranslate |
 			 typeof LingvaTranslate,
 	/** @public Display name for test output */
@@ -51,8 +51,8 @@ export const services: Record<string, ServiceConfig> = {
 	//  "name": "Amazon Translate"
 	// },
 	// "bergamot": BergamotTranslate,
-	"bing_translator": {
-		"service": BingTranslator,
+	"azure_translator": {
+		"service": AzureTranslator,
 		"inputs": ["api_key"],
 		"name": "Bing Translator"
 	},

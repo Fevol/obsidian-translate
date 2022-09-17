@@ -48,19 +48,19 @@ Afterwards, you can open the Translation View by either accessing the left ribbo
 ## Translation Services
 ### Services overview
 
-| Translation Service     | Supported | Free                                  | Offline Support | Mobile Support | Preserves Formatting | Languages |
-|-------------------------|-----------|---------------------------------------|-----------------|:---------------|----------------------|-----------|
-| Google Translate        | ✅         | *(0.5M characters **per month**)* ¹ ² |                 |                | ✅                    | 109       |
-| Deepl                   | ✅         | *(0.5M characters **per month**)* ¹   |                 |                | ✅                    | 29        |
-| Yandex Translate        | ❓         | *(5M characters)* ¹                   |                 |                |                      | 93        |
-| Libre Translate         | ✅         | ✅                                     | ✅               |                | ❌                    | 30        |
-| Bing Translator (Azure) | ✅         | *(2M characters **per month**)* ¹     |                 |                | ✅                    | 111       |
-| Amazon Translate        | ⭕         | *(2M characters **per month**)* ¹ ³   |                 |                |                      |           |
-| Bergamot                | ✅         | ✅                                     | ✅               | ❌              | ✅                    | 14        |
-| Fanyi QQ                | ❓         |                                       |                 |                |                      | 18        |
-| Fanyi Youdao            | ❓         |                                       |                 |                |                      | 112       |
-| Fanyi Baidu             | ❓         |                                       |                 |                |                      | 201       |
-| Lingva Translate        | ✅         | ✅                                     |                 |                |                      | 109       |
+| Translation Service | Supported | Free                                  | Offline Support | Mobile Support | Preserves Formatting | Languages |
+|---------------------|-----------|---------------------------------------|-----------------|:---------------|----------------------|-----------|
+| Google Translate    | ✅         | *(0.5M characters **per month**)* ¹ ² |                 |                | ✅                    | 109       |
+| Deepl               | ✅         | *(0.5M characters **per month**)* ¹   |                 |                | ✅                    | 29        |
+| Yandex Translate    | ❓         | *(5M characters)* ¹                   |                 |                |                      | 93        |
+| Libre Translate     | ✅         | ✅                                     | ✅               |                | ❌                    | 30        |
+| Bing Translator     | ✅         | *(2M characters **per month**)* ¹     |                 |                | ✅                    | 111       |
+| Amazon Translate    | ⭕         | *(2M characters **per month**)* ¹ ³   |                 |                |                      |           |
+| Bergamot            | ✅         | ✅                                     | ✅               | ❌              | ✅                    | 14        |
+| Fanyi QQ            | ❓         |                                       |                 |                |                      | 18        |
+| Fanyi Youdao        | ❓         |                                       |                 |                |                      | 112       |
+| Fanyi Baidu         | ❓         |                                       |                 |                |                      | 201       |
+| Lingva Translate    | ✅         | ✅                                     |                 |                |                      | 109       |
 
 
 _¹ Requires a valid credit card to sign up for a free API key_<br>

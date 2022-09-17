@@ -1,4 +1,4 @@
-export * from './bing-translator';
+export * from './azure-translator';
 export * from './google-translate';
 export * from './yandex-translate';
 export * from './libre-translate';

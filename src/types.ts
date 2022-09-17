@@ -40,7 +40,7 @@ export interface PluginData {
 
 export interface APIServiceProviders {
 	google_translate: APIServiceSettings;
-	bing_translator: APIServiceSettings;
+	azure_translator: APIServiceSettings;
 	yandex_translate: APIServiceSettings;
 	libre_translate: APIServiceSettings;
 	deepl: APIServiceSettings;

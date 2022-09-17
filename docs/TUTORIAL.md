@@ -71,10 +71,10 @@ consisting of Mozilla (Firefox), and the universities of Edinburgh, Sheffield, T
 
 The translation happens completely locally using machine learning models, which also enables you to use the service when
 not connected to the internet. All text you translate will only be processed on your computer, and will not be sent to
-third-party servers (as opposed to Google Translate, Bing, ...).
+third-party servers (as opposed to Google Translate, Azure, ...).
 
 If you're wondering how the quality of the translations compare to more well-known translation services,
-such as Google Translate and Bing, you can find empirical data [here](https://github.com/mozilla/firefox-translations-models/blob/main/evaluation/prod/results.md).
+such as Google Translate and Azure, you can find empirical data [here](https://github.com/mozilla/firefox-translations-models/blob/main/evaluation/prod/results.md).
 
 #### Installation
 

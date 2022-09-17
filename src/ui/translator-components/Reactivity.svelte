@@ -15,7 +15,7 @@
 
 	import t from "../../l10n";
 	import {
-		BingTranslator,
+		AzureTranslator,
 		Deepl,
 		DummyTranslate,
 		BergamotTranslate,
@@ -142,8 +142,8 @@
 			let translation_service: DummyTranslate = null;
 			if (service === "google_translate")
 				translation_service = new GoogleTranslate(service_settings);
-			else if (service === "bing_translator")
-				translation_service = new BingTranslator(service_settings);
+			else if (service === "azure_translator")
+				translation_service = new AzureTranslator(service_settings);
 			else if (service === "yandex_translate")
 				translation_service = new YandexTranslate(service_settings);
 			else if (service === "deepl")
