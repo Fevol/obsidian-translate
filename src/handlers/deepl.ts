@@ -26,12 +26,11 @@ export class Deepl extends DummyTranslate {
 		this.host = settings.host || 'https://api-free.deepl.com/v2';
 	}
 
-
 	async service_validate(): Promise<ValidationResult> {
 		if (!this.api_key)
 			return {valid: false, message: "API key was not specified"};
 
-		this.host = "https://api.deepl.com/v2";
+		this.host = this.api_key.endsWith(":fx") ? "https://api-free.deepl.com/v2" : "https://api.deepl.com/v2";
 		try {
 			const response = await requestUrl({
 				url: `${this.host}/usage`,
@@ -40,30 +39,10 @@ export class Deepl extends DummyTranslate {
 					"Authorization": "DeepL-Auth-Key " + this.api_key
 				}
 			});
-			if (response.status === 200) {
-				return {valid: true, message: "Using DeepL Pro API", host: this.host};
-			}
 
-			// If request fails or API key is invalid for DeepL pro, catch error and try DeepL free
-			throw "Invalid API key for DeepL Pro";
+			return {valid: response.status === 200, host: this.host, status_code: response.status};
 		} catch (e) {
-			this.host = "https://api-free.deepl.com/v2";
-			try {
-				let response = await requestUrl({
-					url: `${this.host}/usage`,
-					method: "GET",
-					headers: {
-						"Authorization": "DeepL-Auth-Key " + this.api_key
-					}
-				});
-
-				if (response.status !== 200)
-					return {valid: false, message: "Validation failed:\nVerify correctness of API key"};
-
-				return {valid: true, message: "Using DeepL Free API", host: this.host};
-			} catch (e) {
-				return {valid: false, message: "Validation failed:\nVerify correctness of API key"};
-			}
+			return {valid: false, message: "Validation failed:\nVerify correctness of API key"};
 		}
 	}
 
