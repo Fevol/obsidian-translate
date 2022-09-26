@@ -8,6 +8,9 @@ export class AzureTranslator extends DummyTranslate {
 
 	character_limit = 50000;
 
+	// Maximum 33300 characters per minute for F0 tier
+	wait_time = 60000;
+
 	constructor(settings: APIServiceSettings) {
 		super();
 		this.api_key = settings.api_key;
@@ -19,33 +22,33 @@ export class AzureTranslator extends DummyTranslate {
 			return {valid: false, message: "API key was not specified"};
 
 		// TODO: Check if there is a better way to validate the API key
-		try {
-			const headers: any = {
-				"Content-Type": "application/json",
-				"Ocp-Apim-Subscription-Key": this.api_key,
-			}
-			if (this.region)
-				headers["Ocp-Apim-Subscription-Region"] = this.region;
-
-			const response = await requestUrl({
-				throw: false,
-				method: "POST",
-				url:`https://api.cognitive.microsofttranslator.com/translate?api-version=3.0&` +
-					new URLSearchParams({
-						from: "",
-						to: "en",
-						textType: "plain"
-					}),
-				headers: headers,
-				body: JSON.stringify([{Text: ''}]),
-			});
-
-			const data = response.json;
-
-			return {valid: response.status === 200, message: response.status === 200 ? "" : `Validation failed:\n${data.error.message}`};
-		} catch (e) {
-			return {valid: false, message: `Validation failed:\n${e.message}`};
+		const headers: any = {
+			"Content-Type": "application/json",
+			"Ocp-Apim-Subscription-Key": this.api_key,
 		}
+		if (this.region)
+			headers["Ocp-Apim-Subscription-Region"] = this.region;
+
+		const response = await requestUrl({
+			throw: false,
+			method: "POST",
+			url:`https://api.cognitive.microsofttranslator.com/translate?api-version=3.0&` +
+				new URLSearchParams({
+					from: "",
+					to: "en",
+					textType: "plain"
+				}),
+			headers: headers,
+			body: JSON.stringify([{Text: ''}]),
+		});
+
+		const data = response.json;
+
+		return {
+			status_code: response.status,
+			valid: response.status === 200,
+			message: data.error?.message
+		};
 
 	}
 
@@ -71,7 +74,7 @@ export class AzureTranslator extends DummyTranslate {
 
 		const data = response.json;
 		if (response.status !== 200)
-			throw new Error(data.error.message);
+			return {status_code: response.status, message: data.error.message}
 
 		let results = [{language: data[0].language, confidence: data[0].score}];
 		if (data[0].alternatives)
@@ -109,10 +112,16 @@ export class AzureTranslator extends DummyTranslate {
 
 		const data = response.json;
 		if (response.status !== 200)
-			throw new Error(data.error.message);
+			return {status_code: response.status, message: data.error.message};
 
-		return {translation: data[0].translations[0].text,
-			    detected_language: (from === "auto" && data[0].detectedLanguage.language) ? data[0].detectedLanguage.language : null}
+		const detected_language = from === "auto" && data[0].detectedLanguage.language;
+
+		return {
+			status_code: response.status,
+			translation: data[0].translations[0].text,
+			detected_language: detected_language ? data[0].detectedLanguage.language : null,
+			confidence: detected_language ? data[0].detectedLanguage.score : null
+		};
 	}
 
 	// No API key required, service may be invalid
@@ -127,9 +136,12 @@ export class AzureTranslator extends DummyTranslate {
 		const data = response.json;
 
 		if (response.status !== 200)
-			throw new Error(data.error.message);
+			return {status_code: response.status, message: data.error.message}
 
-		return {languages: Object.keys(data.translation)};
+		return {
+			status_code: response.status,
+			languages: Object.keys(data.translation)
+		};
 	}
 
 	has_autodetect_capability(): boolean {

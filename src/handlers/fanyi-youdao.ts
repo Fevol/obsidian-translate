@@ -21,22 +21,29 @@ export class FanyiYoudao extends DummyTranslate {
 			return {valid: false, message: "App ID was not specified"};
 
 		const signed_message = await this.sign_message('I');
-		const response = await requestUrl({url: `https://openapi.youdao.com/api?` +
-			new URLSearchParams({
-				q: 'I',
-				appKey: this.app_id,
-				salt: signed_message.salt,
-				from: 'en',
-				to: 'en',
-				sign: signed_message.signature,
-				signtype: "v3",
-				curtime: signed_message.current_time,
-				vocabId: "",
-			}), method: "POST"});
+		const response = await requestUrl({
+			throw: false,
+			url: `https://openapi.youdao.com/api?` +
+				new URLSearchParams({
+					q: 'I',
+					appKey: this.app_id,
+					salt: signed_message.salt,
+					from: 'en',
+					to: 'en',
+					sign: signed_message.signature,
+					signtype: "v3",
+					curtime: signed_message.current_time,
+					vocabId: "",
+				}),
+			method: "POST"
+		});
 
 		const data = response.json;
 
-		return {valid: !data.errorCode, message: !data.errorCode ? "" : `Validation failed:\n${data.errorCode}`};
+		return {
+			status_code: data.errorCode || 200,
+			valid: data.errorCode === undefined,
+		};
 	}
 
 
@@ -74,18 +81,22 @@ export class FanyiYoudao extends DummyTranslate {
 
 	async service_translate(text: string, from: string, to: string): Promise<TranslationResult> {
 		const signed_message = await this.sign_message(text);
-		const response = await requestUrl({url: `https://openapi.youdao.com/api?` +
-			new URLSearchParams({
-				q: text,
-				appKey: this.app_id,
-				salt: signed_message.salt,
-				from: from,
-				to: to,
-				sign: signed_message.signature,
-				signtype: "v3",
-				curtime: signed_message.current_time,
-				vocabId: "",
-			}), method: "POST"});
+		const response = await requestUrl({
+			throw: false,
+			url: `https://openapi.youdao.com/api?` +
+				new URLSearchParams({
+					q: text,
+					appKey: this.app_id,
+					salt: signed_message.salt,
+					from: from,
+					to: to,
+					sign: signed_message.signature,
+					signtype: "v3",
+					curtime: signed_message.current_time,
+					vocabId: "",
+				}),
+			method: "POST"
+		});
 
 
 		// Data = {"errorCode":"0", "query":"good", "translation":["好"],
@@ -94,13 +105,17 @@ export class FanyiYoudao extends DummyTranslate {
 		const data = response.json;
 
 		if (data.errorCode)
-			throw new Error(data.errorCode);
+			return {status_code: data.errorCode}
 
 		let detected_language = null;
 		if (from === 'auto')
 			detected_language = data.l.split("2")[0].toLowerCase();
 
-		return {translation: data.translation.join('\n'), detected_language: detected_language};
+		return {
+			status_code: response.status,
+			translation: data.translation.join('\n'),
+			detected_language: detected_language
+		};
 	}
 
 	async service_languages(): Promise<LanguagesFetchResult> {

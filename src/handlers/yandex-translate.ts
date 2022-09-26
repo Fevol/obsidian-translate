@@ -29,7 +29,11 @@ export class YandexTranslate extends DummyTranslate {
 		});
 
 		const data = response.json;
-		return {valid: response.status === 200, message: response.status === 200 ? "" : `Validation failed:\n${data.message}`};
+		return {
+			status_code: response.status,
+			valid: response.status === 200,
+			message: data.message
+		};
 	}
 
 
@@ -46,6 +50,7 @@ export class YandexTranslate extends DummyTranslate {
 
 		// Data = {code: 200, lang: "en"}
 		const data = response.json;
+
 		if (response.status !== 200)
 			return {status_code: response.status, message: data.message};
 
@@ -72,10 +77,13 @@ export class YandexTranslate extends DummyTranslate {
 		// Data = {code: 200, lang: "ru-en", text: ["Good day comrade!"]}
 		const data = response.json;
 		if (response.status !== 200)
-			throw new Error(data.message);
+			return {status_code: response.status, message: data.message};
 
-		return { translation: data.text[0],
-				 detected_language: from === "auto" && data.lang ? data.lang : null };
+		return {
+			status_code: response.status,
+			translation: data.text[0],
+		 	detected_language: from === "auto" && data.lang ? data.lang : null
+		};
 	}
 
 	async service_languages(): Promise<LanguagesFetchResult> {
@@ -92,9 +100,12 @@ export class YandexTranslate extends DummyTranslate {
 		// Data = {langs: {en: "English", ...}}
 		const data = response.json;
 		if (response.status !== 200)
-			throw new Error(data.message);
+			return {status_code: response.status, message: data.message};
 
-		return {languages: Object.keys(data.langs)};
+		return {
+			status_code: response.status,
+			languages: Object.keys(data.langs)
+		};
 	}
 
 	has_autodetect_capability(): boolean {

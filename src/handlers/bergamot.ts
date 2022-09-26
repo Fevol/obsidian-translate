@@ -67,7 +67,7 @@ export class BergamotTranslate extends DummyTranslate {
 		let detected_language = '';
 		if (from === 'auto') {
 			if (this.has_autodetect_capability()) {
-				detected_language = (await this.detector.detect(text)).first()?.language;
+				detected_language = (await this.detector.detect(text)).detected_languages.first()?.language;
 				if (detected_language && detected_language !== 'auto')
 					from = detected_language;
 				else

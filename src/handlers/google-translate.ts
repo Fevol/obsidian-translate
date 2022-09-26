@@ -33,7 +33,11 @@ export class GoogleTranslate extends DummyTranslate {
 
 		const data = response.json;
 
-		return {valid: response.status === 200, message: response.status === 200 ? "" : `Validation failed:\n${data.error.message}`};
+		return {
+			status_code: response.status,
+			valid: response.status === 200,
+			message: data.error?.message
+		};
 	}
 
 
@@ -57,7 +61,7 @@ export class GoogleTranslate extends DummyTranslate {
 		// Data = {"detections":[[{"language":"en", "confidence":1}], ...], ...}
 		const data = response.json;
 		if (response.status !== 200)
-			throw new Error(data.error.message);
+			return {status_code: response.status, message: data.error.message}
 
 		return {
 			status_code: response.status,
@@ -89,11 +93,14 @@ export class GoogleTranslate extends DummyTranslate {
 		// Data = [{"text":"Hello", "detected_source_language":"en", "model":"nmt"}, ...]
 		const data = response.json;
 		if (response.status !== 200)
-			throw new Error(data.error.message);
+			return {status_code: response.status, message: data.error.message}
 
-		return {translation: data.data.translations[0].translatedText,
-			    detected_language: (from === "auto" &&  data.data.translations[0].detectedSourceLanguage) ?
-								    data.data.translations[0].detectedSourceLanguage : null};
+		return {
+			status_code: response.status,
+			translation: data.data.translations[0].translatedText,
+			detected_language: (from === "auto" &&  data.data.translations[0].detectedSourceLanguage) ?
+								    data.data.translations[0].detectedSourceLanguage : null
+		};
 	}
 
 	async service_languages(): Promise<LanguagesFetchResult> {
@@ -116,9 +123,12 @@ export class GoogleTranslate extends DummyTranslate {
 		const data = response.json;
 
 		if (response.status !== 200)
-			throw new Error(data.error.message);
+			return {status_code: response.status, message: data.error.message}
 
-		return {languages: data.data.languages.map((l: { language: any; name: any; }) => l.language)};
+		return {
+			status_code: response.status,
+			languages: data.data.languages.map((l: { language: any; name: any; }) => l.language)
+		};
 	}
 
 	has_autodetect_capability(): boolean {

@@ -13,6 +13,9 @@ export class DummyTranslate {
 	// Character limit of translation request in bytes
 	character_limit: number = Infinity;
 
+	// Waiting time in milliseconds between requests
+	wait_time: number = 0;
+
 	constructor() {
 		this.failure_count = 0;
 		this.failure_count_watcher = writable<number>(0);
@@ -35,9 +38,12 @@ export class DummyTranslate {
 			output = await this.service_validate();
 			if (output.valid)
 				this.failure_count = 0;
+			else
+				output.message = `Validation failed:\n\t${output.message}`;
+
 			return output;
 		} catch (e) {
-			output = {valid: false, message: `Validation failed:\n${e.message}`};
+			output = {valid: false, message: `Validation failed:\n\t${e.message}`};
 			return output;
 		} finally {
 			this.valid = output.valid;
@@ -71,8 +77,7 @@ export class DummyTranslate {
 			this.success();
 			return output;
 		} catch (e) {
-			output = [{message: `Language detection failed:\n(${e.message})`}];
-			this.failed();
+			return this.detected_error("Language detection failed", {message: e.message});
 		}
 	}
 
@@ -92,15 +97,19 @@ export class DummyTranslate {
 		if (from === to)
 			return {translation: text};
 
+
 		let output: TranslationResult;
 		try {
 			if (text.length < this.character_limit) {
 				output = await this.service_translate(text, from, to);
-				this.success();
+				if (output.status_code > 200) {
+					return this.detected_error("Translation failed", output);
+				}
 			} else {
 				let idx = 0;
 				let translation = '';
 				const languages_occurrences = new DefaultDict(0);
+
 
 				// This does *not* preserve sentence meaning when translating, as it splits sentences at spaces.
 				// However, this is the best (most efficient in both space and time) approach, without having to
@@ -115,10 +124,11 @@ export class DummyTranslate {
 							r_idx = idx + this.character_limit;
 					}
 
+
 					const chunk = text.slice(idx, r_idx).trim();
 					const result = await this.service_translate(chunk, from, to);
-					if (result.message) {
-						throw new Error(result.message);
+					if (result.status_code > 200) {
+						return this.detected_error("Translation failed", result);
 					} else {
 						translation += (idx ? text.at(idx - 1) : '') + result.translation;
 						if (result.detected_language)
@@ -126,17 +136,18 @@ export class DummyTranslate {
 						idx = r_idx + 1;
 					}
 				}
+
 				output = {
 					translation: translation,
-					detected_language: Object.entries(languages_occurrences).reduce((a, b) => a[1] > b[1] ? a : b)[0]
+					detected_language: Object.entries(languages_occurrences).reduce((a, b) => a[1] > b[1] ? a : b)[0],
+					status_code: 200
 				};
 			}
+			this.success();
+			return output;
 		} catch (e) {
-			output = {message: `Translation failed:\n(${e.message})`};
-			this.failed();
+			return this.detected_error("Translation failed", {message: e.message});
 		}
-
-		return output;
 	}
 
 	async service_translate(text: string, from: string, to: string): Promise<TranslationResult> {
@@ -152,13 +163,13 @@ export class DummyTranslate {
 		let output: LanguagesFetchResult;
 		try {
 			output = await this.service_languages();
+			if (output.status_code > 200)
+				return this.detected_error("Languages fetching failed", output);
 			this.success();
+			return output;
 		} catch (e) {
-			output = {message: `Languages fetching failed:\n(${e.message})`};
-			this.failed();
+			return this.detected_error("Languages fetching failed", {message: e.message});
 		}
-
-		return output;
 	}
 
 	async service_languages(): Promise<LanguagesFetchResult> {
@@ -169,4 +180,24 @@ export class DummyTranslate {
 	has_autodetect_capability(): boolean {
 		return false;
 	}
+
+	detected_error(prefix: string, response: {status_code?: number, message?: string}): { message: string, status_code: number } {
+		if (!response.message) {
+			switch (response.status_code) {
+				case 400:
+					response.message = 'Bad request';
+					break;
+				default:
+					response.message = `Unknown error (${response.status_code})`;
+			}
+		}
+
+		this.failed();
+		return {
+			message: `${prefix}:\n\t${response.message}`,
+			status_code: response.status_code,
+		};
+	}
+
+
 }

@@ -43,7 +43,10 @@ export class AmazonTranslate extends DummyTranslate {
 		});
 
 		const data = await response.json();
-		return {valid: response.ok, message: response.ok ? "" : `Validation failed:\n${data.error.message}`};
+		return {
+			valid: response.ok,
+			status_code: response.status
+		};
 	}
 
 
@@ -70,11 +73,14 @@ export class AmazonTranslate extends DummyTranslate {
 		// 		   "SourceLanguageCode": "en", "TargetLanguageCode": "fr", "TranslatedText": "..."}
 		// }
 		const data = await response.json();
-		if (!response.ok)
-			throw new Error(data.error.message);
+		if (response.status !== 200)
+			return { status_code: response.status };
 
-		return {translation: data.TranslatedText,
-				detected_language: (from === "auto" &&  data.SourceLanguageCode) ? data.SourceLanguageCode : null};
+		return {
+			status_code: response.status,
+			translation: data.TranslatedText,
+			detected_language: (from === "auto" &&  data.SourceLanguageCode) ? data.SourceLanguageCode : null,
+		};
 	}
 
 	async service_languages(): Promise<LanguagesFetchResult> {
@@ -88,10 +94,13 @@ export class AmazonTranslate extends DummyTranslate {
 		// Data = {"DisplayLanguageCode": "en", "Languages": [{"LanguageCode": "en", "LanguageName": "English"}, ...], "NextToken": "..."}
 		const data = await response.json();
 
-		if (!response.ok)
-			throw new Error(data.error.message);
+		if (response.status !== 200)
+			return {status_code: response.status};
 
-		return {languages: data.Languages.map((l: { LanguageCode: any; LanguageName: any; }) => l.LanguageCode)};
+		return {
+			status_code: response.status,
+			languages: data.Languages.map((l: { LanguageCode: any; LanguageName: any; }) => l.LanguageCode)
+		};
 	}
 
 	has_autodetect_capability(): boolean {

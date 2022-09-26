@@ -14,24 +14,18 @@ export class LibreTranslate extends DummyTranslate {
 		if (!this.host)
 			return {valid: false, message: "Host was not specified"};
 
-		try {
-			const response = await requestUrl({
-				throw: false,
-				method: "GET",
-				url:`${this.host}/languages`,
-			});
+		const response = await requestUrl({
+			throw: false,
+			method: "GET",
+			url:`${this.host}/languages`,
+		});
 
-			const data = response.json;
-			return {valid: response.status === 200, message: response.status === 200 ? "" : `Validation failed:\n${data.error.message}`};
-		} catch (e) {
-			let message = e.message;
-			// TODO: Ask Licat if requestUrl could actually return a readable message
-			if (e.message === 'net::ERR_CONNECTION_REFUSED')
-				message = "Failed to fetch";
-
-
-			return {valid: false, message: `Validation failed:\n${message}`};
-		}
+		const data = response.json;
+		return {
+			status_code: response.status,
+			valid: response.status === 200,
+			message: data.error
+		};
 	}
 
 	async service_detect(text: string): Promise<DetectionResult> {
@@ -46,7 +40,7 @@ export class LibreTranslate extends DummyTranslate {
 
 		const data = response.json;
 		if (response.status !== 200)
-			throw Error(data.error);
+			return {status_code: response.status, message: data.error}
 
 		return {
 			status_code: response.status,
@@ -69,10 +63,13 @@ export class LibreTranslate extends DummyTranslate {
 
 		const data = response.json;
 		if (response.status !== 200)
-			throw Error(data.error);
+			return {status_code: response.status, message: data.error}
 
-		return {translation: data.translatedText,
-			    detected_language: (from === "auto" && data.detectedLanguage.language  ? data.detectedLanguage.language : null)};
+		return {
+			status_code: response.status,
+			translation: data.translatedText,
+			detected_language: (from === "auto" && data.detectedLanguage.language  ? data.detectedLanguage.language : undefined)
+		};
 	}
 
 	async service_languages(): Promise<LanguagesFetchResult> {
@@ -84,9 +81,12 @@ export class LibreTranslate extends DummyTranslate {
 
 		const data = response.json;
 		if (response.status !== 200)
-			throw Error(data.error);
+			return {status_code: response.status, message: data.error}
 
-		return {languages: Array.from(data).map((x: any) => x.code)};
+		return {
+			status_code: response.status,
+			languages: response.status === 200 ? Array.from(data).map((x: any) => x.code) : undefined
+		};
 	}
 
 	has_autodetect_capability(): boolean {

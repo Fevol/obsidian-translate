@@ -16,9 +16,17 @@ export class LingvaTranslate extends DummyTranslate {
 		if (!this.host)
 			return {valid: false, message: "Host was not specified"};
 
-		const response = await requestUrl({url: `https://${this.host}/api/v1/languages`});
+		const response = await requestUrl({
+			throw: false,
+			url: `https://${this.host}/api/v1/languages`
+		});
+		const data = response.json;
 
-		return {valid: response.status === 200, message: response.status === 200 ? "" : `Validation failed:\n${response.json.data.error}`};
+		return {
+			status_code: response.status,
+			valid: response.status === 200,
+			message: data.error
+		};
 	}
 
 
@@ -29,7 +37,10 @@ export class LingvaTranslate extends DummyTranslate {
 	}
 
 	async service_translate(text: string, from: string, to: string): Promise<TranslationResult> {
-		const response = await requestUrl({url: `https://${this.host}/api/v1/${from}/${to}/${text}`});
+		const response = await requestUrl({
+			throw: false,
+			url: `https://${this.host}/api/v1/${from}/${to}/${text}`
+		});
 
 		// Data = {"translation": "...", "info": {
 		// 		"detectedSource": "en",
@@ -41,24 +52,32 @@ export class LingvaTranslate extends DummyTranslate {
 		// }
 		const data = response.json;
 		if (response.status !== 200)
-			throw new Error(data.error);
+			return {status_code: response.status, message: data.error};
 
-		return {translation: data.translation,
-			    detected_language: (from === "auto" &&  data.info?.detectedSource) ? data.info.detectedSource : null};
+		return {
+			status_code: response.status,
+			translation: data.translation,
+			detected_language: (from === "auto" &&  data.info?.detectedSource) ? data.info.detectedSource : null
+		};
 	}
 
 	async service_languages(): Promise<LanguagesFetchResult> {
-		const response = await requestUrl({url: `https://${this.host}/api/v1/languages`});
+		const response = await requestUrl({
+			throw: false,
+			url: `https://${this.host}/api/v1/languages`
+		});
 		// Data = {"languages": [{"code":"en", "name":"English"}, ...]}
 		const data = response.json;
-
 		if (response.status !== 200)
-			throw new Error(data.error);
+			return {status_code: response.status, message: data.error};
 
 		return {
-			languages: data.languages
-				.filter((l: { code: any; name: any; }) => l.code !== "auto")
-				.map((l: { code: any; name: any; }) => l.code.replace("_", "-"))};
+			status_code: response.status,
+			languages: response.status !== 200 ? undefined :
+				data.languages
+					.filter((l: { code: any; name: any; }) => l.code !== "auto")
+					.map((l: { code: any; name: any; }) => l.code.replace("_", "-"))
+		};
 	}
 
 	has_autodetect_capability(): boolean {

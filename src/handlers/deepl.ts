@@ -31,25 +31,33 @@ export class Deepl extends DummyTranslate {
 			return {valid: false, message: "API key was not specified"};
 
 		this.host = this.api_key.endsWith(":fx") ? "https://api-free.deepl.com/v2" : "https://api.deepl.com/v2";
-		try {
-			const response = await requestUrl({
-				url: `${this.host}/usage`,
-				method: "GET",
-				headers: {
-					"Authorization": "DeepL-Auth-Key " + this.api_key
-				}
-			});
 
-			return {valid: response.status === 200, host: this.host, status_code: response.status};
-		} catch (e) {
-			return {valid: false, message: "Validation failed:\nVerify correctness of API key"};
-		}
+		const response = await requestUrl({
+			throw: false,
+			url: `${this.host}/usage`,
+			method: "GET",
+			headers: {
+				"Authorization": "DeepL-Auth-Key " + this.api_key
+			}
+		});
+
+		if (response.status !== 200)
+			return {valid: false, message: "Invalid API key", status_code: response.status};
+
+		const data = response.json;
+		return {
+			status_code: response.status,
+			valid: response.status === 200,
+			host: this.host,
+		};
+
 	}
 
 	// FIXME: DeepL doesn't actually support language detection, this is translating the text to get the language
 	//         Obviously this is not desirable, might just disable this feature for DeepL
 	async service_detect(text: string): Promise<DetectionResult> {
 		const response = await requestUrl({
+			throw: false,
 			url: `${this.host}/translate?` + new URLSearchParams({
 				text: text,
 				target_lang: "en"
@@ -60,9 +68,6 @@ export class Deepl extends DummyTranslate {
 				"Authorization": "DeepL-Auth-Key " + this.api_key
 			}
 		});
-
-		if (response.status !== 200)
-			throw new Error("Check API key")
 
 		// Data = [{"text":"Hello", "detected_source_language":"en"}, ...]
 		const data = response.json;
@@ -78,6 +83,7 @@ export class Deepl extends DummyTranslate {
 
 	async service_translate(text: string, from: string, to: string): Promise<TranslationResult> {
 		const response = await requestUrl({
+			throw: false,
 			url: `${this.host}/translate?` + new URLSearchParams({
 				text: text,
 				source_lang: from === "auto" ? "" : from,
@@ -92,19 +98,25 @@ export class Deepl extends DummyTranslate {
 			}
 		});
 
-		if (response.status !== 200)
-			throw new Error("Check API key")
 
 		// Data = [{"text":"Hello", "detected_source_language":"en"}, ...]
 		const data = response.json;
-		return {translation: data.translations[0].text,
-				detected_language: (from === "auto" && data.translations[0].detected_source_language) ?
-									data.translations[0].detected_source_language.toLowerCase() : null}
+
+		if (response.status !== 200)
+			return {status_code: response.status, message: data.error.message}
+
+		return {
+			status_code: response.status,
+			translation: data.translations[0].text,
+			detected_language: (from === "auto" && data.translations[0].detected_source_language) ?
+								data.translations[0].detected_source_language.toLowerCase() : null
+		}
 	}
 
 
 	async service_languages(): Promise<LanguagesFetchResult> {
 		const response = await requestUrl({
+			throw: false,
 			url: `${this.host}/languages`,
 			method: "POST",
 			contentType: "application/json",
@@ -113,12 +125,16 @@ export class Deepl extends DummyTranslate {
 			}
 		});
 
-		if (response.status !== 200)
-			throw new Error("Check API key")
-
 		// Data = [{"language":"EN", "name":"English", supports_formality: true}, ...]
 		const data = response.json;
-		return {languages: data.map((o: any) => o.language.toLowerCase())};
+
+		if (response.status !== 200)
+			return {status_code: response.status, message: data.error.message}
+
+		return {
+			status_code: response.status,
+			languages: data.map((o: any) => o.language.toLowerCase())
+		};
 	}
 
 	has_autodetect_capability(): boolean {

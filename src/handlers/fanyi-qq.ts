@@ -97,6 +97,7 @@ export class FanyiQq extends DummyTranslate {
 		const signature = await this.sign_message(payload);
 
 		const response = await requestUrl({
+			throw: false,
 			url: `https://tmt.tencentcloudapi.com/?` + new URLSearchParams(payload), method: 'POST',
 			headers: {
 				'Content-Type': 'application/json',
@@ -110,7 +111,11 @@ export class FanyiQq extends DummyTranslate {
 		const data = response.json;
 		const success = response.status === 200 && !data.Response.Error;
 
-		return {valid: success, message:  success ? "" : `Validation failed:\n${data.Response.Error.Message}`};
+		return {
+			status_code: response.status,
+			valid: success,
+			message:  data.Response.Error?.Message
+		};
 	}
 
 
@@ -125,6 +130,7 @@ export class FanyiQq extends DummyTranslate {
 		const signature = await this.sign_message(payload);
 
 		const response = await requestUrl({
+			throw: false,
 			url: `https://tmt.tencentcloudapi.com/?` + new URLSearchParams(payload), method: 'POST',
 			headers: {
 				'Content-Type': 'application/json',
@@ -137,8 +143,8 @@ export class FanyiQq extends DummyTranslate {
 
 		// Data = {"Response": {"Lang":"en", "RequestId": "..." } }
 		const data = response.json;
-		if (response.status !== 200 || data.Response.Error)
-			throw new Error(data.Response.Error.Message);
+		if (response.status !== 200)
+			return {status_code: response.status, message: data.Response.Error.Message};
 
 		return {
 			status_code: response.status,
@@ -161,6 +167,7 @@ export class FanyiQq extends DummyTranslate {
 			const signature = await this.sign_message(payload);
 
 			return requestUrl({
+				throw: false,
 				url: `https://tmt.tencentcloudapi.com/?` + new URLSearchParams(payload), method: 'POST',
 				headers: {
 					'Content-Type': 'application/json',
@@ -185,18 +192,24 @@ export class FanyiQq extends DummyTranslate {
 				data = response.json;
 				detected_language = data.Response?.Source;
 
-				// If it still manages to fail, so be it
+				// If translation via pivot fails, exit
 				if (response.status !== 200)
-					throw new Error(data.Response.Error.Message);
+					return {status_code: response.status, message: data.Response.Error.Message};
 
 				response = await attempt_translation(data.Response.TargetText, 'en', to);
 				data = response.json;
 			} else {
-				throw new Error(data.Response.Error.Message);
+				return {
+					status_code: response.status,
+					message: data.Response.Error.Message
+				};
 			}
 		}
-		return {translation: data.Response.TargetText,
-			    detected_language: (from === "auto" &&  detected_language) ? detected_language : null};
+		return {
+			status_code: response.status,
+			translation: data.Response.TargetText,
+			detected_language: (from === "auto" &&  detected_language) ? detected_language : null
+		};
 	}
 
 	async service_languages(): Promise<LanguagesFetchResult> {

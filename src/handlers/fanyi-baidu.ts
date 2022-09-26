@@ -48,15 +48,20 @@ export class FanyiBaidu extends DummyTranslate {
 		}
 
 		const response = await requestUrl({
+			throw: false,
 			url: `http://api.fanyi.baidu.com/api/trans/vip/language/?` + new URLSearchParams(payload),
 			method: 'POST',
 			headers: { 'Content-Type': 'application/json', }
 		});
 
 		const data = response.json;
-
 		const success = response.status === 200 && !data.error_msg;
-		return {valid: success, message:  success ? "" : `Validation failed:\n${toSentenceCase(data.error_msg)}`};
+
+		return {
+			status_code: success ? 200 : response.status,
+			valid: success,
+			message: data.error_msg,
+		};
 	}
 
 
@@ -70,6 +75,7 @@ export class FanyiBaidu extends DummyTranslate {
 		}
 
 		const response = await requestUrl({
+			throw: false,
 			url: `http://api.fanyi.baidu.com/api/trans/vip/language/?` + new URLSearchParams(payload),
 			method: 'POST',
 			headers: { 'Content-Type': 'application/json', }
@@ -78,7 +84,7 @@ export class FanyiBaidu extends DummyTranslate {
 		// Data = {"data":{"src": "en"} }
 		const data = response.json;
 		if (response.status !== 200)
-			throw new Error(toSentenceCase(data.error_msg));
+			return {status_code: response.status, message: data.error_msg}
 
 		return {
 			status_code: response.status,
@@ -99,6 +105,7 @@ export class FanyiBaidu extends DummyTranslate {
 		}
 
 		const response = await requestUrl({
+			throw: false,
 			url: `http://api.fanyi.baidu.com/api/trans/vip/translate/?` + new URLSearchParams(payload),
 			method: 'POST',
 			headers: { 'Content-Type': 'application/json', }
@@ -107,10 +114,14 @@ export class FanyiBaidu extends DummyTranslate {
 		// Data = {"from":"en", "to":"zh", "trans_result":[{"src": "Hello", "dst": "你好"}] }
 		let data = response.json;
 		if (response.status !== 200)
-			throw new Error(toSentenceCase(data.error_msg));
+			return {status_code: response.status, message: data.error_msg}
 
-		return {translation: data.trans_result[0].dst,
-			    detected_language: (from === "auto" &&  data.to) ? data.to : null};
+
+		return {
+			status_code: response.status,
+			translation: data.trans_result[0].dst,
+			detected_language: (from === "auto" &&  data.to) ? data.to : null
+		};
 	}
 
 	async service_languages(): Promise<LanguagesFetchResult> {
