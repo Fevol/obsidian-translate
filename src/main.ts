@@ -72,6 +72,13 @@ export default class TranslatorPlugin extends Plugin {
 		// are forwards compatible with newer versions of the plugin
 		loaded_settings = nested_object_assign(DEFAULT_SETTINGS, loaded_settings ? loaded_settings : {}, new Set(set_if_exists));
 
+		// (Changed bing_translator -> azure_translator in v1.4.0, this patch will only be here for a couple versions)
+		if (loaded_settings.translation_service === 'bing_translator')
+			loaded_settings.translation_service = 'azure_translator';
+		if (loaded_settings?.service_settings['bing_translator' as keyof APIServiceProviders])
+			loaded_settings.service_settings['azure_translator'] =
+				<APIServiceSettings>loaded_settings.service_settings['bing_translator' as keyof APIServiceProviders];
+
 		// Check for any updates on the translation services
 		// In order to improve future compatibility, the user can manually update the available_languages/... with
 		//    the 'update languages' button in the settings (and thus fetch a more recent version than default);
@@ -203,12 +210,10 @@ export default class TranslatorPlugin extends Plugin {
 							item.setTitle("Translate")
 								.setIcon("translate")
 								.setDisabled(!this.translator.valid || !editor.getSelection())
-								.onClick(async () => {
-									// Keep the dropdown open
-								});
-
-							if (requireApiVersion("0.15.3"))
-								item.setSection("translate")
+								// .onClick(async () => {
+								// 	// Keep the dropdown open
+								// })
+								.setSection("translate")
 
 							const element = (item as any).dom as HTMLElement;
 							element.classList.add("translator-dropdown")
