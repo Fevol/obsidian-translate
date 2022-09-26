@@ -174,8 +174,9 @@
 				<a href={`https://github.com/Fevol/obsidian-translate/issues/new?` + new URLSearchParams({
 					title: `[BUG] ${info.display_name} – ADD A TITLE HERE`,
 					body: `# User report\n**Description:** ADD A SHORT DESCRIPTION HERE \n\n\n\n---\n# Debugger data (do not alter)\n${Array.from(Object.entries({
-						service_version: $settings.service_settings[service].version,
 						obsidian_version: navigator.userAgent.match(/obsidian\/([\d\.]+\d+)/)?.[1] || "unknown",
+						plugin_version: "1.4.0",
+						service_version: $settings.service_settings[service].version,
 						platform: Platform.isMobileApp ? (Platform.isAndroidApp ? 'Android' : Platform.isIosApp ? 'iOS' : 'mobile') :
 						                                 (Platform.isMacOS ? 'macOS' : 'Desktop'),
 					})).map((x) => `**${x[0]}**: ${JSON.stringify(x[1])}`).join("\n")}`,
