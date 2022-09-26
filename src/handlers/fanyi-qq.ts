@@ -152,63 +152,63 @@ export class FanyiQq extends DummyTranslate {
 		};
 	}
 
-	async service_translate(text: string, from: string, to: string): Promise<TranslationResult> {
-		async function attempt_translation(sourceText: string, source: string, target: string): Promise<RequestUrlResponse> {
+	async attempt_translation(sourceText: string, source: string, target: string): Promise<RequestUrlResponse> {
 		// const attempt_translation: (sourceText: string, target: string) => Promise<RequestUrlResponse> = async (sourceText: string, target: string) => {
-			const payload = {
-				Action: 'TextTranslate',
-				Version: '2018-03-21',
-				Region: this.region,
-				SourceText: sourceText,
-				Source: source,
-				Target: target,
-				ProjectId: this.app_id,
-			}
-			const signature = await this.sign_message(payload);
-
-			return requestUrl({
-				throw: false,
-				url: `https://tmt.tencentcloudapi.com/?` + new URLSearchParams(payload), method: 'POST',
-				headers: {
-					'Content-Type': 'application/json',
-					'Authorization': signature.authorization,
-					'X-TC-Timestamp': signature.timestamp,
-					'X-TC-Action': 'LanguageDetect',
-					'X-TC-Version': '2018-03-21',
-				}
-			});
+		const payload = {
+			Action: 'TextTranslate',
+			Version: '2018-03-21',
+			Region: this.region,
+			SourceText: sourceText,
+			Source: source,
+			Target: target,
+			ProjectId: this.app_id,
 		}
+		const signature = await this.sign_message(payload);
 
-		let response = await attempt_translation(text, from, to);
+		return requestUrl({
+			throw: false,
+			url: `https://tmt.tencentcloudapi.com/?` + new URLSearchParams(payload), method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+				'Authorization': signature.authorization,
+				'X-TC-Timestamp': signature.timestamp,
+				'X-TC-Action': 'TextTranslate',
+				'X-TC-Version': '2018-03-21',
+			}
+		});
+	}
+
+	async service_translate(text: string, from: string, to: string): Promise<TranslationResult> {
+		let response = await this.attempt_translation(text, from, to);
 
 		// Data = {"Response": {"TargetText":"Hello", "Source":"en", "Target":"zh", "RequestId": "..." } }
 		let data = response.json;
-		let detected_language = data.Response?.Source;
 		if (response.status !== 200 || data.Response.Error) {
 			if (data.Response.Error.Code === 'UnsupportedOperation.UnsupportedSourceLanguage') {
 				// TODO: Warn user of doubled character usage due to indirect translation via pivoting
 				// Use English as the pivot language (as QQ does not support translation between all language pairs)
-				response = await attempt_translation(text,  from,'en');
+				response = await this.attempt_translation(text, from, 'en');
 				data = response.json;
-				detected_language = data.Response?.Source;
 
 				// If translation via pivot fails, exit
-				if (response.status !== 200)
-					return {status_code: response.status, message: data.Response.Error.Message};
+				if (response.status !== 200 || data.Response.Error)
+					return {status_code: response.status !== 200 ? response.status : 400, message: data.Response.Error.Message};
 
-				response = await attempt_translation(data.Response.TargetText, 'en', to);
+				response = await this.attempt_translation(data.Response.TargetText, 'en', to);
 				data = response.json;
+
+				if (response.status !== 200 || data.Response.Error)
+					return {status_code: response.status !== 200 ? response.status : 400, message: data.Response.Error.Message};
 			} else {
-				return {
-					status_code: response.status,
-					message: data.Response.Error.Message
-				};
+				return {status_code: response.status !== 200 ? response.status : 400, message: data.Response.Error.Message};
 			}
 		}
+
+		let detected_language = data.Response.Source;
 		return {
 			status_code: response.status,
 			translation: data.Response.TargetText,
-			detected_language: (from === "auto" &&  detected_language) ? detected_language : null
+			detected_language: (from === "auto" && detected_language) ? detected_language : null
 		};
 	}
 

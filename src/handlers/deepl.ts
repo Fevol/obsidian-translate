@@ -73,7 +73,7 @@ export class Deepl extends DummyTranslate {
 		const data = response.json;
 
 		if (response.status !== 200)
-			return {status_code: response.status, message: data.error.message}
+			return {status_code: response.status, message: data.message}
 
 		return {
 			status_code: response.status,
@@ -103,7 +103,7 @@ export class Deepl extends DummyTranslate {
 		const data = response.json;
 
 		if (response.status !== 200)
-			return {status_code: response.status, message: data.error.message}
+			return {status_code: response.status, message: data.message}
 
 		return {
 			status_code: response.status,
@@ -129,7 +129,7 @@ export class Deepl extends DummyTranslate {
 		const data = response.json;
 
 		if (response.status !== 200)
-			return {status_code: response.status, message: data.error.message}
+			return {status_code: response.status, message: data.message}
 
 		return {
 			status_code: response.status,

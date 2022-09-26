@@ -57,9 +57,9 @@ export class DummyTranslate {
 
 	async detect(text: string): Promise<DetectionResult> {
 		if (!this.valid)
-			return {message: "Translation service is not validated"};
+			return {status_code: 400, message: "Translation service is not validated"};
 		if (!text.trim())
-			return {message: "No text was provided"};
+			return {status_code: 400, message: "No text was provided"};
 
 		let output: DetectionResult;
 		try {
@@ -89,20 +89,20 @@ export class DummyTranslate {
 
 	async translate(text: string, from: string, to: string): Promise<TranslationResult> {
 		if (!this.valid)
-			return {message: "Translation service is not validated"};
+			return {status_code: 400, message: "Translation service is not validated"};
 		if (!text.trim())
-			return {message: "No text was provided"};
+			return {status_code: 400, message: "No text was provided"};
 		if (!to)
-			return {message: "No target language was provided"};
+			return {status_code: 400, message: "No target language was provided"};
 		if (from === to)
-			return {translation: text};
+			return {status_code: 200, translation: text};
 
 
 		let output: TranslationResult;
 		try {
 			if (text.length < this.character_limit) {
 				output = await this.service_translate(text, from, to);
-				if (output.status_code > 200) {
+				if (output.status_code !== 200) {
 					return this.detected_error("Translation failed", output);
 				}
 			} else {
@@ -127,7 +127,7 @@ export class DummyTranslate {
 
 					const chunk = text.slice(idx, r_idx).trim();
 					const result = await this.service_translate(chunk, from, to);
-					if (result.status_code > 200) {
+					if (result.status_code !== 200) {
 						return this.detected_error("Translation failed", result);
 					} else {
 						translation += (idx ? text.at(idx - 1) : '') + result.translation;
@@ -158,12 +158,12 @@ export class DummyTranslate {
 
 	async languages(): Promise<LanguagesFetchResult> {
 		if (!this.valid)
-			return {message: "Translation service is not validated"};
+			return {status_code: 400, message: "Translation service is not validated"};
 
 		let output: LanguagesFetchResult;
 		try {
 			output = await this.service_languages();
-			if (output.status_code > 200)
+			if (output.status_code !== 200)
 				return this.detected_error("Languages fetching failed", output);
 			this.success();
 			return output;
@@ -182,6 +182,7 @@ export class DummyTranslate {
 	}
 
 	detected_error(prefix: string, response: {status_code?: number, message?: string}): { message: string, status_code: number } {
+		// Attempt to create a more descriptive error message is no message was given
 		if (!response.message) {
 			switch (response.status_code) {
 				case 400:

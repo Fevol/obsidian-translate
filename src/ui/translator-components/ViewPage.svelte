@@ -294,7 +294,7 @@
 					Using
 					<a href={services[$translation_service].url} target="_blank" class="icon-text translator-service-text">
 						<Icon icon={$translation_service}/>
-						{`${$translation_service.replace('_', ' ')}`}
+						{SERVICES_INFO[$translation_service].display_name}
 					</a>
 					{#if plugin.detector}
 						with

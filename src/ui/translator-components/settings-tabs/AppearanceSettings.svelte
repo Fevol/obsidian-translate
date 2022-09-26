@@ -33,7 +33,7 @@
 </SettingItem>
 
 <SettingItem
-	name="Hide attribution column in the translation view"
+	name="Hide attribution info in the translation view"
 	type="toggle"
 >
 	<Toggle
