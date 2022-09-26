@@ -48,7 +48,7 @@ export class Deepl extends DummyTranslate {
 
 	// FIXME: DeepL doesn't actually support language detection, this is translating the text to get the language
 	//         Obviously this is not desirable, might just disable this feature for DeepL
-	async service_detect(text: string): Promise<Array<DetectionResult>> {
+	async service_detect(text: string): Promise<DetectionResult> {
 		const response = await requestUrl({
 			url: `${this.host}/translate?` + new URLSearchParams({
 				text: text,
@@ -67,7 +67,13 @@ export class Deepl extends DummyTranslate {
 		// Data = [{"text":"Hello", "detected_source_language":"en"}, ...]
 		const data = response.json;
 
-		return [{language: data.translations[0].detected_source_language.toLowerCase()}];
+		if (response.status !== 200)
+			return {status_code: response.status, message: data.error.message}
+
+		return {
+			status_code: response.status,
+			detected_languages: [{language: data.translations[0].detected_source_language.toLowerCase()}]
+		};
 	}
 
 	async service_translate(text: string, from: string, to: string): Promise<TranslationResult> {

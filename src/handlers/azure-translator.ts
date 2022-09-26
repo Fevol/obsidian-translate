@@ -49,7 +49,7 @@ export class AzureTranslator extends DummyTranslate {
 
 	}
 
-	async service_detect(text: string): Promise<Array<DetectionResult>> {
+	async service_detect(text: string): Promise<DetectionResult> {
 		const headers: any = {
 			"Content-Type": "application/json",
 			"Ocp-Apim-Subscription-Key": this.api_key,
@@ -80,7 +80,10 @@ export class AzureTranslator extends DummyTranslate {
 				confidence: alternative.score
 			})));
 
-		return results;
+		return {
+			status_code: response.status,
+			detected_languages: results
+		};
 	}
 
 	async service_translate(text: string, from: string = 'auto', to: string): Promise<TranslationResult> {

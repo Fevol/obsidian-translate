@@ -49,30 +49,34 @@ export class DummyTranslate {
 		return {valid: false, message: 'This should not ever be called'};
 	}
 
-	async detect(text: string): Promise<Array<DetectionResult>> {
+	async detect(text: string): Promise<DetectionResult> {
 		if (!this.valid)
-			return [{message: "Translation service is not validated"}];
+			return {message: "Translation service is not validated"};
 		if (!text.trim())
-			return [{message: "No text was provided"}];
+			return {message: "No text was provided"};
 
-		let output: Array<DetectionResult>;
+		let output: DetectionResult;
 		try {
 			// Only the first dozen words are required to detect the language of a piece of text
 			// Get first 20 words of text, not all words need to be included to get proper detection
 			output = await this.service_detect(text.split(/\s+/).slice(0, 20).join(" "));
-			if (output.length === 1 && !output[0].message && !output[0].language)
-				output = [{message: "Language detection failed:\n(Could not detect language)"}];
+
+			if (output.status_code > 200)
+				return this.detected_error("Language detection failed", output);
+
+			if (!output.detected_languages)
+				output = {message: "Language detection failed:\n\t(Could not detect language)", status_code: 400};
+
 
 			this.success();
+			return output;
 		} catch (e) {
 			output = [{message: `Language detection failed:\n(${e.message})`}];
 			this.failed();
 		}
-
-		return output;
 	}
 
-	async service_detect(text: string): Promise<Array<DetectionResult>> {
+	async service_detect(text: string): Promise<DetectionResult> {
 		// Perfect detection
 		return null;
 	}

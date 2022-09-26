@@ -40,12 +40,10 @@ export class FanyiYoudao extends DummyTranslate {
 	}
 
 
-	async service_detect(text: string): Promise<Array<DetectionResult>> {
-		let result = await this.service_translate(text, 'auto', 'en');
-		if (result.message)
-			throw new Error(result.message);
-		else
-			return [{language: result.detected_language}];
+	async service_detect(text: string): Promise<DetectionResult> {
+		let result: any = await this.service_translate(text, 'auto', 'en');
+		result.detected_languages = [{language: result.detected_language}];
+		return result;
 	}
 
 	async sign_message(message: string) {

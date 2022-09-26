@@ -60,7 +60,7 @@ export class FanyiBaidu extends DummyTranslate {
 	}
 
 
-	async service_detect(text: string): Promise<Array<DetectionResult>> {
+	async service_detect(text: string): Promise<DetectionResult> {
 		const signature = await this.sign_message(text);
 		const payload = {
 			q: text,
@@ -80,7 +80,10 @@ export class FanyiBaidu extends DummyTranslate {
 		if (response.status !== 200)
 			throw new Error(toSentenceCase(data.error_msg));
 
-		return [{language: data.src}];
+		return {
+			status_code: response.status,
+			detected_languages: [{language: data.src}]
+		};
 	}
 
 	async service_translate(text: string, from: string, to: string): Promise<TranslationResult> {

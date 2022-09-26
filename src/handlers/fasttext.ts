@@ -56,13 +56,13 @@ export class FastTextDetector extends DummyTranslate {
 		return {valid: this.has_autodetect_capability()};
 	}
 
-	async service_detect(text: string): Promise<Array<DetectionResult>> {
+	async service_detect(text: string): Promise<DetectionResult> {
 		let predictions: any = this.detector.predict(text, 5, 0.0);
 		let results = [];
 
 		for (let i = 0; i < predictions.size(); i++)
 			results.push({language: predictions.get(i)[1].replace("__label__", ""), confidence: predictions.get(i)[0]});
-		return results;
+		return {detected_languages: results};
 	}
 
 	has_autodetect_capability(): boolean {

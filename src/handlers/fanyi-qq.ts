@@ -114,7 +114,7 @@ export class FanyiQq extends DummyTranslate {
 	}
 
 
-	async service_detect(text: string): Promise<Array<DetectionResult>> {
+	async service_detect(text: string): Promise<DetectionResult> {
 		const payload = {
 			Action: 'LanguageDetect',
 			Version: '2018-03-21',
@@ -140,7 +140,10 @@ export class FanyiQq extends DummyTranslate {
 		if (response.status !== 200 || data.Response.Error)
 			throw new Error(data.Response.Error.Message);
 
-		return [{language: data.Response.Lang}];
+		return {
+			status_code: response.status,
+			detected_languages: [{language: data.Response.Lang}]
+		};
 	}
 
 	async service_translate(text: string, from: string, to: string): Promise<TranslationResult> {

@@ -33,7 +33,7 @@ export class YandexTranslate extends DummyTranslate {
 	}
 
 
-	async service_detect(text: string): Promise<Array<DetectionResult>> {
+	async service_detect(text: string): Promise<DetectionResult> {
 		const response = await requestUrl({
 			throw: false,
 			method: "POST",
@@ -47,9 +47,12 @@ export class YandexTranslate extends DummyTranslate {
 		// Data = {code: 200, lang: "en"}
 		const data = response.json;
 		if (response.status !== 200)
-			throw new Error(data.message);
+			return {status_code: response.status, message: data.message};
 
-		return [{language: data.language}];
+		return {
+			status_code: response.status,
+			detected_languages: [{language: data.language}]
+		};
 	}
 
 	async service_translate(text: string, from: string, to: string): Promise<TranslationResult> {

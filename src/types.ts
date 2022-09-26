@@ -110,23 +110,30 @@ export interface TranslationResult {
 	translation?: string;
 	detected_language?: string;
 	message?: string;
+	status_code?: number;
+	confidence?: number;
 }
 
 export interface ValidationResult {
 	valid: boolean;
 	host?: string;
 	message?: string;
+	status_code?: number;
 }
 
 export interface LanguagesFetchResult {
 	languages?: Array<string> | Array<LanguageModelData>;
 	message?: string;
 	data?: string;
+	status_code?: number;
 }
 
-export interface DetectionResult {
-	language?: string;
-	confidence?: number;
-	message?: string;
 
+export interface DetectionResult {
+	detected_languages?: Array<{
+		language?: string;
+		confidence?: number;
+	}>;
+	message?: string;
+	status_code?: number;
 }

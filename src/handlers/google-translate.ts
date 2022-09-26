@@ -37,7 +37,7 @@ export class GoogleTranslate extends DummyTranslate {
 	}
 
 
-	async service_detect(text: string): Promise<Array<DetectionResult>> {
+	async service_detect(text: string): Promise<DetectionResult> {
 		const response = await requestUrl({
 			throw: false,
 			method: 'POST',
@@ -59,7 +59,10 @@ export class GoogleTranslate extends DummyTranslate {
 		if (response.status !== 200)
 			throw new Error(data.error.message);
 
-		return [{language: data.data.detections[0][0].language, confidence: data.data.detections[0][0].confidence}];
+		return {
+			status_code: response.status,
+			detected_languages: [{language: data.data.detections[0][0].language, confidence: data.data.detections[0][0].confidence}]
+		};
 	}
 
 	async service_translate(text: string, from: string, to: string): Promise<TranslationResult> {

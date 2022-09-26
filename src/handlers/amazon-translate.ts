@@ -47,14 +47,9 @@ export class AmazonTranslate extends DummyTranslate {
 	}
 
 
-	async service_detect(text: string): Promise<Array<DetectionResult>> {
+	async service_detect(text: string): Promise<DetectionResult> {
 		let result = await this.service_translate(text, 'auto', 'en');
-		if (result.message)
-			throw new Error(result.message);
-
-		else {
-			return [{language: result.detected_language}];
-		}
+		return {detected_languages: [{language: result.detected_language}], status_code: result.status_code};
 	}
 
 	async service_translate(text: string, from: string, to: string): Promise<TranslationResult> {

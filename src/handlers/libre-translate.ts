@@ -34,10 +34,10 @@ export class LibreTranslate extends DummyTranslate {
 		}
 	}
 
-	async service_detect(text: string): Promise<Array<DetectionResult>> {
+	async service_detect(text: string): Promise<DetectionResult> {
 		const response = await requestUrl({
 			throw: false,
-			method: "GET",
+			method: "POST",
 			url:`${this.host}/detect`,
 			body: JSON.stringify({ q: text }),
 			headers: {"Content-Type": "application/json"}
@@ -48,7 +48,10 @@ export class LibreTranslate extends DummyTranslate {
 		if (response.status !== 200)
 			throw Error(data.error);
 
-		return [{language: data[0].language, confidence: data[0].confidence/100}];
+		return {
+			status_code: response.status,
+			detected_languages: response.status === 200 ? [{language: data[0].language, confidence: data[0].confidence/100}] : undefined
+		};
 	}
 
 	async service_translate(text: string, from: string, to: string): Promise<TranslationResult> {

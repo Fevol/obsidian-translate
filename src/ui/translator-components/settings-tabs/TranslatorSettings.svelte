@@ -172,8 +172,8 @@
 			<b>WARNING:</b> {info.display_name} has not been tested, so it is very likely that it does not work properly.<br><br>
 			If you encounter any issue, please open an issue over on
 				<a href={`https://github.com/Fevol/obsidian-translate/issues/new?` + new URLSearchParams({
-					title: `[BUG] ${info.display_name} –`,
-					body: `# User report\n**Description:** \n\n\n\n---\n# Debugger data (do not alter)\n${Array.from(Object.entries({
+					title: `[BUG] ${info.display_name} – ADD A TITLE HERE`,
+					body: `# User report\n**Description:** ADD A SHORT DESCRIPTION HERE \n\n\n\n---\n# Debugger data (do not alter)\n${Array.from(Object.entries({
 						service_version: $settings.service_settings[service].version,
 						obsidian_version: navigator.userAgent.match(/obsidian\/([\d\.]+\d+)/)?.[1] || "unknown",
 						platform: Platform.isMobileApp ? (Platform.isAndroidApp ? 'Android' : Platform.isIosApp ? 'iOS' : 'mobile') :

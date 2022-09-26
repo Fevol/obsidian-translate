@@ -59,7 +59,7 @@ export class BergamotTranslate extends DummyTranslate {
 		return {valid: this.translator != null};
 	}
 
-	async service_detect(text: string): Promise<Array<DetectionResult>> {
+	async service_detect(text: string): Promise<DetectionResult> {
 		return this.detector.detect(text);
 	}
 

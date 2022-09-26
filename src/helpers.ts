@@ -82,23 +82,18 @@ export async function detect_selection(plugin: TranslatorPlugin, editor: Editor)
 	else
 		results = await plugin.translator.detect(selection);
 
-	results = results.sort((a, b) => {
+	const detected_languages = results.detected_languages.sort((a, b) => {
 		return b.confidence - a.confidence;
 	});
 
-	let main = results.shift();
+	if (results.message)
+		new Notice(results.message, 4000);
 
-	if (main.message)
-		new Notice(main.message, 4000);
-
-	if (main.language) {
-		let alternatives = results.map((result) => {
+	if (detected_languages) {
+		let alternatives = detected_languages.map((result) => {
 			return `${t(result.language)}` + (result.confidence !== undefined ? ` [${(result.confidence * 100).toFixed(2)}%]` : '');
-		}).join("\n\t");
+		});
 
-		alternatives = (alternatives ? "\nAlternatives:\n\t" : "") + alternatives;
-
-		new Notice(`Detected language:\n\t${t(main.language)}` +
-			(main.confidence !== undefined ? ` [${(main.confidence * 100).toFixed(2)}%]` : '') + alternatives, 0);
+		new Notice(`Detected languages:\n\t${alternatives.join('\n\t')}`, 0);
 	}
 }

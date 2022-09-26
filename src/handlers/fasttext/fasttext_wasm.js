@@ -1,4 +1,5 @@
 import {get} from "svelte/store";
+import {settings} from "../../stores";
 
 var FastTextModule = (function () {
 	var _scriptDir = import.meta.url;
@@ -1983,9 +1984,9 @@ var FastTextModule = (function () {
 
 						// TODO: Get access to app.vault and plugin.manifest here!
 						await app.plugins.loadManifests();
-						let settings = get(app.plugins.plugins['obsidian-translate'].settings)
+						let settings_data = get(settings)
 
-						let path = `.obsidian/${settings.storage_path}/fasttext/fasttext_wasm.wasm`;
+						let path = `.obsidian/${settings_data.storage_path}/fasttext/fasttext_wasm.wasm`;
 
 						if (!await app.vault.adapter.exists(path))
 							abort('Could not find fasttext_wasm.wasm in the vault');
