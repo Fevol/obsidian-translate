@@ -5,7 +5,7 @@
 	export let icon: string = '';
 	export let tooltip: string;
 	export let size: number = 16;
-	export let onClick: () => void;
+	export let onClick: () => void = () => {};
 
 </script>
 

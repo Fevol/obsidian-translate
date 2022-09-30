@@ -14,6 +14,7 @@ import Icon from "./Icon.svelte";
 import ToggleButton from "./ToggleButton.svelte";
 import ButtonList from "./ButtonList.svelte";
 import ValidateInput from "./ValidateInput.svelte";
+import DragAndDrop from "./DragAndDrop.svelte";
 
 // -----------------------------------------------------------------
 
@@ -32,4 +33,5 @@ export {
 	ButtonList,
 	ValidateInput,
 	Slider,
+	DragAndDrop,
 }

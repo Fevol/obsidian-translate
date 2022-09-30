@@ -12,11 +12,12 @@ import {get} from "svelte/store";
 
 
 import {TRANSLATOR_VIEW_ID, SERVICES_INFO} from "./constants";
+import {ViewAppearanceModalView} from "./ui/modals";
 
 
 export class TranslatorView extends ItemView {
 	plugin: TranslatorPlugin;
-	private view: SvelteComponent;
+	view: SvelteComponent;
 
 	language_from: string;
 	language_to: string;
@@ -36,7 +37,14 @@ export class TranslatorView extends ItemView {
 			setIcon(this.leaf.tabHeaderInnerIconEl, value);
 			// @ts-ignore (tabHeaderInnerTitleEl exists)
 			this.leaf.tabHeaderInnerTitleEl.innerText = SERVICES_INFO[value]?.display_name || 'Translator';
-		})
+			// @ts-ignore (headerEl exists)
+			this.leaf.view.headerEl.children[2].children[1].innerText = SERVICES_INFO[value]?.display_name || 'Translator';
+		});
+
+
+		this.addAction('palette', "Change the view's appearance", () => {
+			new ViewAppearanceModalView(app, this).open();
+		});
 	}
 
 	getViewType() {
@@ -85,7 +93,9 @@ export class TranslatorView extends ItemView {
 		state.auto_translate = this.view.$$.ctx[this.view.$$.props.auto_translate];
 		state.view_mode = this.view.$$.ctx[this.view.$$.props.view_mode];
 		state.filter_mode = this.view.$$.ctx[this.view.$$.props.filter_mode];
-
+		state.show_attribution = this.view.$$.ctx[this.view.$$.props.show_attribution];
+		state.left_buttons = this.view.$$.ctx[this.view.$$.props.left_buttons];
+		state.right_buttons = this.view.$$.ctx[this.view.$$.props.right_buttons];
 		return state;
 	}
 
@@ -102,6 +112,9 @@ export class TranslatorView extends ItemView {
 			auto_translate: state.auto_translate || false,
 			view_mode: state.view_mode || 0,
 			filter_mode: state.filter_mode || 0,
+			show_attribution: state.show_attribution && true,
+			left_buttons: state.left_buttons || [],
+			right_buttons: state.right_buttons || [],
 		});
 
 		await super.setState(state, result);

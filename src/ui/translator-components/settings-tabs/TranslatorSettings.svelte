@@ -511,7 +511,7 @@
 	type="text"
 	notices={
 		service === 'bergamot' ? [] :
-		[{text: "⚠ May quickly use up the character quota for the service", style: 'warning-text'}]
+		[{text: "⚠ May result in the character quota of the service to be used up more quickly", style: 'warning-text'}]
 	}
 >
 	<Toggle

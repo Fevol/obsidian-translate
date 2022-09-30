@@ -33,6 +33,7 @@
 		"jsnpm": "^0.4.1",
 		"obsidian": "latest",
 		"svelte": "^3.49.0",
+		"svelte-dnd-action": "^0.9.20",
 		"svelte-preprocess": "^4.10.7",
 		"ts-jest": "^28.0.8",
 		"tslib": "2.3.1",

@@ -51,6 +51,7 @@
 	</div>
 	<slot name="control"/>
 </div>
+<slot name="subcontrol"/>
 
 <style lang="scss">
 	/* FIXME: Please, please, PLEASE fix this; this breaks all custom styles

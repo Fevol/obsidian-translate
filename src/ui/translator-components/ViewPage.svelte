@@ -16,6 +16,7 @@
 
 	import {Scope, Platform} from "obsidian";
 	import t from "../../l10n";
+	import Button from "../components/Button.svelte";
 
 	export let plugin: TranslatorPlugin;
 
@@ -27,6 +28,37 @@
 	export let auto_translate: boolean;
 	export let view_mode: number;
 	export let filter_mode: number;
+	export let show_attribution: boolean;
+	export let left_buttons: any[];
+	export let right_buttons: any[];
+
+	const left_button_actions = {
+		'copy': () => {
+			navigator.clipboard.writeText(text_from);
+		},
+		'paste': () => {
+			navigator.clipboard.readText().then((clipboard_contents) => {
+				text_from = clipboard_contents;
+			});
+		},
+		'clear': () => {
+			text_from = '';
+		},
+	}
+
+	const right_button_actions = {
+		'copy': () => {
+			navigator.clipboard.writeText(text_to);
+		},
+		'paste': () => {
+			navigator.clipboard.readText().then((clipboard_contents) => {
+				text_to = clipboard_contents;
+			});
+		},
+		'clear': () => {
+			text_to = '';
+		},
+	}
 
 	const services = SERVICES_INFO;
 	let current_layout = "vertical";
@@ -59,7 +91,8 @@
 	$: fasttext_models_observer = $data.models?.fasttext;
 	$: autodetect_capability = fasttext_models_observer;
 
-	$: language_from, language_to, $translation_service, auto_translate, view_mode, filter_mode, app.workspace.requestSaveLayout();
+	$: language_from, language_to, $translation_service, auto_translate, view_mode, filter_mode, show_attribution,
+		left_buttons, right_buttons, app.workspace.requestSaveLayout();
 
 	function updateAvailableLanguages() {
 		if ($translation_service === 'bergamot') {
@@ -148,7 +181,7 @@
 				new_layout = "horizontal";
 			else if (width_ratio > 1.2)
 				new_layout = "mixed";
-			else if (width_ratio < 1.19)
+			else
 				new_layout = "vertical";
 			current_layout = new_layout;
 		}
@@ -221,23 +254,32 @@
 					detected_language = undefined;
 				}}
 			/>
-			<TextArea
-				placeholder="Type here..."
-				class="translator-textarea"
-				text={text_from}
-				typingdelay={auto_translate && $settings.service_settings[$translation_service]?.auto_translate_interval}
-				onChange={async (e) => {
-					text_from = e.target.value;
-					if (!text_from) {
-						text_to = "";
-						detected_language = undefined;
-					} else if (auto_translate) {
-						await translate();
-					}
-				}}
-			/>
+			<div class="translator-textarea-column">
+				<TextArea
+					placeholder="Type here..."
+					class="translator-textarea"
+					text={text_from}
+					typingdelay={auto_translate && $settings.service_settings[$translation_service]?.auto_translate_interval}
+					onChange={async (e) => {
+						text_from = e.target.value;
+						if (!text_from) {
+							text_to = "";
+							detected_language = undefined;
+						} else if (auto_translate) {
+							await translate();
+						}
+					}}
+				/>
+				{#if left_buttons?.length}
+					<div class="translator-textarea-quickbuttons">
+						{#each left_buttons as quick_button}
+							<Button class="rounded-translator-button" icon={quick_button.icon} tooltip={quick_button.text}
+									size="16" onClick={() => left_button_actions[quick_button.id]()}/>
+						{/each}
+					</div>
+				{/if}
+			</div>
 		</div>
-
 
 		<div class="translator-button-container translator-center-column">
 			<button class="translator-button" aria-label="Switch languages around"
@@ -263,7 +305,7 @@
 
 			{#if !auto_translate}
 				<button transition:horizontalSlide={{ duration: 300 }} class="translator-button"
-						on:click={async () => {await translate();}} aria-label="Translate">
+						on:click={async () => {await translate();}} aria-label="Translate [CMD + Enter]">
 					<Icon icon=translate size={20}/>
 				</button>
 			{/if}
@@ -277,18 +319,28 @@
 				value={language_to}
 				options={selectable_languages}
 				onChange={(e) => {
-			language_to = e.target.value;
-		}}
+					language_to = e.target.value;
+				}}
 			/>
-			<TextArea
-				placeholder="Translation"
-				class="translator-textarea"
-				text={text_to}
-				readonly={true}
-			/>
+			<div class="translator-textarea-column">
+				<TextArea
+					placeholder="Translation"
+					class="translator-textarea"
+					text={text_to}
+					readonly={true}
+				/>
+				{#if right_buttons?.length}
+					<div class="translator-textarea-quickbuttons">
+						{#each right_buttons as quick_button}
+							<Button class="rounded-translator-button" icon={quick_button.icon} tooltip={quick_button.text}
+									size="16" onClick={() => right_button_actions[quick_button.id]()}/>
+						{/each}
+					</div>
+				{/if}
+			</div>
 		</div>
 
-		{#if !$settings.hide_attribution}
+		{#if show_attribution}
 			<div class="translator-attribution-column">
 				<div class="translator-attribution-column-text">
 					Using
@@ -314,99 +366,3 @@
 		{/if}
 	</div>
 </View>
-
-<style class="scss">
-	.translator-view {
-		display: grid;
-		/*margin: var(--size-4-2);*/
-		flex-grow: 1;
-		gap: 16px;
-	}
-
-	.translator-column {
-		display: flex;
-		flex-direction: column;
-		flex: 1;
-	}
-
-	.translator-column > * {
-		width: 0;
-	}
-
-
-	.translator-select {
-		width: auto;
-	}
-
-	.translator-left-column {
-		grid-area: left;
-	}
-
-	.translator-center-column {
-		grid-area: center;
-	}
-
-	.translator-right-column {
-		grid-area: right;
-	}
-
-	.translator-attribution-column {
-		grid-area: bottom;
-		justify-content: space-between;
-		display: flex;
-		overflow: hidden;
-
-		flex-flow: row wrap;
-		height: calc(var(--font-text-size)*1.5);
-	}
-
-	.translator-attribution-column-text {
-		display: flex;
-		flex-direction: row;
-		gap: 4px;
-		align-items:start;
-
-		min-width: 0;
-		white-space: nowrap;
-		overflow: hidden;
-		text-overflow: ellipsis;
-	}
-
-	.translator-column {
-		display: flex;
-		flex-direction: column;
-		flex: 1;
-		gap: 8px;
-		/* Prevents grid taking up more space than necessary */
-		min-width: 0;
-	}
-
-	.translator-button-container {
-		display: flex;
-		justify-content: center;
-		align-items: center;
-		gap: 8px;
-	}
-
-	.translator-service-text {
-		text-transform: capitalize;
-		font-style: italic;
-	}
-
-	.vertical {
-		grid-template-rows: 1fr auto 1fr auto;
-		grid-template-areas: "left" "center" "right" "bottom";
-	}
-
-	.mixed {
-		grid-template-columns: 1fr 1fr;
-		grid-template-rows: 1fr auto auto;
-		grid-template-areas: "left right" "center center" "bottom bottom";
-	}
-
-	.horizontal {
-		grid-template-columns: 1fr auto 1fr;
-		grid-template-rows: 1fr auto;
-		grid-template-areas: "left center right" "bottom bottom bottom";
-	}
-</style>
