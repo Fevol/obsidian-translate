@@ -172,7 +172,7 @@ export default class TranslatorPlugin extends Plugin {
 			},
 			{
 				id: "translator-selection",
-				name: "Selection to selected language",
+				name: "Translate selection to selected language",
 				icon: "translate-selection-filled",
 				editor_context: true,
 				func: () => {new TranslateModal(this.app, this, "selection").open()}
