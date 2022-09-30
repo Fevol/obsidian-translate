@@ -216,6 +216,8 @@ export default class TranslatorPlugin extends Plugin {
 										const loaded_settings = get(settings);
 										if (loaded_settings.default_target_language && plugin_data.available_languages.includes(loaded_settings.default_target_language))
 											await translate_selection(this, editor, loaded_settings.default_target_language);
+										else if (plugin_data.available_languages.includes(this.current_language))
+											await translate_selection(this, editor, this.current_language);
 										else
 											return false;
 									}
