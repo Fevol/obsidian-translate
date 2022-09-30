@@ -62,7 +62,7 @@ export class FastTextDetector extends DummyTranslate {
 
 		for (let i = 0; i < predictions.size(); i++)
 			results.push({language: predictions.get(i)[1].replace("__label__", ""), confidence: predictions.get(i)[0]});
-		return {detected_languages: results};
+		return { status_code: 200, detected_languages: results};
 	}
 
 	has_autodetect_capability(): boolean {

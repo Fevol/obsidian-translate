@@ -71,9 +71,9 @@ export class BergamotTranslate extends DummyTranslate {
 				if (detected_language && detected_language !== 'auto')
 					from = detected_language;
 				else
-					return {message: "Could not detect language"};
+					return {status_code: 400, message: "Could not detect language"};
 			} else {
-				return {message: "Automatic language detection is not supported"};
+				return {status_code: 400, message: "Automatic language detection is not supported"};
 			}
 		}
 		if (from === to) {
@@ -81,11 +81,11 @@ export class BergamotTranslate extends DummyTranslate {
 		}
 
 		if (!this.available_languages.includes(from))
-			return {message: `${t(from)} is not installed as a language model`};
+			return {status_code: 400, message: `${t(from)} is not installed as a language model`};
 		if (!this.available_languages.includes(to))
-			return {message: `${t(to)} is not installed as a language model`};
+			return {status_code: 400, message: `${t(to)} is not installed as a language model`};
 
-		return {translation: await this.translator.translate(text, from, to), detected_language: detected_language};
+		return {status_code: 200, translation: await this.translator.translate(text, from, to), detected_language: detected_language};
 	}
 
 	async service_languages(): Promise<LanguagesFetchResult> {
@@ -129,7 +129,7 @@ export class BergamotTranslate extends DummyTranslate {
 					dev: registry[`en${x}`].lex.modelType === 'dev',
 			};
 		});
-		return {languages: mapped_languages, data: version};
+		return { status_code: 200, languages: mapped_languages, data: version};
 	}
 
 	has_autodetect_capability(): boolean {
