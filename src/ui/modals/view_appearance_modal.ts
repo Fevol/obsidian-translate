@@ -31,17 +31,19 @@ export default class ViewAppearanceModal extends Modal {
 			props: state,
 		});
 		this.view.$on("close", async (e) => {
-			e.detail.left_buttons = e.detail.left_buttons.map((button: any) => {
-				button.id = button.id.split("_")[0];
-				return button;
-			})
-			e.detail.right_buttons = e.detail.right_buttons.map((button: any) => {
-				button.id = button.id.split("_")[0];
-				return button;
-			});
+			if (e.detail) {
+				e.detail.left_buttons = e.detail.left_buttons.map((button: any) => {
+					button.id = button.id.split("_")[0];
+					return button;
+				})
+				e.detail.right_buttons = e.detail.right_buttons.map((button: any) => {
+					button.id = button.id.split("_")[0];
+					return button;
+				});
 
+				await this.translator_view.setState(Object.assign(state, e.detail), {});
+			}
 
-			await this.translator_view.setState(Object.assign(state, e.detail), {});
 			super.close();
 		});
 
