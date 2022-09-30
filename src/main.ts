@@ -210,9 +210,16 @@ export default class TranslatorPlugin extends Plugin {
 							item.setTitle("Translate")
 								.setIcon("translate")
 								.setDisabled(!this.translator.valid || !editor.getSelection())
-								// .onClick(async () => {
-								// 	// Keep the dropdown open
-								// })
+								.onClick(async (e) => {
+									// @ts-ignore (e.target exists)
+									if (e.target.className !== "menu-item") {
+										const loaded_settings = get(settings);
+										if (loaded_settings.default_target_language && plugin_data.available_languages.includes(loaded_settings.default_target_language))
+											await translate_selection(this, editor, loaded_settings.default_target_language);
+										else
+											return false;
+									}
+								})
 								.setSection("translate")
 
 							const element = (item as any).dom as HTMLElement;

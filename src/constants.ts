@@ -1,4 +1,5 @@
 import type {PluginData, TranslatorPluginSettings} from "./types";
+import {moment} from "obsidian";
 
 // Add list of icons
 export const ICONS = {
@@ -43,8 +44,8 @@ export const DEFAULT_SETTINGS: TranslatorPluginSettings = {
 	switch_button_action: 'switch-both',
 	enable_animations: true,
 	hide_attribution: false,
-	default_source_language: '',
-	default_target_language: '',
+	default_source_language: 'auto',
+	default_target_language: moment.locale(),
 	service_settings: {
 		fasttext: {
 			default_usage: false,
