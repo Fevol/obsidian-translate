@@ -284,13 +284,19 @@ export default class TranslatorPlugin extends Plugin {
 	}
 
 	async activateTranslatorView() {
+		const loaded_settings = get(settings);
+		const translation_service: string = loaded_settings.translation_service;
+		// const available_languages = (loaded_settings.service_settings[translation_service as keyof APIServiceProviders] as APIServiceSettings).available_languages;
+
 		const view_state = {
 			type: TRANSLATOR_VIEW_ID,
 			active: true,
 			state: {
-				language_from: 'auto',
-				language_to: this.current_language,
-				translation_service: get(settings).translation_service,
+				// language_from: available_languages.includes(loaded_settings.default_source_language) ? loaded_settings.default_source_language : 'auto',
+				// language_to: available_languages.includes(loaded_settings.default_source_language) ? loaded_settings.default_source_language : this.current_language,
+				language_from: loaded_settings.default_source_language || 'auto',
+				language_to: loaded_settings.default_target_language || this.current_language,
+				translation_service: translation_service,
 			}
 		};
 

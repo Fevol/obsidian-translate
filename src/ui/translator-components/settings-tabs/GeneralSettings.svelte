@@ -124,22 +124,6 @@
 </SettingItem>
 
 <SettingItem
-	name="Switch button action"
-	description="Choose what action will be executed on pressing the language switch button"
-	type="dropdown"
->
-	<Dropdown
-		slot="control"
-		options={[{"value": "switch-both", "text": "Switch language and text"}, {"value": "switch-text", "text": "Switch text"}, {"value": "switch-language", "text": "Switch languages"}]}
-		value={ $settings.switch_button_action }
-		onChange={(e) => {
-			$settings.switch_button_action = e.target.value;
-		}}
-	>
-	</Dropdown>
-</SettingItem>
-
-<SettingItem
 	name="Security settings for authentication data"
 	description="Determine how API keys will be stored on the device"
 	type="dropdown"

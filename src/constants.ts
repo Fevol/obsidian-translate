@@ -43,6 +43,8 @@ export const DEFAULT_SETTINGS: TranslatorPluginSettings = {
 	switch_button_action: 'switch-both',
 	enable_animations: true,
 	hide_attribution: false,
+	default_source_language: '',
+	default_target_language: '',
 	service_settings: {
 		fasttext: {
 			default_usage: false,
@@ -960,7 +962,7 @@ export const SECURITY_MODES = [
 	{ value: 'none', text: 'Plaintext (no security)', info: "API keys are currently stored as plaintext strings in data.json" },
 	{ value: 'password', text: 'Encrypt with password', info: "API keys are currently stored as encrypted strings in data.json" },
 	{ value: 'local_only', text: 'Stored in local storage', info: "API keys will not be saved to data.json, keys are only stored locally" },
-	{ value: 'dont_save', text: "Stored for single session", info: "API keys will be cleared if Obsidian is closed" },
+	{ value: 'dont_save', text: "Stored for single session", info: "API keys will be cleared when Obsidian is closed" },
 ]
 
 export const TRANSLATOR_VIEW_ID = "translator-view";
@@ -971,6 +973,11 @@ export let SETTINGS_TABS = [
 		id: 'general',
 		name: 'General',
 		icon: 'settings',
+	},
+	{
+		id: 'functionality',
+		name: 'Functionality',
+		icon: 'wrench',
 	},
 	{
 		id: 'appearance',

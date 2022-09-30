@@ -75,7 +75,7 @@
 			name="Quick actions"
 			description="Allow you to quickly execute actions on the respective text areas"
 			notices={[
-				{ text: "ⓘ Add <b>quick actions</b> to the view by dragging and dropping <b style='color: var(--color-green)'>green actions</b> to one of the two <b style='color: var(--color-accent)'>designated areas</b>. Actions can be removed by dragging them to the <b style='color: var(--color-red)'>red area</b>.", type: "info" },
+				{ text: "ⓘ Add <b>quick actions</b> to the view by dragging and dropping <b style='color: var(--color-green)'>green actions</b> to one of the two <b style='color: var(--color-accent)'>designated areas</b>. Actions can be removed by dragging them to the <b style='color: var(--color-red)'>red area</b>.", type: "info-text" },
 			]}
 		>
 			<div class="translator-dnd-header" slot="subcontrol">

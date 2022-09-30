@@ -7,6 +7,8 @@ export interface TranslatorPluginSettings {
 	translation_service: string;
 	service_settings: APIServiceProviders;
 
+	default_source_language: string;
+	default_target_language: string;
 
 	enable_animations: boolean;
 	hide_attribution: boolean;

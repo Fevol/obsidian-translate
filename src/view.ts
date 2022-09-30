@@ -41,7 +41,6 @@ export class TranslatorView extends ItemView {
 			this.leaf.view.headerEl.children[2].children[1].innerText = SERVICES_INFO[value]?.display_name || 'Translator';
 		});
 
-
 		this.addAction('palette', "Change the view's appearance", () => {
 			new ViewAppearanceModalView(app, this).open();
 		});
@@ -63,7 +62,6 @@ export class TranslatorView extends ItemView {
 	async onOpen() {
 		// @ts-ignore (Leaf always has ID)
 		this.contentEl.id = this.leaf.id;
-
 		this.view = new ViewPage({
 			target: this.contentEl,
 			props: {
@@ -79,14 +77,12 @@ export class TranslatorView extends ItemView {
 				filter_mode: this.filter_mode,
 			}
 		});
-
 		this.contentEl.style.display = "flex";
 		this.contentEl.style.flexDirection = "column";
 	}
 
 	getState(): any {
 		let state = super.getState();
-
 		state.language_from = this.view.$$.ctx[this.view.$$.props.language_from];
 		state.language_to = this.view.$$.ctx[this.view.$$.props.language_to];
 		state.translation_service = get(this.translation_service);
@@ -104,15 +100,16 @@ export class TranslatorView extends ItemView {
 	}
 
 	async setState(state: any, result: ViewStateResult): Promise<void> {
-		this.translation_service.set(state.translation_service || get(settings).translation_service);
+		const current_settings = get(settings);
 
+		this.translation_service.set(state.translation_service || current_settings.translation_service);
 		this.view.$set({
-			language_from: state.language_from,
-			language_to: state.language_to,
+			language_from: state.language_from || current_settings.default_source_language,
+			language_to: state.language_to || current_settings.default_target_language,
 			auto_translate: state.auto_translate || false,
 			view_mode: state.view_mode || 0,
 			filter_mode: state.filter_mode || 0,
-			show_attribution: state.show_attribution && true,
+			show_attribution: state.show_attribution ? state.show_attribution : !current_settings.hide_attribution,
 			left_buttons: state.left_buttons || [],
 			right_buttons: state.right_buttons || [],
 		});
