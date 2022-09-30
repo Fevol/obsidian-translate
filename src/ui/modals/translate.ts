@@ -27,16 +27,15 @@ export default class TranslateModal extends FuzzySuggestModal<string>{
 		});
 
 		const filled_settings = get(settings);
-		if (filled_settings.default_target_language) {
-			let idx = this.options.findIndex(item => item.value === filled_settings.default_target_language);
-			if (idx !== -1)
-				this.options.unshift(this.options.splice(idx, 1)[0]);
-			else {
-				let idx = this.options.findIndex(item => item.value === plugin.current_language);
-				if (idx !== -1)
-					this.options.unshift(this.options.splice(idx, 1)[0]);
-			}
-		}
+		let idx = -1;
+		if (filled_settings.default_target_language)
+			idx = this.options.findIndex(item => item.value === filled_settings.default_target_language);
+		if (idx === -1)
+			idx = this.options.findIndex(item => item.value === plugin.current_language);
+		if (idx !== -1)
+			this.options.unshift(this.options.splice(idx, 1)[0]);
+
+
 
 		this.setPlaceholder("Translate to...");
 	}
