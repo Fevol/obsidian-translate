@@ -41,10 +41,23 @@ export default class TranslatorPlugin extends Plugin {
 	// Ensures that none of those annoying 'Translation service is not validated' messages are shown while changing settings
 	settings_open: boolean = false;
 
+	synonym_manager: any;
+
+
 	// Limit queue to only run one message of translator plugin at a time (limitCount 0 means that none of the proceeding messages will be queued)
 	message_queue: ((...args: any[]) => void)
 
+	async getSynonyms(word: string) {
+		return this.synonym_manager.requestSynonyms(word);
+	}
+
 	async onload() {
+		app.workspace.onLayoutReady(async () => {
+			//@ts-ignore
+			this.synonym_manager =  app.plugins.plugins['obsidian-dictionary-plugin']?.manager;
+		});
+
+
 		this.current_language = this.fixLanguageCode(moment.locale());
 
 		// Set up message queue for the plugin, this rate limits the number of messages the plugin can send at the same time,

@@ -17,6 +17,8 @@
 	import {Scope, Platform} from "obsidian";
 	import t from "../../l10n";
 	import Button from "../components/Button.svelte";
+	import {regexIndexOf, regexLastIndexOf, removePunctuation} from "../../util";
+	import {SynonymContextMenu} from "./index";
 
 	export let plugin: TranslatorPlugin;
 
@@ -323,12 +325,67 @@
 				}}
 			/>
 			<div class="translator-textarea-column">
-				<TextArea
+				<textarea
 					placeholder="Translation"
 					class="translator-textarea"
-					text={text_to}
-					readonly={true}
-				/>
+					value={text_to}
+					on:click={async (e) => {
+						let cursor_position = e.target.selectionStart;
+						let left_word_boundary = regexLastIndexOf(text_to, /\p{Zs}/gu, cursor_position) + 1;
+						let right_word_boundary = regexIndexOf(text_to, /\p{Zs}/gu, cursor_position);
+						if (right_word_boundary === -1) right_word_boundary = text_to.length;
+						let word = removePunctuation(text_to.substring(left_word_boundary, right_word_boundary));
+						if (word) {
+							let synonyms = await plugin.getSynonyms(word);
+							synonyms = synonyms.map(synonym => { return synonym.word; });
+							//let synonyms = ["test", "test2"];
+							if (synonyms.length) {
+								// FIXME: Phew, this is going to be a long one:
+								// You **cannot** get the position of the caret in a textarea in pixels, due to a
+								// limitation with `document.getSelection().getRangeAt(0)`, this function does *not*
+								// work with inputs and textareas. There are libraries available that 'emulate' the
+								// caret position, but these did not work.
+								// So the only reasonable solution is to use the click position
+								let coords = {
+									bottom: e.clientY + 15,
+									left: e.clientX,
+									top: e.clientY,
+								}
+								let context_menu = new SynonymContextMenu({
+									target: document.body,
+									props: {
+										coords: coords,
+										synonyms: synonyms,
+										onSelect: (selection) => {
+											// FIXME: Editing history is not preserved when changing the value
+											let new_text_to = text_to.substring(0, left_word_boundary) + selection + text_to.substring(right_word_boundary);
+
+											// I have no idea how this twisted piece of code does what it does,
+											// ...but it does work.
+											// Regardless, I *will not* be using this
+											document.execCommand('selectAll',false);
+											let el = document.createElement('p');
+											el.innerText = new_text_to;
+											document.execCommand('insertHTML',false,el.innerHTML);
+
+											context_menu.$destroy();
+										},
+										onClickOutside: () => {
+											context_menu.$destroy();
+										}
+									}
+								});
+							}
+						}
+
+					}}
+					></textarea>
+<!--				<TextArea-->
+<!--					placeholder="Translation"-->
+<!--					class="translator-textarea"-->
+<!--					text={text_to}-->
+<!--					readonly={true}-->
+<!--				/>-->
 				{#if right_buttons?.length}
 					<div class="translator-textarea-quickbuttons">
 						{#each right_buttons as quick_button}
