@@ -31,7 +31,12 @@ function array_cmp(a1: Array<any>, a2: Array<any>) {
 	return true
 }
 
-export function regexLastIndexOf(searchString: string, position: number, regex: RegExp) {
+export function regexIndexOf(searchString: string, regex: RegExp, position?: number) {
+	const  indexOf = searchString.substring(position || 0).search(regex);
+	return (indexOf >= 0) ? (indexOf + (position || 0)) : indexOf;
+}
+
+export function regexLastIndexOf(searchString: string, regex: RegExp, position?: number) {
 	regex = regex.global ? regex : new RegExp(regex.source, "g" + (regex.ignoreCase ? "i" : "") + (regex.multiline ? "m" : ""));
 	if (position == null)
 		position = searchString.length;
@@ -47,6 +52,10 @@ export function regexLastIndexOf(searchString: string, position: number, regex: 
 		regex.lastIndex = ++nextStop;
 	}
 	return lastIndexOf;
+}
+
+export function removePunctuation(str: string) {
+	return str.replace(/\p{P}/gu, "");
 }
 
 

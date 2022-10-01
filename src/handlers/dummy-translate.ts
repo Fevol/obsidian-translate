@@ -119,7 +119,7 @@ export class DummyTranslate {
 					if (idx + this.character_limit >= text.length)
 						r_idx = Infinity;
 					else {
-						r_idx = regexLastIndexOf(text, idx + this.character_limit, /\p{Zs}/gu);
+						r_idx = regexLastIndexOf(text, /\p{Zs}/gu, idx + this.character_limit);
 						if (r_idx === -1 || r_idx < idx)
 							r_idx = idx + this.character_limit;
 					}
