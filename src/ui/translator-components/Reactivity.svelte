@@ -200,10 +200,8 @@
 
 
 	$: {
-		if (Object.keys(model_observer).length) {
-			// @ts-ignore (Undocumented API method)
+		if (Object.keys(model_observer).length)
 			app.saveLocalStorage('models', JSON.stringify(model_observer));
-		}
 	}
 
 	function updateSpellcheckerLanguages() {
@@ -213,17 +211,14 @@
 	}
 
 	onMount(async () => {
-		// @ts-ignore (Config exists in vault)
 		if (app.vault.config.spellcheckLanguages)
 			$data.spellchecker_languages = [...new Set(app.vault.config.spellcheckLanguages.map(x => x.split('-')[0]))]
 		else
-			// Mobile (iOS and Android) do not have the
+			// Mobile (iOS and Android) do not have spellchecker languages available (assume display language)
 			$data.spellchecker_languages = [plugin.current_language];
 
 		// This is not an ideal solution, as config-changed gets called quite a bit
-		//@ts-ignore (config-changed event exists)
-		plugin.registerEvent(app.vault.on('config-changed', (e: any) => {
-			// @ts-ignore (Config exists in vault)
+		plugin.registerEvent(app.vault.on('config-changed', () => {
 			if (app.vault.config.spellcheckLanguages) {
 				updateSpellcheckerLanguages();
 				if ($settings.filter_mode === "1")

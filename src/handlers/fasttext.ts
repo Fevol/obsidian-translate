@@ -27,7 +27,6 @@ export class FastTextDetector extends DummyTranslate {
 						this.valid = false;
 						this.plugin.message_queue(ft.message.match(/\(([^)]+)\)/)[0].slice(1, -1));
 					} else {
-						// @ts-ignore
 						ft.loadModel(Object.values(available_models.models)[0].name).then((model: FastTextModel) => {
 							this.detector = model;
 							this.validate().then((x) => {

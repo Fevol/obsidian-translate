@@ -49,6 +49,7 @@ export const DEFAULT_SETTINGS: TranslatorPluginSettings = {
 	service_settings: {
 		fasttext: {
 			default_usage: false,
+			version: "1.0.0",
 		},
 		google_translate: {
 			selected_languages: [],

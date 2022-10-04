@@ -55,9 +55,7 @@ export default class TranslatorPlugin extends Plugin {
 		});
 
 		data.set(Object.assign({}, DEFAULT_DATA,  {
-			// @ts-ignore (Undocumented API method)
 			models:  JSON.parse(app.loadLocalStorage('models')) || {},
-			// @ts-ignore (Undocumented API method)
 			password: app.loadLocalStorage('password') || '',
 		}));
 
@@ -84,8 +82,7 @@ export default class TranslatorPlugin extends Plugin {
 		//    the 'update languages' button in the settings (and thus fetch a more recent version than default);
 		//    these settings may not be overwritten by the plugin
 		for (const [key, value] of Object.entries(loaded_settings.service_settings as APIServiceProviders)) {
-			// @ts-ignore (key is also keyof service_settings)
-			if (value.version < DEFAULT_SETTINGS.service_settings[key].version) {
+			if (value.version < DEFAULT_SETTINGS.service_settings[key as keyof APIServiceProviders].version) {
 				// @ts-ignore (because this should never crash, and can't get add keyof APIServiceProvider to LHS)
 				loaded_settings.service_settings[key].available_languages = DEFAULT_SETTINGS.service_settings[key].available_languages;
 				// @ts-ignore (idem)
@@ -257,27 +254,19 @@ export default class TranslatorPlugin extends Plugin {
 								await detect_selection(this, editor);
 							});
 
-						if (requireApiVersion("0.15.3"))
-							item.setSection("translate")
+						item.setSection("translate")
 					});
 				}
 			})
 		);
 
-
-
-		//@ts-ignore
 		this.uninstall = around(app.plugins, {
-			// @ts-expect-error, not typed
 			uninstallPlugin: (oldMethod) => {
 				return async (...args: string[]) => {
 					const var_settings = get(settings);
-					// @ts-ignore (app.plugins exists)
 					const result = oldMethod && oldMethod.apply(app.plugins, args);
 					if (args[0] === 'obsidian-translate') {
-						// @ts-ignore (app.appId exists)
 						localStorage.removeItem(`${app.appId}-password`);
-						// @ts-ignore (app.appId exists)
 						localStorage.removeItem(`${app.appId}-models`);
 						if (await app.vault.adapter.exists(`.obsidian/${var_settings.storage_path}`))
 							await app.vault.adapter.rmdir(`.obsidian/${var_settings.storage_path}`, true);

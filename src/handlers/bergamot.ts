@@ -76,9 +76,9 @@ export class BergamotTranslate extends DummyTranslate {
 				return {status_code: 400, message: "Automatic language detection is not supported"};
 			}
 		}
-		if (from === to) {
-			return {translation: text, detected_language: from};
-		}
+
+		if (from === to)
+			return {status_code: 200, translation: text, detected_language: from};
 
 		if (!this.available_languages.includes(from))
 			return {status_code: 400, message: `${t(from)} is not installed as a language model`};

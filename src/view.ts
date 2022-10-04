@@ -33,11 +33,9 @@ export class TranslatorView extends ItemView {
 		super(leaf);
 		this.plugin = plugin;
 		this.translation_service.subscribe((value) => {
-			// @ts-ignore (tabHeaderInnerIconEl exists)
 			setIcon(this.leaf.tabHeaderInnerIconEl, value);
-			// @ts-ignore (tabHeaderInnerTitleEl exists)
 			this.leaf.tabHeaderInnerTitleEl.innerText = SERVICES_INFO[value]?.display_name || 'Translator';
-			// @ts-ignore (headerEl exists)
+			// @ts-ignore (Child always has innerText)
 			this.leaf.view.headerEl.children[2].children[1].innerText = SERVICES_INFO[value]?.display_name || 'Translator';
 		});
 
@@ -60,7 +58,6 @@ export class TranslatorView extends ItemView {
 
 
 	async onOpen() {
-		// @ts-ignore (Leaf always has ID)
 		this.contentEl.id = this.leaf.id;
 		this.view = new ViewPage({
 			target: this.contentEl,

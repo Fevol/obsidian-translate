@@ -87,6 +87,7 @@ export interface FileData {
 }
 
 export interface LanguageModelData {
+	name?: string;
 	locale?: string;
 	files?: Array<FileData>;
 	dev?: boolean;
@@ -106,6 +107,7 @@ export interface Models {
 
 export interface FastTextData {
 	default_usage: boolean;
+	version: string;
 }
 
 export interface TranslationResult {
