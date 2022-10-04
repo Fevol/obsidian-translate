@@ -109,7 +109,7 @@ export class TranslatorView extends ItemView {
 			auto_translate: state.auto_translate || false,
 			view_mode: state.view_mode || 0,
 			filter_mode: state.filter_mode || 0,
-			show_attribution: state.show_attribution ? state.show_attribution : !current_settings.hide_attribution,
+			show_attribution: state.show_attribution !== undefined ? state.show_attribution : true,
 			left_buttons: state.left_buttons || [],
 			right_buttons: state.right_buttons || [],
 		});
