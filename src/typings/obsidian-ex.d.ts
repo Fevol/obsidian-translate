@@ -50,6 +50,7 @@ declare module 'obsidian' {
 
 	interface View {
 		headerEl: HTMLElement;
+		titleEl: HTMLElement;
 	}
 
 	interface WorkspaceLeaf {

@@ -34,9 +34,13 @@ export class TranslatorView extends ItemView {
 		this.plugin = plugin;
 		this.translation_service.subscribe((value) => {
 			setIcon(this.leaf.tabHeaderInnerIconEl, value);
-			this.leaf.tabHeaderInnerTitleEl.innerText = SERVICES_INFO[value]?.display_name || 'Translator';
+
+			const title = SERVICES_INFO[value]?.display_name || 'Translator';
+
+			this.leaf.tabHeaderInnerTitleEl.innerText = title;
 			// @ts-ignore (Child always has innerText)
-			this.leaf.view.headerEl.children[2].children[1].innerText = SERVICES_INFO[value]?.display_name || 'Translator';
+			this.leaf.view.headerEl.children[2].children[1].innerText = title;
+			this.leaf.view.titleEl.innerText = title;
 		});
 
 		this.addAction('palette', "Change the view's appearance", () => {
