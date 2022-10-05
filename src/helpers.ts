@@ -82,18 +82,20 @@ export async function detect_selection(plugin: TranslatorPlugin, editor: Editor)
 	else
 		results = await plugin.translator.detect(selection);
 
-	const detected_languages = results.detected_languages.sort((a, b) => {
-		return b.confidence - a.confidence;
-	});
-
 	if (results.message)
 		new Notice(results.message, 4000);
 
-	if (detected_languages) {
-		let alternatives = detected_languages.map((result) => {
-			return `${t(result.language)}` + (result.confidence !== undefined ? ` [${(result.confidence * 100).toFixed(2)}%]` : '');
+	if (results.status_code === 200) {
+		const detected_languages = results.detected_languages.sort((a, b) => {
+			return b.confidence - a.confidence;
 		});
 
-		new Notice(`Detected languages:\n\t${alternatives.join('\n\t')}`, 0);
+		if (detected_languages) {
+			let alternatives = detected_languages.map((result) => {
+				return `${t(result.language)}` + (result.confidence !== undefined ? ` [${(result.confidence * 100).toFixed(2)}%]` : '');
+			});
+
+			new Notice(`Detected languages:\n\t${alternatives.join('\n\t')}`, 0);
+		}
 	}
 }
