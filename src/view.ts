@@ -1,4 +1,4 @@
-import {ItemView, setIcon, WorkspaceLeaf} from "obsidian";
+import {ItemView, Platform, setIcon, WorkspaceLeaf} from "obsidian";
 import type {ViewStateResult} from "obsidian";
 
 import type TranslatorPlugin from "./main";
@@ -36,10 +36,7 @@ export class TranslatorView extends ItemView {
 			setIcon(this.leaf.tabHeaderInnerIconEl, value);
 
 			const title = SERVICES_INFO[value]?.display_name || 'Translator';
-
 			this.leaf.tabHeaderInnerTitleEl.innerText = title;
-			// @ts-ignore (Child always has innerText)
-			this.leaf.view.headerEl.children[2].children[1].innerText = title;
 			this.leaf.view.titleEl.innerText = title;
 		});
 
