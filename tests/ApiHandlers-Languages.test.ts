@@ -33,6 +33,7 @@ if (filled_settings) {
 			describe("languages", () => {
 				test("languages", async () => {
 					let result = await translator.languages();
+					expect(result.status_code).toBe(200);
 					expect(result.languages.sort()).toEqual(service_settings.available_languages.sort());
 				});
 			});

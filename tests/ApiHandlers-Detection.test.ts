@@ -33,6 +33,7 @@ if (filled_settings) {
 			describe("detect", () => {
 				test("detect (Hello [en])", async () => {
 					let result = await translator.detect("Hello");
+					expect(result.status_code).toBe(200);
 					expect(result.detected_languages[0].language).toBe("en");
 				});
 			});

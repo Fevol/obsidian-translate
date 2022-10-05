@@ -54,7 +54,7 @@ export const services: Record<string, ServiceConfig> = {
 	"azure_translator": {
 		"service": AzureTranslator,
 		"inputs": ["api_key"],
-		"name": "Bing Translator"
+		"name": "Azure Translator"
 	},
 	// "dummy_translate": {
 	// 	"service": DummyTranslate,

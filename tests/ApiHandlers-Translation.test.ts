@@ -33,11 +33,13 @@ if (filled_settings) {
 			describe("translate", () => {
 				test("translate (Hello [en] --> Bonjour [fr])", async () => {
 					let result = await translator.translate("Hello", "auto", "fr");
+					expect(result.status_code).toBe(200);
 					expect(result.translation).toBe("Bonjour");
 				});
 
 				test("translate (Hello [auto] --> Bonjour [fr])", async () => {
 					let result = await translator.translate("Hello", "auto", "fr");
+					expect(result.status_code).toBe(200);
 					expect(result.translation).toBe("Bonjour");
 					expect(result.detected_language).toBe("en");
 				});

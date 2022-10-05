@@ -16,16 +16,14 @@ for (const [id, config] of Object.entries(services)) {
 		});
 
 		describe("validate", () => {
-			// @ts-ignore
 			if (config.inputs) {
-				// @ts-ignore
 				for (const input of config?.inputs) {
-					//@ts-ignore
 					test(`validate (${input} unset)`, async () => {
 						const result = await translator.validate();
+						expect(result.status_code).not.toBe(200);
 						expect(result.valid).toBe(false);
 						//@ts-ignore
-						expect(result.message).toBe(input_desc[input] + " was not specified");
+						expect(result.message).toBe(`Validation failed:\n\t${input_desc[input]} was not specified`);
 
 						//@ts-ignore
 						translator[input] = "wrong-value";
@@ -34,17 +32,20 @@ for (const [id, config] of Object.entries(services)) {
 
 				test("validate (wrong values)", async () => {
 					const result = await translator.validate();
+					expect(result.status_code).not.toBe(200);
 					expect(result.valid).toBe(false);
 					expect(result.message).toContain("Validation failed:\n");
 				});
 
 				if (service_settings) {
-					for (const setting of Object.values(input_desc)) {
-						// @ts-ignore
-						translator[setting] = service_settings[setting as keyof APIServiceSettings];
-					}
 					test("validate (correct values)", async () => {
+						for (const setting of Object.values(config.inputs)) {
+							// @ts-ignore
+							translator[setting] = service_settings[setting as keyof APIServiceSettings];
+						}
+
 						const result = await translator.validate();
+						expect(result.status_code).toBe(200);
 						expect(result.valid).toBe(true);
 					});
 				}
