@@ -16,7 +16,7 @@ export class YandexTranslate extends DummyTranslate {
 
 	async service_validate(): Promise<ValidationResult> {
 		if (!this.api_key)
-			return {valid: false, message: "API key was not specified"};
+			return {status_code: 400, valid: false, message: "API key was not specified"};
 
 		const response = await requestUrl({
 			throw: false,
@@ -29,9 +29,10 @@ export class YandexTranslate extends DummyTranslate {
 		});
 
 		const data = response.json;
+		const status_code = data.code ? data.code : response.status;
 		return {
-			status_code: response.status,
-			valid: response.status === 200,
+			status_code: status_code,
+			valid: status_code === 200,
 			message: data.message
 		};
 	}

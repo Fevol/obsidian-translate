@@ -16,9 +16,9 @@ export class FanyiYoudao extends DummyTranslate {
 
 	async service_validate(): Promise<ValidationResult> {
 		if (!this.api_key)
-			return {valid: false, message: "API key was not specified"};
+			return {status_code: 400, valid: false, message: "API key was not specified"};
 		if (!this.app_id)
-			return {valid: false, message: "App ID was not specified"};
+			return {status_code: 400, valid: false, message: "App ID was not specified"};
 
 		const signed_message = await this.sign_message('I');
 		const response = await requestUrl({
@@ -41,7 +41,7 @@ export class FanyiYoudao extends DummyTranslate {
 		const data = response.json;
 
 		return {
-			status_code: data.errorCode || 200,
+			status_code: data.errorCode ? parseInt(data.errorCode) : 200,
 			valid: data.errorCode === undefined,
 		};
 	}
@@ -105,7 +105,7 @@ export class FanyiYoudao extends DummyTranslate {
 		const data = response.json;
 
 		if (data.errorCode)
-			return {status_code: data.errorCode}
+			return {status_code: parseInt(data.errorCode)}
 
 		let detected_language = null;
 		if (from === 'auto')

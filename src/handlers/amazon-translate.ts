@@ -23,7 +23,7 @@ export class AmazonTranslate extends DummyTranslate {
 
 	async service_validate(): Promise<ValidationResult> {
 		if (!this.api_key)
-			return {valid: false, message: "API key was not specified"};
+			return {status_code: 400, valid: false, message: "API key was not specified"};
 
 		// Will not contribute to character quota, as it's translating to the same language
 		const response = await fetch(`https://translate.${this.region}.amazonaws.com/TranslateText`, {

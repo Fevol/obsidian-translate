@@ -14,7 +14,7 @@ export class LingvaTranslate extends DummyTranslate {
 
 	async service_validate(): Promise<ValidationResult> {
 		if (!this.host)
-			return {valid: false, message: "Host was not specified"};
+			return {status_code: 400, valid: false, message: "Host was not specified"};
 
 		const response = await requestUrl({
 			throw: false,

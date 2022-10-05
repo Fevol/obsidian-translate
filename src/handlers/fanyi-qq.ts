@@ -83,9 +83,9 @@ export class FanyiQq extends DummyTranslate {
 
 	async service_validate(): Promise<ValidationResult> {
 		if (!this.api_key)
-			return {valid: false, message: "API key was not specified"};
+			return {status_code: 400, valid: false, message: "API key was not specified"};
 		if (!this.app_id)
-			return {valid: false, message: "App ID was not specified"};
+			return {status_code: 400, valid: false, message: "App ID was not specified"};
 
 		const payload = {
 			Action: 'LanguageDetect',
@@ -109,11 +109,11 @@ export class FanyiQq extends DummyTranslate {
 		});
 
 		const data = response.json;
-		const success = response.status === 200 && !data.Response.Error;
+		const status_code = data.Response.Error ? 400 : response.status;
 
 		return {
-			status_code: response.status,
-			valid: success,
+			status_code: status_code,
+			valid: status_code === 200,
 			message:  data.Response.Error?.Message
 		};
 	}

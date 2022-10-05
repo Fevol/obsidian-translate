@@ -15,7 +15,7 @@ export class GoogleTranslate extends DummyTranslate {
 
 	async service_validate(): Promise<ValidationResult> {
 		if (!this.api_key)
-			return {valid: false, message: "API key was not specified"};
+			return {status_code: 400, valid: false, message: "API key was not specified"};
 
 		const response = await requestUrl({
 			throw: false,

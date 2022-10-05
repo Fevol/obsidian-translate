@@ -35,9 +35,9 @@ export class FanyiBaidu extends DummyTranslate {
 
 	async service_validate(): Promise<ValidationResult> {
 		if (!this.api_key)
-			return {valid: false, message: "API key was not specified"};
+			return {status_code: 400, valid: false, message: "API key was not specified"};
 		if (!this.app_id)
-			return {valid: false, message: "App ID was not specified"};
+			return {status_code: 400, valid: false, message: "App ID was not specified"};
 
 		const signature = await this.sign_message('I');
 		const payload = {
@@ -55,11 +55,11 @@ export class FanyiBaidu extends DummyTranslate {
 		});
 
 		const data = response.json;
-		const success = response.status === 200 && !data.error_msg;
+		const status_code = data.error_code ? parseInt(data.error_code) : response.status;
 
 		return {
-			status_code: success ? 200 : response.status,
-			valid: success,
+			status_code: status_code,
+			valid: status_code === 200,
 			message: data.error_msg,
 		};
 	}
@@ -83,8 +83,10 @@ export class FanyiBaidu extends DummyTranslate {
 
 		// Data = {"data":{"src": "en"} }
 		const data = response.json;
-		if (response.status !== 200)
-			return {status_code: response.status, message: data.error_msg}
+		const status_code = data.error_code ? parseInt(data.error_code) : response.status;
+
+		if (status_code !== 200)
+			return {status_code: status_code, message: data.error_msg}
 
 		return {
 			status_code: response.status,
@@ -113,8 +115,9 @@ export class FanyiBaidu extends DummyTranslate {
 
 		// Data = {"from":"en", "to":"zh", "trans_result":[{"src": "Hello", "dst": "你好"}] }
 		let data = response.json;
-		if (response.status !== 200)
-			return {status_code: response.status, message: data.error_msg}
+		const status_code = data.error_code ? parseInt(data.error_code) : response.status;
+		if (status_code !== 200)
+			return {status_code: status_code, message: data.error_msg}
 
 
 		return {

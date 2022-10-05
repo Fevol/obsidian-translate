@@ -43,7 +43,7 @@ export class DummyTranslate {
 
 			return output;
 		} catch (e) {
-			output = {valid: false, message: `Validation failed:\n\t${e.message}`};
+			output = {status_code: 400, valid: false, message: `Validation failed:\n\t${e.message}`};
 			return output;
 		} finally {
 			this.valid = output.valid;
@@ -52,7 +52,7 @@ export class DummyTranslate {
 
 	async service_validate(): Promise<ValidationResult> {
 		// Will always be valid
-		return {valid: false, message: 'This should not ever be called'};
+		return {status_code: 400, valid: false, message: 'This should not ever be called'};
 	}
 
 	async detect(text: string): Promise<DetectionResult> {
@@ -196,7 +196,7 @@ export class DummyTranslate {
 		this.failed();
 		return {
 			message: `${prefix}:\n\t${response.message}`,
-			status_code: response.status_code,
+			status_code: response.status_code || 400,
 		};
 	}
 
