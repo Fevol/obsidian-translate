@@ -106,7 +106,7 @@ export default {
 	"otq": "Otomi",
 	"prs": "Dari",
 	"yua": "Yucatec Maya",
-
+	"Mtei": "Meitei",
 
 
 	// Locales, you definitely do not need to add these, they are already provided for all of Obsidian's display languages
