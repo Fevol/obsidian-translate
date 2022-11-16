@@ -116,6 +116,8 @@
 	}
 
 	function updateService() {
+		// Prevent Bergamot from being selected
+		// TODO: Should not be necassary, might be fixed when translator selection gets filtered properly
 		if (Platform.isMobile && $translation_service === 'bergamot')
 			$translation_service = $settings.translation_service;
 
@@ -124,7 +126,6 @@
 			translator = service;
 			previous_service = $translation_service;
 			available_languages = translator.available_languages || $settings.service_settings[$translation_service].available_languages;
-
 		});
 	}
 
@@ -201,8 +202,6 @@
 		   icon: "cloud",
 		   tooltip: "Change Translation Service",
 		   onClick: () => new SwitchService(plugin.app, plugin, (service) => {
-				if (!$settings.service_settings[service])
-					$settings.service_settings[service] = DEFAULT_SETTINGS.service_settings[service];
 				previous_service = $translation_service;
 				$translation_service = service;
 		   }).open(),

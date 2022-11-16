@@ -10,7 +10,7 @@
 	import {settings, data} from "../../stores";
 
 	import type { PluginData, TranslatorPluginSettings} from "../../types";
-	import {setAvailableServices, SERVICES_INFO} from "../../constants";
+	import {setAvailableServices, SERVICES_INFO, DEFAULT_SETTINGS} from "../../constants";
 	import ISO6391 from "iso-639-1";
 
 	import t from "../../l10n";
@@ -60,18 +60,21 @@
 		}
 	}
 
-	function setTranslationService(translation_service: string, filter_mode: string) {
+	function setAvailableLanguages(translation_service: string, filter_mode: string) {
+		const languages = plugin.translator.available_languages || $settings.service_settings[translation_service].available_languages;
+		if (filter_mode === "1")
+			$data.available_languages = languages.filter(x => $data.spellchecker_languages.includes(x));
+		else if (filter_mode === "2")
+			$data.available_languages = languages.filter(x => $settings.service_settings[translation_service].selected_languages.includes(x));
+		else
+			$data.available_languages = languages;
+	}
+
+	export function setTranslationService(translation_service: string, filter_mode: string) {
 		getTranslationService(translation_service, previous_service).then(service => {
 			plugin.translator = service
 			previous_service = translation_service;
-
-			const languages = plugin.translator.available_languages || $settings.service_settings[translation_service].available_languages;
-			if (filter_mode === "1")
-				$data.available_languages = languages.filter(x => $data.spellchecker_languages.includes(x));
-			else if (filter_mode === "2")
-				$data.available_languages = languages.filter(x => $settings.service_settings[translation_service].selected_languages.includes(x));
-			else
-				$data.available_languages = languages;
+			setAvailableLanguages(translation_service, filter_mode);
 		});
 	}
 
@@ -128,6 +131,7 @@
 	};
 
 	export async function getTranslationService(service: string, old_service: string): Promise<DummyTranslate> {
+		// Do not attempt to create a service if it does not exist
 		if (!service || !(service in SERVICES_INFO))
 			return null;
 
@@ -137,6 +141,10 @@
 			translator = active_services[service];
 			service_uses[service] += 1;
 		} else {
+			// If translation service data does not exist in settings, ensure that it is loaded with default values
+			if (!$settings.service_settings[service])
+				$settings.service_settings[service] = DEFAULT_SETTINGS.service_settings[e.target.value];
+
 			const service_settings = $settings.service_settings[service];
 
 			let translation_service: DummyTranslate = null;
@@ -217,12 +225,13 @@
 			// Mobile (iOS and Android) do not have spellchecker languages available (assume display language)
 			$data.spellchecker_languages = [plugin.current_language];
 
-		// This is not an ideal solution, as config-changed gets called quite a bit
+		// FIXME: This is not an ideal solution, as config-changed gets called quite a bit
+		// Whenever config of spellchecker languages changed, update its list
 		plugin.registerEvent(app.vault.on('config-changed', () => {
 			if (app.vault.config.spellcheckLanguages) {
 				updateSpellcheckerLanguages();
 				if ($settings.filter_mode === "1")
-					setTranslationService(service_observer, filter_mode_observer);
+					setAvailableLanguages(service_observer, filter_mode_observer);
 			}
 		}));
 

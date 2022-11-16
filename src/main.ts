@@ -141,15 +141,7 @@ export default class TranslatorPlugin extends Plugin {
 				name: "Change Translator Service",
 				icon: "cloud",
 				func: () => {new SwitchService(this.app, this, (service) => {
-					settings.update((x: TranslatorPluginSettings) => {
-						x.translation_service = service;
-						if (!x.service_settings[service as keyof APIServiceProviders]) {
-							// @ts-ignore (Service will always be a key)
-							x.service_settings[service as keyof APIServiceProviders] =
-								DEFAULT_SETTINGS.service_settings[service as keyof APIServiceProviders];
-						}
-						return x;
-					});
+					this.setTranslationService(service);
 				}).open()}
 			},
 			{
@@ -327,5 +319,16 @@ export default class TranslatorPlugin extends Plugin {
 
 	async saveSettings(updatedSettings: any) {
 		await this.saveData(updatedSettings);
+	}
+	// --------------------------------------------------------------
+
+
+
+	// A way to change the main translation service via the console, access translator via 'plugin.translator'
+	async setTranslationService(service: string) {
+		settings.update((x: TranslatorPluginSettings) => {
+			x.translation_service = service;
+			return x;
+		});
 	}
 }

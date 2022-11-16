@@ -10,8 +10,7 @@
 	import {Icon} from ".././components";
 
 
-	import type { PluginData, TranslatorPluginSettings } from "../../types";
-	import {SERVICES_INFO, DEFAULT_SETTINGS, SETTINGS_TABS} from "../../constants";
+	import {SERVICES_INFO, DEFAULT_SETTINGS, SETTINGS_TABS, AVAILABLE_SERVICES} from "../../constants";
 	import {DummyTranslate} from "../../handlers";
 
 	import {
