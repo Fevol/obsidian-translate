@@ -15,8 +15,10 @@ export default class SwitchService extends FuzzySuggestModal<string>{
 			.map(([key, value]) => ({
 				value: key,
 				label: value.display_name,
-			})));
-		this.setPlaceholder("Choose a Translation Service");
+			})))
+			.sort((a, b) => a.label.localeCompare(b.label));
+
+		this.setPlaceholder("Select a translation service");
 		this.callback = callback;
 	}
 

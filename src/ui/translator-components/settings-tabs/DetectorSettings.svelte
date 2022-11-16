@@ -9,8 +9,6 @@
 
 	import {ConfirmationModal} from "../../modals";
 
-	import type {PluginData, TranslatorPluginSettings} from "../../../types";
-
 	import {requestUrl} from "obsidian";
 	import {writeRecursive} from "../../../obsidian-util";
 

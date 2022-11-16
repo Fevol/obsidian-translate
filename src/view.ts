@@ -36,6 +36,7 @@ export class TranslatorView extends ItemView {
 			setIcon(this.leaf.tabHeaderInnerIconEl, value);
 
 			const title = SERVICES_INFO[value]?.display_name || 'Translator';
+			this.leaf.tabHeaderEl.ariaLabel = title;
 			this.leaf.tabHeaderInnerTitleEl.innerText = title;
 			this.leaf.view.titleEl.innerText = title;
 		});

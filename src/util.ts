@@ -1,7 +1,7 @@
 export class DefaultDict {
-	constructor(defaultVal: any) {
-		return new Proxy({}, {
-			get: (target, name) => name in target ? target[name as keyof typeof target] : defaultVal
+	constructor(init: any = {}, value: any) {
+		return new Proxy(init, {
+			get: (target, name) => name in target ? target[name as keyof typeof target] : value
 		})
 	}
 }
@@ -118,6 +118,17 @@ export function rateLimit(limitCount: number, interval: number, unique: boolean,
 		}
 	}
 }
+
+function S4() {
+	return (((1+Math.random())*0x10000)|0).toString(16).substring(1);
+}
+
+export function generateIdentifier(length: number = 16) {
+	let str = "";
+	for (let i = 0; i < length/4; i++)
+		str += S4();
+	return str.substring(0, length);
+};
 
 String.prototype.format = function () {
 	var i = 0, args = arguments;

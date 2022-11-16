@@ -108,7 +108,7 @@ export class DummyTranslate {
 			} else {
 				let idx = 0;
 				let translation = '';
-				const languages_occurrences = new DefaultDict(0);
+				const languages_occurrences = new DefaultDict({}, 0);
 
 
 				// This does *not* preserve sentence meaning when translating, as it splits sentences at spaces.

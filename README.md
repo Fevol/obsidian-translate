@@ -1,5 +1,7 @@
 # Obsidian Translate
 
+<center>A translation plugin for Obsidian.md</center>
+
 A plugin for [Obsidian](https://obsidian.md/) that implements a simple and easy-to-use translation interface that
 works with ten different translation services, and offers extensive customization options.
 
@@ -162,4 +164,3 @@ Currently, I'm looking for feedback on the following topics:
 - Integration of more translation service providers
 - UX improvements (more shortcuts, commands, ...)
 - UI improvements (additional layouts, tweaks, ...)
-

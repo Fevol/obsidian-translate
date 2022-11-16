@@ -6,8 +6,6 @@
 	import {Button, Dropdown, Slider, Toggle, Input, Icon, ToggleButton, ButtonList} from "../../components";
 	import {SettingItem} from "../../obsidian-components";
 
-	import type {PluginData, TranslatorPluginSettings} from "../../../types";
-
 	export let plugin: TranslatorPlugin;
 
 	let obfuscate_keys = app.loadLocalStorage(`obfuscate_keys`) || false;
