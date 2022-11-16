@@ -63,7 +63,6 @@ export class Deepl extends DummyTranslate {
 				target_lang: "en"
 			}),
 			method: "POST",
-			contentType: "application/json",
 			headers: {
 				"Authorization": "DeepL-Auth-Key " + this.api_key
 			}
@@ -92,7 +91,6 @@ export class Deepl extends DummyTranslate {
 				preserve_formatting: "0",
 			}),
 			method: "POST",
-			contentType: "application/json",
 			headers: {
 				"Authorization": "DeepL-Auth-Key " + this.api_key
 			}
@@ -119,7 +117,6 @@ export class Deepl extends DummyTranslate {
 			throw: false,
 			url: `${this.host}/languages`,
 			method: "POST",
-			contentType: "application/json",
 			headers: {
 				"Authorization": "DeepL-Auth-Key " + this.api_key
 			}
