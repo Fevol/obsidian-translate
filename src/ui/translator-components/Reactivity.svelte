@@ -193,12 +193,20 @@
 				});
 			}
 
-			if ($settings.service_settings[service]?.available_languages)
+			if (service === "bergamot") {
+				$data.all_languages.set("en", formatLocale("en"));
+				$settings.service_settings["bergamot"].downloadable_models
+					.map(m => m.locale)
+					.forEach(locale => {
+						$data.all_languages.set(locale, formatLocale(locale));
+					});
+			} else if ($settings.service_settings[service]?.available_languages) {
 				$settings.service_settings[service].available_languages
 					.filter(locale => !$data.all_languages.has(locale))
 					.forEach(locale => {
 						$data.all_languages.set(locale, formatLocale(locale))
 					});
+			}
 
 			active_services[service] = translation_service;
 			translator = translation_service;

@@ -96,7 +96,7 @@
 		left_buttons, right_buttons, app.workspace.requestSaveLayout();
 
 	function updateAvailableLanguages() {
-		if ($translation_service === 'bergamot') {
+		if (translator && $translation_service === 'bergamot') {
 			available_languages = translator.available_languages;
 			filterLanguages();
 		}
