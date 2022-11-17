@@ -193,6 +193,8 @@
 				});
 			}
 
+			// To be honest, I'm actually not sure whether it would be more efficient to just load all the locales,
+			// instead of going through them... one... by... one...
 			if (service === "bergamot") {
 				$data.all_languages.set("en", formatLocale("en"));
 				$settings.service_settings["bergamot"].downloadable_models
@@ -236,11 +238,10 @@
 
 	export function filterAvailableServices() {
 		let available_services = ALL_SERVICES;
-		if ($settings.filtered_services.length) {
+		if (Platform.isMobile)
+			available_services = available_services.filter(service => !SERVICES_INFO[service].desktop_only);
+		if ($settings.filtered_services.length)
 			available_services = available_services.filter(service => $settings.filtered_services.includes(service));
-			if (Platform.isMobile)
-				available_services = available_services.filter(service => SERVICES_INFO[service].desktop_only);
-		}
 		$data.available_services = available_services;
 		if (!$data.available_services.includes($settings.translation_service))
 			$settings.translation_service = $data.available_services[0];

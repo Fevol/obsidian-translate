@@ -1,7 +1,7 @@
 <script lang="ts">
 	import TranslatorPlugin from "../../main";
 
-	import {onDestroy} from "svelte";
+	import {onDestroy, onMount} from "svelte";
 	import type {Writable} from "svelte/store";
 	import {settings, data} from "../../stores";
 	import {horizontalSlide} from "../animations";
@@ -183,6 +183,11 @@
 			current_layout = new_layout;
 		}
 	}
+
+	onMount(() => {
+		if (!$data.available_services.includes($translation_service))
+			$translation_service = $settings.translation_service;
+	})
 
 	onDestroy(() => {
 		app.keymap.popScope(view_scope);
