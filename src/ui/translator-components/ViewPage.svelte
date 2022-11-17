@@ -117,11 +117,6 @@
 	}
 
 	function updateService() {
-		// Prevent Bergamot from being selected
-		// TODO: Should not be necassary, might be fixed when translator selection gets filtered properly
-		if (!$data.available_services.contains($translation_service))
-			$translation_service = $settings.translation_service;
-
 		plugin.reactivity.getTranslationService($translation_service, previous_service).then(service => {
 			autodetect_capability = service.has_autodetect_capability();
 			translator = service;

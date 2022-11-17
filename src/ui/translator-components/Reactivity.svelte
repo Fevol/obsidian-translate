@@ -132,20 +132,24 @@
 
 	export async function getTranslationService(service: string, old_service: string): Promise<DummyTranslate> {
 		// Do not attempt to create a service if it does not exist
-		if (!service || !(service in SERVICES_INFO))
+		if (!service || !(service in SERVICES_INFO)) {
+			// console.log("DID NOT FIND SERVICE: " + service);
 			return null;
+		}
 
 		let translator: DummyTranslate;
 
 		if (service in active_services) {
 			translator = active_services[service];
 			service_uses[service] += 1;
+			// console.log("LOADING SERVICE: ", service, " (", service_uses[service], "uses)");
 		} else {
 			// If translation service data does not exist in settings, ensure that it is loaded with default values
 			if (!$settings.service_settings[service])
-				$settings.service_settings[service] = DEFAULT_SETTINGS.service_settings[e.target.value];
+				$settings.service_settings[service] = DEFAULT_SETTINGS.service_settings[service];
 
 			const service_settings = $settings.service_settings[service];
+			// console.log("CREATING SERVICE: ", service);
 
 			let translation_service: DummyTranslate = null;
 			if (service === "google_translate")
@@ -203,8 +207,10 @@
 
 		if (old_service)
 			service_uses[old_service] -= 1;
-		if (old_service && old_service !== service && !service_uses[old_service])
+		if (old_service && old_service !== service && !service_uses[old_service]) {
 			delete active_services[old_service];
+			// console.log("UNLOADED SERVICE: " + old_service);
+		}
 		return translator;
 	}
 

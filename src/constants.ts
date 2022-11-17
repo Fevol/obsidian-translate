@@ -728,6 +728,9 @@ export const DEFAULT_SETTINGS: TranslatorPluginSettings = {
 
 
 export let SERVICES_INFO: { [key: string]: any } = {
+	dummy: {
+		display_name: "DEBUG",
+	},
 	google_translate: {
 		display_name: "Google Translate",
 		requires_api_key: true,
