@@ -85,6 +85,7 @@
 	$: selected_languages_observer = $settings.service_settings[$translation_service].selected_languages.length;
 	$: display_language_observer = $settings.display_language;
 	$: spellchecker_languages_observer, selected_languages_observer, available_languages, filter_mode, display_language_observer, filterLanguages();
+	$: available_services_observer = $data.available_services.length;
 
 	$: bergamot_models_observer = $data.models?.bergamot?.models?.length;
 	$: bergamot_models_observer, updateAvailableLanguages();
@@ -118,7 +119,7 @@
 	function updateService() {
 		// Prevent Bergamot from being selected
 		// TODO: Should not be necassary, might be fixed when translator selection gets filtered properly
-		if (Platform.isMobile && $translation_service === 'bergamot')
+		if (!$data.available_services.contains($translation_service))
 			$translation_service = $settings.translation_service;
 
 		plugin.reactivity.getTranslationService($translation_service, previous_service).then(service => {

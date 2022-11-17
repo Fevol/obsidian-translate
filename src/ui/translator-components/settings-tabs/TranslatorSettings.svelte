@@ -121,13 +121,13 @@
 	function filterLanguages(languages: any[]) {
 		if (service in SERVICES_INFO && SERVICES_INFO[service].type === 'translation') {
 			selectable_languages = languages
-				.filter(locale => { return !$settings.service_settings[service].selected_languages.contains(locale); })
+				.filter(locale => { return !$settings.service_settings[service].selected_languages.includes(locale); })
 				.map(locale => { return {'value': locale, 'text': $data.all_languages.get(locale) || locale } })
 				.sort((a, b) => { return a.text.localeCompare(b.text);});
 			selectable_languages.unshift({'value': '', 'text': '+'});
 
 			filtered_languages = $settings.service_settings[service].selected_languages
-				.filter(locale => languages.contains(locale))
+				.filter(locale => languages.includes(locale))
 				.map(locale => {return {'value': locale, 'text': $data.all_languages.get(<string>locale) || locale}})
 				.sort((a, b) => a.text.localeCompare(b.text));
 
@@ -135,9 +135,9 @@
 				if ($settings.filter_mode === '0')
 					$data.available_languages = languages;
 				else if ($settings.filter_mode === '1')
-					$data.available_languages = languages.filter(locale => { return $data.spellchecker_languages.contains(locale); });
+					$data.available_languages = languages.filter(locale => { return $data.spellchecker_languages.includes(locale); });
 				else if ($settings.filter_mode === '2')
-					$data.available_languages = languages.filter(locale => { return $settings.service_settings[service].selected_languages.contains(locale); });
+					$data.available_languages = languages.filter(locale => { return $settings.service_settings[service].selected_languages.includes(locale); });
 			}
 		}
 	}
@@ -165,7 +165,7 @@
 </script>
 
 <!-- Show warning when service is untested -->
-{#if UNTESTED_SERVICES.contains(service)}
+{#if UNTESTED_SERVICES.includes(service)}
 	<div class="translator-fail translator-warning-message">
 		<Icon icon="alert-triangle" size="60" />
 		<div>
@@ -196,7 +196,7 @@
 		description="Install Bergamot translation engine (size: 5.05MiB)"
 		type="button"
 		notices={translator?.has_autodetect_capability() ? [] : [
-			{ type: 'text', text: `ⓘ Automatic language detection is <b>disabled</b>, install FastText to enable this feature`, style: 'info-text' }
+			{ type: 'text', text: `Automatic language detection is <b>disabled</b>, install FastText to enable this feature`, style: 'info-text' }
 		]}
 	>
 		<div slot="control" class="setting-item-control">
@@ -240,7 +240,7 @@
 						new ConfirmationModal(
 							plugin,
 							"Confirm uninstallation of Bergamot",
-							"Are you sure you want to uninstall Bergamot?<br><div class='warning-text'>⚠ This will also remove all local models you've installed.</div>",
+							"Are you sure you want to uninstall Bergamot?<br><div class='warning-text'>This will also remove all local models you've installed.</div>",
 							async () => {
 								if (await app.vault.adapter.exists(`.obsidian/${$settings.storage_path}/bergamot`))
 									await app.vault.adapter.rmdir(`.obsidian/${$settings.storage_path}/bergamot`, true);
@@ -384,7 +384,7 @@
 		type="text"
 		notices={[
 			{ type: 'href', text: "ⓘ Sign up for an API key here", url: info.request_key},
-			...(api_key?.endsWith("==") ? [{ type: 'text', text: `⚠ API key is still encrypted`, style: 'warning-text'}] : [])
+			...(api_key?.endsWith("==") ? [{ type: 'text', text: `API key is still encrypted`, style: 'error-text'}] : [])
 		]}
 	>
 		<Input
@@ -511,7 +511,7 @@
 	type="text"
 	notices={
 		service === 'bergamot' ? [] :
-		[{text: "⚠ May result in the character quota of the service to be used up more quickly", style: 'warning-text'}]
+		[{text: "May result in the character quota of the service being spent more quickly", style: 'warning-text'}]
 	}
 >
 	<Toggle

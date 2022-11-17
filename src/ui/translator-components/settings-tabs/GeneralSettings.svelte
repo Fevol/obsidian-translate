@@ -5,13 +5,16 @@
 
 	import {Button, Dropdown, Slider, Toggle, Input, Icon, ToggleButton, ButtonList} from "../../components";
 	import {SettingItem} from "../../obsidian-components";
+	import {slide} from "svelte/transition"
 
 	import {PasswordModal, PasswordRequestModal} from "../../modals";
 
 	import type {PluginData, TranslatorPluginSettings} from "../../../types";
-	import {SERVICES_INFO, SECURITY_MODES, DEFAULT_SETTINGS} from "../../../constants";
+	import {SERVICES_INFO, SECURITY_MODES, DEFAULT_SETTINGS, ALL_SERVICES} from "../../../constants";
 
 	export let plugin: TranslatorPlugin;
+
+	$: selectable_services = ALL_SERVICES.filter((service) => !$settings.filtered_services.includes(service));
 
 	// const example_languages = ['en', 'fr', 'zh']
 	// Fun aside, let's people learn what the name of a language looks like in the native languages
@@ -62,16 +65,16 @@
 	name="Translation Service"
 	description="Service used for executing <i>global commands</i>"
 	notices={[
-		{ type: 'text', text: `ⓘ Used for the editor context menu and translating files`, style: 'info-text' }
+		{ type: 'text', text: `Used for the editor context menu and translating files`, style: 'info-text' }
 	]}
 	type="dropdown"
 >
 	<Dropdown
 		slot="control"
-		options={Object.entries(SERVICES_INFO)
-			.filter(([k,v]) => v.type === 'translation')
-			.map(([k,v]) => {
-				return {'value': k, 'text': v.display_name};
+		options={$data.available_services
+			//.filter(service => SERVICES_INFO[service].type === 'translation')
+			.map(service => {
+				return {'value': service, 'text': SERVICES_INFO[service].display_name};
 		})}
 		value={ $settings.translation_service }
 		onChange={(e) => {
@@ -125,7 +128,7 @@
 	description="Determine how API keys will be stored on the device"
 	type="dropdown"
 	notices={[
-		{ type: 'text', text: `ⓘ ${SECURITY_MODES.find(x => x.value === $settings.security_setting).info}`, style: 'info-text' }
+		{ type: 'text', text: `${SECURITY_MODES.find(x => x.value === $settings.security_setting).info}`, style: 'info-text' }
 	]}
 >
 	<Dropdown
@@ -171,7 +174,7 @@
 <SettingItem
 	name="Model path"
 	description="Determine where in the '.obsidian' folder local models should be stored"
-	notices={[{ type: 'text', text: `⚠ You cannot nest this folder`, style: 'warning-text'}] }
+	notices={[{ type: 'text', text: `You cannot nest this folder`, style: 'warning-text'}] }
 	type="input"
 >
 	<!-- FIXME: Currently the path gets renamed as the user types, probably very heavy on the FS	-->
@@ -205,4 +208,30 @@
 	/>
 </SettingItem>
 
+<SettingItem
+	name="Services selection"
+	description="Show only the selected services in settings, modals and commands"
+>
+	<div slot="control" transition:slide class="setting-item-control">
+		<ButtonList
+			items={ $settings.filtered_services.map((service) => { return {'value': service, 'text': SERVICES_INFO[service].display_name}; }) }
+			icon="cross"
+			onClick={(service) => {
+				$settings.filtered_services = $settings.filtered_services.filter(x => x !== service);
+				plugin.reactivity.filterAvailableServices();
+			}}
+		/>
+		<Dropdown
+			options={ selectable_services.map((service) => { return {'value': service, 'text': SERVICES_INFO[service].display_name}; })}
+			value=""
+			onChange={(e) => {
+				if ($settings.filtered_services.length + 1 === ALL_SERVICES.length)
+					$settings.filtered_services = [];
+				else
+					$settings.filtered_services = [...$settings.filtered_services, e.target.value];
+				plugin.reactivity.filterAvailableServices();
+			}}
+		/>
+	</div>
+</SettingItem>
 

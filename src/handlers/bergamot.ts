@@ -112,12 +112,12 @@ export class BergamotTranslate extends DummyTranslate {
 				.filter((e: any, i: any, a: any) => a.indexOf(e) !== i);
 
 			const models_from = Object.values(registry[`${x}en`]).map((x: any) => {
-				return { name: x.name, size: x.size as number, usage: duplicates.contains(x.name) ? "both" : "from" }
+				return { name: x.name, size: x.size as number, usage: duplicates.includes(x.name) ? "both" : "from" }
 			});
 			const models_to = Object.values(registry[`en${x}`])
 				.filter((x: any) => !duplicates.includes(x.name))
 				.map((x: any) => {
-					return { name: x.name, size: x.size as number, usage: duplicates.contains(x.name) ? "both" : "to"  }
+					return { name: x.name, size: x.size as number, usage: duplicates.includes(x.name) ? "both" : "to"  }
 				});
 
 			let files = models_from.concat(models_to);

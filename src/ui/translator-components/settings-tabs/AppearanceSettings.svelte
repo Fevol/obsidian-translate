@@ -16,7 +16,7 @@
 	name="Enable plugin animations"
 	type="toggle"
 	notices={[
-		{ type: 'text', text: `⚠ Disabling this setting might introduce some visual bugs`, style: 'warning-text'}
+		{ type: 'text', text: `Disabling this setting might introduce some visual bugs`, style: 'warning-text'}
 	]}
 
 >
@@ -48,7 +48,7 @@
 	name="Garble sensitive data"
 	description="Obfuscate sensitive data such as API keys and tokens"
 	notices={[
-		{ type: 'text', text: `ⓘ Useful for sharing a screenshot of your settings without showing the secret data`, style: 'info-text' }
+		{ type: 'text', text: `Useful for sharing a screenshot of your settings without showing the secret data`, style: 'info-text' }
 	]}
 	type="toggle"
 >

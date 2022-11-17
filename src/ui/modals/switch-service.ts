@@ -1,6 +1,8 @@
 import { FuzzySuggestModal, App } from "obsidian";
 import type TranslatorPlugin from "main";
 import {SERVICES_INFO} from "../../constants";
+import {data} from "../../stores";
+import {get} from "svelte/store";
 
 export default class SwitchService extends FuzzySuggestModal<string>{
 	plugin: TranslatorPlugin;
@@ -10,13 +12,14 @@ export default class SwitchService extends FuzzySuggestModal<string>{
 	constructor(app: App, plugin: TranslatorPlugin, callback: (service: string) => void) {
 		super(app);
 		this.plugin = plugin;
-		this.options = Array.from(Object.entries(SERVICES_INFO)
-			.filter(([service, info]) => info.type === "translation")
-			.map(([key, value]) => ({
-				value: key,
-				label: value.display_name,
-			})))
-			.sort((a, b) => a.label.localeCompare(b.label));
+
+		let plugin_data = get(data);
+
+		this.options = plugin_data.available_services
+				//.filter(service => SERVICES_INFO[service].type === 'translation')
+				.map(service => { return {'value': service, 'label': SERVICES_INFO[service].display_name} })
+				.sort((a, b) => a.label.localeCompare(b.label));
+
 
 		this.setPlaceholder("Select a translation service");
 		this.callback = callback;

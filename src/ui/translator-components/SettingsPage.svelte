@@ -10,7 +10,7 @@
 	import {Icon} from ".././components";
 
 
-	import {SERVICES_INFO, DEFAULT_SETTINGS, SETTINGS_TABS, AVAILABLE_SERVICES} from "../../constants";
+	import {SERVICES_INFO, DEFAULT_SETTINGS, SETTINGS_TABS, ALL_SERVICES} from "../../constants";
 	import {DummyTranslate} from "../../handlers";
 
 	import {
@@ -20,12 +20,28 @@
 		TranslatorSettings,
 		FunctionalitySettings
 	} from "./settings-tabs";
+	import {Menu} from "obsidian";
 
 	export let plugin: TranslatorPlugin;
 
 	let bergamot_update_available = false;
+	let available_services_observer = $data.available_services.length;
+
 	let tab = $data.tab;
-	let tab_idx = SETTINGS_TABS.findIndex(t => t.id === tab);
+	let tabs = generateTabs();
+	let tab_idx = tabs.findIndex(t => t.id === tab);
+	$: {
+		available_services_observer;
+		tabs = generateTabs();
+	}
+
+	function generateTabs() {
+		return [
+			...SETTINGS_TABS,
+			...$data.available_services.map(service => ({id: service, name: SERVICES_INFO[service].display_name, icon: service})),
+			{id: "fasttext", name: "FastText", icon: "fasttext"}
+		];
+	}
 
 	let translator: DummyTranslate;
 
@@ -46,10 +62,7 @@
 
 	async function changedTabs(index) {
 		tab_idx = index;
-		const new_tab = SETTINGS_TABS[index].id;
-
-		if (new_tab in SERVICES_INFO && !$settings.service_settings[new_tab])
-			$settings.service_settings[new_tab] = DEFAULT_SETTINGS.service_settings[new_tab];
+		const new_tab = tabs[index].id;
 
 		tab = new_tab;
 		$data.tab = tab;
@@ -69,27 +82,56 @@
 				if (e.metaKey || e.ctrlKey)
 					return true;
 				else if (e.shiftKey)
-					changedTabs((((tab_idx - 1) % SETTINGS_TABS.length) + SETTINGS_TABS.length) % SETTINGS_TABS.length);
+					changedTabs((((tab_idx - 1) % tabs.length) + tabs.length) % tabs.length);
 				else
-					changedTabs((tab_idx + 1) % SETTINGS_TABS.length);
+					changedTabs((tab_idx + 1) % tabs.length);
 				e.preventDefault();
 			}
 		}}
 	>
-		{#each SETTINGS_TABS as {id, name, icon}, index}
+		{#each tabs as {id, name, icon}, index}
 			<div class:translator-navigation-item-selected={tab === id} class="translator-navigation-item"
 				 aria-label={`${name} settings`} on:click={() => {
 					 changedTabs(index)}
 				 }
+				on:contextmenu={e => {
+					if (ALL_SERVICES.includes(id)) {
+						let menu = new Menu();
+						menu.addItem((item) => {
+							item.setTitle("Set as default")
+								.setIcon("translate")
+								.onClick((e) => {
+									$settings.translation_service = id
+								})
+						});
+						menu.addItem((item) => {
+								item.setTitle("Hide service")
+									.setIcon("eye-off")
+									.onClick((e) => {
+										if (!$settings.filtered_services.length) {
+											$settings.filtered_services = ALL_SERVICES.filter(s => s !== id);
+										} else {
+											$settings.filtered_services = $settings.filtered_services.filter(s => s !== id);
+										}
+										plugin.reactivity.filterAvailableServices();
+										if (tab === id) {
+											tab_idx -= 1;
+											tab = tabs[tab_idx].id;
+										}
+									})
+						});
+						menu.showAtMouseEvent(e);
+					}
+				}}
 			>
-				<Icon icon="{icon}" size="20" />
+				<Icon icon="{icon}" size="20" class={id === $settings.translation_service ? 'translator-selected-element' : ''} />
 				<div class:translator-navigation-item-text={tab !== id}>{name}</div>
 			</div>
 		{/each}
 	</nav>
 
 	{#key tab}
-		<div in:horizontalSlide={{duration: 400, delay: 400}} out:slide={{duration: 300}}>
+		<div in:horizontalSlide={{duration: 400, delay: 400}} out:slide={{duration: 400}}>
 			<svelte:component this={getComponent()}
 				plugin={plugin}
 				settings={settings}

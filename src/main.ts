@@ -73,9 +73,12 @@ export default class TranslatorPlugin extends Plugin {
 		// (Changed bing_translator -> azure_translator in v1.4.0, this patch will only be here for a couple versions)
 		if (loaded_settings.translation_service === 'bing_translator')
 			loaded_settings.translation_service = 'azure_translator';
-		if (loaded_settings?.service_settings['bing_translator' as keyof APIServiceProviders])
+		if (loaded_settings?.service_settings['bing_translator' as keyof APIServiceProviders]) {
 			loaded_settings.service_settings['azure_translator'] =
 				<APIServiceSettings>loaded_settings.service_settings['bing_translator' as keyof APIServiceProviders];
+			loaded_settings.service_settings['bing_translator' as keyof APIServiceProviders] = undefined;
+		}
+
 
 		// Check for any updates on the translation services
 		// In order to improve future compatibility, the user can manually update the available_languages/... with

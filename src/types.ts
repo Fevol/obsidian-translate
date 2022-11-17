@@ -6,6 +6,7 @@ export interface TranslatorPluginSettings {
 
 	translation_service: string;
 	service_settings: APIServiceProviders;
+	filtered_services: string[];
 
 	default_source_language: string;
 	default_target_language: string;
@@ -23,6 +24,9 @@ export interface PluginData {
 
 	// Which languages can be translated to and from for default translation service (with filters applied)
 	available_languages: Array<any>;
+
+	// Determines which services will be visible in the settings, modals, ...
+	available_services: Array<string>;
 
 	// Current spellchecker languages (synced at startup of the plugin)
 	spellchecker_languages: Array<any>;

@@ -9,8 +9,8 @@
 
 	import {settings, data} from "../../stores";
 
-	import type { PluginData, TranslatorPluginSettings} from "../../types";
-	import {setAvailableServices, SERVICES_INFO, DEFAULT_SETTINGS} from "../../constants";
+	import type {PluginData, TranslatorPluginSettings} from "../../types";
+	import {SERVICES_INFO, DEFAULT_SETTINGS, ALL_SERVICES} from "../../constants";
 	import ISO6391 from "iso-639-1";
 
 	import t from "../../l10n";
@@ -192,7 +192,9 @@
 			if ($settings.service_settings[service]?.available_languages)
 				$settings.service_settings[service].available_languages
 					.filter(locale => !$data.all_languages.has(locale))
-					.forEach(locale => { $data.all_languages.set(locale, formatLocale(locale)) });
+					.forEach(locale => {
+						$data.all_languages.set(locale, formatLocale(locale))
+					});
 
 			active_services[service] = translation_service;
 			translator = translation_service;
@@ -216,6 +218,18 @@
 		$data.spellchecker_languages = [...new Set(app.vault.config.spellcheckLanguages.map((x) => {
 			return x.split('-')[0];
 		}))];
+	}
+
+	export function filterAvailableServices() {
+		let available_services = ALL_SERVICES;
+		if ($settings.filtered_services.length) {
+			available_services = available_services.filter(service => $settings.filtered_services.includes(service));
+			if (Platform.isMobile)
+				available_services = available_services.filter(service => SERVICES_INFO[service].desktop_only);
+		}
+		$data.available_services = available_services;
+		if (!$data.available_services.includes($settings.translation_service))
+			$settings.translation_service = $data.available_services[0];
 	}
 
 	onMount(async () => {
@@ -265,13 +279,10 @@
 			}
 		}
 
-		// Remove all services that do not work on mobile (both in the settings, as well as their features)
-		if (Platform.isMobile) {
-			if (SERVICES_INFO[$settings.translation_service].desktop_only) {
-				plugin.message_queue(`${toTitleCase($settings.translation_service)} is currently not supported on mobile devices, defaulting to Google Translate`, 5000, true);
-				$settings.translation_service = 'google_translate';
-			}
-			setAvailableServices(Object.fromEntries(Object.entries(SERVICES_INFO).filter(([key, value]) => !value.desktop_only)));
+		// Give user a warning if their default translation service is not available anymore
+		if (Platform.isMobile && SERVICES_INFO[$settings.translation_service].desktop_only) {
+			plugin.message_queue(`${toTitleCase($settings.translation_service)} is currently not supported on mobile devices, defaulting to first available service`, 5000, true);
 		}
+		filterAvailableServices();
 	});
 </script>

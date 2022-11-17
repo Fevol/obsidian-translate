@@ -56,7 +56,7 @@
 	name="Default target language"
 	description="Determine which language to translate to <i>by default</i>"
 	notices={[
-		{ type: 'text', text: `ⓘ Used when opening a new view or when translating text without selecting a language`, style: 'info-text' }
+		{ type: 'text', text: `Used when opening a new view or when translating text without selecting a language`, style: 'info-text' }
 	]}
 >
 	<Dropdown
