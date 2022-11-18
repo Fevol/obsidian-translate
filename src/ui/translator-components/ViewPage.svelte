@@ -17,6 +17,7 @@
 	import {Scope, Platform} from "obsidian";
 	import t from "../../l10n";
 	import Button from "../components/Button.svelte";
+	import {getHotKeyString} from "../../util";
 
 	export let plugin: TranslatorPlugin;
 
@@ -31,6 +32,19 @@
 	export let show_attribution: boolean;
 	export let left_buttons: any[];
 	export let right_buttons: any[];
+
+	let parent_view;
+	$: {
+		// Reworked so keyscope will now get called *anywhere* in the itemview
+		if (parent_view) {
+			parent_view?.$$.root.parentNode.addEventListener("mouseenter", () => {
+				app.keymap.pushScope(view_scope);
+			})
+			parent_view?.$$.root.parentNode.addEventListener("mouseleave", () => {
+				app.keymap.popScope(view_scope);
+			})
+		}
+	}
 
 	const left_button_actions = {
 		'copy': () => {
@@ -76,10 +90,45 @@
 
 	// Implements Cmd+Enter functionality for quick translation
 	const view_scope = new Scope(app.scope);
-	view_scope.register(['Mod'], 'Enter', (e) => {
-		translate();
-		return false;
-	});
+	const left_view_scope = new Scope(view_scope);
+	const right_view_scope = new Scope(view_scope);
+
+	$: $settings.hotkeys, reloadHotkeys();
+
+	// FIXME: Find a way to only rigger reactivity on hotkeys change
+	function reloadHotkeys() {
+		// Unload all hotkeys currently registered on the page
+		view_scope.keys = [];
+		for (const hotkey of $settings.hotkeys) {
+			if (hotkey.key) {
+				if (hotkey.id === 'view-translate') {
+					view_scope.register(hotkey.modifiers, hotkey.key, () => {
+						translate();
+						return false;
+					});
+				} else if (hotkey.id === 'view-language-switch') {
+					view_scope.register(hotkey.modifiers, hotkey.key, () => {
+						switchLanguages();
+						return false;
+					});
+				} else {
+					const action = hotkey.id.split('-').at(-1);
+					if (left_buttons.find((button) => button.id === action)) {
+						left_view_scope.register(hotkey.modifiers, hotkey.key, () => {
+							left_button_actions[action]();
+							return false;
+						});
+					}
+					if (right_buttons.find((button) => button.id === action)) {
+						right_view_scope.register(hotkey.modifiers, hotkey.key, () => {
+							right_button_actions[action]();
+							return false;
+						});
+					}
+				}
+			}
+		}
+	}
 
 	$: spellchecker_languages_observer = $data.spellchecker_languages.length;
 	$: selected_languages_observer = $settings.service_settings[$translation_service].selected_languages.length;
@@ -161,6 +210,22 @@
 		}
 	}
 
+	async function switchLanguages() {
+		if ($settings.switch_button_action === 'switch-both' || $settings.switch_button_action === 'switch-language') {
+			if (language_from === 'auto') {
+				if (detected_language) {
+					[language_from, language_to] = [language_to, detected_language];
+					detected_language = undefined;
+				} else
+					[language_from, language_to] = [language_to, null];
+			} else {
+				[language_from, language_to] = [language_to, language_from];
+			}
+		}
+		if ($settings.switch_button_action === 'switch-both' || $settings.switch_button_action === 'switch-text') {
+			[text_from, text_to] = [text_to, text_from];
+		}
+	}
 
 	export async function onResize(width, height) {
 		if (view_mode) {
@@ -196,7 +261,7 @@
 
 </script>
 
-<View>
+<View bind:this={parent_view}>
 	<NavHeader slot="header"
 	   buttons={[
 	   {
@@ -235,12 +300,12 @@
 	   ].filter(x => !x.disabled)}
 	/>
 
-	<div slot="view" class="translator-view {current_layout}" class:disable-animations={!$settings.enable_animations}
-		on:mouseenter={() => app.keymap.pushScope(view_scope)}
-		on:mouseleave={() => app.keymap.popScope(view_scope)}
-	>
+	<div slot="view" class="translator-view {current_layout}" class:disable-animations={!$settings.enable_animations}>
 		<!-- TODO: Make the field resizable (save data)-->
-		<div class="translator-column translator-left-column" >
+		<div class="translator-column translator-left-column"
+			 on:mouseenter={() => app.keymap.pushScope(left_view_scope)}
+			 on:mouseleave={() => app.keymap.popScope(left_view_scope)}
+		>
 			<Dropdown
 				class="translator-select"
 				value={language_from}
@@ -283,29 +348,14 @@
 
 		<div class="translator-button-container translator-center-column">
 			<button class="translator-button" aria-label="Switch languages around"
-					on:click={async () => {
-						if ($settings.switch_button_action === 'switch-both' || $settings.switch_button_action === 'switch-language') {
-							if (language_from === 'auto') {
-								if (detected_language) {
-									[language_from, language_to] = [language_to, detected_language];
-									detected_language = undefined;
-								} else
-								[language_from, language_to] = [language_to, null];
-							} else {
-								[language_from, language_to] = [language_to, language_from];
-							}
-						}
-						if ($settings.switch_button_action === 'switch-both' || $settings.switch_button_action === 'switch-text') {
-							[text_from, text_to] = [text_to, text_from];
-						}
-					}}
+					on:click={async () => { await switchLanguages(); }}
 			>
 					<Icon icon=switch size={20}/>
 			</button>
 
 			{#if !auto_translate}
 				<button transition:horizontalSlide={{ duration: 300 }} class="translator-button"
-						on:click={async () => {await translate();}} aria-label="Translate [CMD + Enter]">
+						on:click={async () => {await translate();}} aria-label={`Translate [${getHotKeyString($settings.hotkeys.find(x => x.id === 'view-translate'))}]`}>
 					<Icon icon=translate size={20}/>
 				</button>
 			{/if}
@@ -313,7 +363,10 @@
 		</div>
 
 
-		<div class="translator-column translator-right-column">
+		<div class="translator-column translator-right-column"
+			 on:mouseenter={() => app.keymap.pushScope(right_view_scope)}
+			 on:mouseleave={() => app.keymap.popScope(right_view_scope)}
+		>
 			<Dropdown
 				class="translator-select"
 				value={language_to}

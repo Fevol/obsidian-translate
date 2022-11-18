@@ -62,6 +62,29 @@ export const DEFAULT_SETTINGS: TranslatorPluginSettings = {
 	default_source_language: 'auto',
 	default_target_language: moment.locale(),
 	filtered_services: [],
+	hotkeys: [
+		{
+			id: "view-translate",
+			modifiers: ["Mod"],
+			key: "Enter"
+		}, {
+			id: "view-language-switch",
+			modifiers: ["Mod"],
+			key: "S"
+		}, {
+			id: "view-action-copy",
+			modifiers: [],
+			key: ""
+		}, {
+			id: "view-action-clear",
+			modifiers: [],
+			key: ""
+		}, {
+			id: "view-action-paste",
+			modifiers: [],
+			key: ""
+		}
+	],
 	service_settings: {
 		fasttext: {
 			default_usage: false,
@@ -997,6 +1020,16 @@ export let SETTINGS_TABS = [
 		id: 'functionality',
 		name: 'Functionality',
 		icon: 'wrench',
+	},
+	// {
+	// 	id: 'glossary',
+	// 	name: 'Glossary',
+	// 	icon: 'book',
+	// },
+	{
+		id: 'hotkeys',
+		name: 'Hotkeys',
+		icon: 'function-square',
 	},
 	{
 		id: 'appearance',

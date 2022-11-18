@@ -1,3 +1,5 @@
+import type {Modifier} from "obsidian";
+
 export interface TranslatorPluginSettings {
 	security_setting: "none" | "password" | "local_only" | "no_save";
 	display_language: "local" | "display";
@@ -16,6 +18,8 @@ export interface TranslatorPluginSettings {
 
 	// Where the local models are stored, if applicable
 	storage_path?: string;
+
+	hotkeys: TranslatorHotKey[];
 }
 
 export interface PluginData {
@@ -144,4 +148,10 @@ export interface DetectionResult {
 	}>;
 	message?: string;
 	status_code?: number;
+}
+
+export interface TranslatorHotKey {
+	id: string;
+	modifiers: Modifier[];
+	key: string;
 }

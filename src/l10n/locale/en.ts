@@ -17,6 +17,15 @@ export default {
 	// ------------------------------------------------------------------------------------------------
 
 
+	// ----------------------------------------    Hotkeys    -----------------------------------------
+	"view-translate":				"Translate in view",
+	"view-language-switch":			"Switch languages of view",
+	"view-action-copy":				"Quickaction: Copy text in focused textarea",
+	"view-action-clear":			"Quickaction: Clear text in focused textarea",
+	"view-action-paste":			"Quickaction: Paste text in focused textarea",
+
+	// ------------------------------------------------------------------------------------------------
+
 
 
 	// -------------------------   ui/translator-components/ViewPage.svelte   -------------------------

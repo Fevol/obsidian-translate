@@ -1,3 +1,6 @@
+import type {TranslatorHotKey} from "./types";
+import {Modifier, Platform} from "obsidian";
+
 export class DefaultDict {
 	constructor(init: any = {}, value: any) {
 		return new Proxy(init, {
@@ -289,4 +292,22 @@ export function nested_object_assign (source: any, target: any, ignored_keys: Se
 			}
 		})
 	return target
+}
+
+const modifier_resolver: Record<Modifier, string> = Platform.isSafari ? {
+	"Mod": "⌘",
+	"Ctrl": "Cmd",
+	"Meta": "Cmd",
+	"Alt": "⌥",
+	"Shift": "Shift",
+} : {
+	"Mod": "Ctrl",
+	"Ctrl": "Ctrl",
+	"Meta": "Win",
+	"Alt": "Alt",
+	"Shift": "Shift",
+};
+
+export function getHotKeyString(hotkey: TranslatorHotKey) {
+	return `${!hotkey.modifiers.length ? '' : `${hotkey.modifiers.map(mod => modifier_resolver[mod]).join(' + ')} + `}${hotkey.key}`
 }

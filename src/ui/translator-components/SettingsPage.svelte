@@ -18,7 +18,9 @@
 		AppearanceSettings,
 		DetectorSettings,
 		TranslatorSettings,
-		FunctionalitySettings
+		FunctionalitySettings,
+		GlossarySettings,
+		HotkeySettings,
 	} from "./settings-tabs";
 	import {Menu} from "obsidian";
 
@@ -51,6 +53,10 @@
 				return GeneralSettings;
 			case "functionality":
 				return FunctionalitySettings;
+			// case "glossary":
+			// 	return GlossarySettings;
+			case "hotkeys":
+				return HotkeySettings;
 			case "appearance":
 				return AppearanceSettings;
 			case "fasttext":

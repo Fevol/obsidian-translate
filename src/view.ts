@@ -110,9 +110,8 @@ export class TranslatorView extends ItemView {
 				}
 			});
 		} else {
-			// TODO: Check if setState ever gets called again
-			// Fallback in case something goes HORRIBLY WRONG
-			console.error("RED ALERT, RED ALERT, THE THING THAT SHOULD NOT EVER HAPPEN HAPPENED")
+			// Called whenever state get changed via appearance modal changes:
+			// necessary because view_appearance.ts and view.ts/ViewPage.svelte cannot directly communicate
 			this.view.$set({
 				language_from: state.language_from || current_settings.default_source_language,
 				language_to: state.language_to || current_settings.default_target_language,

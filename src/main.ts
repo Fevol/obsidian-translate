@@ -94,7 +94,6 @@ export default class TranslatorPlugin extends Plugin {
 				loaded_settings.service_settings[key].version = DEFAULT_SETTINGS.service_settings[key].version;
 			}
 		}
-
 		settings.set(loaded_settings);
 
 
