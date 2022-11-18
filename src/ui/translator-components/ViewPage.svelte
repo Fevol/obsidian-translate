@@ -3,7 +3,7 @@
 
 	import {onDestroy, onMount} from "svelte";
 	import type {Writable} from "svelte/store";
-	import {settings, data} from "../../stores";
+	import {settings, data, hide_shortcut_tooltips} from "../../stores";
 	import {horizontalSlide} from "../animations";
 
 	import {Dropdown, TextArea, Icon} from "../components";
@@ -338,7 +338,8 @@
 				{#if left_buttons?.length}
 					<div class="translator-textarea-quickbuttons">
 						{#each left_buttons as quick_button}
-							<Button class="rounded-translator-button" icon={quick_button.icon} tooltip={quick_button.text}
+							<Button class="rounded-translator-button" icon={quick_button.icon}
+									tooltip={quick_button.text + ($hide_shortcut_tooltips ? '' : `\n[${getHotKeyString($settings.hotkeys.find(x => x.id.endsWith(quick_button.id)))}]`)}
 									size="16" onClick={() => left_button_actions[quick_button.id]()}/>
 						{/each}
 					</div>
@@ -347,7 +348,8 @@
 		</div>
 
 		<div class="translator-button-container translator-center-column">
-			<button class="translator-button" aria-label="Switch languages around"
+			<button class="translator-button"
+					aria-label={`Switch languages around${$hide_shortcut_tooltips ? '' : `\n[${getHotKeyString($settings.hotkeys.find(x => x.id === 'view-language-switch'))}]`}`}
 					on:click={async () => { await switchLanguages(); }}
 			>
 					<Icon icon=switch size={20}/>
@@ -355,7 +357,8 @@
 
 			{#if !auto_translate}
 				<button transition:horizontalSlide={{ duration: 300 }} class="translator-button"
-						on:click={async () => {await translate();}} aria-label={`Translate [${getHotKeyString($settings.hotkeys.find(x => x.id === 'view-translate'))}]`}>
+						on:click={async () => {await translate();}}
+						aria-label={`Translate${$hide_shortcut_tooltips ? '' : `\n[${getHotKeyString($settings.hotkeys.find(x => x.id === 'view-translate'))}]`}`}>
 					<Icon icon=translate size={20}/>
 				</button>
 			{/if}
@@ -385,7 +388,8 @@
 				{#if right_buttons?.length}
 					<div class="translator-textarea-quickbuttons">
 						{#each right_buttons as quick_button}
-							<Button class="rounded-translator-button" icon={quick_button.icon} tooltip={quick_button.text}
+							<Button class="rounded-translator-button" icon={quick_button.icon}
+									tooltip={quick_button.text + ($hide_shortcut_tooltips ? '' : `\n[${getHotKeyString($settings.hotkeys.find(x => x.id.endsWith(quick_button.id)))}]`)}
 									size="16" onClick={() => right_button_actions[quick_button.id]()}/>
 						{/each}
 					</div>

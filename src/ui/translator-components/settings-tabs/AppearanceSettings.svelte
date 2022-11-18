@@ -1,7 +1,7 @@
 <script lang="ts">
 	import TranslatorPlugin from "../../../main";
 
-	import {settings} from "../../../stores";
+	import {settings, hide_shortcut_tooltips} from "../../../stores";
 
 	import {Button, Dropdown, Slider, Toggle, Input, Icon, ToggleButton, ButtonList} from "../../components";
 	import {SettingItem} from "../../obsidian-components";
@@ -9,6 +9,7 @@
 	export let plugin: TranslatorPlugin;
 
 	let obfuscate_keys = app.loadLocalStorage(`obfuscate_keys`) || false;
+	let hide_shortcut_tooltips_toggle = app.loadLocalStorage(`hide_shortcut_tooltips_toggle`) || false;
 </script>
 
 
@@ -58,6 +59,23 @@
 		onChange={async (e) => {
 			obfuscate_keys = !obfuscate_keys;
 		 	app.saveLocalStorage('obfuscate_keys', obfuscate_keys);
+		}}
+	>
+	</Toggle>
+</SettingItem>
+
+<SettingItem
+	name="Hide shortcut tooltips"
+	description="Do not show the keys required to trigger the button's shortcut"
+	type="toggle"
+>
+	<Toggle
+		slot="control"
+		value={ hide_shortcut_tooltips_toggle }
+		onChange={async (e) => {
+			hide_shortcut_tooltips_toggle = !hide_shortcut_tooltips_toggle;
+		 	app.saveLocalStorage('hide_shortcut_tooltips_toggle', hide_shortcut_tooltips_toggle);
+			$hide_shortcut_tooltips = hide_shortcut_tooltips_toggle;
 		}}
 	>
 	</Toggle>

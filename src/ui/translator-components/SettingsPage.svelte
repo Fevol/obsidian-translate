@@ -19,7 +19,7 @@
 		DetectorSettings,
 		TranslatorSettings,
 		FunctionalitySettings,
-		GlossarySettings,
+		// GlossarySettings,
 		HotkeySettings,
 	} from "./settings-tabs";
 	import {Menu} from "obsidian";
