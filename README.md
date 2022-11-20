@@ -54,7 +54,7 @@ Afterwards, you can open the Translation View by either accessing the left ribbo
 |---------------------|-----------|---------------------------------------|-----------------|:---------------|----------------------|-----------|
 | Google Translate    | ✅         | *(0.5M characters **per month**)* ¹ ² |                 |                | ✅                    | 109       |
 | Deepl               | ✅         | *(0.5M characters **per month**)* ¹   |                 |                | ✅                    | 29        |
-| Yandex Translate    | ❓         | *(5M characters)* ¹                   |                 |                |                      | 93        |
+| Yandex Translate    | ❓         | ❌                                     |                 |                |                      | 93        |
 | Libre Translate     | ✅         | ✅                                     | ✅               |                | ❌                    | 30        |
 | Bing Translator     | ✅         | *(2M characters **per month**)* ¹     |                 |                | ✅                    | 111       |
 | Amazon Translate    | ⭕         | *(2M characters **per month**)* ¹ ³   |                 |                |                      |           |

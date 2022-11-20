@@ -4,3 +4,8 @@ import type {TranslatorPluginSettings, PluginData} from "./types";
 export const settings = writable<TranslatorPluginSettings>();
 export const data = writable<PluginData>();
 export let hide_shortcut_tooltips = writable<boolean>(false);
+
+export const glossary = {
+	dicts: {},
+	replacements: {}
+}

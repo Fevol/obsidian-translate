@@ -3,7 +3,7 @@
 
 	import {onDestroy, onMount} from "svelte";
 	import type {Writable} from "svelte/store";
-	import {settings, data, hide_shortcut_tooltips} from "../../stores";
+	import {settings, data, hide_shortcut_tooltips, glossary} from "../../stores";
 	import {horizontalSlide} from "../animations";
 
 	import {Dropdown, TextArea, Icon} from "../components";
@@ -194,8 +194,19 @@
 		if (!selectable_languages.some(x => x.value === language_from))
 			language_from = 'auto';
 
+		let input_text = text_from;
+		if ($settings.local_glossary && plugin.detector) {
+			const detected_language = (await plugin.detector.detect(input_text))?.detected_languages[0].language;
+			const glossary_pair = glossary.dicts[detected_language + language_to];
+			if (detected_language && glossary_pair) {
+				input_text = input_text.replace(glossary.replacements[detected_language + language_to],
+					(match) => glossary_pair.find(x => x[0].toLowerCase() === match.toLowerCase())[1]);
+				language_from = detected_language;
+			}
+		}
+
 		let return_values = await translator.translate(
-			text_from,
+			input_text,
 			language_from,
 			selectable_languages.some(x => x.value === language_to) ? language_to : '',
 		);

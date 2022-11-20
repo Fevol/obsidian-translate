@@ -25,12 +25,13 @@ export function getKeyValue<T extends object, U extends keyof T> (obj: T, key: U
 	return obj[key]
 }
 
-function array_cmp(a1: Array<any>, a2: Array<any>) {
-	var i = a1.length;
+export function array_cmp(a1: Array<any>, a2: Array<any>) {
+	if (a1 === a2) return true;
+	if (a1 == null || a2 == null) return false;
+	let i = a1.length;
 	if (i !== a2.length) return false;
-	while (i--) {
+	while (i--)
 		if (a1[i] !== a2[i]) return false;
-	}
 	return true
 }
 

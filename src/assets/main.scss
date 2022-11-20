@@ -244,10 +244,6 @@
 	flex: 1;
 }
 
-.translator-select {
-	width: auto;
-}
-
 .translator-left-column {
 	grid-area: left;
 }
@@ -559,4 +555,15 @@
 
 .translator-navigation-item-selected .translation-navigation-item-text {
 	flex: 1;
+}
+
+.translator-confirm-glossary {
+	display: flex;
+	justify-content: space-evenly;
+	font-size: var(--h5-size)
+}
+
+.translator-confirm-glossary-change {
+	color: var(--text-accent);
+	font-weight: bold;
 }

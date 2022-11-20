@@ -7,7 +7,7 @@
 
 	import TranslatorPlugin from "../../main";
 
-	import {settings, data} from "../../stores";
+	import {settings, data, glossary } from "../../stores";
 
 	import type {PluginData, TranslatorPluginSettings} from "../../types";
 	import {SERVICES_INFO, DEFAULT_SETTINGS, ALL_SERVICES} from "../../constants";
@@ -130,7 +130,7 @@
 		return active_services;
 	};
 
-	export async function getTranslationService(service: string, old_service: string): Promise<DummyTranslate> {
+	export async function getTranslationService(service: string, old_service: string = ''): Promise<DummyTranslate> {
 		// Do not attempt to create a service if it does not exist
 		if (!service || !(service in SERVICES_INFO)) {
 			// console.log("DID NOT FIND SERVICE: " + service);
@@ -299,5 +299,19 @@
 			plugin.message_queue(`${toTitleCase($settings.translation_service)} is currently not supported on mobile devices, defaulting to first available service`, 5000, true);
 		}
 		filterAvailableServices();
+
+
+		if ($settings.local_glossary) {
+			if (!$settings.service_settings.fasttext.default_usage)
+				plugin.detector = await getTranslationService('fasttext');
+
+			let loaded_glossaries = await app.vault.adapter.read(".obsidian/plugins/obsidian-translate/glossary.json");
+			if (loaded_glossaries) {
+				glossary.dicts = JSON.parse(loaded_glossaries);
+				for (let key in glossary.dicts) {
+					glossary.replacements[key] = new RegExp(glossary.dicts[key].map((item) => item[0]).join("|"), "gi");
+				}
+			}
+		}
 	});
 </script>

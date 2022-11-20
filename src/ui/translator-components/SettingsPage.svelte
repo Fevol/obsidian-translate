@@ -19,7 +19,7 @@
 		DetectorSettings,
 		TranslatorSettings,
 		FunctionalitySettings,
-		// GlossarySettings,
+		GlossarySettings,
 		HotkeySettings,
 	} from "./settings-tabs";
 	import {Menu} from "obsidian";
@@ -53,8 +53,8 @@
 				return GeneralSettings;
 			case "functionality":
 				return FunctionalitySettings;
-			// case "glossary":
-			// 	return GlossarySettings;
+			case "glossary":
+				return GlossarySettings;
 			case "hotkeys":
 				return HotkeySettings;
 			case "appearance":

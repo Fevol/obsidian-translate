@@ -1,7 +1,7 @@
 <script lang="ts">
 	import TranslatorPlugin from "../../../main";
 
-	import {settings, data} from "../../../stores";
+	import {settings, data, glossary} from "../../../stores";
 
 	import {Button, Dropdown, Slider, Toggle, Input, Icon, ToggleButton, ButtonList} from "../../components";
 	import {SettingItem} from "../../obsidian-components";
@@ -65,6 +65,30 @@
 		value={ $settings.default_target_language }
 		onChange={(e) => {
 			$settings.default_target_language = e.target.value;
+		}}
+	/>
+</SettingItem>
+
+
+<SettingItem
+	name="Apply local glossary"
+	description="If the translation service does not provide glossary services, apply glossary locally"
+	notices={[
+		{ type: 'text', text: `Glossary terms may not properly get translated`, style: 'info-text' },
+		{ type: 'text', text: `This option requires <b>FastText</b> to resolve the language of the input text`, style: 'warning-text' }
+	]}
+>
+	<Toggle slot="control" value={$settings.local_glossary}
+		onChange={ async () => {
+			$settings.local_glossary = !$settings.local_glossary;
+			if ($settings.local_glossary && !Object.keys(glossary.dicts).length) {
+				let loaded_glossaries = await app.vault.adapter.read(".obsidian/plugins/obsidian-translate/glossary.json");
+				if (loaded_glossaries) {
+					glossary.dicts = JSON.parse(loaded_glossaries);
+					for (let key in glossary.dicts)
+						glossary.replacements[key] = new RegExp(glossary.dicts[key].map((item) => item[0]).join("|"), "gi");
+				}
+			}
 		}}
 	/>
 </SettingItem>

@@ -57,6 +57,7 @@ export const DEFAULT_SETTINGS: TranslatorPluginSettings = {
 	security_setting: 'none',
 	storage_path: "models",
 	switch_button_action: 'switch-both',
+	local_glossary: false,
 	enable_animations: true,
 	hide_attribution: false,
 	default_source_language: 'auto',
@@ -1021,11 +1022,11 @@ export let SETTINGS_TABS = [
 		name: 'Functionality',
 		icon: 'wrench',
 	},
-	// {
-	// 	id: 'glossary',
-	// 	name: 'Glossary',
-	// 	icon: 'book',
-	// },
+	{
+		id: 'glossary',
+		name: 'Glossary',
+		icon: 'book',
+	},
 	{
 		id: 'hotkeys',
 		name: 'Hotkeys',
