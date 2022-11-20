@@ -58,6 +58,7 @@ export const DEFAULT_SETTINGS: TranslatorPluginSettings = {
 	storage_path: "models",
 	switch_button_action: 'switch-both',
 	local_glossary: false,
+	case_insensitive_glossary: false,
 	enable_animations: true,
 	hide_attribution: false,
 	default_source_language: 'auto',

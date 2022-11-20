@@ -95,6 +95,7 @@ export default {
 	// TODO: Ask a Star Trek fan what PIQD is supposed to be (besides Picard)
 	// "PIQD": "",
 	"MONG": "Mongolian",
+	"MTEI": "Meitei",
 
 	// Region specifiers for locales
 	"TW": "Taiwanese",

@@ -196,20 +196,27 @@
 
 		let input_text = text_from;
 		if ($settings.local_glossary && plugin.detector) {
-			const detected_language = (await plugin.detector.detect(input_text))?.detected_languages[0].language;
-			const glossary_pair = glossary.dicts[detected_language + language_to];
-			if (detected_language && glossary_pair) {
-				input_text = input_text.replace(glossary.replacements[detected_language + language_to],
-					(match) => glossary_pair.find(x => x[0].toLowerCase() === match.toLowerCase())[1]);
-				language_from = detected_language;
+			if (language_from === 'auto')
+				detected_language = (await plugin.detector.detect(input_text))?.detected_languages[0].language;
+			const temp_language_from = detected_language || language_from;
+			const glossary_pair = glossary.dicts[temp_language_from + language_to];
+			if (temp_language_from && glossary_pair) {
+				input_text = input_text.replace(glossary.replacements[temp_language_from + language_to],
+					(match) => {
+						// TODO: Make case insensitive (also possible in case-by-case basis)
+						return glossary_pair.find(x => x[0].toLowerCase() === match.toLowerCase())[1] || match;
+					});
 			}
 		}
 
 		let return_values = await translator.translate(
 			input_text,
-			language_from,
+			detected_language || language_from,
 			selectable_languages.some(x => x.value === language_to) ? language_to : '',
 		);
+
+		if (detected_language)
+			return_values.detected_language = detected_language;
 
 		// We'd rather not have messages displayed while in the settings
 		if (return_values.message && !plugin.settings_open)
@@ -420,7 +427,7 @@
 						<Icon icon={$translation_service}/>
 						{SERVICES_INFO[$translation_service].display_name}
 					</a>
-					{#if plugin.detector}
+					{#if plugin.detector && $translation_service === "bergamot"}
 						with
 						<a href={services["fasttext"].url} target="_blank" class="icon-text translator-service-text">
 							<Icon icon="fasttext"/>

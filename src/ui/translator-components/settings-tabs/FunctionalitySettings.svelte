@@ -86,9 +86,26 @@
 				if (loaded_glossaries) {
 					glossary.dicts = JSON.parse(loaded_glossaries);
 					for (let key in glossary.dicts)
-						glossary.replacements[key] = new RegExp(glossary.dicts[key].map((item) => item[0]).join("|"), "gi");
+						glossary.replacements[key] = new RegExp(glossary.dicts[key].map((item) => item[0]).join("|"),
+						$settings.case_insensitive_glossary ? "gi" : "g");
 				}
 			}
 		}}
 	/>
 </SettingItem>
+
+{#if $settings.local_glossary}
+	<SettingItem
+		name="Case insensitive glossary"
+		description="Local glossary will attempt to match terms regardless of case"
+	>
+		<Toggle slot="control" value={$settings.case_insensitive_glossary}
+			onChange={ async () => {
+				$settings.case_insensitive_glossary = !$settings.case_insensitive_glossary;
+				for (let key in glossary.dicts)
+					glossary.replacements[key] = new RegExp(glossary.replacements[key],
+															$settings.case_insensitive_glossary ? "gi" : "g");
+			}}
+		/>
+	</SettingItem>
+{/if}

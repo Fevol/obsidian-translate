@@ -108,7 +108,8 @@
 		app.vault.adapter.write(".obsidian/plugins/obsidian-translate/glossary.json", JSON.stringify(local_glossaries, null, "\t"));
 		glossary.dicts = local_glossaries;
 		for (let key in glossary.dicts) {
-			glossary.replacements[key] = new RegExp(glossary.dicts[key].map((item) => item[0]).join("|"), "gi");
+			glossary.replacements[key] = new RegExp(glossary.dicts[key].map((item) => item[0]).join("|"),
+				$settings.case_insensitive_glossary ? "gi" : "g");
 		}
 
 		app.keymap.popScope(view_scope);

@@ -305,11 +305,12 @@
 			if (!$settings.service_settings.fasttext.default_usage)
 				plugin.detector = await getTranslationService('fasttext');
 
-			let loaded_glossaries = await app.vault.adapter.read(".obsidian/plugins/obsidian-translate/glossary.json");
+			let loaded_glossaries: any = await app.vault.adapter.read(".obsidian/plugins/obsidian-translate/glossary.json");
 			if (loaded_glossaries) {
 				glossary.dicts = JSON.parse(loaded_glossaries);
 				for (let key in glossary.dicts) {
-					glossary.replacements[key] = new RegExp(glossary.dicts[key].map((item) => item[0]).join("|"), "gi");
+					glossary.replacements[key] = new RegExp(glossary.dicts[key].map((item) => item[0]).join("|"),
+					$settings.case_insensitive_glossary ? "gi" : "g");
 				}
 			}
 		}
