@@ -184,6 +184,7 @@
 		}
 	}
 
+	$: $translation_service, updateService();
 	$: spellchecker_languages_observer = $data.spellchecker_languages.length;
 	$: selected_languages_observer = $settings.service_settings[$translation_service].selected_languages.length;
 	$: display_language_observer = $settings.display_language;
@@ -238,8 +239,6 @@
 			available_languages = translator.available_languages || $settings.service_settings[$translation_service].available_languages;
 		});
 	}
-
-	$: $translation_service, updateService();
 
 	function filterLanguages() {
 		let languages = available_languages;
