@@ -21,7 +21,7 @@
 }
 
 .translator-select {
-	width: 100%;
+	//width: 100%;
 	//margin: 4px;
 }
 
@@ -324,16 +324,12 @@
 
 .translator-unfocused-element {
 	outline: 2px dashed transparent;
-	transition: outline-color 0.25s ease-in-out;
-}
-
-.translator-focused-element {
-	outline-color: var(--color-accent) !important;
+	transition: outline-color 0.5s ease-in-out;
 }
 
 .translator-selected-element {
 	color: var(--color-accent);
-	transition: color 0.25s ease-in-out;
+	transition: color 0.5s ease-in-out;
 }
 
 .translator-navigation-item-selected .translator-selected-element {
@@ -381,17 +377,9 @@
 }
 
 .translator-appearance-modal-header {
-	width: 100%;
-
 	display: flex;
-	flex-direction: column;
-	gap: var(--size-4-4);
-
-	margin: var(--size-4-2) 0;
-	padding: var(--size-4-2) var(--size-4-3);
-
-	background: var(--background-secondary);
-	border-radius: 20px;
+	flex-direction: row;
+	justify-content: space-between;
 }
 
 .translator-appearance-modal-header > * {
@@ -400,9 +388,12 @@
 }
 
 .translator-appearance-modal-attribution {
+	display: flex;
+	align-items: center;
 	width: fit-content;
+	height: fit-content;
 	padding: var(--size-2-2) var(--size-4-2);
-	border-radius: 20px;
+	border-radius: 16px;
 }
 
 .translator-dnd-header {
@@ -412,7 +403,7 @@
 	align-items: center;
 
 	width: min-content;
-	margin: 0 auto;
+	margin: var(--size-4-2) auto 0 auto;
 	padding: var(--size-4-1) var(--size-4-2);
 
 	background: var(--background-secondary);
@@ -447,31 +438,61 @@
 }
 
 .translator-appearance-modal-settings {
-	margin-bottom: var(--size-4-3);
+	border-radius: 8px;
+	padding: var(--size-4-2);
+	margin: var(--size-4-2) 0;
+}
+
+
+.translator-appearance-modal-contents {
+	background-color: var(--background-primary-alt);
+	border-radius: 10px;
 }
 
 .translator-appearance-modal-view {
-	background-color: var(--background-primary-alt);
-	padding: var(--size-4-2);
-	border-radius: 10px;
 	height: 350px;
 	resize: vertical;
+	border-radius: 10px;
+	margin: var(--size-2-2) var(--size-4-2) var(--size-4-2) var(--size-4-2);
+	padding: var(--size-4-3);
 	@extend .translator-unfocused-element
 }
 
-//.translator-appearance-modal-view::after {
-//	pointer-events: none;
-//	content: "↓";
-//	font-size: 14px;
-//	position: absolute;
-//	height: 22px;
-//	width: 20px;
-//	text-align: center;
-//	bottom: 2px;
-//	right: -2px;
-//	background-color: #efefef;
-//	color: #777;
-//}
+.translator-appearance-modal-view-header {
+	min-width: 48px;
+	min-height: 36px;
+	width: fit-content;
+	padding: var(--size-2-2) var(--size-4-2);
+
+	gap: 4px;
+	border-radius: 40px;
+
+	display: flex;
+	flex-direction: row;
+	flex-wrap: wrap;
+	align-items: center;
+	justify-content: center;
+}
+
+.translator-quicksetting-button {
+	min-height: 28px;
+	max-height: 28px;
+	min-width:  28px;
+	max-width:  28px;
+	padding: var(--size-2-2);
+	border-radius: 100%;
+	border: 1px solid var(--background-modifier-border);
+	background-color: var(--background-primary);
+}
+
+.translator-focused-button {
+	background-color: var(--color-accent) !important;
+	color: var(--text-on-accent);
+}
+
+.translator-focused-element {
+	outline-color: var(--color-accent) !important;
+}
 
 .translator-confirmation-buttons {
 	display: flex;

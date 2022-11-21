@@ -1040,5 +1040,34 @@ export let SETTINGS_TABS = [
 	},
 ];
 
+export const QUICK_ACTIONS = {
+	"copy": {text: ["Copy"], icon: ["copy"]},
+	"paste": {text: ["Paste"], icon: ["clipboard-check"]},
+	"clear": {text: ["Clear"], icon: ["x"]},
+};
+
+export const QUICK_SETTINGS = {
+	"change-service": {text: ["Change Translation Service"], icon: ["cloud"]},
+	"automatic-translation": {text: ["Translating manually", "Automatically translating"], icon: ["hand", "zap"]},
+	"apply-glossary": {text: ["Don't apply glossary", "Apply glossary"], icon: ["book", "book-open"]},
+	"change-layout": {
+		text: Object.values(VIEW_MODES).map((mode) => mode.tooltip),
+		icon: Object.values(VIEW_MODES).map((mode) => mode.icon)
+	},
+	"apply-filter": {
+		text: Object.values(FILTER_MODES).map((mode) => mode.tooltip),
+		icon: Object.values(FILTER_MODES).map((mode) => mode.icon)
+	},
+	"open-settings": {text: ["Open Settings"], icon: ["settings"]},
+};
+
+export const QUICK_SETTINGS_BUTTONS = Object.entries(QUICK_SETTINGS).map(([key, value]) => {
+	return { id: key, ...value };
+});
+
+export const QUICK_ACTIONS_BUTTONS = Object.entries(QUICK_ACTIONS).map(([key, value]) => {
+	return { id: key, ...value };
+});
+
 
 export const UNTESTED_SERVICES = ['yandex_translate', 'fanyi_qq', 'fanyi_youdao', 'fanyi_baidu'];

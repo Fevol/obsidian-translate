@@ -14,7 +14,8 @@
 	let ignoring_dnd_events = false;
 	let dropFromOthersDisabled = false;
 
-	$: dropFromOthersDisabled = role === "source";
+	export let button_states = items.map(() => 0);
+	$: dropFromOthersDisabled =  dragDisabled || role === "source";
 
 	const flipDurationMs = 300;
 	const dropTargetStyle = {
@@ -41,6 +42,7 @@
 			}
 		} else {
 			items = e.detail.items;
+			button_states = items ? items.map(() => 0) : [];
 		}
 	}
 	function handleDndFinalize(e) {
@@ -55,14 +57,21 @@
 			}
 		} else {
 			items = e.detail.items;
+			button_states = items ? items.map(() => 0) : items;
 		}
 	}
 </script>
 
 <section aria-label={tooltip} class={$$props.class} use:dndzone={{items, flipDurationMs, dropTargetStyle, dropFromOthersDisabled, dragDisabled}} on:consider="{handleDndConsider}" on:finalize="{handleDndFinalize}">
-	{#each items as item(item.id)}
-		<div animate:flip="{{duration: flipDurationMs}}" class={`flex-row-element ${itemstyle}`} aria-label={item.text}>
-			<Icon icon={item.icon}/>
+	{#each items as item, index (item.id)}
+		<div animate:flip="{{duration: flipDurationMs}}" class={`flex-row-element ${itemstyle}`} aria-label={item.text[dragDisabled ? button_states[index] : 0]}
+			on:click={() => {
+				if (dragDisabled) {
+					button_states[index] = (button_states[index] + 1) % item.text.length
+				}
+			}
+		}>
+			<Icon icon={item.icon[dragDisabled ? button_states[index] : 0]}/>
 		</div>
 	{/each}
 </section>

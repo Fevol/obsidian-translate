@@ -1,24 +1,27 @@
 <script>
-	import {Button, Icon, Dropdown, TextArea, DragAndDrop} from "../components";
-	import {SettingItem} from "../obsidian-components/";
-	import {scale, fade, slide} from "svelte/transition";
-	import Toggle from "../components/Toggle.svelte";
-	import {SERVICES_INFO, VIEW_MODES} from "../../constants";
+	import {Button, Toggle, Icon, Dropdown, TextArea, DragAndDrop} from "../components";
+
 	import {createEventDispatcher} from "svelte";
+	import {slide} from "svelte/transition";
+
+	import {
+		FILTER_MODES,
+		SERVICES_INFO,
+		VIEW_MODES,
+		QUICK_ACTIONS, QUICK_ACTIONS_BUTTONS,
+		QUICK_SETTINGS, QUICK_SETTINGS_BUTTONS,
+	} from "../../constants";
+
 
 	const dispatch = createEventDispatcher()
 
-	let selectable_actions = [
-		{id: "copy", text: "Copy", icon: "copy"},
-		{id: "paste", text: "Paste", icon: "clipboard-check"},
-		{id: "clear", text: "Clear", icon: "x"},
-	];
-
+	export let top_buttons = [];
 	export let left_buttons = [];
 	export let right_buttons = [];
 	export let view_mode = "automatic";
 	export let show_attribution = true;
 
+	let current_editing_mode;
 	let current_view_mode;
 	let w, h;
 	$: view_mode, w, h, handleResize();
@@ -41,117 +44,183 @@
 
 <div class="translator-appearance-modal">
 
-	<div class="translator-appearance-modal-settings">
-		<SettingItem
-			name="Layout"
-			description="Choose the layout of the translator"
-		>
-			<Dropdown
-				slot="control"
-				class="translator-select"
-				value={view_mode}
-				options={[
-					{ value: 0, text: 'Automatic', },
-					{ value: 1, text: 'Vertical', },
-					{ value: 2, text: 'Mixed', },
-					{ value: 3, text: 'Horizontal', }
-				]}
-				onChange={(e) => {
-					view_mode = parseInt(e.target.value);
-				}}
-			/>
-		</SettingItem>
-		<SettingItem
-			name="Attribution info"
-			description="Add attribution to the bottom of the view"
-		>
-			<Toggle
-				slot="control"
-				value={ show_attribution }
-				onChange={async (e) => { show_attribution = !show_attribution; }}
-			/>
-		</SettingItem>
-		<SettingItem
-			name="Quick actions"
-			description="Allows you to quickly execute actions on the respective text areas"
-			notices={[
-				{ text: "ⓘ Add these <b>quick actions</b> to the view by dragging and dropping <b style='color: var(--color-green)'>green actions</b> to one of the two <b style='color: var(--color-accent)'>designated areas</b>. Actions can be removed by dragging them to the <b style='color: var(--color-red)'>red area</b>.", type: "info-text" },
-			]}
-		>
-			<div class="translator-dnd-header" slot="subcontrol">
-				<DragAndDrop items={[]} role="trashcan" class="translator-dnd-trashcan" itemstyle="translator-dnd-trashcan-item" tooltip="Delete action"/>
-
-				<DragAndDrop items={selectable_actions} role="source" class="translator-dnd-source flex-row-element" itemstyle="translator-dnd-source-item" />
-			</div>
-		</SettingItem>
+	<div class="translator-appearance-modal-header">
+		<Button class={current_editing_mode === 0 ? "translator-focused-button" : ""}
+				text="Add Quicksettings" onClick={() => current_editing_mode = current_editing_mode === 0 ? null : 0} />
+		<Button class={current_editing_mode === 1 ? "translator-focused-button" : ""}
+				text="Alter layout" onClick={() => current_editing_mode = current_editing_mode === 1 ? null : 1} />
+		<Button class={current_editing_mode === 2 ? "translator-focused-button" : ""}
+				text="Add Quickactions" onClick={() => current_editing_mode = current_editing_mode === 2 ? null : 2} />
+		<Button class={current_editing_mode === 3 ? "translator-focused-button" : ""}
+				text="Show attribution info" onClick={() => current_editing_mode = current_editing_mode === 3 ? null : 3} />
 	</div>
 
 
-	<div
-		bind:clientWidth={w} bind:clientHeight={h}
-		class={`translator-view translator-appearance-modal-view ${current_view_mode}`}
-		style="overflow-x: hidden"
-	>
-		<div class="translator-column translator-left-column">
-			<Dropdown
-				disabled={true}
-				class="translator-select"
-				value={"auto"}
-				options={[{"value": "auto", "text": "Detect Language (English)"}]}
-			/>
-			<div class="translator-textarea-column">
+	<div class="translator-appearance-modal-settings">
+		{#if current_editing_mode === 0}
+			<div in:slide={{delay: 325, duration: 250}} out:slide={{duration: 250}}>
+				<div class="flex-row-element">
+					<div class="setting-item-info">
+						<div class="setting-item-name">Quick settings</div>
+						<div class="setting-item-description">
+							Quickly change translator's settings<br>
+							<span>
+								ⓘ Add these <b>quick settings</b> to the view by dragging and dropping
+								<b style='color: var(--color-green)'>green actions</b> to one of the two
+								<b style='color: var(--color-accent)'>designated areas</b>.
+								Settings can be removed by dragging them to the <b style='color: var(--color-red)'>red area</b>
+							</span>
+						</div>
+					</div>
+				</div>
+				<div class="translator-dnd-header">
+					<DragAndDrop items={[]} role="trashcan" class="translator-dnd-trashcan" itemstyle="translator-dnd-trashcan-item" tooltip="Delete action"/>
+					<DragAndDrop items={QUICK_SETTINGS_BUTTONS} role="source" class="translator-dnd-source flex-row-element" itemstyle="translator-dnd-source-item" />
+				</div>
+			</div>
+		{:else if current_editing_mode === 1}
+			<div class="flex-row-element" in:slide={{delay: 325, duration: 250}} out:slide={{duration: 250}}>
+				<div class="setting-item-info">
+					<div class="setting-item-name">Layout</div>
+					<div class="setting-item-description">
+						Determine the layout of the translator<br>
+						<span class="info-text">
+						`Automatic` layout will adapt the layout<br>based on the width and height of the view
+						</span>
+					</div>
+				</div>
+				<Dropdown
+					class="translator-select"
+					value={view_mode}
+					options={[
+							{ value: 0, text: 'Automatic', },
+							{ value: 1, text: 'Vertical', },
+							{ value: 2, text: 'Mixed', },
+							{ value: 3, text: 'Horizontal', }
+						]}
+					onChange={(e) => {
+							view_mode = parseInt(e.target.value);
+						}}
+				/>
+			</div>
+		{:else if current_editing_mode === 2}
+			<div in:slide={{delay: 325, duration: 250}} out:slide={{duration: 250}}>
+				<div class="flex-row-element">
+					<div class="setting-item-info">
+						<div class="setting-item-name">Quick settings</div>
+						<div class="setting-item-description">
+							Quickly change translator's settings<br>
+							<span>
+							ⓘ Add these <b>quick actions</b> to the view by dragging and dropping
+							<b style='color: var(--color-green)'>green actions</b> to one of the two
+							<b style='color: var(--color-accent)'>designated areas</b>.
+							Actions can be removed by dragging them to the <b style='color: var(--color-red)'>red area</b>
+						</span>
+						</div>
+					</div>
+				</div>
+				<div class="translator-dnd-header">
+					<DragAndDrop items={[]} role="trashcan" class="translator-dnd-trashcan" itemstyle="translator-dnd-trashcan-item" tooltip="Delete action"/>
+					<DragAndDrop items={QUICK_ACTIONS_BUTTONS} role="source" class="translator-dnd-source flex-row-element" itemstyle="translator-dnd-source-item" />
+				</div>
+			</div>
+		{:else if current_editing_mode === 3}
+			<div class="flex-row-element" in:slide={{delay: 325, duration: 250}} out:slide={{duration: 250}}>
+				<div class="setting-item-info">
+					<div class="setting-item-name">Attribution info</div>
+					<div class="setting-item-description">Add attribution to the bottom of the view</div>
+				</div>
+				<Toggle
+					value={ show_attribution }
+					onChange={async (e) => { show_attribution = !show_attribution; }}
+				/>
+			</div>
+		{:else}
+			<div/>
+		{/if}
+	</div>
+
+
+	<div class="translator-appearance-modal-contents">
+		<div class="nav-header">
+			<div class="nav-buttons-container">
+				<DragAndDrop bind:items={top_buttons} dragDisabled={current_editing_mode !== 0}
+							 itemstyle="nav-action-button translator-quicksetting-button"
+							 class={`translator-appearance-modal-view-header translator-textarea-quickbuttons-editing
+								${current_editing_mode === 0 ? 'translator-focused-element' : ''}`}
+				/>
+			</div>
+		</div>
+		<div
+			bind:clientWidth={w} bind:clientHeight={h}
+			class={`translator-view translator-appearance-modal-view ${current_view_mode}`}
+			class:translator-focused-element={current_editing_mode === 1}
+			style="overflow-x: hidden"
+		>
+			<div class="translator-column translator-left-column">
+				<Dropdown
+					disabled={true}
+					class="translator-select"
+					value={"auto"}
+					options={[{"value": "auto", "text": "Detect Language (English)"}]}
+				/>
+				<div class="translator-textarea-column">
 				<TextArea
 					placeholder="Type here..."
 					class="translator-textarea"
 					readonly={true}
 				/>
-				<DragAndDrop bind:items={left_buttons}
-							 itemstyle="rounded-translator-button"
-							 class={`translator-textarea-quickbuttons translator-textarea-quickbuttons-editing`}
-				/>
+					<DragAndDrop bind:items={left_buttons} dragDisabled={current_editing_mode !== 2}
+								 itemstyle="rounded-translator-button"
+								 class={`translator-textarea-quickbuttons translator-textarea-quickbuttons-editing
+							 		${current_editing_mode === 2 ? 'translator-focused-element' : ''}`}
+					/>
+				</div>
 			</div>
-		</div>
 
-		<div class="translator-button-container translator-center-column">
-			<button class="translator-button" aria-label="Switch languages around">
-				<Icon icon=switch size={20}/>
-			</button>
+			<div class="translator-button-container translator-center-column">
+				<button class="translator-button" aria-label="Switch languages around">
+					<Icon icon=switch size={20}/>
+				</button>
 
-			<button class="translator-button"  aria-label="Translate">
-				<Icon icon=translate size={20}/>
-			</button>
-		</div>
+				<button class="translator-button"  aria-label="Translate">
+					<Icon icon=translate size={20}/>
+				</button>
+			</div>
 
-		<div class="translator-column translator-right-column">
-			<Dropdown
-				disabled={true}
-				class="translator-select"
-				value={"fr"}
-				options={[{"value": "fr", "text": "French"}]}
-			/>
-			<div class="translator-textarea-column">
+			<div class="translator-column translator-right-column">
+				<Dropdown
+					disabled={true}
+					class="translator-select"
+					value={"fr"}
+					options={[{"value": "fr", "text": "French"}]}
+				/>
+				<div class="translator-textarea-column">
 				<TextArea
 					placeholder="Translation"
 					class="translator-textarea"
 					readonly={true}
 				/>
-				<DragAndDrop bind:items={right_buttons}
-							 itemstyle="rounded-translator-button"
-							 class={`translator-textarea-quickbuttons translator-textarea-quickbuttons-editing`}
-				/>
-			</div>
-		</div>
-		{#if show_attribution}
-			<div class="translator-appearance-modal-attribution translator-attribution-column translator-unfocused-element" transition:slide>
-				<div class="translator-attribution-column-text">
-					Using
-					<a href="https://www.youtube.com/watch?v=dQw4w9WgXcQ" target="_blank" class="icon-text translator-service-text">
-						<Icon icon="translate"/>
-						Dummy Translate
-					</a>
+					<DragAndDrop bind:items={right_buttons} dragDisabled={current_editing_mode !== 2}
+								 itemstyle="rounded-translator-button"
+								 class={`translator-textarea-quickbuttons translator-textarea-quickbuttons-editing
+							 		${current_editing_mode === 2 ? 'translator-focused-element' : ''}`}
+					/>
 				</div>
 			</div>
-		{/if}
+			{#if show_attribution}
+				<div class="translator-appearance-modal-attribution translator-attribution-column translator-unfocused-element"
+					 class:translator-focused-element={current_editing_mode === 3} transition:slide>
+					<div class="translator-attribution-column-text">
+						Using
+						<a href="https://www.youtube.com/watch?v=dQw4w9WgXcQ" target="_blank" class="icon-text translator-service-text">
+							<Icon icon="translate"/>
+							Dummy Translate
+						</a>
+					</div>
+				</div>
+			{/if}
+		</div>
 	</div>
 
 	<div class="translator-confirmation-buttons">
@@ -161,7 +230,7 @@
 
 		<button class="translator-success"
 			on:click={async () => {
-				dispatch("close", { view_mode, show_attribution, left_buttons, right_buttons });
+				dispatch("close", { view_mode, show_attribution, top_buttons, left_buttons, right_buttons });
 			}}>
 			Confirm
 		</button>

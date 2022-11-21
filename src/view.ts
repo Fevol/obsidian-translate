@@ -64,9 +64,11 @@ export class TranslatorView extends ItemView {
 			state.language_to = this.view.$$.ctx[this.view.$$.props.language_to];
 			state.translation_service = get(this.translation_service);
 			state.auto_translate = this.view.$$.ctx[this.view.$$.props.auto_translate];
+			state.apply_glossary = this.view.$$.ctx[this.view.$$.props.apply_glossary];
 			state.view_mode = this.view.$$.ctx[this.view.$$.props.view_mode];
 			state.filter_mode = this.view.$$.ctx[this.view.$$.props.filter_mode];
 			state.show_attribution = this.view.$$.ctx[this.view.$$.props.show_attribution];
+			state.top_buttons = this.view.$$.ctx[this.view.$$.props.top_buttons];
 			state.left_buttons = this.view.$$.ctx[this.view.$$.props.left_buttons];
 			state.right_buttons = this.view.$$.ctx[this.view.$$.props.right_buttons];
 		}
@@ -102,9 +104,11 @@ export class TranslatorView extends ItemView {
 					language_from: state.language_from || current_settings.default_source_language,
 					language_to: state.language_to || current_settings.default_target_language,
 					auto_translate: state.auto_translate || false,
+					apply_glossary: state.apply_glossary || false,
 					view_mode: state.view_mode || 0,
 					filter_mode: state.filter_mode || 0,
 					show_attribution: state.show_attribution !== undefined ? state.show_attribution : true,
+					top_buttons: state.top_buttons || [],
 					left_buttons: state.left_buttons || [],
 					right_buttons: state.right_buttons || [],
 				}
@@ -116,15 +120,15 @@ export class TranslatorView extends ItemView {
 				language_from: state.language_from || current_settings.default_source_language,
 				language_to: state.language_to || current_settings.default_target_language,
 				auto_translate: state.auto_translate || false,
+				apply_glossary: state.apply_glossary || false,
 				view_mode: state.view_mode || 0,
 				filter_mode: state.filter_mode || 0,
 				show_attribution: state.show_attribution !== undefined ? state.show_attribution : true,
+				top_buttons: state.top_buttons || [],
 				left_buttons: state.left_buttons || [],
 				right_buttons: state.right_buttons || [],
 			});
 		}
-
-
 
 		await super.setState(state, result);
 	}

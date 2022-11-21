@@ -11,7 +11,15 @@
 	import {SwitchService} from "../modals";
 
 	import type {PluginData, TranslatorPluginSettings} from "../../types";
-	import { DEFAULT_SETTINGS, FILTER_MODES, ICONS, SERVICES_INFO, VIEW_MODES } from "../../constants";
+	import {
+		DEFAULT_SETTINGS,
+		FILTER_MODES,
+		ICONS,
+		QUICK_ACTIONS,
+		QUICK_SETTINGS,
+		SERVICES_INFO,
+		VIEW_MODES
+	} from "../../constants";
 	import {DummyTranslate} from "../../handlers";
 
 	import {Scope, Platform} from "obsidian";
@@ -27,11 +35,13 @@
 	export let language_to: string;
 	export let translation_service: Writable<string>;
 	export let auto_translate: boolean;
+	export let apply_glossary: boolean;
 	export let view_mode: number;
 	export let filter_mode: number;
 	export let show_attribution: boolean;
-	export let left_buttons: any[];
-	export let right_buttons: any[];
+	export let top_buttons: string[];
+	export let left_buttons: string[];
+	export let right_buttons: string[];
 
 	let parent_view;
 	$: {
@@ -44,6 +54,50 @@
 				app.keymap.popScope(view_scope);
 			})
 		}
+	}
+
+	$: top_button_disabled = {
+		'automatic-translation': !$settings.service_settings[$translation_service].auto_translate,
+		'apply-glossary': !$settings.local_glossary,
+	}
+
+	let top_button_states = {
+		'change-service': 0,
+		'automatic-translation': auto_translate | 0,
+		'apply-glossary': apply_glossary | 0,
+		'change-layout': view_mode,
+		'apply-filter': filter_mode,
+		'open-settings': 0,
+	}
+
+	const top_button_actions = {
+		'change-service': () => {
+			new SwitchService(plugin.app, plugin, (service) => {
+				previous_service = $translation_service;
+				$translation_service = service;
+			}).open();
+		},
+		'automatic-translation': () => {
+			auto_translate = !auto_translate;
+			top_button_states['automatic-translation'] = auto_translate ? 1 : 0;
+		},
+		'apply-glossary': () => {
+			apply_glossary = !apply_glossary;
+			top_button_states['apply-glossary'] = apply_glossary ? 1 : 0;
+		},
+		'change-layout': () => {
+			view_mode = (view_mode + 1) % 4;
+			top_button_states['change-layout'] = view_mode;
+		},
+		'apply-filter': () => {
+			filter_mode = (filter_mode + 1) % 3;
+			top_button_states['apply-filter'] = filter_mode;
+		},
+		'open-settings': () => {
+			$data.tab = $translation_service;
+			plugin.app.setting.open();
+			plugin.app.setting.openTabById("obsidian-translate");
+		},
 	}
 
 	const left_button_actions = {
@@ -141,8 +195,8 @@
 	$: fasttext_models_observer = $data.models?.fasttext;
 	$: autodetect_capability = fasttext_models_observer;
 
-	$: language_from, language_to, $translation_service, auto_translate, view_mode, filter_mode, show_attribution,
-		left_buttons, right_buttons, app.workspace.requestSaveLayout();
+	$: language_from, language_to, $translation_service, auto_translate, apply_glossary, view_mode, filter_mode,
+		show_attribution, top_buttons, left_buttons, right_buttons, app.workspace.requestSaveLayout();
 
 	function updateAvailableLanguages() {
 		if (translator && $translation_service === 'bergamot') {
@@ -152,10 +206,21 @@
 	}
 
 	$: {
-		auto_translate = auto_translate && $settings.service_settings[$translation_service].auto_translate;
+		apply_glossary;
+		language_from;
+		language_to;
 		if (auto_translate)
-			translate();
+			autoTranslate();
 	};
+
+	function autoTranslate() {
+		// This function exists for two reasons:
+		// 1. Avoids the translate() function being called when component has not been fully mounted yet
+		// 2. Prevent translate() function getting called without text_from to translate with (and resulting in 'No text provided' messages)
+		// (putting this logic in translate() function would result in text_from being considered part of the reactive statement)
+		if (text_from)
+			translate();
+	}
 
 	$: {
 		view_mode;
@@ -195,15 +260,21 @@
 			language_from = 'auto';
 
 		let input_text = text_from;
-		if ($settings.local_glossary && plugin.detector) {
-			if (language_from === 'auto')
-				detected_language = (await plugin.detector.detect(input_text))?.detected_languages[0].language;
+		if ($settings.local_glossary && apply_glossary && plugin.detector) {
+			if (language_from === 'auto') {
+				const detection_results = await plugin.detector.detect(input_text);
+				if (detection_results.detected_languages)
+					language_from = detection_results.detected_languages[0].language;
+			}
 			const temp_language_from = detected_language || language_from;
 			const glossary_pair = glossary.dicts[temp_language_from + language_to];
 			if (temp_language_from && glossary_pair) {
 				input_text = input_text.replace(glossary.replacements[temp_language_from + language_to],
 					(match) => {
-						// TODO: Make case insensitive (also possible in case-by-case basis)
+						// TODO: Check if case insensitivity per word is also feasible,
+						//  issue would be that the search would always have to be executed with case-insensitive matching
+						//  and then case-sensitivity check should happen here (by removing toLowerCase())
+						//  either way: heavy performance impact
 						return glossary_pair.find(x => x[0].toLowerCase() === match.toLowerCase())[1] || match;
 					});
 			}
@@ -280,43 +351,21 @@
 </script>
 
 <View bind:this={parent_view}>
-	<NavHeader slot="header"
-	   buttons={[
-	   {
-		   icon: "cloud",
-		   tooltip: "Change Translation Service",
-		   onClick: () => new SwitchService(plugin.app, plugin, (service) => {
-				previous_service = $translation_service;
-				$translation_service = service;
-		   }).open(),
-	   },
-	   {
-		   icon: auto_translate ? "zap" : "hand",
-		   tooltip: auto_translate ? "Automatically translating" : "Translating manually",
-		   onClick: () => { auto_translate = !auto_translate },
-		   disabled: !$settings.service_settings[$translation_service].auto_translate
-	   },
-	   {
-		   icon: FILTER_MODES[filter_mode].icon,
-		   tooltip: FILTER_MODES[filter_mode].tooltip,
-		   onClick: () => filter_mode = (filter_mode + 1) % 3
-	   },
-	   {
-		   icon: VIEW_MODES[view_mode].icon,
-		   tooltip: VIEW_MODES[view_mode].tooltip,
-		   onClick: () => view_mode = (view_mode + 1) % 4
-	   },
-	   {
-		   icon: "settings",
-		   tooltip: "Open Settings",
-		   onClick: () => {
-				$data.tab = $translation_service;
-				plugin.app.setting.open();
-				plugin.app.setting.openTabById("obsidian-translate");
-		   }
-	   }
-	   ].filter(x => !x.disabled)}
-	/>
+	<div slot="header">
+		{#if top_buttons.length}
+			<div class="nav-header">
+				<div class="nav-buttons-container">
+					{#each top_buttons as button}
+						{#if !top_button_disabled[button]}
+							<div aria-label={QUICK_SETTINGS[button].text[top_button_states[button]]} on:click={top_button_actions[button]} class="nav-action-button">
+								<Icon icon={QUICK_SETTINGS[button].icon[top_button_states[button]]}/>
+							</div>
+						{/if}
+					{/each}
+				</div>
+			</div>
+		{/if}
+	</div>
 
 	<div slot="view" class="translator-view {current_layout}" class:disable-animations={!$settings.enable_animations}>
 		<!-- TODO: Make the field resizable (save data)-->
@@ -347,6 +396,8 @@
 						text_from = e.target.value;
 						if (!text_from) {
 							text_to = "";
+							// FIXME: If the user only types one word, the language detected for that word will be used
+							//  as long as text_from is not cleared (resetting detected_languages every translation is suboptimal)
 							detected_language = undefined;
 						} else if (auto_translate) {
 							await translate();
@@ -356,10 +407,10 @@
 				{#if left_buttons?.length}
 					<div class="translator-textarea-quickbuttons">
 						{#each left_buttons as quick_button}
-							<Button class="rounded-translator-button" icon={quick_button.icon}
-									tooltip={quick_button.text + ($hide_shortcut_tooltips || !$settings.hotkeys.find(x => x.id.endsWith(quick_button.id)).key
-												? '' : `\n[${getHotKeyString($settings.hotkeys.find(x => x.id.endsWith(quick_button.id)))}]`)}
-									size="16" onClick={() => left_button_actions[quick_button.id]()}/>
+							<Button class="rounded-translator-button" icon={QUICK_ACTIONS[quick_button].icon[0]}
+									tooltip={QUICK_ACTIONS[quick_button].text[0] + ($hide_shortcut_tooltips || !$settings.hotkeys.find(x => x.id.endsWith(quick_button)).key
+												? '' : `\n[${getHotKeyString($settings.hotkeys.find(x => x.id.endsWith(quick_button)))}]`)}
+									size="16" onClick={() => left_button_actions[quick_button]()}/>
 						{/each}
 					</div>
 				{/if}
@@ -409,10 +460,10 @@
 				{#if right_buttons?.length}
 					<div class="translator-textarea-quickbuttons">
 						{#each right_buttons as quick_button}
-							<Button class="rounded-translator-button" icon={quick_button.icon}
-									tooltip={quick_button.text + (($hide_shortcut_tooltips || !$settings.hotkeys.find(x => x.id.endsWith(quick_button.id)).key) ?
-												'' : `\n[${getHotKeyString($settings.hotkeys.find(x => x.id.endsWith(quick_button.id)))}]`)}
-									size="16" onClick={() => right_button_actions[quick_button.id]()}/>
+							<Button class="rounded-translator-button" icon={QUICK_ACTIONS[quick_button].icon[0]}
+									tooltip={QUICK_ACTIONS[quick_button].text[0] + (($hide_shortcut_tooltips || !$settings.hotkeys.find(x => x.id.endsWith(quick_button)).key) ?
+												'' : `\n[${getHotKeyString($settings.hotkeys.find(x => x.id.endsWith(quick_button)))}]`)}
+									size="16" onClick={() => right_button_actions[quick_button]()}/>
 						{/each}
 					</div>
 				{/if}
