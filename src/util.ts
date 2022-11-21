@@ -281,8 +281,9 @@ export function nested_object_assign (source: any, target: any, ignored_keys: Se
 			if (t_val && ignored_keys.has(key) || !ignored_keys.has(key)) {
 				if (t_val) {
 					// If target and source both are objects, recursively check for keys in source to add to target
-					if (t_val instanceof Object && s_val instanceof Object)
+					if (!Array.isArray(t_val) && t_val instanceof Object && s_val instanceof Object) {
 						nested_object_assign(s_val, t_val, ignored_keys);
+					}
 				} else {
 					// Filter out ignored keys in s_val object
 					if (s_val instanceof Object && !(s_val instanceof Array))
