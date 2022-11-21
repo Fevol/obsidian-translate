@@ -26,7 +26,6 @@
 
 	export let plugin: TranslatorPlugin;
 
-	let bergamot_update_available = false;
 	let available_services_observer = $data.available_services.length;
 
 	let tab = $data.tab;

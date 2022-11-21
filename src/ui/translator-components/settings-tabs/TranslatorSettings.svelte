@@ -24,6 +24,7 @@
 
 	export let plugin: TranslatorPlugin;
 	export let service: string;
+	$: service, changedService();
 
 	let translator: DummyTranslate;
 	let old_service = '';
@@ -40,20 +41,20 @@
 
 	let obfuscate_api_key = app.loadLocalStorage("obfuscate_keys") || false;
 
-	$: service, changedService();
-
 	onMount(() => {
-		// We need to wait for $data.models to be loaded in before the version can be checked
-		bergamot_update_available = $data.models?.bergamot?.models && $data.models.bergamot.version < $settings.service_settings.bergamot.version;
+		if (service === 'bergamot')
+			// We need to wait for $data.models to be loaded in before the version can be checked
+			bergamot_update_available = $data.models?.bergamot?.models && $data.models.bergamot.version < $settings.service_settings.bergamot.version;
 	});
 
 	async function changedService() {
 		// Set translator to the selected service
+		translator = await plugin.reactivity.getTranslationService(service, old_service);
+
 		info = SERVICES_INFO[service];
 		if (info?.requires_api_key)
 			api_key = await plugin.reactivity.getAPIKey(service, $settings.security_setting);
 
-		translator = await plugin.reactivity.getTranslationService(service, old_service);
 		available_languages = translator.available_languages || $settings.service_settings[service].available_languages;
 		
 		old_service = service;

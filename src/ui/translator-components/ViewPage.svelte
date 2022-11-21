@@ -72,8 +72,9 @@
 
 	const top_button_actions = {
 		'change-service': () => {
-			new SwitchService(plugin.app, plugin, (service) => {
+			new SwitchService(plugin.app, plugin, async (service) => {
 				previous_service = $translation_service;
+				translator = await plugin.reactivity.getTranslationService(service, previous_service);
 				$translation_service = service;
 			}).open();
 		},
