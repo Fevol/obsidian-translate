@@ -12,15 +12,14 @@
 </script>
 
 <div
-	class="setting-item"
-	class:setting-item-heading={isHeading}
+	class={$$props.class + " setting-item"}
 	class:mod-dropdown={type === "dropdown"}
 	transition:slide
 >
 	<div class="setting-item-info">
 		<div class="setting-item-name">
 			<div>
-				{name}
+				{@html name}
 			</div>
 		</div>
 			<div class="setting-item-description">

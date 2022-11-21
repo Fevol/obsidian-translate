@@ -8,7 +8,7 @@
 		text: string;
 	}
 
-	export let onClick: (value: any) => void;
+	export let onClick: (value: any, index: number = -1) => void;
 	export let items: IOption[] = [];
 	export let value: string;
 	export let icon: string;
@@ -18,11 +18,11 @@
 </script>
 
 <div class="setting-command-hotkeys" transition:slide>
-	{#each items as {value, text}}
+	{#each items as {value, text}, index}
 		<span class="setting-hotkey icon-text" in:horizontalSlide out:horizontalSlide>
 			{text}
 			{#if !disabled}
-				<span on:click={onClick(value)} class="setting-hotkey-icon" style="display: block" aria-label={tooltip}>
+				<span on:click={onClick(value, index)} class="setting-hotkey-icon" style="display: block" aria-label={tooltip}>
 					<Icon icon={icon} size={size} />
 				</span>
 			{/if}

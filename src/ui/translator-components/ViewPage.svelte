@@ -357,7 +357,7 @@
 				<div class="nav-buttons-container">
 					{#each top_buttons as button}
 						{#if !top_button_disabled[button]}
-							<div aria-label={QUICK_SETTINGS[button].text[top_button_states[button]]} on:click={top_button_actions[button]} class="nav-action-button">
+							<div aria-label={QUICK_SETTINGS[button].tooltip[top_button_states[button]]} on:click={top_button_actions[button]} class="nav-action-button">
 								<Icon icon={QUICK_SETTINGS[button].icon[top_button_states[button]]}/>
 							</div>
 						{/if}
@@ -408,7 +408,7 @@
 					<div class="translator-textarea-quickbuttons">
 						{#each left_buttons as quick_button}
 							<Button class="rounded-translator-button" icon={QUICK_ACTIONS[quick_button].icon[0]}
-									tooltip={QUICK_ACTIONS[quick_button].text[0] + ($hide_shortcut_tooltips || !$settings.hotkeys.find(x => x.id.endsWith(quick_button)).key
+									tooltip={QUICK_ACTIONS[quick_button].tooltip[0] + ($hide_shortcut_tooltips || !$settings.hotkeys.find(x => x.id.endsWith(quick_button)).key
 												? '' : `\n[${getHotKeyString($settings.hotkeys.find(x => x.id.endsWith(quick_button)))}]`)}
 									size="16" onClick={() => left_button_actions[quick_button]()}/>
 						{/each}
@@ -461,7 +461,7 @@
 					<div class="translator-textarea-quickbuttons">
 						{#each right_buttons as quick_button}
 							<Button class="rounded-translator-button" icon={QUICK_ACTIONS[quick_button].icon[0]}
-									tooltip={QUICK_ACTIONS[quick_button].text[0] + (($hide_shortcut_tooltips || !$settings.hotkeys.find(x => x.id.endsWith(quick_button)).key) ?
+									tooltip={QUICK_ACTIONS[quick_button].tooltip[0] + (($hide_shortcut_tooltips || !$settings.hotkeys.find(x => x.id.endsWith(quick_button)).key) ?
 												'' : `\n[${getHotKeyString($settings.hotkeys.find(x => x.id.endsWith(quick_button)))}]`)}
 									size="16" onClick={() => right_button_actions[quick_button]()}/>
 						{/each}

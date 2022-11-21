@@ -64,10 +64,10 @@
 
 <section aria-label={tooltip} class={$$props.class} use:dndzone={{items, flipDurationMs, dropTargetStyle, dropFromOthersDisabled, dragDisabled}} on:consider="{handleDndConsider}" on:finalize="{handleDndFinalize}">
 	{#each items as item, index (item.id)}
-		<div animate:flip="{{duration: flipDurationMs}}" class={`flex-row-element ${itemstyle}`} aria-label={item.text[dragDisabled ? button_states[index] : 0]}
+		<div animate:flip="{{duration: flipDurationMs}}" class={`flex-row-element ${itemstyle}`} aria-label={item.tooltip[dragDisabled ? button_states[index] : 0]}
 			on:click={() => {
 				if (dragDisabled) {
-					button_states[index] = (button_states[index] + 1) % item.text.length
+					button_states[index] = (button_states[index] + 1) % item.tooltip.length
 				}
 			}
 		}>

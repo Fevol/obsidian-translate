@@ -60,7 +60,20 @@ export const DEFAULT_SETTINGS: TranslatorPluginSettings = {
 	local_glossary: false,
 	case_insensitive_glossary: false,
 	enable_animations: true,
-	hide_attribution: false,
+
+	quicksettings_default: [
+		"change-service",
+		"automatic-translation",
+		"change-layout",
+		"apply-filter",
+		"open-settings"
+	],
+	layout_default: 0,
+	left_quickactions_default: ["paste", "clear"],
+	right_quickactions_default: ["copy"],
+	hide_attribution_default: false,
+
+
 	default_source_language: 'auto',
 	default_target_language: moment.locale(),
 	filtered_services: [],
@@ -1041,24 +1054,26 @@ export let SETTINGS_TABS = [
 ];
 
 export const QUICK_ACTIONS = {
-	"copy": {text: ["Copy"], icon: ["copy"]},
-	"paste": {text: ["Paste"], icon: ["clipboard-check"]},
-	"clear": {text: ["Clear"], icon: ["x"]},
+	"copy": {tooltip: ["Copy"], icon: ["copy"], text: "Copy" },
+	"paste": {tooltip: ["Paste"], icon: ["clipboard-check"], text: "Paste" },
+	"clear": {tooltip: ["Clear"], icon: ["x"], text: "Clear" },
 };
 
 export const QUICK_SETTINGS = {
-	"change-service": {text: ["Change Translation Service"], icon: ["cloud"]},
-	"automatic-translation": {text: ["Translating manually", "Automatically translating"], icon: ["hand", "zap"]},
-	"apply-glossary": {text: ["Don't apply glossary", "Apply glossary"], icon: ["book", "book-open"]},
+	"change-service": {tooltip: ["Change Translation Service"], icon: ["cloud"], text: "Change Service" },
+	"automatic-translation": {tooltip: ["Translating manually", "Automatically translating"], icon: ["hand", "zap"], text: "Toggle Auto-Translate" },
+	"apply-glossary": {tooltip: ["Don't apply glossary", "Apply glossary"], icon: ["book", "book-open"], text: "Toggle Glossary" },
 	"change-layout": {
-		text: Object.values(VIEW_MODES).map((mode) => mode.tooltip),
-		icon: Object.values(VIEW_MODES).map((mode) => mode.icon)
+		tooltip: Object.values(VIEW_MODES).map((mode) => mode.tooltip),
+		icon: Object.values(VIEW_MODES).map((mode) => mode.icon),
+		text: "Change Layout"
 	},
 	"apply-filter": {
-		text: Object.values(FILTER_MODES).map((mode) => mode.tooltip),
-		icon: Object.values(FILTER_MODES).map((mode) => mode.icon)
+		tooltip: Object.values(FILTER_MODES).map((mode) => mode.tooltip),
+		icon: Object.values(FILTER_MODES).map((mode) => mode.icon),
+		text: "Change Filter"
 	},
-	"open-settings": {text: ["Open Settings"], icon: ["settings"]},
+	"open-settings": {tooltip: ["Open Settings"], icon: ["settings"], text: "Open Settings"},
 };
 
 export const QUICK_SETTINGS_BUTTONS = Object.entries(QUICK_SETTINGS).map(([key, value]) => {

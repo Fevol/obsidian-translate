@@ -105,12 +105,12 @@ export class TranslatorView extends ItemView {
 					language_to: state.language_to || current_settings.default_target_language,
 					auto_translate: state.auto_translate || false,
 					apply_glossary: state.apply_glossary || false,
-					view_mode: state.view_mode || 0,
+					view_mode: !(state.view_mode == null) ? state.view_mode : current_settings.layout_default,
 					filter_mode: state.filter_mode || 0,
-					show_attribution: state.show_attribution !== undefined ? state.show_attribution : true,
-					top_buttons: state.top_buttons || [],
-					left_buttons: state.left_buttons || [],
-					right_buttons: state.right_buttons || [],
+					show_attribution: !(state.show_attribution == null) ? state.show_attribution : current_settings.hide_attribution_default,
+					top_buttons: !(state.top_buttons == null) ? state.top_buttons : [...current_settings.quicksettings_default],
+					left_buttons: !(state.left_buttons == null) ? state.left_buttons : [...current_settings.left_quickactions_default],
+					right_buttons: !(state.right_buttons == null) ? state.right_buttons : [...current_settings.right_quickactions_default],
 				}
 			});
 		} else {

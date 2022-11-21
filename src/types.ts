@@ -16,7 +16,13 @@ export interface TranslatorPluginSettings {
 	default_target_language: string;
 
 	enable_animations: boolean;
-	hide_attribution: boolean;
+
+	quicksettings_default: string[];
+	layout_default: number;
+	left_quickactions_default: string[];
+	right_quickactions_default: string[];
+	hide_attribution_default: boolean;
+
 
 	// Where the local models are stored, if applicable
 	storage_path?: string;
