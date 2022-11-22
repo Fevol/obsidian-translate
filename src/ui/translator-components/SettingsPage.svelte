@@ -26,7 +26,7 @@
 
 	export let plugin: TranslatorPlugin;
 
-	let available_services_observer = $data.available_services.length;
+	$: available_services_observer = $data.available_services.length;
 
 	let tab = $data.tab;
 	let tabs = generateTabs();
