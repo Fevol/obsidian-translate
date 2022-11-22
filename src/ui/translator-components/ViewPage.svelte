@@ -264,7 +264,7 @@
 			if (language_from === 'auto') {
 				const detection_results = await plugin.detector.detect(input_text);
 				if (detection_results.detected_languages)
-					language_from = detection_results.detected_languages[0].language;
+					detected_language = detection_results.detected_languages[0].language;
 			}
 			const temp_language_from = detected_language || language_from;
 			const glossary_pair = glossary.dicts[temp_language_from + language_to];
