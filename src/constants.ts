@@ -68,7 +68,7 @@ export const DEFAULT_SETTINGS: TranslatorPluginSettings = {
 		"apply-filter",
 		"open-settings"
 	],
-	layout_default: 0,
+	layout_default: "0",
 	left_quickactions_default: ["paste", "clear"],
 	right_quickactions_default: ["copy"],
 	hide_attribution_default: false,
