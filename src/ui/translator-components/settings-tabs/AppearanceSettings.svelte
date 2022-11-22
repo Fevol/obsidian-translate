@@ -92,9 +92,12 @@
 
 
 
-<h4>Translation View Defaults</h4>
 <SettingItem
-	class="translator-setting-item-header"
+	name="Translation View Defaults"
+	type="heading"
+/>
+
+<SettingItem
 	name="Change default quicksettings"
 	type="toggle"
 >

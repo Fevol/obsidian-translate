@@ -95,7 +95,7 @@
 <SettingItem
 	name="Always use FastText"
 	description="FastText will be used as the default language detection service"
-	type="text"
+	type="toggle"
 >
 	<Toggle
 		slot="control"

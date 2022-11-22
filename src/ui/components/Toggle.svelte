@@ -8,5 +8,5 @@
 	class="checkbox-container"
 	class:is-enabled={value}
 	on:click={() => onChange(!value)}>
-
+	<input type="checkbox" tabindex="0"/>
 </div>

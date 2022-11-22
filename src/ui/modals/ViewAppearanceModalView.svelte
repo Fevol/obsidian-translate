@@ -21,7 +21,7 @@
 	export let view_mode = "automatic";
 	export let show_attribution = true;
 
-	let current_editing_mode;
+	let current_editing_mode = null;
 	let current_view_mode;
 	let w, h;
 	$: view_mode, w, h, handleResize();
@@ -56,7 +56,7 @@
 	</div>
 
 
-	<div class="translator-appearance-modal-settings">
+	<div class="translator-appearance-modal-settings" class:translator-appearance-modal-settings-active={current_editing_mode != null}>
 		{#if current_editing_mode === 0}
 			<div in:slide={{delay: 325, duration: 250}} out:slide={{duration: 250}}>
 				<div class="flex-row-element">
@@ -171,7 +171,7 @@
 					readonly={true}
 				/>
 					<DragAndDrop bind:items={left_buttons} dragDisabled={current_editing_mode !== 2}
-								 itemstyle="rounded-translator-button"
+								 itemstyle="rounded-translator-button clickable-icon"
 								 class={`translator-textarea-quickbuttons translator-textarea-quickbuttons-editing
 							 		${current_editing_mode === 2 ? 'translator-focused-element' : ''}`}
 					/>
@@ -202,7 +202,7 @@
 					readonly={true}
 				/>
 					<DragAndDrop bind:items={right_buttons} dragDisabled={current_editing_mode !== 2}
-								 itemstyle="rounded-translator-button"
+								 itemstyle="rounded-translator-button clickable-icon"
 								 class={`translator-textarea-quickbuttons translator-textarea-quickbuttons-editing
 							 		${current_editing_mode === 2 ? 'translator-focused-element' : ''}`}
 					/>

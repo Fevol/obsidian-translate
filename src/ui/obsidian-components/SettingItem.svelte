@@ -4,7 +4,8 @@
 
 	export let name: string;
 	export let description: string;
-	export let isHeading: boolean = false;
+
+	// Type can be: ["dropdown", "toggle", "heading"]
 	export let type: string = '';
 
 	// [ [ text, style: [classes], url, type: href|string ], ... ]
@@ -14,6 +15,9 @@
 <div
 	class={$$props.class + " setting-item"}
 	class:mod-dropdown={type === "dropdown"}
+	class:mod-toggle={type === "toggle"}
+	class:mod-slider={type === "slider"}
+	class:setting-item-heading={type === "heading"}
 	transition:slide
 >
 	<div class="setting-item-info">
@@ -48,7 +52,9 @@
 			</div>
 
 	</div>
-	<slot name="control"/>
+	<div class="setting-item-control">
+		<slot name="control"/>
+	</div>
 </div>
 <slot name="subcontrol"/>
 
@@ -57,15 +63,15 @@
 	          Brief explanation: you cannot assign classes to slots, so you either have to wrap the slot in a div,
 	          or access the slot via the :global tag over here. However, you cannot use the 'setting-item-control' class
 	          here, because the class is not defined yet. */
-	.setting-item-control {
-		flex: 1 1 auto;
-		text-align: right;
-		display: flex;
-		justify-content: flex-end;
-		align-items: center;
-	}
-
-	:global( [slot="control"] ) {
-		@extend .setting-item-control;
-	}
+	//.setting-item-control {
+	//	flex: 1 1 auto;
+	//	text-align: right;
+	//	display: flex;
+	//	justify-content: flex-end;
+	//	align-items: center;
+	//}
+	//
+	//:global( [slot="control"] ) {
+	//	@extend .setting-item-control;
+	//}
 </style>

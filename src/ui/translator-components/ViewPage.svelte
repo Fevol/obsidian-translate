@@ -407,7 +407,7 @@
 				{#if left_buttons?.length}
 					<div class="translator-textarea-quickbuttons">
 						{#each left_buttons as quick_button}
-							<Button class="rounded-translator-button" icon={QUICK_ACTIONS[quick_button].icon[0]}
+							<Button class="rounded-translator-button clickable-icon" icon={QUICK_ACTIONS[quick_button].icon[0]}
 									tooltip={QUICK_ACTIONS[quick_button].tooltip[0] + ($hide_shortcut_tooltips || !$settings.hotkeys.find(x => x.id.endsWith(quick_button)).key
 												? '' : `\n[${getHotKeyString($settings.hotkeys.find(x => x.id.endsWith(quick_button)))}]`)}
 									size="16" onClick={() => left_button_actions[quick_button]()}/>
@@ -460,7 +460,7 @@
 				{#if right_buttons?.length}
 					<div class="translator-textarea-quickbuttons">
 						{#each right_buttons as quick_button}
-							<Button class="rounded-translator-button" icon={QUICK_ACTIONS[quick_button].icon[0]}
+							<Button class="rounded-translator-button clickable-icon" icon={QUICK_ACTIONS[quick_button].icon[0]}
 									tooltip={QUICK_ACTIONS[quick_button].tooltip[0] + (($hide_shortcut_tooltips || !$settings.hotkeys.find(x => x.id.endsWith(quick_button)).key) ?
 												'' : `\n[${getHotKeyString($settings.hotkeys.find(x => x.id.endsWith(quick_button)))}]`)}
 									size="16" onClick={() => right_button_actions[quick_button]()}/>

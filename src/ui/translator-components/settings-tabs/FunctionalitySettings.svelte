@@ -22,6 +22,48 @@
 </script>
 
 <SettingItem
+	name="Apply local glossary"
+	type="toggle"
+	description="If the translation service does not provide glossary services, apply glossary locally"
+	notices={[
+		{ type: 'text', text: `Glossary terms may not properly get translated`, style: 'info-text' },
+		{ type: 'text', text: `This option requires <b>FastText</b> to resolve the language of the input text`, style: 'warning-text' }
+	]}
+>
+	<Toggle slot="control" value={$settings.local_glossary}
+			onChange={ async () => {
+			$settings.local_glossary = !$settings.local_glossary;
+			if ($settings.local_glossary && !Object.keys(glossary.dicts).length) {
+				let loaded_glossaries = await app.vault.adapter.read(".obsidian/plugins/obsidian-translate/glossary.json");
+				if (loaded_glossaries) {
+					glossary.dicts = JSON.parse(loaded_glossaries);
+					for (let key in glossary.dicts)
+						glossary.replacements[key] = new RegExp(glossary.dicts[key].map((item) => item[0]).join("|"),
+						$settings.case_insensitive_glossary ? "gi" : "g");
+				}
+			}
+		}}
+	/>
+</SettingItem>
+
+{#if $settings.local_glossary}
+	<SettingItem
+		name="Case insensitive glossary"
+		description="Local glossary will attempt to match terms regardless of case"
+		type="toggle"
+	>
+		<Toggle slot="control" value={$settings.case_insensitive_glossary}
+				onChange={ async () => {
+				$settings.case_insensitive_glossary = !$settings.case_insensitive_glossary;
+				for (let key in glossary.dicts)
+					glossary.replacements[key] = new RegExp(glossary.replacements[key],
+															$settings.case_insensitive_glossary ? "gi" : "g");
+			}}
+		/>
+	</SettingItem>
+{/if}
+
+<SettingItem
 	name="Switch button action"
 	description="Choose what action will be executed on pressing the language switch button"
 	type="dropdown"
@@ -68,44 +110,3 @@
 		}}
 	/>
 </SettingItem>
-
-
-<SettingItem
-	name="Apply local glossary"
-	description="If the translation service does not provide glossary services, apply glossary locally"
-	notices={[
-		{ type: 'text', text: `Glossary terms may not properly get translated`, style: 'info-text' },
-		{ type: 'text', text: `This option requires <b>FastText</b> to resolve the language of the input text`, style: 'warning-text' }
-	]}
->
-	<Toggle slot="control" value={$settings.local_glossary}
-		onChange={ async () => {
-			$settings.local_glossary = !$settings.local_glossary;
-			if ($settings.local_glossary && !Object.keys(glossary.dicts).length) {
-				let loaded_glossaries = await app.vault.adapter.read(".obsidian/plugins/obsidian-translate/glossary.json");
-				if (loaded_glossaries) {
-					glossary.dicts = JSON.parse(loaded_glossaries);
-					for (let key in glossary.dicts)
-						glossary.replacements[key] = new RegExp(glossary.dicts[key].map((item) => item[0]).join("|"),
-						$settings.case_insensitive_glossary ? "gi" : "g");
-				}
-			}
-		}}
-	/>
-</SettingItem>
-
-{#if $settings.local_glossary}
-	<SettingItem
-		name="Case insensitive glossary"
-		description="Local glossary will attempt to match terms regardless of case"
-	>
-		<Toggle slot="control" value={$settings.case_insensitive_glossary}
-			onChange={ async () => {
-				$settings.case_insensitive_glossary = !$settings.case_insensitive_glossary;
-				for (let key in glossary.dicts)
-					glossary.replacements[key] = new RegExp(glossary.replacements[key],
-															$settings.case_insensitive_glossary ? "gi" : "g");
-			}}
-		/>
-	</SettingItem>
-{/if}

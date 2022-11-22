@@ -509,7 +509,7 @@
 <SettingItem
 	name="Automatic translate"
 	description="Translate text as it is being typed"
-	type="text"
+	type="toggle"
 	notices={
 		service === 'bergamot' ? [] :
 		[{text: "May result in the character quota of the service being spent more quickly", style: 'warning-text'}]
