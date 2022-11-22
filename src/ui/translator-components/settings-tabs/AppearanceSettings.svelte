@@ -128,13 +128,13 @@
 		class="translator-select"
 		value={$settings.layout_default}
 		options={[
-			{ value: "0", text: 'Automatic', },
-			{ value: "1", text: 'Vertical', },
-			{ value: "2", text: 'Mixed', },
-			{ value: "3", text: 'Horizontal', }
+			{ value: 0, text: 'Automatic', },
+			{ value: 1, text: 'Vertical', },
+			{ value: 2, text: 'Mixed', },
+			{ value: 3, text: 'Horizontal', }
 		]}
 		onChange={(e) => {
-			$settings.layout_default = e.target.value;
+			$settings.layout_default = parseInt(e.target.value);
 		}}
 	/>
 </SettingItem>
