@@ -76,7 +76,7 @@ export default class TranslatorPlugin extends Plugin {
 		if (loaded_settings?.service_settings['bing_translator' as keyof APIServiceProviders]) {
 			loaded_settings.service_settings['azure_translator'] =
 				<APIServiceSettings>loaded_settings.service_settings['bing_translator' as keyof APIServiceProviders];
-			loaded_settings.service_settings['bing_translator' as keyof APIServiceProviders] = undefined;
+			delete loaded_settings.service_settings['bing_translator' as keyof APIServiceProviders];
 		}
 
 
