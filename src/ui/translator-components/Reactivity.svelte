@@ -302,7 +302,7 @@
 
 
 		if ($settings.local_glossary) {
-			if (!$settings.service_settings.fasttext.default_usage)
+			if (!plugin.detector)
 				plugin.detector = await getTranslationService('fasttext');
 
 			let loaded_glossaries: any = await app.vault.adapter.read(".obsidian/plugins/obsidian-translate/glossary.json");

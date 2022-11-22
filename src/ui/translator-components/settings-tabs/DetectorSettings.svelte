@@ -11,9 +11,14 @@
 
 	import {requestUrl} from "obsidian";
 	import {writeRecursive} from "../../../obsidian-util";
+	import {DEFAULT_SETTINGS} from "../../../constants";
 
 
 	export let plugin: TranslatorPlugin;
+
+	if (!$settings.service_settings.fasttext)
+		$settings.service_settings.fasttext = DEFAULT_SETTINGS.service_settings.fasttext;
+
 </script>
 
 <SettingItem
