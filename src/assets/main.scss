@@ -668,7 +668,7 @@ table.translator-table {
 	/*transition: outline-width 0.12s cubic-bezier(0.42, 0.11, 0.76, 0.79);*/
 }
 
-table.translator-table thead > tr > th {
+table.translator-table.translator-table thead > tr > th {
 	position: sticky;
 	top: 0;
 	background-color: var(--background-secondary);
