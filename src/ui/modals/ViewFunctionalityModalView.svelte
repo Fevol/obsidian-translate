@@ -2,7 +2,7 @@
 	import {Button, Toggle, Icon, Dropdown, TextArea, DragAndDrop} from "../components";
 	import {SettingItem} from "../obsidian-components";
 
-	import {data} from "stores";
+	import {settings, data} from "stores";
 	import {createEventDispatcher} from "svelte";
 
 	import {
@@ -45,13 +45,16 @@
 	description="Translate text as it is being typed"
 	type="toggle"
 	notices={[
-		{text: "Option is only available if 'automatic translation' is enabled within the service's settings", style: "warning-text"},
-		{text: "The delay for the automatic translation can be set in the global translation service settings", style: "info-text"},
+		...($settings.service_settings[translation_service]?.auto_translate ? [] : [
+			{text: `The 'automatic translation' setting for ${SERVICES_INFO[translation_service].display_name} is not activated, enable it via the service's settings tab`, style: "warning-text"}
+		]),
+	 {text: "The delay for the automatic translation can be set in the global translation service settings", style: "info-text"},
 	]}
 >
 	<Toggle
 		slot="control"
 		value={ auto_translate }
+		disabled={ !$settings.service_settings[translation_service]?.auto_translate }
 		onChange={(val) => { auto_translate = val; }}
 	/>
 </SettingItem>
@@ -60,13 +63,14 @@
 	name="Apply glossary"
 	description="Glossary will be applied to the text before translation"
 	type="toggle"
-	notices={[
-		{text: "Option is only available if 'glossary' is enabled within the plugin's functionality", style: "warning-text"},
-	]}
+	notices={$settings.local_glossary ? [] :
+		[{text: "Global 'glossary' option has not been activated yet, you can enable it in the 'Functionality' settings tab", style: "warning-text"}]
+	}
 >
 	<Toggle
 		slot="control"
 		value={ apply_glossary }
+		disabled={ !$settings.local_glossary }
 		onChange={(val) => { apply_glossary = val; }}
 	/>
 </SettingItem>

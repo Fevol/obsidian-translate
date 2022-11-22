@@ -60,7 +60,8 @@
 		'apply-glossary': !$settings.local_glossary,
 	}
 
-	let top_button_states = {
+	let top_button_states = {}
+	$: top_button_states = {
 		'change-service': 0,
 		'automatic-translation': auto_translate | 0,
 		'apply-glossary': apply_glossary | 0,
@@ -68,10 +69,6 @@
 		'apply-filter': filter_mode,
 		'open-settings': 0,
 	}
-
-	// For some reason the apply_glossary/filter icon is not reactive when applied from view.ts
-	$: top_button_states['apply-glossary'] = apply_glossary | 0;
-	$: top_button_states['apply-filter'] = filter_mode;
 
 	const top_button_actions = {
 		'change-service': () => {
