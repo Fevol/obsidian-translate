@@ -6,7 +6,7 @@
 	import {settings, data, hide_shortcut_tooltips, glossary} from "../../stores";
 	import {horizontalSlide} from "../animations";
 
-	import {Dropdown, TextArea, Icon} from "../components";
+	import {Button, Dropdown, TextArea, Icon} from "../components";
 	import {NavHeader, View} from "../obsidian-components";
 	import {SwitchService} from "../modals";
 
@@ -24,7 +24,6 @@
 
 	import {Scope, Platform} from "obsidian";
 	import t from "../../l10n";
-	import Button from "../components/Button.svelte";
 	import {getHotKeyString} from "../../util";
 
 	export let plugin: TranslatorPlugin;
@@ -69,6 +68,10 @@
 		'apply-filter': filter_mode,
 		'open-settings': 0,
 	}
+
+	// For some reason the apply_glossary/filter icon is not reactive when applied from view.ts
+	$: top_button_states['apply-glossary'] = apply_glossary | 0;
+	$: top_button_states['apply-filter'] = filter_mode;
 
 	const top_button_actions = {
 		'change-service': () => {

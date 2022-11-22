@@ -18,7 +18,7 @@ export interface TranslatorPluginSettings {
 	enable_animations: boolean;
 
 	quicksettings_default: string[];
-	layout_default: string;
+	layout_default: number;
 	left_quickactions_default: string[];
 	right_quickactions_default: string[];
 	hide_attribution_default: boolean;

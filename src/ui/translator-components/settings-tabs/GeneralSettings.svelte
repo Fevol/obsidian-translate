@@ -80,9 +80,7 @@
 		onChange={(e) => {
 			$settings.translation_service = e.target.value;
 		}}
-	>
-
-	</Dropdown>
+	/>
 </SettingItem>
 
 <SettingItem
@@ -119,8 +117,7 @@
 				display_language_example = generateLanguageExample();
 			}, 30);
 		}}
-	>
-	</Dropdown>
+	/>
 </SettingItem>
 
 <SettingItem
@@ -139,8 +136,7 @@
 			await updateAPIKeys($settings.security_setting, e.target.value);
 			$settings.security_setting = e.target.value;
 		}}
-	>
-	</Dropdown>
+	/>
 </SettingItem>
 
 

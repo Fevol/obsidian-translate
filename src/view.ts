@@ -13,18 +13,14 @@ import {get} from "svelte/store";
 
 import {TRANSLATOR_VIEW_ID, SERVICES_INFO} from "./constants";
 import {ViewAppearanceModalView} from "./ui/modals";
+import ViewFunctionalityModal from "./ui/modals/view_functionality_modal";
 
 
 export class TranslatorView extends ItemView {
 	plugin: TranslatorPlugin;
 	view: SvelteComponent;
 
-	language_from: string;
-	language_to: string;
 	translation_service: Writable<string> = writable("dummy");
-	auto_translate: boolean;
-	view_mode: number = 0;
-	filter_mode: number = 0;
 
 	// TODO: navigation causes notes to be replaced
 	// navigation = true;
@@ -35,6 +31,10 @@ export class TranslatorView extends ItemView {
 
 		this.addAction('palette', "Change the view's appearance", () => {
 			new ViewAppearanceModalView(app, this).open();
+		});
+
+		this.addAction('wrench', "Alter the view's functionality", () => {
+			new ViewFunctionalityModal(app, this).open();
 		});
 	}
 
@@ -114,6 +114,8 @@ export class TranslatorView extends ItemView {
 				}
 			});
 		} else {
+			this.translation_service.set(state.translation_service || current_settings.translation_service);
+
 			// Called whenever state get changed via appearance modal changes:
 			// necessary because view_appearance.ts and view.ts/ViewPage.svelte cannot directly communicate
 			this.view.$set({
