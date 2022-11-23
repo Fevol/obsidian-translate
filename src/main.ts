@@ -1,4 +1,15 @@
-import {addIcon, Editor, MarkdownView, Notice, Plugin, setIcon, Platform, requireApiVersion, moment} from 'obsidian';
+import {
+	addIcon,
+	Editor,
+	MarkdownView,
+	Notice,
+	Plugin,
+	setIcon,
+	Platform,
+	requireApiVersion,
+	moment,
+	TFile, TFolder
+} from 'obsidian';
 
 import {writable, type Writable, get} from "svelte/store";
 import {settings, data} from "./stores";
@@ -148,7 +159,7 @@ export default class TranslatorPlugin extends Plugin {
 			},
 			{
 				id: "translator-to-new-file",
-				name: "Translate note to selected language (new file)",
+				name: "Translate note to new file",
 				icon: "translate-file-new",
 				editor_context: true,
 				func: () => {new TranslateModal(this.app, this, "file-new").open()}
@@ -156,7 +167,7 @@ export default class TranslatorPlugin extends Plugin {
 
 			{
 				id: "translator-to-curr-file",
-				name: "Translate note to selected language (current file)",
+				name: "Translate note and replace current file",
 				icon: "translate-file-new",
 				editor_context: true,
 				func: () => {new TranslateModal(this.app, this, "file-current").open()}
@@ -191,6 +202,20 @@ export default class TranslatorPlugin extends Plugin {
 			this.addCommand(command);
 		}
 
+
+		this.registerEvent(
+			this.app.workspace.on("file-menu", (menu, file, source, leaf) => {
+				if (!(file instanceof TFolder)) {
+					menu.addItem((item) => {
+						item.setTitle("Translate note to new file")
+							.setIcon("translate")
+							.onClick(async (a) => {
+								await new TranslateModal(this.app, this, "file-new", <TFile>file).open();
+							});
+					})
+				}
+			})
+		);
 
 		this.registerEvent(
 			this.app.workspace.on("editor-menu", (menu, editor) => {

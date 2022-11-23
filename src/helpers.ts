@@ -23,8 +23,13 @@ export async function translate_file(plugin: TranslatorPlugin, file: TFile,
 		if (paragraph.trim().length === 0) {
 			translated_text.push(paragraph);
 		} else {
-			let translation = (await plugin.translator.translate(paragraph, "auto", language_to)).translation;
-			translated_text.push(translation);
+			const output = (await plugin.translator.translate(paragraph, "auto", language_to));
+			if (output.status_code !== 200) {
+				plugin.message_queue(output.message);
+				return;
+			}
+
+			translated_text.push(output.translation);
 		}
 	}
 
@@ -34,7 +39,8 @@ export async function translate_file(plugin: TranslatorPlugin, file: TFile,
 		let filename = 	file?.name.replace(/\.[^/.]+$/, "");
 
 		let filename_translation = (await plugin.translator.translate(filename, 'auto', language_to)).translation;
-		let translated_filename = !filename_translation || filename_translation === filename
+
+		let translated_filename = (!filename_translation || filename_translation === filename)
 			? `[${language_to}] ${filename}`
 			: filename_translation;
 
@@ -44,10 +50,9 @@ export async function translate_file(plugin: TranslatorPlugin, file: TFile,
 		// If translation of file already exists, replace it by new translation
 		let existing_file = plugin.app.vault.getAbstractFileByPath(translated_document_path);
 
-		if(existing_file && existing_file instanceof TFile) {
+		if (existing_file && existing_file instanceof TFile) {
 			await plugin.app.vault.modify(existing_file, translated_document);
-		}
-		else {
+		} else {
 			existing_file = await plugin.app.vault.create(translated_document_path, translated_document);
 		}
 		let leaf = plugin.app.workspace.getLeaf(false);
