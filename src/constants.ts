@@ -773,7 +773,7 @@ export let SERVICES_INFO: { [key: string]: any } = {
 		display_name: "Google Translate",
 		requires_api_key: true,
 		request_key: "https://cloud.google.com/translate/docs/setup",
-		url: "https://cloud.google.com/translate/docs/",
+		url: "http://translate.google.com/",
 		attribution: "google_translate_attribution",
 		type: 'translation',
 	},
@@ -781,7 +781,7 @@ export let SERVICES_INFO: { [key: string]: any } = {
 		display_name: "Azure Translator",
 		requires_api_key: true,
 		request_key: "https://azure.microsoft.com/en-us/free/",
-		url: "https://www.microsoft.com/en-us/translator/",
+		url: "http://aka.ms/MicrosoftTranslatorAttribution",
 		attribution: "azure_translator_attribution",
 		type: 'translation',
 		region_options: [
