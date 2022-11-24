@@ -158,6 +158,11 @@ export interface DetectionResult {
 	status_code?: number;
 }
 
+export interface GlossaryResult {
+	translation: string;
+	detected_language: string;
+}
+
 export interface TranslatorHotKey {
 	id: string;
 	modifiers: Modifier[];

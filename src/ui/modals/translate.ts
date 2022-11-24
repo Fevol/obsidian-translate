@@ -50,11 +50,15 @@ export default class TranslateModal extends FuzzySuggestModal<string>{
 	}
 
 	async onChooseItem(item: any): Promise<void> {
+		// FIXME: I dislike this, a lot. Can't I just store local_glossary as a global variable in stores.ts
+		//  and update it directly in Reactivity onMount or whenever its value is being changed? Is that not more efficient?
+		const apply_glossary = get(settings).local_glossary;
+
 		if (this.translation_type.contains("file")) {
-			await translate_file(this.plugin, this.file || this.app.workspace.getActiveFile(), item.value, this.translation_type === "file-current");
+			await translate_file(this.plugin, this.file || this.app.workspace.getActiveFile(), item.value, this.translation_type === "file-current", apply_glossary);
 		} else if (this.translation_type === "selection") {
 			let editor: Editor = this.app.workspace.getActiveViewOfType(MarkdownView).editor;
-			await translate_selection(this.plugin, editor, item.value);
+			await translate_selection(this.plugin, editor, item.value, apply_glossary);
 		}
 
 	}

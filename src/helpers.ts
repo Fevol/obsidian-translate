@@ -1,16 +1,40 @@
 import {TFile, Editor, Notice} from "obsidian";
 import type TranslatorPlugin from "./main";
 import t from "./l10n";
+import {glossary} from "./stores";
+import type {GlossaryResult} from "./types";
+
+async function applyGlossary(plugin: TranslatorPlugin, language_from: string, language_to: string, text: string): Promise<GlossaryResult> {
+	let detected_language = ''
+	if (language_from === 'auto') {
+		const detection_results = await plugin.detector.detect(text);
+		if (detection_results.detected_languages)
+			detected_language = detection_results.detected_languages[0].language;
+	}
+
+	const temp_language_from = detected_language || language_from;
+	const glossary_pair: Record<string, string>[] = glossary.dicts[temp_language_from + language_to as keyof typeof glossary.dicts];
+	if (temp_language_from && glossary_pair) {
+		text = text.replace(glossary.replacements[temp_language_from + language_to as keyof typeof glossary.replacements],
+			(match) => {
+				// TODO: Check if case insensitivity per word is also feasible,
+				//  issue would be that the search would always have to be executed with case-insensitive matching
+				//  and then case-sensitivity check should happen here (by removing toLowerCase())
+				//  either way: heavy performance impact
+				return glossary_pair.find(x => x[0].toLowerCase() === match.toLowerCase())[1] || match;
+			});
+	}
+	return {translation: text, detected_language: temp_language_from};
+}
 
 
-export async function translate_file(plugin: TranslatorPlugin, file: TFile,
-									 language_to: string, replace_original: boolean = false): Promise<void> {
+export async function translate_file(plugin: TranslatorPlugin, file: TFile, language_to: string, replace_original: boolean = false, apply_glossary: boolean = false): Promise<void> {
 	if (!file) {
 		plugin.message_queue("No file was selected");
 		return;
 	}
 
-	let file_content = await plugin.app.vault.read(file);
+	const file_content = await plugin.app.vault.read(file);
 	if (!file_content.trim()) {
 		plugin.message_queue("Selected file is empty");
 	}
@@ -23,6 +47,13 @@ export async function translate_file(plugin: TranslatorPlugin, file: TFile,
 		if (paragraph.trim().length === 0) {
 			translated_text.push(paragraph);
 		} else {
+			let language_from = 'auto';
+			if (apply_glossary && plugin.detector) {
+				const glossary_result = await applyGlossary(plugin, language_from, language_to, paragraph);
+				paragraph = glossary_result.translation;
+				language_from = glossary_result.detected_language;
+			}
+
 			const output = (await plugin.translator.translate(paragraph, "auto", language_to));
 			if (output.status_code !== 200) {
 				plugin.message_queue(output.message);
@@ -36,16 +67,23 @@ export async function translate_file(plugin: TranslatorPlugin, file: TFile,
 	if (replace_original) {
 		await plugin.app.vault.modify(file, translated_text.join("\n\n"));
 	} else {
-		let filename = 	file?.name.replace(/\.[^/.]+$/, "");
+		let filename = file?.name.replace(/\.[^/.]+$/, "");
 
-		let filename_translation = (await plugin.translator.translate(filename, 'auto', language_to)).translation;
+		let language_from = 'auto';
+		if (apply_glossary && plugin.detector) {
+			const glossary_result = await applyGlossary(plugin, language_from, 'en', filename);
+			filename = glossary_result.translation;
+			language_from = glossary_result.detected_language;
+		}
 
-		let translated_filename = (!filename_translation || filename_translation === filename)
+		const filename_translation = (await plugin.translator.translate(filename, language_from, language_to)).translation;
+
+		const translated_filename = (!filename_translation || filename_translation === filename)
 			? `[${language_to}] ${filename}`
 			: filename_translation;
 
-		let translated_document = translated_text.join("\n\n");
-		let translated_document_path = (file.parent.path === '/' ? '' : file.parent.path + '/') + translated_filename + ".md";
+		const translated_document = translated_text.join("\n\n");
+		const translated_document_path = (file.parent.path === '/' ? '' : file.parent.path + '/') + translated_filename + ".md";
 
 		// If translation of file already exists, replace it by new translation
 		let existing_file = plugin.app.vault.getAbstractFileByPath(translated_document_path);
@@ -55,19 +93,28 @@ export async function translate_file(plugin: TranslatorPlugin, file: TFile,
 		} else {
 			existing_file = await plugin.app.vault.create(translated_document_path, translated_document);
 		}
-		let leaf = plugin.app.workspace.getLeaf(false);
+		const leaf = plugin.app.workspace.getLeaf(false);
 		plugin.app.workspace.setActiveLeaf(leaf, false);
-		leaf.openFile(existing_file as TFile, { eState: { focus: true } });
+		leaf.openFile(existing_file as TFile, {eState: {focus: true}});
 	}
 }
 
 
-export async function translate_selection(plugin: TranslatorPlugin, editor: Editor, language_to: string): Promise<void> {
+export async function translate_selection(plugin: TranslatorPlugin, editor: Editor, language_to: string, apply_glossary: boolean = false): Promise<void> {
 	if (editor.getSelection().length === 0) {
 		plugin.message_queue("Selection is empty");
 		return;
 	}
-	let results = await plugin.translator.translate(editor.getSelection(), 'auto', language_to);
+
+	let language_from = 'auto';
+	let text = editor.getSelection();
+	if (apply_glossary && plugin.detector) {
+		const glossary_result = await applyGlossary(plugin, language_from, language_to, text);
+		text = glossary_result.translation;
+		language_from = glossary_result.detected_language;
+	}
+
+	let results = await plugin.translator.translate(text, language_from, language_to);
 	if (results.translation)
 		editor.replaceSelection(results.translation);
 	if (results.message)
@@ -96,7 +143,7 @@ export async function detect_selection(plugin: TranslatorPlugin, editor: Editor)
 		});
 
 		if (detected_languages) {
-			let alternatives = detected_languages.map((result) => {
+			const alternatives = detected_languages.map((result) => {
 				return `${t(result.language)}` + (result.confidence !== undefined ? ` [${(result.confidence * 100).toFixed(2)}%]` : '');
 			});
 
