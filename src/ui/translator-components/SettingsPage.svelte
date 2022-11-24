@@ -27,8 +27,11 @@
 	export let plugin: TranslatorPlugin;
 
 	$: available_services_observer = $data.available_services.length;
+	$: tab_observer = $data.tab;
 
-	let tab = $data.tab;
+	let tab: string;
+	$: tab = tab_observer;
+	
 	let tabs = generateTabs();
 	let tab_idx = tabs.findIndex(t => t.id === tab);
 	$: {

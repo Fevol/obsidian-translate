@@ -63,24 +63,33 @@
 
 <SettingItem
 	name="Translation Service"
-	description="Service used for executing <i>global commands</i>"
+	description="Service used for the plugin's <i>commands</i>"
 	notices={[
 		{ type: 'text', text: `Used for the editor context menu and translating files`, style: 'info-text' }
 	]}
 	type="dropdown"
 >
-	<Dropdown
-		slot="control"
-		options={$data.available_services
+	<div slot="control" class="flex-row-element">
+		<Dropdown
+			options={$data.available_services
 			//.filter(service => SERVICES_INFO[service].type === 'translation')
 			.map(service => {
 				return {'value': service, 'text': SERVICES_INFO[service].display_name};
 		})}
-		value={ $settings.translation_service }
-		onChange={(e) => {
+			value={ $settings.translation_service }
+			onChange={(e) => {
 			$settings.translation_service = e.target.value;
 		}}
-	/>
+		/>
+		<Button
+			class="clickable-icon setting-editor-extra-setting-button"
+			icon="user-cog"
+			tooltip="Open service's settings"
+			onClick={() => {
+				$data.tab = $settings.translation_service;
+			}}
+		/>
+	</div>
 </SettingItem>
 
 <SettingItem
