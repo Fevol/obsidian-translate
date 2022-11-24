@@ -119,6 +119,34 @@ export default {
 	"Mtei": "Meitei",
 
 
+	// Locales introduced by Fanyi Baidu
+	"ber": "Berber",
+	"bli": "Bolia",
+	"cht": "Cholón",
+	"cri": "Sãotomense",
+	"eno": "Enggano",
+	"gra": "Rajput Garasia",
+	"ing": "Degexit'an",
+	"kah": "Kara (Central African Republic)",
+	"kli": "Kalumpang",
+	"log": "Logo",
+	"loj": "Lou",
+	"los": "Loniu",
+	"mau": "Huautla Mazatec",
+	"mot": "Barí",
+	"nea": "Eastern Ngad'a",
+	"ped": "Mala (Papua New Guinea)",
+	"pot": "Potawatomi",
+	"ruy": "Mala (Nigeria)",
+	"sec": "Sechelt",
+	"sha": "Shall-Zwall",
+	"sil": "Tumulung Sisaala",
+	"sol": "Solos",
+	"src": "Logudorese Sardinian",
+	"tua": "Wiarumus",
+	"wen": "Sorbian",
+
+
 	// Locales, you definitely do not need to add these, they are already provided for all of Obsidian's display languages
 	"aa":	"Afar",
 	"ab":	"Abkhazian",
