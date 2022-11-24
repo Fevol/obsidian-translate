@@ -260,13 +260,14 @@
 			language_from = 'auto';
 
 		let input_text = text_from;
+		let temp_detected_language: string;
 		if ($settings.local_glossary && apply_glossary && plugin.detector) {
 			if (language_from === 'auto') {
 				const detection_results = await plugin.detector.detect(input_text);
 				if (detection_results.detected_languages)
-					detected_language = detection_results.detected_languages[0].language;
+					temp_detected_language = detection_results.detected_languages[0].language;
 			}
-			const temp_language_from = detected_language || language_from;
+			const temp_language_from = temp_detected_language || language_from;
 			const glossary_pair = glossary.dicts[temp_language_from + language_to];
 			if (temp_language_from && glossary_pair) {
 				input_text = input_text.replace(glossary.replacements[temp_language_from + language_to],
@@ -282,12 +283,12 @@
 
 		let return_values = await translator.translate(
 			input_text,
-			detected_language || language_from,
+			temp_detected_language || language_from,
 			selectable_languages.some(x => x.value === language_to) ? language_to : '',
 		);
 
-		if (detected_language)
-			return_values.detected_language = detected_language;
+		if (temp_detected_language)
+			return_values.detected_language = temp_detected_language;
 
 		// We'd rather not have messages displayed while in the settings
 		if (return_values.message && !plugin.settings_open)
