@@ -7,7 +7,7 @@
 	import {SettingItem} from "../../obsidian-components";
 	import {slide} from "svelte/transition"
 
-	import {PasswordModal, PasswordRequestModal} from "../../modals";
+	import {PasswordModal, PasswordRequestModal, TextModal} from "../../modals";
 
 	import type {PluginData, TranslatorPluginSettings} from "../../../types";
 	import {SERVICES_INFO, SECURITY_MODES, DEFAULT_SETTINGS, ALL_SERVICES} from "../../../constants";
@@ -240,3 +240,11 @@
 	</div>
 </SettingItem>
 
+<Button
+	class="translator-license-button"
+	text="DISCLAIMER"
+	icon="scale"
+	onClick={ () => new TextModal(plugin, "Legal information", `
+	THIS SERVICE MAY CONTAIN TRANSLATIONS POWERED BY GOOGLE. GOOGLE DISCLAIMS ALL WARRANTIES RELATED TO THE TRANSLATIONS, EXPRESS OR IMPLIED, INCLUDING ANY WARRANTIES OF ACCURACY, RELIABILITY, AND ANY IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+	<br>`).open() }
+/>

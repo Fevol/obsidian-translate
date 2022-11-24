@@ -12,7 +12,7 @@ import {get} from "svelte/store";
 
 
 import {TRANSLATOR_VIEW_ID, SERVICES_INFO} from "./constants";
-import {ViewAppearanceModalView} from "./ui/modals";
+import {ViewAppearanceModal} from "./ui/modals";
 import ViewFunctionalityModal from "./ui/modals/view_functionality_modal";
 
 
@@ -30,7 +30,7 @@ export class TranslatorView extends ItemView {
 		this.plugin = plugin;
 
 		this.addAction('palette', "Change the view's appearance", () => {
-			new ViewAppearanceModalView(app, this).open();
+			new ViewAppearanceModal(app, this).open();
 		});
 
 		this.addAction('wrench', "Alter the view's functionality", () => {
