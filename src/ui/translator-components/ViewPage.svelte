@@ -74,7 +74,7 @@
 		'change-service': () => {
 			new SwitchService(plugin.app, plugin, async (service) => {
 				previous_service = $translation_service;
-				translator = await plugin.reactivity.getTranslationService(service, previous_service);
+				// translator = await plugin.reactivity.getTranslationService(service, previous_service);
 				$translation_service = service;
 			}).open();
 		},
@@ -346,6 +346,7 @@
 
 	onDestroy(() => {
 		app.keymap.popScope(view_scope);
+		plugin.reactivity.unloadService($translation_service);
 	})
 
 
@@ -388,6 +389,7 @@
 				}}
 			/>
 			<div class="translator-textarea-column">
+				<!-- TODO: If translator text is to be used in webpages, lang="TARGET-x-mtfrom-SOURCE" must be added -->
 				<TextArea
 					placeholder="Type here..."
 					class="translator-textarea"

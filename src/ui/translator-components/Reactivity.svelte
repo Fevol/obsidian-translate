@@ -130,6 +130,14 @@
 		return active_services;
 	};
 
+	export function unloadService(service: string) {
+		service_uses[service] -= 1;
+		if (service_uses[service] === 0) {
+			delete active_services[service];
+			// console.log("UNLOADED SERVICE: " + service);
+		}
+	}
+
 	export async function getTranslationService(service: string, old_service: string = ''): Promise<DummyTranslate> {
 		// Do not attempt to create a service if it does not exist
 		if (!service || !(service in SERVICES_INFO)) {
