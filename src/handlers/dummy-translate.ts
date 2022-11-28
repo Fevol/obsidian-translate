@@ -1,4 +1,10 @@
-import type {DetectionResult, LanguagesFetchResult, TranslationResult, ValidationResult} from "../types";
+import type {
+	DetectionResult,
+	GlossaryFetchResult, GlossaryUploadResult,
+	LanguagesFetchResult,
+	TranslationResult,
+	ValidationResult
+} from "../types";
 import {writable, type Writable} from "svelte/store";
 import {DefaultDict, regexLastIndexOf} from "../util";
 
@@ -87,7 +93,7 @@ export class DummyTranslate {
 	}
 
 
-	async translate(text: string, from: string, to: string): Promise<TranslationResult> {
+	async translate(text: string, from: string, to: string, glossary_id: string = undefined): Promise<TranslationResult> {
 		if (!this.valid)
 			return {status_code: 400, message: "Translation service is not validated"};
 		if (!text.trim())
@@ -96,12 +102,13 @@ export class DummyTranslate {
 			return {status_code: 400, message: "No target language was provided"};
 		if (from === to)
 			return {status_code: 200, translation: text};
-
+		if (!from)
+			from = "auto";
 
 		let output: TranslationResult;
 		try {
 			if (text.length < this.character_limit) {
-				output = await this.service_translate(text, from, to);
+				output = await this.service_translate(text, from, to, glossary_id);
 				if (output.status_code !== 200) {
 					return this.detected_error("Translation failed", output);
 				}
@@ -126,7 +133,7 @@ export class DummyTranslate {
 
 
 					const chunk = text.slice(idx, r_idx).trim();
-					const result = await this.service_translate(chunk, from, to);
+					const result = await this.service_translate(chunk, from, to, glossary_id);
 					if (result.status_code !== 200) {
 						return this.detected_error("Translation failed", result);
 					} else {
@@ -150,9 +157,9 @@ export class DummyTranslate {
 		}
 	}
 
-	async service_translate(text: string, from: string, to: string): Promise<TranslationResult> {
+	async service_translate(text: string, from: string, to: string, glossary_id: string = undefined): Promise<TranslationResult> {
 		// Perfect translation
-		return {translation: text, detected_language: null};
+		return {status_code: 400, translation: text, detected_language: null};
 	}
 
 
@@ -174,8 +181,43 @@ export class DummyTranslate {
 
 	async service_languages(): Promise<LanguagesFetchResult> {
 		// All languages
-		return {message: 'This should not ever be called'};
+		return {status_code: 400, message: 'This should not ever be called'};
 	}
+
+	async glossary_languages(): Promise<GlossaryFetchResult> {
+		if (!this.valid)
+			return {status_code: 400, message: "Translation service is not validated"};
+		const output = await this.service_glossary_languages();
+		if (output.status_code !== 200)
+			return this.detected_error("Glossary languages fetching failed", output);
+		this.success();
+		return output;
+	}
+
+
+	async service_glossary_languages(): Promise<GlossaryFetchResult> {
+		return {status_code: 400, message: 'This should not ever be called'};
+	}
+
+	async glossary_upload(glossary: any, glossary_languages: Record<string, string[]>, previous_glossaries_ids: Record<string, string>): Promise<GlossaryUploadResult> {
+		if (!this.valid)
+			return {status_code: 400, message: "Translation service is not validated"};
+		const output = await this.service_glossary_upload(glossary, glossary_languages, previous_glossaries_ids);
+		if (!output.message) {
+			if (output.status_code === 200) {
+				output.message = 'Glossary uploaded successfully';
+				this.success();
+			}
+		} else {
+			return this.detected_error("Glossary uploading failed", output);
+		}
+		return output;
+	}
+
+	async service_glossary_upload(glossary: any, glossary_languages: Record<string, string[]>, previous_glossaries_ids: Record<string, string>): Promise<GlossaryUploadResult> {
+		return {status_code: 400, message: 'This should not ever be called'};
+	}
+
 
 	has_autodetect_capability(): boolean {
 		return false;

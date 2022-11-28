@@ -13,7 +13,7 @@ async function applyGlossary(plugin: TranslatorPlugin, language_from: string, la
 	}
 
 	const temp_language_from = detected_language || language_from;
-	const glossary_pair: Record<string, string>[] = glossary.dicts[temp_language_from + language_to as keyof typeof glossary.dicts];
+	const glossary_pair: Record<string, string>[] = glossary.dicts[temp_language_from + '_' + language_to as keyof typeof glossary.dicts];
 	if (temp_language_from && glossary_pair) {
 		text = text.replace(glossary.replacements[temp_language_from + language_to as keyof typeof glossary.replacements],
 			(match) => {

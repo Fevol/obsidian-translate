@@ -622,7 +622,7 @@ table.translator-table {
 	border-radius:8px;
 
 	display: block;
-	max-height: 500px;
+	max-height: 400px;
 	overflow-x: hidden;
 	overflow-y: scroll;
 	box-sizing: border-box;
@@ -742,6 +742,11 @@ table.translator-table-cell-temporary td:first-of-type:empty:not(:focus):before 
 	margin-right: var(--size-4-2);
 }
 
+.translator-glossary-buttons {
+	display: flex;
+	justify-content: space-between;
+}
+
 .translator-filter-input-icon {
 	position: absolute;
 	cursor: pointer;
@@ -751,7 +756,6 @@ table.translator-table-cell-temporary td:first-of-type:empty:not(:focus):before 
 
 .translator-filter-input {
 	margin: var(--size-2-3) 0 var(--size-4-2) auto;
-	position: relative;
 	width: fit-content;
 }
 

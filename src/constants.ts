@@ -182,7 +182,17 @@ export const DEFAULT_SETTINGS: TranslatorPluginSettings = {
 				"bg", "cs", "da", "de", "el", "en", "es", "et", "fi", "fr", "hu", "id", "it", "ja", "lt", "lv", "nl",
 				"pl", "pt", "ro", "ru", "sk", "sl", "sv", "tr", "uk", "zh"
 			],
-			version: "1.0.1"
+			glossary_languages: {
+				"de": ["en", "fr"],
+				"en": ["de", "es", "fr", "ja", "it", "pl", "nl"],
+				"es": ["en"],
+				"fr": ["de", "en"],
+				"ja": ["en"],
+				"it": ["en"],
+				"pl": ["en"],
+				"nl": ["en"]
+			},
+			version: "1.0.2"
 		},
 		bergamot: {
 			selected_languages: [],
@@ -860,7 +870,8 @@ export let SERVICES_INFO: { [key: string]: any } = {
 		requires_api_key: true,
 		request_key: "https://www.deepl.com/pro-api?cta=header-pro-api/",
 		url: "https://www.deepl.com/",
-		type: 'translation'
+		type: 'translation',
+		online_glossary: true,
 	},
 	libre_translate: {
 		display_name: "Libre Translate",

@@ -604,3 +604,25 @@
 		}}
 	/>
 </SettingItem>
+
+{#if info.online_glossary}
+	<SettingItem
+		name="Update Glossary Languages"
+		description="Update the list of languages that can be used for the server-side glossary"
+	>
+		<Button
+			slot="control"
+			icon="switch"
+			tooltip="Update languages"
+			onClick={async () => {
+				const output = await translator.glossary_languages();
+				if (output.message)
+					plugin.message_queue(output.message);
+				if (output.languages) {
+					$settings.service_settings[service].glossary_languages = output.languages;
+					plugin.message_queue("Glossary languages updated");
+				}
+			}}
+		/>
+	</SettingItem>
+{/if}

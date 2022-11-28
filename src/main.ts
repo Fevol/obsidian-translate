@@ -102,6 +102,8 @@ export default class TranslatorPlugin extends Plugin {
 				// @ts-ignore (idem)
 				loaded_settings.service_settings[key].downloadable_models = DEFAULT_SETTINGS.service_settings[key].downloadable_models;
 				// @ts-ignore (idem)
+				loaded_settings.service_settings[key].glossary_languages = DEFAULT_SETTINGS.service_settings[key].glossary_languages;
+				// @ts-ignore (idem)
 				loaded_settings.service_settings[key].version = DEFAULT_SETTINGS.service_settings[key].version;
 			}
 		}
@@ -353,10 +355,15 @@ export default class TranslatorPlugin extends Plugin {
 
 
 	// A way to change the main translation service via the console, access translator via 'plugin.translator'
+	// This is intended for debugging or development purposes only
 	async setTranslationService(service: string) {
-		settings.update((x: TranslatorPluginSettings) => {
-			x.translation_service = service;
-			return x;
-		});
+		if (service in SERVICES_INFO) {
+			settings.update((x: TranslatorPluginSettings) => {
+				x.translation_service = service;
+				return x;
+			});
+		} else {
+			console.error(`Service ${service} not found`);
+		}
 	}
 }

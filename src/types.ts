@@ -77,6 +77,11 @@ export interface APIServiceSettings {
 	// What languages are available for *this translation service* (locale codes)
 	available_languages: Array<string> | Array<LanguageModelData>;
 
+	// Available glossary pairs given source language ("en" -> ["fr", "de", ...])
+	glossary_languages?: Record<string, string[]>;
+	// Which glossaries are currently uploaded to the service, will be removed whenever new glossaries are uploaded
+	uploaded_glossaries?: Record<string, string>;
+
 	downloadable_models?: Array<LanguageModelData>;
 	version?: string;
 
@@ -129,9 +134,9 @@ export interface FastTextData {
 export interface TranslationResult {
 	translation?: string;
 	detected_language?: string;
+	confidence?: number;
 	message?: string;
 	status_code?: number;
-	confidence?: number;
 }
 
 export interface ValidationResult {
@@ -157,6 +162,26 @@ export interface DetectionResult {
 	message?: string;
 	status_code?: number;
 }
+
+
+
+// export interface GlossaryEntry {
+// 	source: string;
+// 	target: Array<string>;
+// }
+
+export interface GlossaryFetchResult {
+	languages?: Record<string, string[]>;
+	message?: string;
+	status_code?: number;
+}
+
+export interface GlossaryUploadResult {
+	message?: string;
+	status_code?: number;
+	identifiers?: Record<string, string>;
+}
+
 
 export interface GlossaryResult {
 	translation: string;

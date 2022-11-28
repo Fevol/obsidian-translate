@@ -11,6 +11,8 @@
 
 	import {DefaultDict} from "../../../util";
 	import {fuzzySearch, prepareQuery, Scope} from "obsidian";
+	import {SERVICES_INFO} from "../../../constants";
+	import {DummyTranslate} from "../../../handlers";
 
 
 	export let plugin: TranslatorPlugin;
@@ -39,12 +41,19 @@
 	let add_both_directions = false;
 	let filter_text = "";
 	let sort_direction = -1;
+	let translator: DummyTranslate;
 
-	const available_services = [{"value": "deepl", "text": "DeepL"}];
+	let sync_state = null;
+
+	const available_services = Object.entries(SERVICES_INFO)
+		.filter(([key, value]) => value.online_glossary)
+		.map(([key, value]) => ({ value: key, text: value.display_name }))
+		.sort((a, b) => a.text.localeCompare(b.text));
+
 	let sync_service = available_services[0].value;
 	
 	$: {
-		language_pair = source_language + target_language;
+		language_pair = source_language + '_' + target_language;
 		reverse_language_pair = target_language + source_language;
 		updateGlossary();
 	}
@@ -99,6 +108,10 @@
 				glossaries = new DefaultDict(JSON.parse(loaded_glossaries), []);
 				glossary_pair = glossaries[language_pair]
 			}
+		}
+
+		if (sync_service) {
+			translator = await plugin.reactivity.getTranslationService(sync_service);
 		}
 	});
 
@@ -307,8 +320,9 @@
 			}}
 		/>
 	</div>
-	<div class="translator-filter-input">
+	<div class="translator-glossary-buttons">
 		<Input
+			class="translator-filter-input"
 			type="text"
 			val={filter_text}
 			placeholder="Filter..."
@@ -394,20 +408,32 @@
 				slot="control"
 				options={available_services}
 				value={ sync_service }
-				onChange={(e) => {
+				onChange={async (e) => {
 					sync_service = e.target.value;
+					sync_state = null;
+					translator = await plugin.reactivity.getTranslationService(sync_service);
 				}}
 			/>
 			<ToggleButton
 				text="Sync glossary"
-				value={true}
+				value={sync_state}
 				fn={async () => {
 					if (!sync_service) {
 						plugin.message_queue("No translation service was selected");
 						return;
 					}
-					//let validation_results = await translator.syncGlossary(glossaries);
-					return false;
+
+					const local_glossaries = Object.assign({}, glossaries);
+					const output = await translator.glossary_upload(local_glossaries,
+										$settings.service_settings[sync_service].glossary_languages,
+										$settings.service_settings[sync_service].uploaded_glossaries || {});
+
+					if (output.message)
+						plugin.message_queue(output.message);
+					if (output.identifiers) {
+						$settings.service_settings[sync_service].uploaded_glossaries = output.identifiers;
+						return true;
+					}
 				}}
 			/>
 		</div>

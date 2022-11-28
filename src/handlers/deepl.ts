@@ -1,7 +1,7 @@
 import {DummyTranslate} from "./dummy-translate";
 import type {
 	APIServiceSettings,
-	DetectionResult,
+	DetectionResult, GlossaryFetchResult, GlossaryUploadResult,
 	LanguagesFetchResult,
 	TranslationResult,
 	ValidationResult
@@ -80,7 +80,7 @@ export class Deepl extends DummyTranslate {
 		};
 	}
 
-	async service_translate(text: string, from: string, to: string): Promise<TranslationResult> {
+	async service_translate(text: string, from: string, to: string, glossary_id: string): Promise<TranslationResult> {
 		const response = await requestUrl({
 			throw: false,
 			url: `${this.host}/translate?` + new URLSearchParams({
@@ -89,6 +89,7 @@ export class Deepl extends DummyTranslate {
 				target_lang: to,
 				split_sentences: "0",
 				preserve_formatting: "0",
+				glossary_id: glossary_id
 			}),
 			method: "POST",
 			headers: {
@@ -107,7 +108,7 @@ export class Deepl extends DummyTranslate {
 			status_code: response.status,
 			translation: data.translations[0].text,
 			detected_language: (from === "auto" && data.translations[0].detected_source_language) ?
-								data.translations[0].detected_source_language.toLowerCase() : null
+				data.translations[0].detected_source_language.toLowerCase() : null
 		}
 	}
 
@@ -134,8 +135,94 @@ export class Deepl extends DummyTranslate {
 		};
 	}
 
+	async service_glossary_languages(): Promise<GlossaryFetchResult> {
+		const response = await requestUrl({
+			throw: false,
+			url: `${this.host}/glossary-language-pairs`,
+			method: "GET",
+			headers: {
+				"Authorization": "DeepL-Auth-Key " + this.api_key
+			}
+		});
+
+		const data = response.json;
+
+		if (response.status !== 200)
+			return {status_code: response.status, message: data.message}
+
+
+		const glossary_pairs: Record<string, string[]> = {};
+		for (const pair of data['supported_languages']) {
+			if (pair['source_lang'] in glossary_pairs) {
+				glossary_pairs[pair['source_lang']].push(pair['target_lang']);
+			} else {
+				glossary_pairs[pair['source_lang']] = [pair['target_lang']];
+			}
+		}
+		return {
+			status_code: response.status,
+			message: data.message,
+			languages: glossary_pairs
+		};
+	}
+
+
+	async service_glossary_upload(glossary: any, glossary_languages: Record<string, string[]>, previous_glossaries_ids: Record<string, string>): Promise<GlossaryUploadResult> {
+		// TODO: Don't forget to rate limit this for the people who have like 8+ glossaries
+
+		for (const [language_pair, id] of Object.entries(previous_glossaries_ids)) {
+			const response = await requestUrl({
+				throw: false,
+				url: `${this.host}/glossaries/${id}`,
+				method: "DELETE",
+				headers: {
+					"Authorization": "DeepL-Auth-Key " + this.api_key
+				}
+			});
+			if (response.status > 400)
+				return {status_code: response.status, message: response.json?.message};
+		}
+
+		const identifiers: Record<string, string> = {};
+
+		for (const source_lang in glossary_languages) {
+			for (const target_lang of glossary_languages[source_lang]) {
+				if (glossary[source_lang + '_' + target_lang]) {
+					const response = await requestUrl({
+						throw: false,
+						url: `${this.host}/glossaries?`,
+						body: ''+ new URLSearchParams({
+							name: source_lang + '' + target_lang,
+							source_lang: source_lang,
+							target_lang: target_lang,
+							entries: glossary[source_lang + "_" + target_lang].map((entry: any) => entry[0] + '\t' + entry[1]).join('\n'),
+							entries_format: "tsv"
+						}),
+						method: "POST",
+						headers: {
+							"Authorization": "DeepL-Auth-Key " + this.api_key,
+							"Content-Type": "application/x-www-form-urlencoded"
+						}
+					});
+
+					const data = response.json;
+
+					if (response.status > 400)
+						return {status_code: response.status, message: data.detail || data.message}
+
+					identifiers[source_lang + "_" + target_lang] = data['glossary_id'];
+				}
+			}
+		}
+
+		return {
+			status_code: 200,
+			identifiers: identifiers
+		}
+	}
+
+
 	has_autodetect_capability(): boolean {
 		return true;
 	}
-
 }

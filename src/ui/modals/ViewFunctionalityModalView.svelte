@@ -70,7 +70,6 @@
 	<Toggle
 		slot="control"
 		value={ apply_glossary }
-		disabled={ !$settings.local_glossary }
 		onChange={(val) => { apply_glossary = val; }}
 	/>
 </SettingItem>
