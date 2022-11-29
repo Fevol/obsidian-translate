@@ -321,6 +321,7 @@ export default class TranslatorPlugin extends Plugin {
 		};
 		// @ts-ignore (Prevent build crash)
 		if (!(this.app.workspace.activeLeaf == null) && this.app.workspace.activeLeaf.getRoot() == this.app.workspace.rootSplit) {
+			// @ts-ignore (Prevent build crash - TS2345: Argument of type 'true' is not assignable to parameter of type 'split'.)
 			await this.app.workspace.getLeaf(true, 'vertical').setViewState(view_state)
 		} else {
 			const right_leaf = this.app.workspace.getRightLeaf(false);

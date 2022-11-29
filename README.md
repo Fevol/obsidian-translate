@@ -35,7 +35,7 @@ A plugin for [Obsidian](https://obsidian.md/) that implements a simple and easy-
 works with ten different translation services, and offers extensive customization options.
 
 <br>
-<img src="RESOURCES/obsidian-windows-combined.png">
+<img src="images/obsidian-windows-combined.png">
 <br><br>
 
 
