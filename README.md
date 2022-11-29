@@ -2,7 +2,6 @@
 	<img src="images/obsidian-translate-logo-text.png" width="400">
 </p>
 
-
 ---
 <div align="center">
 <a href="https://github.com/Fevol/obsidian-translate/">
@@ -25,7 +24,6 @@
 <img alt="Typescript" src="https://img.shields.io/badge/-Typescript-3178C6?logo=Typescript&logoColor=white&style=flat&">
 </a>
 </div>
-
 
 ---
 
