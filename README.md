@@ -1,5 +1,5 @@
 <p align="center">
-<img height="140px" src="images/obsidian-translate-logo-text.png">
+	<img src="images/obsidian-translate-logo-text.png" width="400">
 </p>
 
 

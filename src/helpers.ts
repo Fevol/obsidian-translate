@@ -55,6 +55,7 @@ export async function translate_file(plugin: TranslatorPlugin, file: TFile, lang
 			existing_file = await plugin.app.vault.create(translated_document_path, translated_document);
 		}
 		const leaf = plugin.app.workspace.getLeaf(false);
+		// @ts-ignore (Prevent build crash)
 		plugin.app.workspace.setActiveLeaf(leaf, false, true);
 		await leaf.openFile(existing_file as TFile, {eState: {focus: true}});
 	}

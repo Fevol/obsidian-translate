@@ -311,7 +311,7 @@ export default class TranslatorPlugin extends Plugin {
 			type: TRANSLATOR_VIEW_ID,
 			active: true,
 			state: {
-				
+
 				// language_from: available_languages.includes(loaded_settings.default_source_language) ? loaded_settings.default_source_language : 'auto',
 				// language_to: available_languages.includes(loaded_settings.default_source_language) ? loaded_settings.default_source_language : this.current_language,
 				language_from: loaded_settings.default_source_language || 'auto',
@@ -319,7 +319,7 @@ export default class TranslatorPlugin extends Plugin {
 				translation_service: translation_service,
 			}
 		};
-
+		// @ts-ignore (Prevent build crash)
 		if (!(this.app.workspace.activeLeaf == null) && this.app.workspace.activeLeaf.getRoot() == this.app.workspace.rootSplit) {
 			await this.app.workspace.getLeaf(true, 'vertical').setViewState(view_state)
 		} else {

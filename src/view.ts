@@ -1,3 +1,5 @@
+// @ts-ignore-file (Prevent build crash)
+
 import {ItemView, Platform, setIcon, WorkspaceLeaf} from "obsidian";
 import type {ViewStateResult} from "obsidian";
 
