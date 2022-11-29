@@ -82,7 +82,7 @@
 		}}
 		/>
 		<Button
-			class="clickable-icon setting-editor-extra-setting-button"
+			class="clickable-icon setting-editor-extra-setting-button translator-mobile-button"
 			icon="user-cog"
 			tooltip="Open service's settings"
 			onClick={() => {

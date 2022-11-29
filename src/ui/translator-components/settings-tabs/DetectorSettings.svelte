@@ -33,7 +33,6 @@
 		<button
 			class:translator-success={$data.models?.fasttext}
 			class="icon-text"
-			style="justify-content: center; flex: 1"
 			aria-label="Install"
 			on:click={async () => {
 				let model_path = `.obsidian/${$settings.storage_path}/fasttext/lid.176.ftz`

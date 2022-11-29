@@ -769,3 +769,21 @@ table.translator-table-cell-temporary td:first-of-type:empty:not(:focus):before 
 	right: var(--size-4-6);
 	bottom: var(--size-4-2);
 }
+
+.is-phone .translator-license-button {
+	width: unset;
+}
+
+.is-phone .translator-mobile-button.translator-mobile-button {
+	width: 20%;
+}
+
+.is-phone .flex-column-element {
+	gap: var(--size-4-2);
+	flex: 1;
+}
+
+.is-phone .flex-row-element {
+	gap: var(--size-4-2);
+	flex: 1;
+}

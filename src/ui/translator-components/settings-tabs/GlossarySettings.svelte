@@ -307,6 +307,7 @@
 			}}
 		/>
 		<Button
+			class="translator-mobile-button"
 			icon="switch" size="20"
 			onClick={() => {
 				[target_language, source_language] = [source_language, target_language];
@@ -399,7 +400,7 @@
 		name="Sync glossary configuration"
 		description="When you're finished with editing your glossary, sync it to selected translation service"
 		notices={[
-			{type: "text", text: "If the service does not support it, glossary <i>can</i> be applied locally if <b>`Local Glossary`</b> setting is enabled", style: 'info-text'},
+			{type: "text", text: "If the online glossary does not support a specific language pair, or if the service does not support online glossaries at all, glossary entries <i>can</i> be applied locally if <b>`Local Glossary`</b> setting is enabled", style: 'info-text'},
 		]}
 	>
 		<div slot="control" class="flex-column-element">
