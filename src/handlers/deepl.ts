@@ -89,7 +89,7 @@ export class Deepl extends DummyTranslate {
 				target_lang: to,
 				split_sentences: "0",
 				preserve_formatting: "0",
-				glossary_id: glossary_id
+				glossary_id: glossary_id || ""
 			}),
 			method: "POST",
 			headers: {

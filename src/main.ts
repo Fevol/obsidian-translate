@@ -12,7 +12,7 @@ import {
 } from 'obsidian';
 
 import {writable, type Writable, get} from "svelte/store";
-import {settings, data} from "./stores";
+import {settings, data, globals} from "./stores";
 import {Reactivity, ViewPage} from "./ui/translator-components";
 
 import {TranslatorSettingsTab} from "./settings";
@@ -124,7 +124,7 @@ export default class TranslatorPlugin extends Plugin {
 			(leaf) => new TranslatorView(leaf, this)
 		);
 
-
+		globals.plugin = this;
 
 		// Load icons into Obsidian
 		for (const [id, icon] of Object.entries(ICONS))
@@ -233,9 +233,9 @@ export default class TranslatorPlugin extends Plugin {
 									if (e.target.className !== "menu-item") {
 										const loaded_settings = get(settings);
 										if (loaded_settings.default_target_language && plugin_data.available_languages.includes(loaded_settings.default_target_language))
-											await translate_selection(this, editor, loaded_settings.default_target_language, loaded_settings.local_glossary);
+											await translate_selection(this, editor, loaded_settings.default_target_language, loaded_settings.apply_glossary);
 										else if (plugin_data.available_languages.includes(this.current_language))
-											await translate_selection(this, editor, this.current_language, loaded_settings.local_glossary);
+											await translate_selection(this, editor, this.current_language, loaded_settings.apply_glossary);
 										else
 											return false;
 									}
@@ -258,8 +258,7 @@ export default class TranslatorPlugin extends Plugin {
 							for (let [locale, name] of dropdown_menu_items) {
 								let dropdown_item = dropdown_menu.createEl("div", {cls: "menu-item", text: name});
 								this.registerDomEvent(dropdown_item, "click", async () => {
-									const loaded_settings = get(settings);
-									await translate_selection(this, editor, locale, loaded_settings.local_glossary);
+									await translate_selection(this, editor, locale, get(settings).apply_glossary);
 								});
 							}
 						});

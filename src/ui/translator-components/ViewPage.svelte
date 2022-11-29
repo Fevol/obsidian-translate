@@ -260,50 +260,11 @@
 		if (!selectable_languages.some(x => x.value === language_from))
 			language_from = 'auto';
 
-		let input_text = text_from;
-		let temp_detected_language = language_from;
-		let glossary_id = undefined;
 
-		if (apply_glossary) {
-			const detecting_language = language_from === 'auto' && plugin.detector;
-			if (detecting_language || language_from !== 'auto') {
-				if (detecting_language) {
-					const detection_results = await plugin.detector.detect(input_text);
-					if (detection_results.detected_languages)
-						temp_detected_language = detection_results.detected_languages[0].language;
-					else
-						return console.error('Language detection failed');
-				}
-
-				const language_pair = temp_detected_language + '_' + language_to;
-
-				glossary_id = $settings.service_settings[$translation_service].uploaded_glossaries?.[language_pair];
-
-				if (!glossary_id && $settings.local_glossary && (!detecting_language || (detecting_language && plugin.detector))) {
-					const glossary_pair = glossary.dicts[language_pair];
-					if (temp_detected_language && glossary_pair) {
-						input_text = input_text.replace(glossary.replacements[language_pair],
-							(match) => {
-								// TODO: Check if case insensitivity per word is also feasible,
-								//  issue would be that the search would always have to be executed with case-insensitive matching
-								//  and then case-sensitivity check should happen here (by removing toLowerCase())
-								//  either way: heavy performance impact
-								return glossary_pair.find(x => x[0].toLowerCase() === match.toLowerCase())[1] || match;
-							});
-					}
-				}
-			}
-		}
-
-		let return_values = await translator.translate(
-			input_text,
-			temp_detected_language || language_from,
+		let return_values = await translator.translate(text_from, language_from,
 			selectable_languages.some(x => x.value === language_to) ? language_to : '',
-			glossary_id
+			apply_glossary
 		);
-
-		if (apply_glossary && $settings.local_glossary && language_from === 'auto')
-			return_values.detected_language = temp_detected_language;
 
 		// We'd rather not have messages displayed while in the settings
 		if (return_values.message && !plugin.settings_open)

@@ -22,9 +22,25 @@
 </script>
 
 <SettingItem
-	name="Apply local glossary"
+	name="Apply glossary"
 	type="toggle"
-	description="If the translation service does not provide glossary services, apply glossary locally"
+	description="If one is available, online glossary will be applied to global commands (file translate, ...)"
+	notices={[
+		{ type: 'text', text: `This option requires <b>FastText</b> to resolve the language of the input text`, style: 'warning-text' }
+	]}
+>
+	<Toggle slot="control" value={$settings.apply_glossary}
+			onChange={ async () => {
+				$settings.apply_glossary = !$settings.apply_glossary;
+			}}
+	/>
+</SettingItem>
+
+
+<SettingItem
+	name="Apply glossary <b>locally</b>"
+	type="toggle"
+	description="If no online glossary is available, glossary will be applied locally"
 	notices={[
 		{ type: 'text', text: `Glossary terms may not properly get translated`, style: 'info-text' },
 		{ type: 'text', text: `This option requires <b>FastText</b> to resolve the language of the input text`, style: 'warning-text' }

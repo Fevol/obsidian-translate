@@ -1,34 +1,9 @@
 import {TFile, Editor, Notice} from "obsidian";
 import type TranslatorPlugin from "./main";
 import t from "./l10n";
-import {glossary} from "./stores";
-import type {GlossaryResult} from "./types";
 
-async function applyGlossary(plugin: TranslatorPlugin, language_from: string, language_to: string, text: string): Promise<GlossaryResult> {
-	let detected_language = ''
-	if (language_from === 'auto') {
-		const detection_results = await plugin.detector.detect(text);
-		if (detection_results.detected_languages)
-			detected_language = detection_results.detected_languages[0].language;
-	}
-
-	const temp_language_from = detected_language || language_from;
-	const glossary_pair: Record<string, string>[] = glossary.dicts[temp_language_from + '_' + language_to as keyof typeof glossary.dicts];
-	if (temp_language_from && glossary_pair) {
-		text = text.replace(glossary.replacements[temp_language_from + language_to as keyof typeof glossary.replacements],
-			(match) => {
-				// TODO: Check if case insensitivity per word is also feasible,
-				//  issue would be that the search would always have to be executed with case-insensitive matching
-				//  and then case-sensitivity check should happen here (by removing toLowerCase())
-				//  either way: heavy performance impact
-				return glossary_pair.find(x => x[0].toLowerCase() === match.toLowerCase())[1] || match;
-			});
-	}
-	return {translation: text, detected_language: temp_language_from};
-}
-
-
-export async function translate_file(plugin: TranslatorPlugin, file: TFile, language_to: string, replace_original: boolean = false, apply_glossary: boolean = false): Promise<void> {
+export async function translate_file(plugin: TranslatorPlugin, file: TFile, language_to: string, replace_original: boolean = false,
+									 apply_glossary: boolean = false): Promise<void> {
 	if (!file) {
 		plugin.message_queue("No file was selected");
 		return;
@@ -47,14 +22,7 @@ export async function translate_file(plugin: TranslatorPlugin, file: TFile, lang
 		if (paragraph.trim().length === 0) {
 			translated_text.push(paragraph);
 		} else {
-			let language_from = 'auto';
-			if (apply_glossary && plugin.detector) {
-				const glossary_result = await applyGlossary(plugin, language_from, language_to, paragraph);
-				paragraph = glossary_result.translation;
-				language_from = glossary_result.detected_language;
-			}
-
-			const output = (await plugin.translator.translate(paragraph, "auto", language_to));
+			const output = (await plugin.translator.translate(paragraph, "auto", language_to, apply_glossary));
 			if (output.status_code !== 200) {
 				plugin.message_queue(output.message);
 				return;
@@ -69,14 +37,7 @@ export async function translate_file(plugin: TranslatorPlugin, file: TFile, lang
 	} else {
 		let filename = file?.name.replace(/\.[^/.]+$/, "");
 
-		let language_from = 'auto';
-		if (apply_glossary && plugin.detector) {
-			const glossary_result = await applyGlossary(plugin, language_from, 'en', filename);
-			filename = glossary_result.translation;
-			language_from = glossary_result.detected_language;
-		}
-
-		const filename_translation = (await plugin.translator.translate(filename, language_from, language_to)).translation;
+		const filename_translation = (await plugin.translator.translate(filename, "auto", language_to, apply_glossary)).translation;
 
 		const translated_filename = (!filename_translation || filename_translation === filename)
 			? `[${language_to}] ${filename}`
@@ -106,15 +67,9 @@ export async function translate_selection(plugin: TranslatorPlugin, editor: Edit
 		return;
 	}
 
-	let language_from = 'auto';
 	let text = editor.getSelection();
-	if (apply_glossary && plugin.detector) {
-		const glossary_result = await applyGlossary(plugin, language_from, language_to, text);
-		text = glossary_result.translation;
-		language_from = glossary_result.detected_language;
-	}
 
-	let results = await plugin.translator.translate(text, language_from, language_to);
+	let results = await plugin.translator.translate(text, "auto", language_to, apply_glossary);
 	if (results.translation)
 		editor.replaceSelection(results.translation);
 	if (results.message)

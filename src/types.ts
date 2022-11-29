@@ -5,6 +5,7 @@ export interface TranslatorPluginSettings {
 	display_language: "local" | "display";
 	filter_mode: string;
 	switch_button_action: "switch-both" | "switch-language" | "switch-text";
+	apply_glossary: boolean;
 	local_glossary: boolean;
 	case_insensitive_glossary: boolean;
 

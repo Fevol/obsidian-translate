@@ -5,8 +5,9 @@ import type {
 	TranslationResult,
 	ValidationResult
 } from "../types";
-import {writable, type Writable} from "svelte/store";
+import {get, writable, type Writable} from "svelte/store";
 import {DefaultDict, regexLastIndexOf} from "../util";
+import {globals, glossary, settings} from "../stores";
 
 export class DummyTranslate {
 	// Due to the fact that failure_count will be accessed many times, it's best if we don't have to call get from
@@ -93,7 +94,7 @@ export class DummyTranslate {
 	}
 
 
-	async translate(text: string, from: string, to: string, glossary_id: string = undefined): Promise<TranslationResult> {
+	async translate(text: string, from: string, to: string, apply_glossary: boolean = false): Promise<TranslationResult> {
 		if (!this.valid)
 			return {status_code: 400, message: "Translation service is not validated"};
 		if (!text.trim())
@@ -107,11 +108,52 @@ export class DummyTranslate {
 
 		let output: TranslationResult;
 		try {
+			let temp_detected_language = from;
+			let glossary_id: string = undefined;
+			let detecting_language = false;
+			if (apply_glossary) {
+				detecting_language = from === 'auto' && !(globals.plugin.detector == null);
+				// TODO: Give warning if globals.plugin.detector is null
+				if (detecting_language || from !== 'auto') {
+					if (detecting_language) {
+						const detection_results = await globals.plugin.detector.detect(text);
+						if (detection_results.detected_languages)
+							temp_detected_language = detection_results.detected_languages[0].language;
+						else
+							temp_detected_language = null;
+					}
+
+					if (temp_detected_language) {
+						from = temp_detected_language;
+						const language_pair = from + '_' + to;
+						const loaded_settings = get(settings);
+
+						// @ts-ignore (service is always in service_settings)
+						glossary_id = loaded_settings.service_settings[loaded_settings.translation_service].uploaded_glossaries?.[language_pair];
+
+						if (!glossary_id && loaded_settings.local_glossary) {
+							const glossary_pair: string[][] = glossary.dicts[language_pair as keyof typeof glossary.dicts];
+							if (from && glossary_pair) {
+								text = text.replace(glossary.replacements[language_pair as keyof typeof glossary.replacements],
+									(match) => {
+										// TODO: Check if case insensitivity per word is also feasible,
+										//  issue would be that the search would always have to be executed with case-insensitive matching
+										//  and then case-sensitivity check should happen here (by removing toLowerCase())
+										//  either way: heavy performance impact
+										return glossary_pair.find(x => x[0].toLowerCase() === match.toLowerCase())[1] || match;
+									});
+							}
+						}
+					}
+				}
+			}
+
 			if (text.length < this.character_limit) {
 				output = await this.service_translate(text, from, to, glossary_id);
-				if (output.status_code !== 200) {
+				if (output.status_code !== 200)
 					return this.detected_error("Translation failed", output);
-				}
+				if (detecting_language && temp_detected_language)
+					output.detected_language = temp_detected_language;
 			} else {
 				let idx = 0;
 				let translation = '';
