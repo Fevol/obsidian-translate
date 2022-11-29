@@ -6,7 +6,6 @@ import {
 	Plugin,
 	setIcon,
 	Platform,
-	requireApiVersion,
 	moment,
 	TFile, TFolder
 } from 'obsidian';
