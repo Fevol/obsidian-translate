@@ -743,6 +743,7 @@ table.translator-table-cell-temporary td:first-of-type:empty:not(:focus):before 
 }
 
 .translator-glossary-buttons {
+	position: relative;
 	display: flex;
 	justify-content: space-between;
 }
@@ -751,7 +752,7 @@ table.translator-table-cell-temporary td:first-of-type:empty:not(:focus):before 
 	position: absolute;
 	cursor: pointer;
 	right: 7px;
-	top: 7px;
+	bottom: 14px;
 }
 
 .translator-filter-input {
