@@ -27,10 +27,9 @@
 
 ---
 
-[//]: # (# Obsidian Translate)
-
-A plugin for [Obsidian](https://obsidian.md/) that implements a simple and easy-to-use translation interface that
-works with ten different translation services, and offers extensive customization options.
+A plugin for [Obsidian](https://obsidian.md/) that adds several commands for translating text and files,
+and also comes with an easy-to-use and extensively customizable translation interface that
+integrates with ten different translation services. 
 
 <br>
 <img src="images/obsidian-windows-combined.png">
