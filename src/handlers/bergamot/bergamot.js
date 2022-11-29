@@ -237,13 +237,13 @@ class Bergamot {
 		return alignedMemory;
 	}
 	
-	_getLoadedTranslationModel(from, to) {
-		const languagePair = this._getLanguagePair(from, to);
-		if (!this.translationModels.has(languagePair)) {
-			throw Error(`Translation model '${languagePair}' not loaded`);
-		}
-		return this.translationModels.get(languagePair);
-	}
+	// _getLoadedTranslationModel(from, to) {
+	// 	const languagePair = this._getLanguagePair(from, to);
+	// 	if (!this.translationModels.has(languagePair)) {
+	// 		throw Error(`Translation model '${languagePair}' not loaded`);
+	// 	}
+	// 	return this.translationModels.get(languagePair);
+	// }
 
 	_prepareResponseOptions(messages) {
 		const vectorResponseOptions = new this.WasmEngineModule.VectorResponseOptions();
@@ -286,38 +286,38 @@ class Bergamot {
 	}
 
 	// this function extracts all the translated sentences from the Response and returns them.
-	getAllTranslatedSentencesOfParagraph (response) {
-		const sentences = [];
-		const text = response.getTranslatedText();
-		for (let sentenceIndex = 0; sentenceIndex < response.size(); sentenceIndex+=1) {
-			const utf8SentenceByteRange = response.getTranslatedSentence(sentenceIndex);
-			sentences.push(this._getSentenceFromByteRange(text, utf8SentenceByteRange));
-		}
-		return sentences;
-	}
+	// getAllTranslatedSentencesOfParagraph (response) {
+	// 	const sentences = [];
+	// 	const text = response.getTranslatedText();
+	// 	for (let sentenceIndex = 0; sentenceIndex < response.size(); sentenceIndex+=1) {
+	// 		const utf8SentenceByteRange = response.getTranslatedSentence(sentenceIndex);
+	// 		sentences.push(this._getSentenceFromByteRange(text, utf8SentenceByteRange));
+	// 	}
+	// 	return sentences;
+	// }
 
 	// this function extracts all the source sentences from the Response and returns them.
-	getAllSourceSentencesOfParagraph (response) {
-		const sentences = [];
-		const text = response.getOriginalText();
-		for (let sentenceIndex = 0; sentenceIndex < response.size(); sentenceIndex+=1) {
-			const utf8SentenceByteRange = response.getSourceSentence(sentenceIndex);
-			sentences.push(this._getSentenceFromByteRange(text, utf8SentenceByteRange));
-		}
-		return sentences;
-	}
+	// getAllSourceSentencesOfParagraph (response) {
+	// 	const sentences = [];
+	// 	const text = response.getOriginalText();
+	// 	for (let sentenceIndex = 0; sentenceIndex < response.size(); sentenceIndex+=1) {
+	// 		const utf8SentenceByteRange = response.getSourceSentence(sentenceIndex);
+	// 		sentences.push(this._getSentenceFromByteRange(text, utf8SentenceByteRange));
+	// 	}
+	// 	return sentences;
+	// }
 
 	/*
 	 * this function returns a substring of text (a string). The substring is represented by
 	 * byteRange (begin and end endices) within the utf-8 encoded version of the text.
 	 */
-	_getSentenceFromByteRange (text, byteRange) {
-		const encoder = new TextEncoder(); // string to utf-8 converter
-		const decoder = new TextDecoder(); // utf-8 to string converter
-		const utf8BytesView = encoder.encode(text);
-		const utf8SentenceBytes = utf8BytesView.subarray(byteRange.begin, byteRange.end);
-		return decoder.decode(utf8SentenceBytes);
-	}
+	// _getSentenceFromByteRange (text, byteRange) {
+	// 	const encoder = new TextEncoder(); // string to utf-8 converter
+	// 	const decoder = new TextDecoder(); // utf-8 to string converter
+	// 	const utf8BytesView = encoder.encode(text);
+	// 	const utf8SentenceBytes = utf8BytesView.subarray(byteRange.begin, byteRange.end);
+	// 	return decoder.decode(utf8SentenceBytes);
+	// }
 }
 
 export {Bergamot}
