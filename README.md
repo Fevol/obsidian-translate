@@ -108,8 +108,8 @@ _² Your credit card will be charged if you exceed the free limit_<br>
 ### Notes
 
 - Most services require an _active_ internet connection to work. If you want to translate text offline, you can use
-  [Bergamot](https://browser.mt) translation engine by installing the binary and its models, or host [Libre Translate](https://libretranslate.com) 
-on your computer/network using any operating system with Docker or Flask (incl. [Android](https://gist.github.com/FreddieOliveira/efe850df7ff3951cb62d74bd770dce27)).
+  the [Bergamot](https://browser.mt) translation engine by installing the binary and its models, or host [Libre Translate](https://libretranslate.com) 
+on your computer/network using any operating system that supports Docker (incl. [Android](https://gist.github.com/FreddieOliveira/efe850df7ff3951cb62d74bd770dce27)).
 - Some services require a valid credit card to sign up for a free API key. Furthermore, the credit card will get charged if you go beyond the free character limit,
 make sure to keep your eyes on it!
 - Make sure that you _only_ enable automatic translation if you have a sufficiently high character cap on your API
@@ -146,6 +146,9 @@ In Files:
 - Support for multiple views with different settings
 - Automatic translation
 
+### Translator
+- Glossary support, both offline and online
+
 ---
 
 ## Future plans
@@ -153,8 +156,8 @@ In Files:
 - More auto-translate options
 - Localization support
 - Integration with Translation Memories
-- Custom view for translation paragraph per paragraph
-- Keep track of character limit
+- Custom view for translation notes (with before/after comparisons)
+- Add method to keep track of used characters
 
 ### Improvements
 - Preservation of Markdown formatting
@@ -170,9 +173,9 @@ Most up-to-date plans can be found [here](https://github.com/users/Fevol/project
 ## Disclaimers
 ### Legal
 Obsidian Translate is not officially associated with any of the aforementioned translation services,
-it only providers an user-facing UI to integrate with each of the services' APIs.
+it only provides an user-facing UI to integrate with each of the services' APIs.
 
-Asides from providing machine translation services between two languages, 
+Asides from providing machine translation between two languages or detection, 
 the respective services are not responsible for any modifications or alterations made to the source/translated text, 
 unless explicitly stated in documentation or displayed in the UI.
 
@@ -183,8 +186,8 @@ unless explicitly stated in documentation or displayed in the UI.
 The plugin will only make requests to translation services on specific user inputs, such as translating text or
 downloading language models. The plugin will **not** send requests to any of the services on its own.
 
-While the plugin does not collect any data, be aware that when translating, the text you wish to translate will be sent to
-the your selected translation service. Refer to each of the translation services' privacy policies provided below to see how they process this data:
+While the plugin does not collect any data, be aware that any text you translate will be sent to
+your selected translation service. Refer to each of the translation services' privacy policies provided below to see how they process this data:
 - [Google Translate](https://cloud.google.com/translate/data-usage)
 - [DeepL](https://www.deepl.com/en/privacy.html)
 - [Yandex Translate](https://yandex.com/legal/confidential/)
@@ -200,11 +203,9 @@ LingvaTranslate does not offer a privacy statement.
 
 ### Security
 Please be aware that your API keys are stored in plain text by default,
-and can be accessed by anyone with access to your vault. If you wish to keep your API keys private,
+and can be accessed by anyone that has access to your vault. If you wish to keep your API keys private,
 you can enable the option to encrypt them with a password under `General Settings`, or choose to only store them on the
-device itself (without storing them in the plugin data). 
-
-Note that the plugin cannot guarantee that your
+device itself (without storing them in the plugin data).
 
 ---
 
@@ -213,7 +214,7 @@ Any feedback would *very* much be appreciated. Please use the [GitHub issue trac
 or suggest improvements, or message me over on Discord (@Fevol#9470).
 
 This plugin started off as a personal passion project. It ballooned into something much bigger than I had originally intended.
-I hope that this plugin will be useful to you, and I hope to keep improving it in the future.
+I hope that this plugin will be useful to you, and I plan to keep improving on it in the future.
 
 ---
 
@@ -225,7 +226,7 @@ I hope that this plugin will be useful to you, and I hope to keep improving it i
 ---
 ## Support
 
-I personally don't feel entirely comfortable receiving money for what I do, so before you consider donating to me,
+I personally don't feel entirely comfortable receiving money for these passion projects, so before you consider donating to me,
 consider some of these charities first:
 
 - Local foodbanks and shelters
