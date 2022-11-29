@@ -14,6 +14,7 @@ export class FanyiQq extends DummyTranslate {
 	api_key: string;
 	app_id: string;
 	region: string;
+	id = "fanyi_qq";
 
 	character_limit = 2000;
 

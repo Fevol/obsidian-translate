@@ -5,6 +5,7 @@ import {requestUrl} from "obsidian";
 export class AzureTranslator extends DummyTranslate {
 	api_key: string;
 	region: string;
+	id = "azure_translator";
 
 	character_limit = 50000;
 

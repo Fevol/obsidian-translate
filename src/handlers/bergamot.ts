@@ -16,6 +16,7 @@ export class BergamotTranslate extends DummyTranslate {
 	detector: DummyTranslate = null;
 	plugin: TranslatorPlugin;
 	available_languages: Array<string> = ['en'];
+	id = "bergamot";
 
 	update_data(available_models: ModelFileData, path: string) {
 		if (available_models) {

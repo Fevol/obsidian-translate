@@ -4,6 +4,7 @@ import {requestUrl} from "obsidian";
 
 export class LibreTranslate extends DummyTranslate {
 	host: string;
+	id = "libre_translate";
 
 	constructor(settings: APIServiceSettings) {
 		super();

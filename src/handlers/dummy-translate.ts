@@ -14,6 +14,7 @@ export class DummyTranslate {
 	//	svelte/store each time, as that will require a subscribe and an unsubscribe every time we execute translator logic
 	failure_count: number;
 	failure_count_watcher: Writable<number>;
+	id = "dummy";
 
 	valid: boolean;
 
@@ -129,7 +130,7 @@ export class DummyTranslate {
 						const loaded_settings = get(settings);
 
 						// @ts-ignore (service is always in service_settings)
-						glossary_id = loaded_settings.service_settings[loaded_settings.translation_service].uploaded_glossaries?.[language_pair];
+						glossary_id = loaded_settings.service_settings[this.id].uploaded_glossaries?.[language_pair];
 
 						if (!glossary_id && loaded_settings.local_glossary) {
 							const glossary_pair: string[][] = glossary.dicts[language_pair as keyof typeof glossary.dicts];

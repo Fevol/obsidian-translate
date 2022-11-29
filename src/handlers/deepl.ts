@@ -16,6 +16,7 @@ import {requestUrl} from "obsidian";
 export class Deepl extends DummyTranslate {
 	api_key: string;
 	host: string;
+	id = "deepl";
 
 	// Body size may maximally be 128KiB
 	character_limit = 130000;

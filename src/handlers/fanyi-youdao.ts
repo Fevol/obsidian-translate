@@ -5,6 +5,7 @@ import {requestUrl} from "obsidian";
 export class FanyiYoudao extends DummyTranslate {
 	api_key: string;
 	app_id: string;
+	id = "fanyi_youdao";
 
 	character_limit = 5000;
 

@@ -14,6 +14,7 @@ import {iso639_3to1, iso639_1to3} from "../util";
 export class FanyiBaidu extends DummyTranslate {
 	api_key: string;
 	app_id: string;
+	id = "fanyi_baidu";
 
 	character_limit = 6000;
 
