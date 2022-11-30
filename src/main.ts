@@ -89,6 +89,18 @@ export default class TranslatorPlugin extends Plugin {
 			delete loaded_settings.service_settings['bing_translator' as keyof APIServiceProviders];
 		}
 
+		// @ts-ignore (path exists in legacy versions)
+		if (loaded_settings.storage_path) {
+			try {
+				// @ts-ignore (path exists in legacy versions)
+				await app.vault.adapter.rename(`.obsidian/${loaded_settings.storage_path}`, `.obsidian/plugins/obsidian-translate/models`);
+				// @ts-ignore (path exists in legacy versions)
+			} catch (e) {
+				// .obsidian/plugins/obsidian-translate/models already exists, shouldn't be an issue for 99% of users
+				console.error(e);
+			}
+			delete loaded_settings.storage_path;
+		}
 
 		// Check for any updates on the translation services
 		// In order to improve future compatibility, the user can manually update the available_languages/... with
@@ -283,13 +295,10 @@ export default class TranslatorPlugin extends Plugin {
 		this.uninstall = around(app.plugins, {
 			uninstallPlugin: (oldMethod) => {
 				return async (...args: string[]) => {
-					const var_settings = get(settings);
 					const result = oldMethod && oldMethod.apply(app.plugins, args);
 					if (args[0] === 'obsidian-translate') {
 						localStorage.removeItem(`${app.appId}-password`);
 						localStorage.removeItem(`${app.appId}-models`);
-						if (await app.vault.adapter.exists(`.obsidian/${var_settings.storage_path}`))
-							await app.vault.adapter.rmdir(`.obsidian/${var_settings.storage_path}`, true);
 					}
 				};
 			}

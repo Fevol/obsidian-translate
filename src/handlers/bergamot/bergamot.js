@@ -17,12 +17,9 @@ let engineWasmLocalPath;
  */
 class Bergamot {
 	available_models = {};
-	path = "";
 
-
-	constructor(available_models = {}, path) {
+	constructor(available_models = {}) {
 		this.available_models = available_models;
-		this.path = path;
 
 		// all variables specific to translation service
 		this.translationService = null;
@@ -45,7 +42,7 @@ class Bergamot {
 
 
 	async loadTranslationEngine() {
-		let path = `.obsidian/${this.path}/bergamot/bergamot-translator-worker.wasm`;
+		let path = `.obsidian/plugins/obsidian-translate/models/bergamot/bergamot-translator-worker.wasm`;
 
 		if (!await app.vault.adapter.exists(path))
 			throw 'Could not find bergamot-translator-worker.wasm in the vault';
@@ -197,7 +194,7 @@ class Bergamot {
 	}
 
 	async loadBinary(language, filename, type) {
-		return app.vault.adapter.readBinary(`.obsidian/${this.path}/bergamot/${language}/${filename}`).then(file => {
+		return app.vault.adapter.readBinary(`.obsidian/plugins/obsidian-translate/models/bergamot/${language}/${filename}`).then(file => {
 			return this.prepareAlignedMemoryFromBuffer(file, this.modelFileAlignments[type]);
 		})
 	}

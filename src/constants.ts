@@ -55,7 +55,6 @@ export const DEFAULT_SETTINGS: TranslatorPluginSettings = {
 	filter_mode: "0",
 	translation_service: 'google_translate',
 	security_setting: 'none',
-	storage_path: "models",
 	switch_button_action: 'switch-both',
 	apply_glossary: true,
 	local_glossary: false,

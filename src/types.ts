@@ -24,10 +24,6 @@ export interface TranslatorPluginSettings {
 	right_quickactions_default: string[];
 	hide_attribution_default: boolean;
 
-
-	// Where the local models are stored, if applicable
-	storage_path?: string;
-
 	hotkeys: TranslatorHotKey[];
 }
 

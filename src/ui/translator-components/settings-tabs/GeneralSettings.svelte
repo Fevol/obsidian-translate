@@ -177,43 +177,6 @@
 
 
 <SettingItem
-	name="Model path"
-	description="Determine where in the '.obsidian' folder local models should be stored"
-	notices={[{ type: 'text', text: `You cannot nest this folder`, style: 'warning-text'}] }
-	type="input"
->
-	<!-- FIXME: Currently the path gets renamed as the user types, probably very heavy on the FS	-->
-	<Input
-		slot="control"
-		val={$settings.storage_path}
-		onChange={async (e) => {
-			let path = e.target.value.replace(/[/\\?%*:|\"<>]/g, '-');
-
-			if (!path) {
-				new plugin.message_queue('Path cannot be empty');
-				return;
-			}
-
-			if (await app.vault.adapter.exists(`.obsidian/${path}`)) {
-				new plugin.message_queue('This directory already exists');
-				return;
-			}
-
-
-			if (await app.vault.adapter.exists(`.obsidian/${$settings.storage_path}`))
-				await app.vault.adapter.rename(`.obsidian/${$settings.storage_path}`, `.obsidian/${path}`);
-			$settings.storage_path = path;
-
-			// In case the bergamot translator was already set up, update its path data
-			const bergamot_translator = plugin.reactivity.getExistingService('bergamot');
-			if (bergamot_translator)
-				bergamot_translator.update_data(null, path);
-		}}
-		type="text"
-	/>
-</SettingItem>
-
-<SettingItem
 	name="Services selection"
 	description="Show only the selected services in settings, modals and commands"
 >

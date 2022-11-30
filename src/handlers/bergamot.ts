@@ -18,20 +18,18 @@ export class BergamotTranslate extends DummyTranslate {
 	available_languages: Array<string> = ['en'];
 	id = "bergamot";
 
-	update_data(available_models: ModelFileData, path: string) {
+	update_data(available_models: ModelFileData) {
 		if (available_models) {
 			this.available_languages = ["en"].concat(available_models.models.map((x) => x.locale));
 			this.translator.available_models = available_models;
 		}
-		if (path && this.translator)
-			this.translator.path = path;
 	}
 
-	setup_service(available_models: ModelFileData, path: string) {
+	setup_service(available_models: ModelFileData) {
 		if (!this.translator) {
 			if (available_models) {
 				try {
-					this.translator = new Bergamot(available_models, path);
+					this.translator = new Bergamot(available_models);
 					this.translator.loadTranslationEngine();
 					this.available_languages = ["en"].concat(available_models.models.map((x) => x.locale));
 					this.valid = true;
@@ -48,12 +46,12 @@ export class BergamotTranslate extends DummyTranslate {
 		}
 	}
 
-	constructor(detector: DummyTranslate = null, plugin: TranslatorPlugin, available_models: ModelFileData, path: string) {
+	constructor(detector: DummyTranslate = null, plugin: TranslatorPlugin, available_models: ModelFileData) {
 		super();
 		this.plugin = plugin;
 		this.detector = detector;
 		this.valid = false;
-		this.setup_service(available_models, path);
+		this.setup_service(available_models);
 	}
 
 	async service_validate(): Promise<ValidationResult> {

@@ -33,8 +33,7 @@ integrates with ten different translation services.
 
 <br>
 <img src="images/obsidian-windows-combined.png">
-<br><br>
-
+<br>
 
 ---
 

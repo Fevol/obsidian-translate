@@ -172,7 +172,7 @@
 				translation_service = new LibreTranslate(service_settings);
 			else if (service === "bergamot")
 				translation_service = new BergamotTranslate('fasttext' in active_services ? active_services['fasttext'] : await getTranslationService('fasttext', ''),
-					plugin, $data.models?.bergamot, $settings.storage_path);
+					plugin, $data.models?.bergamot);
 			else if (service === "amazon_translate")
 				translation_service = new AmazonTranslate(service_settings);
 			else if (service === "lingva_translate")
