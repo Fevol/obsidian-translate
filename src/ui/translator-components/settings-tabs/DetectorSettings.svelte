@@ -62,6 +62,8 @@
 				if (!detector?.detector)
 					detector.setup_service($data.models.fasttext);
 				detector.valid = true;
+				if ($settings.service_settings.fasttext.default_usage)
+					plugin.detector = detector;
 			}}
 		>
 			<Icon icon={"download"} />

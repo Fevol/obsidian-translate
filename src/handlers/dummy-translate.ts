@@ -64,8 +64,11 @@ export class DummyTranslate {
 	}
 
 	async detect(text: string): Promise<DetectionResult> {
-		if (!this.valid)
+		if (!this.valid) {
+			if (this.id === "fasttext")
+				return {status_code: 400, message: "FastText is not installed"};
 			return {status_code: 400, message: "Translation service is not validated"};
+		}
 		if (!text.trim())
 			return {status_code: 400, message: "No text was provided"};
 
@@ -96,8 +99,11 @@ export class DummyTranslate {
 
 
 	async translate(text: string, from: string, to: string, apply_glossary: boolean = false): Promise<TranslationResult> {
-		if (!this.valid)
+		if (!this.valid) {
+			if (this.id === "bergamot")
+				return {status_code: 400, message: "Bergamot is not installed"};
 			return {status_code: 400, message: "Translation service is not validated"};
+		}
 		if (!text.trim())
 			return {status_code: 400, message: "No text was provided"};
 		if (!to)

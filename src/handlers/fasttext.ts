@@ -9,6 +9,7 @@ import {FastText, FastTextModel} from "./fasttext/fasttext";
 
 export class FastTextDetector extends DummyTranslate {
 	detector: FastTextModel;
+	id = "fasttext";
 
 	version: number;
 
@@ -41,7 +42,7 @@ export class FastTextDetector extends DummyTranslate {
 			})
 		} else {
 			this.valid = false;
-			this.plugin.message_queue("FastText is not installed, automatic detection of language is disabled.");
+			// this.plugin.message_queue("FastText is not installed, automatic detection of language is disabled.");
 		}
 	}
 
