@@ -25,6 +25,7 @@
 	import {Scope, Platform, Menu} from "obsidian";
 	import t from "../../l10n";
 	import {getHotKeyString} from "../../util";
+	import {openSettingTab} from "../../obsidian-util";
 
 	export let plugin: TranslatorPlugin;
 
@@ -98,8 +99,7 @@
 		},
 		'open-settings': () => {
 			$data.tab = $translation_service;
-			plugin.app.setting.open();
-			plugin.app.setting.openTabById("obsidian-translate");
+			openSettingTab();
 		},
 	}
 
@@ -437,8 +437,7 @@
 										glossary.target_language = language_to;
 										glossary.text = [selection, ""];
 
-										plugin.app.setting.open();
-										plugin.app.setting.openTabById("obsidian-translate");
+										openSettingTab();
 									})
 							});
 						}
@@ -541,9 +540,7 @@
 										}
 										glossary.target_language = language_to;
 										glossary.text = ["", selection];
-
-										plugin.app.setting.open();
-										plugin.app.setting.openTabById("obsidian-translate");
+										openSettingTab();
 									})
 							});
 						}

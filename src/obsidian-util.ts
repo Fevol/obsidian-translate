@@ -19,3 +19,10 @@ export async function writeRecursive(path: string, data: any) {
 	await app.vault.adapter.writeBinary(path, data);
 }
 
+// Opens the settings tab, but checks if the plugin's setting tab was not already opened
+export function openSettingTab() {
+	app.setting.open();
+	if (app.setting.lastTabId !== 'obsidian-translate') {
+		app.setting.openTabById("obsidian-translate");
+	}
+}

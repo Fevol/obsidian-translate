@@ -114,7 +114,6 @@
 
 		if (sync_service)
 			translator = await plugin.reactivity.getTranslationService(sync_service);
-
 		new_row = glossary.text;
 	});
 
