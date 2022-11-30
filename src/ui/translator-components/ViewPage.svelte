@@ -383,7 +383,8 @@
 						}
 					}}
 					onContextmenu={async (e) => {
-						const selection = e.target.value.substring(e.target.selectionStart, e.target.selectionEnd) || text_from;
+						const selection = e.target.value.substring(e.target.selectionStart, e.target.selectionEnd).trim();
+						const all_text = selection || text_from;
 
 						let menu = new Menu();
 						menu.addItem((item) => {
@@ -391,7 +392,7 @@
 								.setIcon("scissors")
 								.setSection("general")
 								.onClick((e) => {
-									navigator.clipboard.writeText(selection);
+									navigator.clipboard.writeText(all_text);
 									text_to = "";
 								})
 						});
@@ -400,7 +401,7 @@
 								.setIcon("copy")
 								.setSection("general")
 								.onClick((e) => {
-									navigator.clipboard.writeText(selection);
+									navigator.clipboard.writeText(all_text);
 								})
 						});
 						menu.addItem((item) => {
@@ -413,32 +414,34 @@
 									});
 								})
 						});
-						menu.addItem((item) => {
-							item.setTitle("Add to glossary")
-								.setIcon("book-open")
-								.setSection("translate")
-								.onClick(async (e) => {
-									$data.tab = "glossary";
-									if (language_from === "auto") {
-										if (detected_language) {
-											glossary.source_language = detected_language;
-										} else if (plugin.detector) {
-											const output = await plugin.detector.detect(text_from);
-											if (output.detected_languages)
-												glossary.source_language = output.detected_languages[0];
-											else
-												glossary.source_language = plugin.current_language;
+						if (selection) {
+							menu.addItem((item) => {
+								item.setTitle("Add to glossary")
+									.setIcon("book-open")
+									.setSection("translate")
+									.onClick(async (e) => {
+										$data.tab = "glossary";
+										if (language_from === "auto") {
+											if (detected_language) {
+												glossary.source_language = detected_language;
+											} else if (plugin.detector) {
+												const output = await plugin.detector.detect(text_from);
+												if (output.detected_languages)
+													glossary.source_language = output.detected_languages[0];
+												else
+													glossary.source_language = plugin.current_language;
+											}
+										} else {
+											glossary.source_language = language_from;
 										}
-									} else {
-										glossary.source_language = language_from;
-									}
-									glossary.target_language = language_to;
-									glossary.text = [selection, ""];
+										glossary.target_language = language_to;
+										glossary.text = [selection, ""];
 
-									plugin.app.setting.open();
-									plugin.app.setting.openTabById("obsidian-translate");
-								})
-						});
+										plugin.app.setting.open();
+										plugin.app.setting.openTabById("obsidian-translate");
+									})
+							});
+						}
 						menu.showAtMouseEvent(e);
 					}}
 				/>
@@ -495,7 +498,8 @@
 					text={text_to}
 					readonly={true}
 					onContextmenu={async (e) => {
-						const selection = e.target.value.substring(e.target.selectionStart, e.target.selectionEnd) || text_to;
+						const selection = e.target.value.substring(e.target.selectionStart, e.target.selectionEnd).trim();
+						const all_text = selection || text_to;
 
 						let menu = new Menu();
 						menu.addItem((item) => {
@@ -503,7 +507,7 @@
 								.setIcon("scissors")
 								.setSection("general")
 								.onClick((e) => {
-									navigator.clipboard.writeText(selection);
+									navigator.clipboard.writeText(all_text);
 									text_to = "";
 								})
 						});
@@ -512,35 +516,37 @@
 								.setIcon("copy")
 								.setSection("general")
 								.onClick((e) => {
-									navigator.clipboard.writeText(selection);
+									navigator.clipboard.writeText(all_text);
 								})
 						});
-						menu.addItem((item) => {
-							item.setTitle("Add to glossary")
-								.setIcon("book-open")
-								.setSection("translate")
-								.onClick(async (e) => {
-									$data.tab = "glossary";
-									if (language_from === "auto") {
-										if (detected_language) {
-											glossary.source_language = detected_language;
-										} else if (plugin.detector) {
-											const output = await plugin.detector.detect(text_from);
-											if (output.detected_languages)
-												glossary.source_language = output.detected_languages[0];
-											else
-												glossary.source_language = plugin.current_language;
+						if (selection) {
+							menu.addItem((item) => {
+								item.setTitle("Add to glossary")
+									.setIcon("book-open")
+									.setSection("translate")
+									.onClick(async (e) => {
+										$data.tab = "glossary";
+										if (language_from === "auto") {
+											if (detected_language) {
+												glossary.source_language = detected_language;
+											} else if (plugin.detector) {
+												const output = await plugin.detector.detect(text_from);
+												if (output.detected_languages)
+													glossary.source_language = output.detected_languages[0];
+												else
+													glossary.source_language = plugin.current_language;
+											}
+										} else {
+											glossary.source_language = language_from;
 										}
-									} else {
-										glossary.source_language = language_from;
-									}
-									glossary.target_language = language_to;
-									glossary.text = ["", selection];
+										glossary.target_language = language_to;
+										glossary.text = ["", selection];
 
-									plugin.app.setting.open();
-									plugin.app.setting.openTabById("obsidian-translate");
-								})
-						});
+										plugin.app.setting.open();
+										plugin.app.setting.openTabById("obsidian-translate");
+									})
+							});
+						}
 						menu.showAtMouseEvent(e);
 					}}
 				/>
