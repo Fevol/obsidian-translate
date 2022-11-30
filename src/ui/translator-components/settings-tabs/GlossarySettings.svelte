@@ -27,9 +27,9 @@
 
 	let glossaries: DefaultDict = new DefaultDict(glossary.dicts, []);
 
-	let source_language = plugin.current_language;
-	let target_language = $settings.default_target_language;
-	
+	let source_language = glossary.source_language;
+	let target_language = glossary.target_language;
+
 	let glossary_pair;
 	let language_pair = "";
 	let reverse_language_pair = "";
@@ -55,6 +55,8 @@
 	$: {
 		language_pair = source_language + '_' + target_language;
 		reverse_language_pair = target_language + source_language;
+		glossary.source_language = source_language;
+		glossary.target_language = target_language;
 		updateGlossary();
 	}
 
@@ -110,9 +112,10 @@
 			}
 		}
 
-		if (sync_service) {
+		if (sync_service)
 			translator = await plugin.reactivity.getTranslationService(sync_service);
-		}
+
+		new_row = glossary.text;
 	});
 
 	onDestroy(() => {
@@ -124,6 +127,8 @@
 			glossary.replacements[key] = new RegExp(glossary.dicts[key].map((item) => item[0]).join("|"),
 				$settings.case_insensitive_glossary ? "gi" : "g");
 		}
+
+		glossary.text = new_row;
 
 		app.keymap.popScope(view_scope);
 	});

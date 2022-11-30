@@ -322,5 +322,8 @@
 				}
 			}
 		}
+
+		glossary.source_language = plugin.current_language;
+		glossary.target_language = $settings.default_target_language;
 	});
 </script>

@@ -22,7 +22,7 @@
 	} from "../../constants";
 	import {DummyTranslate} from "../../handlers";
 
-	import {Scope, Platform} from "obsidian";
+	import {Scope, Platform, Menu} from "obsidian";
 	import t from "../../l10n";
 	import {getHotKeyString} from "../../util";
 
@@ -382,6 +382,65 @@
 							await translate();
 						}
 					}}
+					onContextmenu={async (e) => {
+						const selection = e.target.value.substring(e.target.selectionStart, e.target.selectionEnd) || text_from;
+
+						let menu = new Menu();
+						menu.addItem((item) => {
+							item.setTitle("Cut")
+								.setIcon("scissors")
+								.setSection("general")
+								.onClick((e) => {
+									navigator.clipboard.writeText(selection);
+									text_to = "";
+								})
+						});
+						menu.addItem((item) => {
+							item.setTitle("Copy")
+								.setIcon("copy")
+								.setSection("general")
+								.onClick((e) => {
+									navigator.clipboard.writeText(selection);
+								})
+						});
+						menu.addItem((item) => {
+							item.setTitle("Paste")
+								.setIcon("clipboard-type")
+								.setSection("general")
+								.onClick((e) => {
+									navigator.clipboard.readText().then((text) => {
+										text_from = text;
+									});
+								})
+						});
+						menu.addItem((item) => {
+							item.setTitle("Add to glossary")
+								.setIcon("book-open")
+								.setSection("translate")
+								.onClick(async (e) => {
+									$data.tab = "glossary";
+									if (language_from === "auto") {
+										if (detected_language) {
+											glossary.source_language = detected_language;
+										} else if (plugin.detector) {
+											const output = await plugin.detector.detect(text_from);
+											if (output.detected_languages)
+												glossary.source_language = output.detected_languages[0];
+											else
+												glossary.source_language = plugin.current_language;
+										}
+									} else {
+										glossary.source_language = language_from;
+									}
+									glossary.target_language = language_to;
+									glossary.text = [selection, ""];
+
+									plugin.app.setting.open();
+									plugin.app.setting.openTabById("obsidian-translate");
+								})
+						});
+						menu.showAtMouseEvent(e);
+					}}
 				/>
 				{#if left_buttons?.length}
 					<div class="translator-textarea-quickbuttons">
@@ -435,6 +494,55 @@
 					class="translator-textarea"
 					text={text_to}
 					readonly={true}
+					onContextmenu={async (e) => {
+						const selection = e.target.value.substring(e.target.selectionStart, e.target.selectionEnd) || text_to;
+
+						let menu = new Menu();
+						menu.addItem((item) => {
+							item.setTitle("Cut")
+								.setIcon("scissors")
+								.setSection("general")
+								.onClick((e) => {
+									navigator.clipboard.writeText(selection);
+									text_to = "";
+								})
+						});
+						menu.addItem((item) => {
+							item.setTitle("Copy")
+								.setIcon("copy")
+								.setSection("general")
+								.onClick((e) => {
+									navigator.clipboard.writeText(selection);
+								})
+						});
+						menu.addItem((item) => {
+							item.setTitle("Add to glossary")
+								.setIcon("book-open")
+								.setSection("translate")
+								.onClick(async (e) => {
+									$data.tab = "glossary";
+									if (language_from === "auto") {
+										if (detected_language) {
+											glossary.source_language = detected_language;
+										} else if (plugin.detector) {
+											const output = await plugin.detector.detect(text_from);
+											if (output.detected_languages)
+												glossary.source_language = output.detected_languages[0];
+											else
+												glossary.source_language = plugin.current_language;
+										}
+									} else {
+										glossary.source_language = language_from;
+									}
+									glossary.target_language = language_to;
+									glossary.text = ["", selection];
+
+									plugin.app.setting.open();
+									plugin.app.setting.openTabById("obsidian-translate");
+								})
+						});
+						menu.showAtMouseEvent(e);
+					}}
 				/>
 				{#if right_buttons?.length}
 					<div class="translator-textarea-quickbuttons">

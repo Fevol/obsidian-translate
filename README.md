@@ -11,7 +11,7 @@
 <img alt="GitHub Repo stars" src="https://img.shields.io/github/stars/fevol/obsidian-translate?color=yellow&label=Stargazers%3A&logo=OpenTelemetry&logoColor=yellow">
 </a>
 <a href="https://github.com/Fevol/obsidian-translate/actions/workflows/release.yml">
-<img alt="GitHub Workflow Status" src="https://img.shields.io/github/workflow/status/fevol/obsidian-translate/Build%20obsidian%20plugin?label=Build%20status%3A&logo=buddy&logoColor=white">
+<img alt="GitHub Workflow Status" src="https://img.shields.io/github/workflow/status/fevol/obsidian-translate/Build%20obsidian%20plugin?label=Build%20status%3A&logo=buddy&logoColor=5cff1e">
 </a>
 <a href="https://github.com/Fevol/obsidian-translate/releases/latest">
 <img alt="GitHub release (latest by date including pre-releases)" src="https://img.shields.io/github/v/release/fevol/obsidian-translate?color=%234e96af&display_name=tag&include_prereleases&label=Latest%20release%3A&logo=Dropbox&logoColor=%236abdd9">

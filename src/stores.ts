@@ -8,7 +8,10 @@ export let hide_shortcut_tooltips = writable<boolean>(false);
 
 export const glossary = {
 	dicts: {},
-	replacements: {}
+	replacements: {},
+	source_language: "",
+	target_language: "",
+	text: ["", ""],
 }
 
 // I despise this, but due to the interconnected nature of the plugin, I really don't a better solution

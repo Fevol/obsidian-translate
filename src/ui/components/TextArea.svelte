@@ -6,6 +6,7 @@
 	export let typingdelay: number = 0;
 	export let onChange: (value) => void;
 	export let onInput: (value) => void;
+	export let onContextmenu: (value) => void;
 	let timer = null;
 </script>
 
@@ -20,7 +21,11 @@
 		placeholder={placeholder}
 		bind:value={text}
 		on:input={onChange} {text}
-	/>
+		on:contextmenu={(e) => {
+			onContextmenu(e);
+			e.preventDefault();
+			return false;
+		}}></textarea>
 {:else}
 	<textarea
 		class={$$props.class}
@@ -37,5 +42,9 @@
 				}, typingdelay);
 			}
 		}
-	/>
+		on:contextmenu={(e) => {
+			onContextmenu(e);
+			e.preventDefault();
+			return false;
+		}}></textarea>
 {/if}
