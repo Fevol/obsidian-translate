@@ -56,7 +56,7 @@ export const DEFAULT_SETTINGS: TranslatorPluginSettings = {
 	translation_service: 'google_translate',
 	security_setting: 'none',
 	switch_button_action: 'switch-both',
-	apply_glossary: true,
+	apply_glossary: false,
 	local_glossary: false,
 	case_insensitive_glossary: false,
 	enable_animations: true,
