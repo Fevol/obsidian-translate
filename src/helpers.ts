@@ -85,7 +85,7 @@ export async function detect_selection(plugin: TranslatorPlugin, editor: Editor)
 	}
 
 	let results;
-	if (plugin.detector)
+	if (plugin.detector && plugin.detector.valid && plugin.detector.default)
 		results = await plugin.detector.detect(selection);
 	else
 		results = await plugin.translator.detect(selection);

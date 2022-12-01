@@ -18,6 +18,8 @@ export class DummyTranslate {
 
 	valid: boolean;
 
+	default: boolean;
+
 	// Character limit of translation request in bytes
 	character_limit: number = Infinity;
 
@@ -119,7 +121,7 @@ export class DummyTranslate {
 			let glossary_id: string = undefined;
 			let detecting_language = false;
 			if (apply_glossary) {
-				detecting_language = from === 'auto' && !(globals.plugin.detector == null);
+				detecting_language = from === 'auto' && !(globals.plugin.detector == null ) && globals.plugin.detector.valid;
 				// TODO: Give warning if globals.plugin.detector is null
 				if (detecting_language || from !== 'auto') {
 					if (detecting_language) {

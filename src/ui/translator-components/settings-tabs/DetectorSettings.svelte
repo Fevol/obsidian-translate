@@ -3,6 +3,7 @@
 
 	import {settings, data} from "../../../stores";
 	import {slide} from "svelte/transition";
+	import {onMount} from "svelte";
 
 	import {Toggle, Icon} from "../../components";
 	import {SettingItem} from "../../obsidian-components";
@@ -12,12 +13,19 @@
 	import {requestUrl} from "obsidian";
 	import {writeRecursive} from "../../../obsidian-util";
 	import {DEFAULT_SETTINGS} from "../../../constants";
+	import {DummyTranslate} from "../../../handlers";
 
 
 	export let plugin: TranslatorPlugin;
 
 	if (!$settings.service_settings.fasttext)
 		$settings.service_settings.fasttext = DEFAULT_SETTINGS.service_settings.fasttext;
+
+	let detector: DummyTranslate;
+
+	onMount(async () => {
+		detector = await plugin.reactivity.getTranslationService('fasttext');
+	});
 
 </script>
 
@@ -58,7 +66,7 @@
 					}
 				}
 
-				let detector = await plugin.reactivity.getTranslationService('fasttext');
+				detector = await plugin.reactivity.getTranslationService('fasttext');
 				if (!detector?.detector)
 					detector.setup_service($data.models.fasttext);
 				detector.valid = true;
@@ -83,10 +91,10 @@
 						$data.models.fasttext = undefined;
 						$data.models = $data.models;
 
-
-						let detector = plugin.reactivity.getExistingService('fasttext');
-						if (detector)
+						if (detector) {
 							detector.valid = false;
+							detector.default = false;
+						}
 
 						plugin.message_queue("Successfully uninstalled FastText");
 					},
@@ -98,17 +106,19 @@
 	</div>
 </SettingItem>
 
-<SettingItem
-	name="Always use FastText"
-	description="FastText will be used as the default language detection service"
-	type="toggle"
->
-	<Toggle
-		slot="control"
-		value={ $settings.service_settings.fasttext.default_usage }
-		onChange={async (val) => {
-			$settings.service_settings.fasttext.default_usage = val;
-			plugin.detector = val ? await plugin.reactivity.getTranslationService("fasttext") : null;
-		}}
-	/>
-</SettingItem>
+{#if $data.models?.fasttext}
+	<SettingItem
+		name="Always use FastText"
+		description="FastText will be used as the default language detection service"
+		type="toggle"
+	>
+		<Toggle
+			slot="control"
+			value={ $settings.service_settings.fasttext.default_usage }
+			onChange={async (val) => {
+				$settings.service_settings.fasttext.default_usage = val;
+				plugin.detector.default = val;
+			}}
+		/>
+	</SettingItem>
+{/if}

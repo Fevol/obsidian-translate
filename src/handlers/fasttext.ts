@@ -18,6 +18,8 @@ export class FastTextDetector extends DummyTranslate {
 	status: string = '';
 	data: any = null;
 
+	default: boolean = false;
+
 	setup_service(available_models: ModelFileData) {
 		if (available_models) {
 			FastText.create(this.plugin).then(ft => {

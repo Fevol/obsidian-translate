@@ -309,10 +309,13 @@
 		filterAvailableServices();
 
 
-		if ($settings.apply_glossary || $settings.local_glossary) {
-			if (!plugin.detector)
-				plugin.detector = await getTranslationService('fasttext');
+		if (!plugin.detector && ($settings.apply_glossary || $settings.local_glossary || $settings.service_settings?.fasttext.default_usage)) {
+			plugin.detector = await getTranslationService('fasttext');
+			if ($settings.service_settings?.fasttext?.default_usage)
+				plugin.detector.default = true;
+		}
 
+		if ($settings.apply_glossary || $settings.local_glossary) {
 			let loaded_glossaries: any = await app.vault.adapter.read(".obsidian/plugins/obsidian-translate/glossary.json");
 			if (loaded_glossaries) {
 				glossary.dicts = JSON.parse(loaded_glossaries);

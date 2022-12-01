@@ -424,7 +424,7 @@
 										if (language_from === "auto") {
 											if (detected_language) {
 												glossary.source_language = detected_language;
-											} else if (plugin.detector) {
+											} else if (plugin.detector && plugin.detector.valid) {
 												const output = await plugin.detector.detect(text_from);
 												if (output.detected_languages)
 													glossary.source_language = output.detected_languages[0];
@@ -528,7 +528,7 @@
 										if (language_from === "auto") {
 											if (detected_language) {
 												glossary.source_language = detected_language;
-											} else if (plugin.detector) {
+											} else if (plugin.detector && plugin.detector.valid) {
 												const output = await plugin.detector.detect(text_from);
 												if (output.detected_languages)
 													glossary.source_language = output.detected_languages[0];

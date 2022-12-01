@@ -43,6 +43,9 @@ export class BergamotTranslate extends DummyTranslate {
 				this.translator = null;
 				this.valid = false;
 			}
+		} else {
+			this.valid = true;
+			this.available_languages = ["en"].concat(available_models.models.map((x) => x.locale));
 		}
 	}
 
