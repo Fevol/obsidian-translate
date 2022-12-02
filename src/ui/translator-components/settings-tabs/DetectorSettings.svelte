@@ -53,7 +53,7 @@
 
 				plugin.message_queue("Successfully installed FastText data");
 
-				$data.models.fasttext = {
+				const models = {
 					binary: {
 						name: "fasttext_wasm.wasm",
 						size: binary_result.arrayBuffer.byteLength,
@@ -68,10 +68,10 @@
 
 				detector = await plugin.reactivity.getTranslationService('fasttext');
 				if (!detector?.detector)
-					detector.setup_service($data.models.fasttext);
+					detector.setup_service(models);
 				detector.valid = true;
-				if ($settings.service_settings.fasttext.default_usage)
-					plugin.detector = detector;
+				$data.models.fasttext = models;
+				plugin.detector = detector;
 			}}
 		>
 			<Icon icon={"download"} />

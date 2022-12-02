@@ -34,8 +34,7 @@ integrates with ten different translation services.
 <br>
 <img src="images/obsidian-windows-combined.png">
 <br>
-<img src="images/translate.gif">
-<br>
+
 
 ---
 

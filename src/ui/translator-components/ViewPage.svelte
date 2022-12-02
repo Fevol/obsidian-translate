@@ -110,6 +110,8 @@
 		'paste': () => {
 			navigator.clipboard.readText().then((clipboard_contents) => {
 				text_from = clipboard_contents;
+				if (auto_translate)
+					translate();
 			});
 		},
 		'clear': () => {
@@ -195,8 +197,9 @@
 
 	$: bergamot_models_observer = $data.models?.bergamot?.models?.length;
 	$: bergamot_models_observer, updateAvailableLanguages();
-	$: fasttext_models_observer = $data.models?.fasttext;
-	$: autodetect_capability = fasttext_models_observer;
+	$: fasttext_models_observer = $data.models?.fasttext?.version;
+	$: fasttext_models_observer, autodetect_capability = translator && translator.has_autodetect_capability();
+
 
 	$: language_from, language_to, $translation_service, auto_translate, apply_glossary, view_mode, filter_mode,
 		show_attribution, top_buttons, left_buttons, right_buttons, app.workspace.requestSaveLayout();
@@ -240,6 +243,7 @@
 			previous_service = $translation_service;
 			available_languages = translator.available_languages || $settings.service_settings[$translation_service].available_languages;
 		});
+		auto_translate = auto_translate && $settings.service_settings[$translation_service].auto_translate;
 	}
 
 	function filterLanguages() {

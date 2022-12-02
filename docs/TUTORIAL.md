@@ -1,10 +1,16 @@
 # Tutorial
 
+
+<img src="../../images/translate.gif">
+<br>
+
 ## The Basics
 
 ### Setup
 
-<img src="images/validate-service.gif" width="800">
+<div align="center">
+	<img src="images/validate-service.gif" width="800">
+</div>
 
 To start using the plugin:
 
@@ -19,7 +25,9 @@ To start using the plugin:
 
 ### Translate
 
-<img src="https://raw.githubusercontent.com/Fevol/obsidian-translate/master/images/auto-translate.gif" width="800">
+<div align="center">
+	<img src="images/auto-translate.gif" width="800">
+</div>
 
 1. Open the Translation View by pressing the `Translate` button in the left ribbon or by executing the `Open
    Translation View` command
@@ -38,7 +46,9 @@ pressing its button in the translation view's quick access commands.
 
 ### Translate File
 
-<img src="https://raw.githubusercontent.com/Fevol/obsidian-translate/master/images/file-translate.gif" width="800">
+<div align="center">
+	<img src="images/file-translate.gif" width="800">
+</div>
 
 You can translate a file by executing the `Translate File` command, there are two options for this command:
 translate and replace the text in the current file _**or**_ translate current file and save it as a new file; the title
@@ -46,7 +56,9 @@ will also be translated, whenever possible
 
 ### Translate Selection
 
-<img src="https://raw.githubusercontent.com/Fevol/obsidian-translate/master/images/context-menus.gif" width="800">
+<div align="center">
+	<img src="images/context-menus.gif" width="800">
+</div>
 
 
 The `Translate Selection` command will translate the selected text in the current file.
@@ -57,7 +69,9 @@ You can also translate immediately to your `default target language` by just cli
 
 ## User Interface (Translation View)
 
-<img src="https://raw.githubusercontent.com/Fevol/obsidian-translate/master/images/appearance-settings.gif" width="800">
+<div align="center">
+	<img src="images/appearance-settings.gif" width="800">
+</div>
 
 Each of the settings mentioned below can be changed in the `Appearance Setttings` modal, found in the top-right corner
 of the translation view (! `Show tab title bar` must be activated first in `Settings > Appearance`.
@@ -119,7 +133,9 @@ The base size of Bergamot is 5.05MB, and each additional language model takes up
 If you wish to have the ability to detect the language of the text you want to translate, also install the FastText binary,
 as Bergamot does not include language detection functionality.
 
-<img src="https://raw.githubusercontent.com/Fevol/obsidian-translate/master/images/bergamot.gif" width="800">
+<div align="center">
+<img src="images/bergamot.gif" width="800">
+</div>
 
 ### FastText
 #### Description
@@ -129,7 +145,9 @@ Facebook (now Meta). Due to the models used being very compressed, the size of t
 
 ## Translating
 ### Glossary
-<img src="https://raw.githubusercontent.com/Fevol/obsidian-translate/master/images/glossary.gif" width="800">
+<div align="center">
+	<img src="images/glossary.gif" width="800">
+</div>
 
 You can create a glossary to translate specific terminology for every language pair. To start, you need to enable the
 `Apply glossary` option in the `Functionality` settings. It is advised to also enable the `Apply local glossary` option,
