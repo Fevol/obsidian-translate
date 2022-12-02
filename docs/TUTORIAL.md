@@ -1,8 +1,6 @@
 # Tutorial
 
-
-<img src="../../images/translate.gif">
-<br>
+<img src="images/translate.gif">
 
 ## The Basics
 
@@ -134,7 +132,7 @@ If you wish to have the ability to detect the language of the text you want to t
 as Bergamot does not include language detection functionality.
 
 <div align="center">
-<img src="images/bergamot.gif" width="800">
+	<img src="images/bergamot.gif" width="800">
 </div>
 
 ### FastText
