@@ -105,10 +105,12 @@
 
 	onMount(async () => {
 		if (!$settings.local_glossary && !Object.keys(glossary.dicts).length) {
-			let loaded_glossaries = await app.vault.adapter.read(".obsidian/plugins/obsidian-translate/glossary.json");
-			if (loaded_glossaries) {
-				glossaries = new DefaultDict(JSON.parse(loaded_glossaries), []);
-				glossary_pair = glossaries[language_pair]
+			if (await app.vault.adapter.exists(".obsidian/plugins/obsidian-translate/glossary.json")) {
+				let loaded_glossaries = await app.vault.adapter.read(".obsidian/plugins/obsidian-translate/glossary.json");
+				if (loaded_glossaries) {
+					glossaries = new DefaultDict(JSON.parse(loaded_glossaries), []);
+					glossary_pair = glossaries[language_pair]
+				}
 			}
 		}
 

@@ -309,7 +309,7 @@
 		filterAvailableServices();
 
 
-		if (!plugin.detector && ($settings.apply_glossary || $settings.local_glossary || $settings.service_settings?.fasttext.default_usage)) {
+		if (!plugin.detector && ($settings.apply_glossary || $settings.local_glossary || $settings.service_settings?.fasttext?.default_usage)) {
 			plugin.detector = await getTranslationService('fasttext');
 			if ($settings.service_settings?.fasttext?.default_usage)
 				plugin.detector.default = true;
