@@ -52,7 +52,8 @@ button -- if the button turns green (indicating that you're properly connected t
 Now, you can open the Translation View and start translating, or make a selection in your note and translate it
 with the `Translate selection` command!
 
-
+It is heavily recommended that you read the [documentation](https://github.com/Fevol/obsidian-translate/blob/master/docs/TUTORIAL.md),
+it has tutorial videos for the most important features, and gives a detailed explanation of the available features.
 
 For most services, you _will_ have to sign-up for an account (with a credit card), check the 
 [table below](https://github.com/fevol/obsidian-translate#services-overview) to see which services require sign-up.

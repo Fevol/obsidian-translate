@@ -1,6 +1,7 @@
 # Tutorial
-
-<img src="images/translate.gif">
+<div align="center">
+	<img src="images/translate.gif">
+</div>
 
 ## The Basics
 
