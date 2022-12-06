@@ -42,7 +42,7 @@ class Bergamot {
 
 
 	async loadTranslationEngine() {
-		let path = `.obsidian/plugins/obsidian-translate/models/bergamot/bergamot-translator-worker.wasm`;
+		let path = `${app.vault.configDir}/plugins/obsidian-translate/models/bergamot/bergamot-translator-worker.wasm`;
 
 		if (!await app.vault.adapter.exists(path))
 			throw 'Could not find bergamot-translator-worker.wasm in the vault';
@@ -194,7 +194,7 @@ class Bergamot {
 	}
 
 	async loadBinary(language, filename, type) {
-		return app.vault.adapter.readBinary(`.obsidian/plugins/obsidian-translate/models/bergamot/${language}/${filename}`).then(file => {
+		return app.vault.adapter.readBinary(`${app.vault.configDir}/plugins/obsidian-translate/models/bergamot/${language}/${filename}`).then(file => {
 			return this.prepareAlignedMemoryFromBuffer(file, this.modelFileAlignments[type]);
 		})
 	}

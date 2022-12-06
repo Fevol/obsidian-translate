@@ -93,7 +93,7 @@ export default class TranslatorPlugin extends Plugin {
 		if (loaded_settings.storage_path) {
 			try {
 				// @ts-ignore (path exists in legacy versions)
-				await app.vault.adapter.rename(`.obsidian/${loaded_settings.storage_path}`, `.obsidian/plugins/obsidian-translate/models`);
+				await app.vault.adapter.rename(`${app.vault.configDir}/${loaded_settings.storage_path}`, `${app.vault.configDir}/plugins/obsidian-translate/models`);
 			} catch (e) {
 				// .obsidian/plugins/obsidian-translate/models already exists, shouldn't be an issue for 99% of users
 				console.error(e);

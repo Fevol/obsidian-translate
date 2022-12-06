@@ -80,7 +80,7 @@ class FastText {
 		const fastTextNative = this.f;
 		try {
 			let settings_data = get(settings);
-			let bytes = await app.vault.adapter.readBinary(`.obsidian/plugins/obsidian-translate/models/fasttext/${url}`);
+			let bytes = await app.vault.adapter.readBinary(`${app.vault.configDir}/plugins/obsidian-translate/models/fasttext/${url}`);
 			const FS = fastTextModule.FS
 			FS.writeFile(modelFileInWasmFs, new Uint8Array(bytes));
 			fastTextNative.loadModel(modelFileInWasmFs);
