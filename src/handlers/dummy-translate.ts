@@ -8,13 +8,18 @@ import type {
 import {get, writable, type Writable} from "svelte/store";
 import {DefaultDict, regexLastIndexOf} from "../util";
 import {globals, glossary, settings} from "../stores";
+import t from "../l10n";
 
 export class DummyTranslate {
 	// Due to the fact that failure_count will be accessed many times, it's best if we don't have to call get from
 	//	svelte/store each time, as that will require a subscribe and an unsubscribe every time we execute translator logic
 	failure_count: number;
 	failure_count_watcher: Writable<number>;
+
 	id = "dummy";
+
+	// Used for internal checking if language exists
+	available_languages: string[];
 
 	valid: boolean;
 
@@ -112,6 +117,10 @@ export class DummyTranslate {
 			return {status_code: 400, message: "No target language was provided"};
 		if (from === to)
 			return {status_code: 200, translation: text};
+		if (from && from !== 'auto' && !this.available_languages.includes(from))
+			return {status_code: 400, message: `Source language "${t(from)}" is not supported`};
+		if (!this.available_languages.includes(to))
+			return {status_code: 400, message: `Target language "${t(to)}" is not supported`};
 		if (!from)
 			from = "auto";
 
@@ -224,6 +233,8 @@ export class DummyTranslate {
 			if (output.status_code !== 200)
 				return this.detected_error("Languages fetching failed", output);
 			this.success();
+			if (this.id !== 'bergamot')
+				this.available_languages = <string[]>output.languages;
 			return output;
 		} catch (e) {
 			return this.detected_error("Languages fetching failed", {message: e.message});

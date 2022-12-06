@@ -2,7 +2,7 @@
 	import TranslatorPlugin from "../../../main";
 
 	import {onDestroy, onMount} from "svelte";
-	import {data, glossary, settings} from "../../../stores";
+	import {all_languages, glossary, settings} from "../../../stores";
 
 	import {Button, Dropdown, Toggle, Input, Icon, ToggleButton} from "../../components";
 	import {SettingItem} from "../../obsidian-components";
@@ -17,7 +17,7 @@
 
 	export let plugin: TranslatorPlugin;
 
-	const all_languages = Array.from($data.all_languages.entries()).map(([key, value]) => {
+	const current_all_languages = Array.from($all_languages.entries()).map(([key, value]) => {
 		return {
 			value: key,
 			text: value
@@ -158,8 +158,8 @@
 			reverse_duplicate_row = glossaries[reverse_language_pair].find((row) => row[0] === new_row[1]);
 
 		if (duplicate_row || reverse_duplicate_row) {
-			const src_language = $data.all_languages.get(source_language)
-			const tgt_language = $data.all_languages.get(target_language)
+			const src_language = $all_languages.get(source_language)
+			const tgt_language = $all_languages.get(target_language)
 
 			if (duplicate_row && duplicate_row[1] === new_row[1]) {
 				plugin.message_queue(`Entry (${new_row[0]}, ${new_row[1]}) already exists in ${src_language} → ${tgt_language} glossary`, 5000);
@@ -243,7 +243,7 @@
 				duplicate_row = duplicate_rows.find(r => r[1] !== old_row[1]);
 				if (!duplicate_row) {
 					glossaries[language_pair] = glossaries[language_pair].map(r => r === row ? old_row : r);
-					plugin.message_queue(`Entry (${row[0]}, ${row[1]}) already exists in ${$data.all_languages.get(source_language)} → ${$data.all_languages.get(target_language)} glossary`, 5000);
+					plugin.message_queue(`Entry (${row[0]}, ${row[1]}) already exists in ${$all_languages.get(source_language)} → ${$all_languages.get(target_language)} glossary`, 5000);
 					return;
 				}
 			}
@@ -255,8 +255,8 @@
 		}
 
 		if (duplicate_row || reverse_duplicate_row) {
-			let src_language = $data.all_languages.get(source_language),
-				tgt_language = $data.all_languages.get(target_language);
+			let src_language = $all_languages.get(source_language),
+				tgt_language = $all_languages.get(target_language);
 			new ConfirmationModal(
 				plugin,
 				"Duplicate entries detected",
@@ -306,7 +306,7 @@
 
 	<div class="flex-row-element translator-glossary-settings">
 		<Dropdown
-			options={all_languages}
+			options={current_all_languages}
 			value={ source_language }
 			onChange={(e) => {
 				source_language = e.target.value;
@@ -320,7 +320,7 @@
 			}}
 		/>
 		<Dropdown
-			options={all_languages}
+			options={current_all_languages}
 			value={ target_language }
 			onChange={(e) => {
 				target_language = e.target.value;

@@ -1,14 +1,11 @@
 <script lang="ts">
 	import {createEventDispatcher} from "svelte";
-	import {settings, data} from "../../stores";
+	import {password, passwords_are_encrypted, settings} from "../../stores";
 
 	import {Notice} from "obsidian";
 	import TranslatorPlugin from "../../main";
 
-	import {Icon} from "../components";
-
 	import {aesGcmDecrypt} from "../../util";
-	import type {PluginData, TranslatorPluginSettings} from "../../types";
 
 	export let plugin: TranslatorPlugin;
 
@@ -33,11 +30,11 @@
 			}
 
 			app.saveLocalStorage("password", input);
-			$data.password = input;
+			$password = input;
 			for (const [service, key] of decrypted_keys.entries())
 				active_services[service].api_key = key;
 
-			$data.password_are_encrypted = false;
+			$passwords_are_encrypted = false;
 
 			dispatch("close");
 

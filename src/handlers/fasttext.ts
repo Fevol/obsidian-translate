@@ -21,7 +21,7 @@ export class FastTextDetector extends DummyTranslate {
 	default: boolean = false;
 
 	setup_service(available_models: ModelFileData) {
-		if (available_models) {
+		if (available_models?.binary) {
 			FastText.create(this.plugin).then(ft => {
 				// FIXME: For some reason, you cannot catch the abort of fasttext_wasm here, so this is done in the fasttext wrapper
 				//  by returning the error

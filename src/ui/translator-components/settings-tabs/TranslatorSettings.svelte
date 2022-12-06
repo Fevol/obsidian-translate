@@ -2,8 +2,7 @@
 	import TranslatorPlugin from "../../../main";
 
 
-	import {onMount} from "svelte";
-	import {settings, data} from "../../../stores";
+	import {settings, bergamot_data, all_languages, available_languages, spellcheck_languages} from "../../../stores";
 	import {slide} from "svelte/transition";
 
 	import {Button, Dropdown, Toggle, Input, Icon, ToggleButton, ButtonList} from "../../components";
@@ -11,7 +10,6 @@
 
 	import {ConfirmationModal} from "../../modals";
 
-	import type {PluginData, TranslatorPluginSettings} from "../../../types";
 	import {SERVICES_INFO, UNTESTED_SERVICES} from "../../../constants";
 	import {DummyTranslate} from "../../../handlers";
 
@@ -29,23 +27,17 @@
 	let translator: DummyTranslate;
 	let old_service = '';
 	
-	let available_languages: string[] = [];
+	let current_available_languages: string[] = [];
 	let selectable_languages: any[];
 
 	let filtered_languages: any[];
 	let downloadable_models: any[];
 
-	let bergamot_update_available = false;
+	let bergamot_update_available = $bergamot_data.models && $bergamot_data.version < $settings.service_settings.bergamot.version;
 	let api_key = null;
 	let info: any = {};
 
 	let obfuscate_api_key = app.loadLocalStorage("obfuscate_keys") || false;
-
-	onMount(() => {
-		if (service === 'bergamot')
-			// We need to wait for $data.models to be loaded in before the version can be checked
-			bergamot_update_available = $data.models?.bergamot?.models && $data.models.bergamot.version < $settings.service_settings.bergamot.version;
-	});
 
 	async function changedService() {
 		// Set translator to the selected service
@@ -55,14 +47,14 @@
 		if (info?.requires_api_key)
 			api_key = await plugin.reactivity.getAPIKey(service, $settings.security_setting);
 
-		available_languages = translator.available_languages || $settings.service_settings[service].available_languages;
+		current_available_languages = translator.available_languages || $settings.service_settings[service].available_languages;
 		
 		old_service = service;
 	}
 
 	async function updateBergamot() {
 		let updatable_models = $settings.service_settings.bergamot.downloadable_models.filter(model => {
-			const other = $data.models.bergamot.models.find(x => x.locale === model.locale);
+			const other = $bergamot_data.models.find(x => x.locale === model.locale);
 			return other && model.size !== other.size;
 		})
 
@@ -78,7 +70,7 @@
 
 		const rootURL = "https://storage.googleapis.com/bergamot-models-sandbox";
 
-		let current_models = $data.models.bergamot.models;
+		let current_models = $bergamot_data.models;
 
 		for (let model of updatable_models) {
 			for (let modelfile of model.files) {
@@ -103,8 +95,11 @@
 
 			current_models[model_index] = model;
 		}
-		$data.models.bergamot.models = current_models;
-		$data.models.bergamot.version = $settings.service_settings.bergamot.version;
+		$bergamot_data = {
+			binary: $bergamot_data.binary,
+			version: $settings.service_settings.bergamot.version,
+			models: current_models
+		}
 		bergamot_update_available = false;
 		plugin.message_queue(`Bergamot language models updated successfully`);
 	}
@@ -116,45 +111,45 @@
 
 
 	// Update list of languages that can be selected in 'Manually select languages' option
-	$: filterLanguages(available_languages);
+	$: filterLanguages(current_available_languages);
 
 
 	function filterLanguages(languages: any[]) {
 		if (service in SERVICES_INFO && SERVICES_INFO[service].type === 'translation') {
 			selectable_languages = languages
 				.filter(locale => { return !$settings.service_settings[service].selected_languages.includes(locale); })
-				.map(locale => { return {'value': locale, 'text': $data.all_languages.get(locale) || locale } })
+				.map(locale => { return {'value': locale, 'text': $all_languages.get(locale) || locale } })
 				.sort((a, b) => { return a.text.localeCompare(b.text);});
 			selectable_languages.unshift({'value': '', 'text': '+'});
 
 			filtered_languages = $settings.service_settings[service].selected_languages
 				.filter(locale => languages.includes(locale))
-				.map(locale => {return {'value': locale, 'text': $data.all_languages.get(<string>locale) || locale}})
+				.map(locale => {return {'value': locale, 'text': $all_languages.get(<string>locale) || locale}})
 				.sort((a, b) => a.text.localeCompare(b.text));
 
 			if (service === $settings.translation_service) {
 				if ($settings.filter_mode === '0')
-					$data.available_languages = languages;
+					$available_languages = languages;
 				else if ($settings.filter_mode === '1')
-					$data.available_languages = languages.filter(locale => { return $data.spellchecker_languages.includes(locale); });
+					$available_languages = languages.filter(locale => { return $spellcheck_languages.includes(locale); });
 				else if ($settings.filter_mode === '2')
-					$data.available_languages = languages.filter(locale => { return $settings.service_settings[service].selected_languages.includes(locale); });
+					$available_languages = languages.filter(locale => { return $settings.service_settings[service].selected_languages.includes(locale); });
 			}
 		}
 	}
 
 	$: {
-		if (service === 'bergamot') {
+		if (service === 'bergamot' && $bergamot_data) {
 			let models = $settings.service_settings[service].downloadable_models;
 			if (models) {
 				downloadable_models = Array.from(models)
 					.filter(model => {
-						return !$data.models.bergamot?.models.some((other) => {
+						return !$bergamot_data.models?.some((other) => {
 							return other.locale === model.locale;
 						});
 					})
 					.map(model => {
-						return {'value': model.locale, 'text': `${$data.all_languages.get(model.locale)} (${humanFileSize(model.size, false)})${model.dev ? ' [DEV]' : ''}`};
+						return {'value': model.locale, 'text': `${$all_languages.get(model.locale)} (${humanFileSize(model.size, false)})${model.dev ? ' [DEV]' : ''}`};
 					})
 					.sort((a, b) => { return a.text.localeCompare(b.text);});
 				downloadable_models.unshift({'value': '', 'text': '+'});
@@ -205,27 +200,27 @@
 			<button
 				aria-label={bergamot_update_available ? "Bergamot update available": "Install"}
 				class:translator-extra={bergamot_update_available}
-				class:translator-success={!bergamot_update_available && $data.models?.bergamot}
+				class:translator-success={!bergamot_update_available && $bergamot_data.binary}
 				class="icon-text"
 				style="justify-content: center; flex: 1;"
 				on:click={async () => {
 					if (bergamot_update_available) {
 						await updateBergamot();
-						translator.update_data($data.models.bergamot);
+						translator.update_data($bergamot_data);
 					} else {
 						let binary_path = `${app.vault.configDir}/plugins/obsidian-translate/models/bergamot/bergamot-translator-worker.wasm`
 						let binary_result = await requestUrl({url: "https://github.com/mozilla/firefox-translations/blob/main/extension/model/static/translation/bergamot-translator-worker.wasm?raw=true"});
 						await writeRecursive(binary_path, binary_result.arrayBuffer);
 
-						if (!$data.models.bergamot)
-							$data.models.bergamot = {binary: {}, models: [], version: $settings.service_settings.bergamot.version};
+						if (!$bergamot_data.models)
+							$bergamot_data = {binary: {}, models: [], version: $settings.service_settings.bergamot.version};
 
-						$data.models.bergamot.binary = {
+						$bergamot_data.binary = {
 							name: 'bergamot-translator-worker.wasm',
 							size: binary_result.arrayBuffer.byteLength,
 						}
 
-						translator.setup_service($data.models.bergamot);
+						translator.setup_service($bergamot_data);
 
 						plugin.message_queue("Successfully installed Bergamot binary");
 					}
@@ -234,7 +229,7 @@
 				<Icon icon={bergamot_update_available ? "refresh-cw" : "download"} />
 			</button>
 
-			{#if $data.models?.bergamot}
+			{#if $bergamot_data.binary}
 				<button
 					transition:slide
 					on:click={async (e) => {
@@ -245,11 +240,11 @@
 							async () => {
 								if (await app.vault.adapter.exists(`${app.vault.configDir}/plugins/obsidian-translate/models/bergamot`))
 									await app.vault.adapter.rmdir(`${app.vault.configDir}/plugins/obsidian-translate/models/bergamot`, true);
-								$data.models.bergamot = undefined;
+								$bergamot_data = {binary: undefined, models: undefined, version: undefined};
 								$settings.service_settings[service].validated = null;
 								plugin.message_queue("Successfully uninstalled Bergamot and its language models");
 								translator.valid = false;
-								available_languages = [];
+								current_available_languages = [];
 							},
 						).open();
 					}}>
@@ -259,34 +254,34 @@
 		</div>
 	</SettingItem>
 
-	{#if $data.models.bergamot}
+	{#if $bergamot_data.binary }
 		<SettingItem name="Manage Bergamot models">
 			<div slot="control" class="setting-item-control">
 				<!-- TODO: Removal should consider whether model was already removed via FS  -->
 				<ButtonList
-					items={ $data.models.bergamot?.models.map((model) => {
+					items={ $bergamot_data?.models.map((model) => {
 						return {
 							'value': model.locale,
-							'text': `${$data.all_languages.get(model.locale)} (${humanFileSize(model.size, false)})${model.dev ? ' [DEV]' : ''}`
+							'text': `${$all_languages.get(model.locale)} (${humanFileSize(model.size, false)})${model.dev ? ' [DEV]' : ''}`
 						}
 					}) }
 					icon="cross"
 					tooltip="Uninstall"
 					onClick={async (e) => {
-						const model = $data.models.bergamot.models.find(x => x.locale === e);
+						const model = $bergamot_data.models.find(x => x.locale === e);
 
 						const model_dir = `${app.vault.configDir}/plugins/obsidian-translate/models/bergamot/${model.locale}/`;
 						if (await app.vault.adapter.exists(model_dir))
 							await app.vault.adapter.rmdir(model_dir, true);
 
-						const model_idx = $data.models.bergamot.models.findIndex(x => x.locale === model.locale);
+						const model_idx = $bergamot_data.models.findIndex(x => x.locale === model.locale);
 
-						$data.models.bergamot.models.splice(model_idx, 1);
-						translator.update_data($data.models.bergamot);
+						$bergamot_data.models.splice(model_idx, 1);
+						translator.update_data($bergamot_data);
 
 						// Trigger reactivity
-						$data.models.bergamot.models = $data.models.bergamot.models;
-						available_languages = translator.available_languages;
+						$bergamot_data.models = $bergamot_data.models;
+						current_available_languages = translator.available_languages;
 
 						plugin.message_queue(`Successfully removed ${t(model.locale)} language model`);
 					}}
@@ -295,79 +290,76 @@
 					options={ downloadable_models }
 					value=""
 					onChange={async (e) => {
-						const model = $settings.service_settings[service].downloadable_models.find(x => x.locale === e.target.value);
-						const rootURL = "https://storage.googleapis.com/bergamot-models-sandbox";
+						if (e.target.value) {
+							const model = $settings.service_settings[service].downloadable_models.find(x => x.locale === e.target.value);
+							const rootURL = "https://storage.googleapis.com/bergamot-models-sandbox";
 
-						// If there are already models installed, use the same Bergamot version as all other models,
-						// otherwise use the most up-to-date version (given in data.json)
-						const version = $data.models.bergamot.models ? $data.models.bergamot.version : $settings.service_settings.bergamot.version;
+							// If there are already models installed, use the same Bergamot version as all other models,
+							// otherwise use the most up-to-date version (given in data.json)
+							const version = $bergamot_data.models ? $bergamot_data.version : $settings.service_settings.bergamot.version;
 
-						// Connection speed in Bps
-						let avg_download_speed = navigator.connection.downlink * 1000000;
-						let total_size = model.files.reduce((acc, cur) => acc + cur.size, 0);
-						const progress_bar_length = 10;
-						let progress_bar = new Notice(`Downloading ${model.files.length} files\nProgress:\t\t   [${' '.repeat(progress_bar_length)}]\nRemaining time: ???s`, 0)
+							// Connection speed in Bps
+							let avg_download_speed = navigator.connection.downlink * 1000000;
+							let total_size = model.files.reduce((acc, cur) => acc + cur.size, 0);
+							const progress_bar_length = 10;
+							let progress_bar = new Notice(`Downloading ${model.files.length} files\nProgress:\t\t   [${' '.repeat(progress_bar_length)}]\nRemaining time: ???s`, 0)
 
-						try {
-							// Sort files of model by size, descending
-							// Larger files have a higher download speed, which will offer a better upper limit on the remaining time
-							for (const [index, modelfile] of model.files.sort((a, b) => { return b.size - a.size; }).entries()) {
-								const start_time = Date.now();
-								const path = `${app.vault.configDir}/plugins/obsidian-translate/models/bergamot/${model.locale}/${modelfile.name}`;
-								const stats = await app.vault.adapter.stat(path);
-								if (stats && stats.size === modelfile.size)
-									continue;
-								const file = await requestUrl({url: `${rootURL}/${version}/${modelfile.usage === 'from' ? `${model.locale}en` : `en${model.locale}`}/${modelfile.name}`});
+							try {
+								// Sort files of model by size, descending
+								// Larger files have a higher download speed, which will offer a better upper limit on the remaining time
+								for (const [index, modelfile] of model.files.sort((a, b) => { return b.size - a.size; }).entries()) {
+									const start_time = Date.now();
+									const path = `${app.vault.configDir}/plugins/obsidian-translate/models/bergamot/${model.locale}/${modelfile.name}`;
+									const stats = await app.vault.adapter.stat(path);
+									if (stats && stats.size === modelfile.size)
+										continue;
+									const file = await requestUrl({url: `${rootURL}/${version}/${modelfile.usage === 'from' ? `${model.locale}en` : `en${model.locale}`}/${modelfile.name}`});
 
 
-								let execution_time = (Date.now() - start_time) / 1000;
-								// Add artificial slowdown to simulate slow connection (my PC is too fast to properly see progress)
-								// const slowdown = 20;
-								// await sleep(execution_time * slowdown * randn_bm() * 2 * 1000);
-								// execution_time *= slowdown;
+									let execution_time = (Date.now() - start_time) / 1000;
 
-								// Maintain moving average of download speed
-								if (!index)
-									avg_download_speed = modelfile.size / execution_time
-								else
-									avg_download_speed = (avg_download_speed * index / (index + 1)) + ((modelfile.size / execution_time) / (index + 1));
+									if (!index)
+										avg_download_speed = modelfile.size / execution_time
+									else
+										avg_download_speed = (avg_download_speed * index / (index + 1)) + ((modelfile.size / execution_time) / (index + 1));
 
-								if (file.status !== 200) {
-									progress_bar.hide();
-									plugin.message_queue(`Failed to download ${t(model.locale)} language model`);
-									return;
+									if (file.status !== 200) {
+										progress_bar.hide();
+										plugin.message_queue(`Failed to download ${t(model.locale)} language model`);
+										return;
+									}
+									await writeRecursive(path, file.arrayBuffer);
+
+									if (progress_bar.noticeEl.isConnected) {
+										const progress = Math.round((index / model.files.length) * progress_bar_length);
+										// Remaining time is multiplied by 1.2 to account for FS overhead
+										const remaining_time = ((total_size / avg_download_speed) * 1.2).toFixed(2);
+										total_size -= modelfile.size;
+										progress_bar.setMessage(`Downloading ${model.files.length} files\nProgress:\t\t   [${'█'.repeat(progress)+' '.repeat(progress_bar_length - progress)}]\nRemaining time: ${remaining_time}s [${humanFileSize(avg_download_speed, true)+'/s'}]`);
+									}
 								}
-								await writeRecursive(path, file.arrayBuffer);
+
+								const model_idx = $bergamot_data.models.findIndex(x => x.locale === model.locale);
+								if (model_idx !== -1)
+									$bergamot_data.models.splice(model_idx, 1);
+
+								$bergamot_data.models = [...$bergamot_data.models, model];
+								translator.update_data($bergamot_data);
+								current_available_languages = translator.available_languages;
 
 								if (progress_bar.noticeEl.isConnected) {
-									const progress = Math.round((index / model.files.length) * progress_bar_length);
-									// Remaining time is multiplied by 1.2 to account for FS overhead
-									const remaining_time = ((total_size / avg_download_speed) * 1.2).toFixed(2);
-									total_size -= modelfile.size;
-									progress_bar.setMessage(`Downloading ${model.files.length} files\nProgress:\t\t   [${'█'.repeat(progress)+' '.repeat(progress_bar_length - progress)}]\nRemaining time: ${remaining_time}s [${humanFileSize(avg_download_speed, true)+'/s'}]`);
+									progress_bar.setMessage(`Successfully installed ${t(model.locale)} model\nProgress:\t\t   [${'█'.repeat(progress_bar_length)}]\nRemaining time: Finished!`);
+									// Hide progress bar after 4 seconds
+									setTimeout(() => progress_bar.hide(), 4000);
+								} else {
+									plugin.message_queue(`Successfully installed ${t(model.locale)} model`, 4000);
 								}
-							}
-
-							const model_idx = $data.models.bergamot.models.findIndex(x => x.locale === model.locale);
-							if (model_idx !== -1)
-								$data.models.bergamot.models.splice(model_idx, 1);
-
-							$data.models.bergamot.models = [...$data.models.bergamot.models, model];
-							translator.update_data($data.models.bergamot);
-							available_languages = translator.available_languages;
-
-							if (progress_bar.noticeEl.isConnected) {
-								progress_bar.setMessage(`Successfully installed ${t(model.locale)} model\nProgress:\t\t   [${'█'.repeat(progress_bar_length)}]\nRemaining time: Finished!`);
-								// Hide progress bar after 4 seconds
-								setTimeout(() => progress_bar.hide(), 4000);
-							} else {
-								plugin.message_queue(`Successfully installed ${t(model.locale)} model`, 4000);
-							}
-						} catch (e) {
-							if (progress_bar.noticeEl.isConnected) {
-								progress_bar.setMessage(`Installation of ${t(model.locale)} model failed\nProgress:\t\t   [${'↯'.repeat(progress_bar_length)}]\nRemaining time:\t\t   Failed!\n$Reason: ${e.message}`);
-							} else {
-								plugin.message_queue(`Installation of ${t(model.locale)} model failed\nReason: ${e.message}`, 0);
+							} catch (e) {
+								if (progress_bar.noticeEl.isConnected) {
+									progress_bar.setMessage(`Installation of ${t(model.locale)} model failed\nProgress:\t\t   [${'↯'.repeat(progress_bar_length)}]\nRemaining time:\t\t   Failed!\n$Reason: ${e.message}`);
+								} else {
+									plugin.message_queue(`Installation of ${t(model.locale)} model failed\nReason: ${e.message}`, 0);
+								}
 							}
 						}
 					}}
@@ -562,7 +554,7 @@
 			onClick={(locale) => {
 				$settings.service_settings[service].selected_languages =
 					$settings.service_settings[service].selected_languages.filter((l) => l !== locale);
-				filterLanguages(available_languages);
+				filterLanguages(current_available_languages);
 			}}
 		/>
 		<Dropdown
@@ -571,7 +563,7 @@
 			onChange={(e) => {
 				$settings.service_settings[service].selected_languages =
 				 [...$settings.service_settings[service].selected_languages, e.target.value];
-				filterLanguages(available_languages);
+				filterLanguages(current_available_languages);
 				e.target.value = "";
 			}}
 		/>
@@ -592,7 +584,7 @@
 				plugin.message_queue(return_values.message);
 			if (return_values.languages) {
 				if (return_values.data) {
-					if (return_values.data > $data.models.bergamot.version)
+					if (return_values.data > $bergamot_data?.version)
 						bergamot_update_available = true;
 					$settings.service_settings[service].downloadable_models = return_values.languages;
 					$settings.service_settings[service].version = return_values.data;

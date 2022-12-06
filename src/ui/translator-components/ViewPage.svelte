@@ -3,17 +3,21 @@
 
 	import {onDestroy, onMount} from "svelte";
 	import type {Writable} from "svelte/store";
-	import {settings, data, hide_shortcut_tooltips, glossary} from "../../stores";
+	import {
+		settings,
+		hide_shortcut_tooltips,
+		glossary,
+		settings_tab,
+		spellcheck_languages,
+		bergamot_data, fasttext_data, available_services, all_languages
+	} from "../../stores";
 	import {horizontalSlide} from "../animations";
 
 	import {Button, Dropdown, TextArea, Icon} from "../components";
-	import {NavHeader, View} from "../obsidian-components";
+	import {View} from "../obsidian-components";
 	import {SwitchService} from "../modals";
 
-	import type {PluginData, TranslatorPluginSettings} from "../../types";
 	import {
-		DEFAULT_SETTINGS,
-		FILTER_MODES,
 		ICONS,
 		QUICK_ACTIONS,
 		QUICK_SETTINGS,
@@ -98,7 +102,7 @@
 			top_button_states['apply-filter'] = filter_mode;
 		},
 		'open-settings': () => {
-			$data.tab = $translation_service;
+			$settings_tab = $translation_service;
 			openSettingTab();
 		},
 	}
@@ -189,16 +193,12 @@
 		}
 	}
 
-	$: spellchecker_languages_observer = $data.spellchecker_languages.length;
 	$: selected_languages_observer = $settings.service_settings[$translation_service].selected_languages.length;
 	$: display_language_observer = $settings.display_language;
-	$: spellchecker_languages_observer, selected_languages_observer, available_languages, filter_mode, display_language_observer, filterLanguages();
-	$: available_services_observer = $data.available_services.length;
+	$: spellcheck_languages, selected_languages_observer, available_languages, filter_mode, display_language_observer, filterLanguages();
 
-	$: bergamot_models_observer = $data.models?.bergamot?.models?.length;
-	$: bergamot_models_observer, updateAvailableLanguages();
-	$: fasttext_models_observer = $data.models?.fasttext?.version;
-	$: fasttext_models_observer, autodetect_capability = translator && translator.has_autodetect_capability();
+	$: $bergamot_data, updateAvailableLanguages();
+	$: $fasttext_data, autodetect_capability = translator && translator.has_autodetect_capability();
 
 
 	$: language_from, language_to, $translation_service, auto_translate, apply_glossary, view_mode, filter_mode,
@@ -249,11 +249,11 @@
 	function filterLanguages() {
 		let languages = available_languages;
 		if (filter_mode === 1)
-			languages = languages.filter(x => $data.spellchecker_languages.includes(x));
+			languages = languages.filter(x => $spellcheck_languages.includes(x));
 		else if (filter_mode === 2)
 			languages = languages.filter(x => $settings.service_settings[$translation_service].selected_languages.includes(x));
 		selectable_languages = Array.from(languages)
-			.map((locale) => {return {'value': locale, 'text': $data.all_languages.get(locale) || locale};})
+			.map((locale) => {return {'value': locale, 'text': $all_languages.get(locale) || locale};})
 			.sort((a, b) => a.text.localeCompare(b.text))
 	}
 
@@ -320,7 +320,7 @@
 	}
 
 	onMount(() => {
-		if (!$data.available_services.includes($translation_service))
+		if (!$available_services.includes($translation_service))
 			$translation_service = $settings.translation_service;
 	})
 
@@ -424,7 +424,7 @@
 									.setIcon("book-open")
 									.setSection("translate")
 									.onClick(async (e) => {
-										$data.tab = "glossary";
+										$settings_tab = "glossary";
 										if (language_from === "auto") {
 											if (detected_language) {
 												glossary.source_language = detected_language;
@@ -528,7 +528,7 @@
 									.setIcon("book-open")
 									.setSection("translate")
 									.onClick(async (e) => {
-										$data.tab = "glossary";
+										$settings_tab = "glossary";
 										if (language_from === "auto") {
 											if (detected_language) {
 												glossary.source_language = detected_language;

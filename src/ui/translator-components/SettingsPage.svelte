@@ -1,16 +1,15 @@
 <script lang="ts">
 	import TranslatorPlugin from "../../main";
 
-	import {settings, data} from "../../stores";
+	import {available_services, settings, settings_tab} from "../../stores";
 
-	import {onMount} from "svelte";
 	import {slide} from "svelte/transition";
 	import {horizontalSlide} from "../animations";
 
 	import {Icon} from ".././components";
 
 
-	import {SERVICES_INFO, DEFAULT_SETTINGS, SETTINGS_TABS, ALL_SERVICES} from "../../constants";
+	import {SERVICES_INFO, SETTINGS_TABS, ALL_SERVICES} from "../../constants";
 	import {DummyTranslate} from "../../handlers";
 
 	import {
@@ -26,23 +25,14 @@
 
 	export let plugin: TranslatorPlugin;
 
-	$: available_services_observer = $data.available_services.length;
-	$: tab_observer = $data.tab;
-
-	let tab: string;
-	$: tab = tab_observer;
-	
 	let tabs = generateTabs();
-	let tab_idx = tabs.findIndex(t => t.id === tab);
-	$: {
-		available_services_observer;
-		tabs = generateTabs();
-	}
+	let tab_idx = tabs.findIndex(t => t.id === $settings_tab);
+	$: $available_services, tabs = generateTabs();
 
 	function generateTabs() {
 		return [
 			...SETTINGS_TABS,
-			...$data.available_services.map(service => ({id: service, name: SERVICES_INFO[service].display_name, icon: service})),
+			...$available_services.map(service => ({id: service, name: SERVICES_INFO[service].display_name, icon: service})),
 			{id: "fasttext", name: "FastText", icon: "fasttext"}
 		];
 	}
@@ -50,7 +40,7 @@
 	let translator: DummyTranslate;
 
 	function getComponent() {
-		switch (tab) {
+		switch ($settings_tab) {
 			case "general":
 				return GeneralSettings;
 			case "functionality":
@@ -72,14 +62,8 @@
 		tab_idx = index;
 		const new_tab = tabs[index].id;
 
-		tab = new_tab;
-		$data.tab = tab;
+		$settings_tab = new_tab;
 	}
-
-	onMount(() => {
-		tab = $data.tab;
-	});
-
 </script>
 
 <div class:disable-animations={!$settings.enable_animations}>
@@ -98,7 +82,7 @@
 		}}
 	>
 		{#each tabs as {id, name, icon}, index}
-			<div class:translator-navigation-item-selected={tab === id} class="translator-navigation-item"
+			<div class:translator-navigation-item-selected={$settings_tab === id} class="translator-navigation-item"
 				 aria-label={`${name} settings`} on:click={() => {
 					 changedTabs(index)}
 				 }
@@ -122,9 +106,9 @@
 											$settings.filtered_services = $settings.filtered_services.filter(s => s !== id);
 										}
 										plugin.reactivity.filterAvailableServices();
-										if (tab === id) {
+										if ($settings_tab === id) {
 											tab_idx -= 1;
-											tab = tabs[tab_idx].id;
+											$settings_tab = tabs[tab_idx].id;
 										}
 									})
 						});
@@ -133,18 +117,17 @@
 				}}
 			>
 				<Icon icon="{icon}" size="20" class={id === $settings.translation_service ? 'translator-selected-element' : ''} />
-				<div class:translator-navigation-item-text={tab !== id}>{name}</div>
+				<div class:translator-navigation-item-text={$settings_tab !== id}>{name}</div>
 			</div>
 		{/each}
 	</nav>
 
-	{#key tab}
+	{#key $settings_tab}
 		<div in:horizontalSlide={{duration: 400, delay: 400}} out:slide={{duration: 400}}>
 			<svelte:component this={getComponent()}
 				plugin={plugin}
 				settings={settings}
-				data={data}
-				service={tab}
+				service={$settings_tab}
 			/>
 		</div>
 	{/key}

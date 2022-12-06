@@ -10,8 +10,8 @@ import {
 	TFile, TFolder
 } from 'obsidian';
 
-import {writable, type Writable, get} from "svelte/store";
-import {settings, data, globals} from "./stores";
+import {get} from "svelte/store";
+import {settings, globals, available_languages, all_languages, fasttext_data, bergamot_data, password} from "./stores";
 import {Reactivity, ViewPage} from "./ui/translator-components";
 
 import {TranslatorSettingsTab} from "./settings";
@@ -22,11 +22,11 @@ import {around} from 'monkey-around';
 
 import type {
 	APIServiceProviders,
-	APIServiceSettings,
+	APIServiceSettings, CommandI,
 	TranslatorPluginSettings
 } from "./types";
 
-import {ICONS, DEFAULT_SETTINGS, TRANSLATOR_VIEW_ID, DEFAULT_DATA, SERVICES_INFO} from "./constants";
+import {ICONS, DEFAULT_SETTINGS, TRANSLATOR_VIEW_ID, SERVICES_INFO} from "./constants";
 import type {DummyTranslate} from "./handlers";
 import {nested_object_assign, rateLimit} from "./util";
 
@@ -38,7 +38,6 @@ export default class TranslatorPlugin extends Plugin {
 
 	current_language: string;
 	detected_language: string;
-	service_data: APIServiceSettings;
 
 	uninstall: any;
 
@@ -55,7 +54,7 @@ export default class TranslatorPlugin extends Plugin {
 	message_queue: ((...args: any[]) => void)
 
 	async onload() {
-		this.current_language = this.fixLanguageCode(moment.locale());
+		this.current_language = moment.locale();
 
 		// Set up message queue for the plugin, this rate limits the number of messages the plugin can send at the same time,
 		// and allows for the messages to be ordered in a certain way
@@ -64,10 +63,32 @@ export default class TranslatorPlugin extends Plugin {
 			new Notice(text, timeout);
 		});
 
-		data.set(Object.assign({}, DEFAULT_DATA,  {
-			models:  JSON.parse(app.loadLocalStorage('models')) || {},
-			password: app.loadLocalStorage('password') || '',
-		}));
+
+		// TODO: Split up models into fasttext and bergamot data, will only be here for a few versions
+		const models_data = app.loadLocalStorage('models');
+		if (models_data) {
+			localStorage.removeItem(`${app.appId}-models`);
+			const models = JSON.parse(models_data) || {};
+			if (models.fasttext)
+				fasttext_data.set(models.fasttext);
+			if (models.bergamot)
+				bergamot_data.set(models.bergamot);
+
+		} else {
+			fasttext_data.set(JSON.parse(app.loadLocalStorage('fasttext')) || {
+				binary: undefined,
+				models: undefined,
+				version: undefined
+			});
+			bergamot_data.set(JSON.parse(app.loadLocalStorage('bergamot')) || {
+				binary: undefined,
+				models: undefined,
+				version: undefined,
+			});
+		}
+
+
+		password.set(app.loadLocalStorage('password') || '');
 
 		let loaded_settings: TranslatorPluginSettings = await this.loadData();
 		const translation_service = loaded_settings?.translation_service || DEFAULT_SETTINGS.translation_service;
@@ -80,7 +101,7 @@ export default class TranslatorPlugin extends Plugin {
 		// are forwards compatible with newer versions of the plugin
 		loaded_settings = nested_object_assign(DEFAULT_SETTINGS, loaded_settings ? loaded_settings : {}, new Set(set_if_exists));
 
-		// (Changed bing_translator -> azure_translator in v1.4.0, this patch will only be here for a couple versions)
+		// TODO: (Changed bing_translator -> azure_translator in v1.4.0, this patch will only be here for a couple versions)
 		if (loaded_settings.translation_service === 'bing_translator')
 			loaded_settings.translation_service = 'azure_translator';
 		if (loaded_settings?.service_settings['bing_translator' as keyof APIServiceProviders]) {
@@ -129,7 +150,7 @@ export default class TranslatorPlugin extends Plugin {
 		// This adds a settings tab so the user can configure various aspects of the plugin
 		this.addSettingTab(new TranslatorSettingsTab(this.app, this));
 
-		// Register the view to the app.
+		// Register the Translation View to the app.
 		this.registerView(
 			TRANSLATOR_VIEW_ID,
 			(leaf) => new TranslatorView(leaf, this)
@@ -158,7 +179,7 @@ export default class TranslatorPlugin extends Plugin {
 				id: "translator-open-view",
 				name: "Open translation view",
 				icon: "translate",
-				func: async () => {
+				callback: async () => {
 					await this.activateTranslatorView();
 				}
 			},
@@ -166,7 +187,7 @@ export default class TranslatorPlugin extends Plugin {
 				id: "translator-change-service",
 				name: "Change Translator Service",
 				icon: "cloud",
-				func: () => {new SwitchService(this.app, this, (service) => {
+				callback: () => {new SwitchService(this.app, this, (service) => {
 					this.setTranslationService(service);
 				}).open()}
 			},
@@ -175,7 +196,7 @@ export default class TranslatorPlugin extends Plugin {
 				name: "Translate note to new file",
 				icon: "translate-file-new",
 				editor_context: true,
-				func: () => {new TranslateModal(this.app, this, "file-new").open()}
+				callback: () => {new TranslateModal(this.app, this, "file-new").open()}
 			},
 
 			{
@@ -183,35 +204,29 @@ export default class TranslatorPlugin extends Plugin {
 				name: "Translate note and replace current file",
 				icon: "translate-file-new",
 				editor_context: true,
-				func: () => {new TranslateModal(this.app, this, "file-current").open()}
+				callback: () => {new TranslateModal(this.app, this, "file-current").open()}
 			},
 			{
 				id: "translator-selection",
 				name: "Translate selection to selected language",
 				icon: "translate-selection-filled",
 				editor_context: true,
-				func: () => {new TranslateModal(this.app, this, "selection").open()}
+				callback: () => {new TranslateModal(this.app, this, "selection").open()}
 			},
 			{
 				id: "translator-detection",
 				name: "Detect language of selection",
 				icon: "detect-selection",
 				editor_context: true,
-				func: async (editor: Editor, view: MarkdownView) => {
+				callback: async (editor: Editor, view: MarkdownView) => {
 					await detect_selection(this, editor);
 				},
 			}
 		]
-		interface CommandI {
-			id: string,
-			name: string,
-			icon: string,
-			editor_context?: boolean
-			func?: any,
-		}
+
 
 		for (let command of commands) {
-			delete Object.assign(command, {[(Platform.isMobile || command.editor_context) ? "editorCallback" : "callback"]: command["func"] })["func"];
+			delete Object.assign(command, {[(Platform.isMobile || command.editor_context) ? "editorCallback" : "callback"]: command["callback"] })["callback"];
 			this.addCommand(command);
 		}
 
@@ -233,8 +248,9 @@ export default class TranslatorPlugin extends Plugin {
 		this.registerEvent(
 			this.app.workspace.on("editor-menu", (menu, editor) => {
 				if (this.translator.has_autodetect_capability()) {
-					let plugin_data = get(data);
-					if (plugin_data.available_languages.length) {
+					const languages = get(available_languages);
+					const languages_dict = get(all_languages);
+					if (languages.length) {
 						menu.addItem((item) => {
 							item.setTitle("Translate")
 								.setIcon("translate")
@@ -243,9 +259,9 @@ export default class TranslatorPlugin extends Plugin {
 									// @ts-ignore (e.target exists)
 									if (e.target.className !== "menu-item") {
 										const loaded_settings = get(settings);
-										if (loaded_settings.default_target_language && plugin_data.available_languages.includes(loaded_settings.default_target_language))
+										if (loaded_settings.default_target_language && languages.includes(loaded_settings.default_target_language))
 											await translate_selection(this, editor, loaded_settings.default_target_language, loaded_settings.apply_glossary);
-										else if (plugin_data.available_languages.includes(this.current_language))
+										else if (languages.includes(this.current_language))
 											await translate_selection(this, editor, this.current_language, loaded_settings.apply_glossary);
 										else
 											return false;
@@ -262,8 +278,8 @@ export default class TranslatorPlugin extends Plugin {
 							let dropdown_menu = element.createEl("div", {cls: "menu translator-dropdown-menu"});
 
 							// TODO: Sveltelize this?
-							let dropdown_menu_items = Array.from(plugin_data.available_languages)
-								.map((locale) => { return [locale, plugin_data.all_languages.get(locale)]; })
+							let dropdown_menu_items = Array.from(languages)
+								.map((locale) => { return [locale, languages_dict.get(locale)]; })
 								.sort((a, b) => a[1].localeCompare(b[1]));
 
 							for (let [locale, name] of dropdown_menu_items) {
@@ -298,7 +314,17 @@ export default class TranslatorPlugin extends Plugin {
 					const result = oldMethod && oldMethod.apply(app.plugins, args);
 					if (args[0] === 'obsidian-translate') {
 						localStorage.removeItem(`${app.appId}-password`);
-						localStorage.removeItem(`${app.appId}-models`);
+						localStorage.removeItem(`${app.appId}-fasttext`);
+						localStorage.removeItem(`${app.appId}-bergamot`);
+						localStorage.removeItem(`${app.appId}-obfuscate_keys`);
+						localStorage.removeItem(`${app.appId}-hide_shortcut_tooltips_toggle`);
+
+						const loaded_settings = get(settings);
+						if (loaded_settings.security_setting === "local_only") {
+							for (const service of Object.keys(SERVICES_INFO)) {
+								localStorage.removeItem(`${app.appId}-${service}_api_key`);
+							}
+						}
 					}
 				};
 			}
@@ -345,17 +371,6 @@ export default class TranslatorPlugin extends Plugin {
 
 
 	// ------------------  Process language codes  ------------------
-	fixLanguageCode(code: string) {
-		switch (code) {
-			case "tam":
-				return "ta";
-			case "cz":
-				return "cs";
-			default:
-				return code
-		}
-	}
-
 	async saveSettings(updatedSettings: any) {
 		await this.saveData(updatedSettings);
 	}

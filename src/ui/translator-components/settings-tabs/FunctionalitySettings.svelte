@@ -1,19 +1,15 @@
 <script lang="ts">
 	import TranslatorPlugin from "../../../main";
 
-	import {settings, data, glossary} from "../../../stores";
+	import {settings, glossary, all_languages} from "../../../stores";
 
-	import {Button, Dropdown, Slider, Toggle, Input, Icon, ToggleButton, ButtonList} from "../../components";
+	import { Dropdown, Toggle } from "../../components";
 	import {SettingItem} from "../../obsidian-components";
 
-	import {PasswordModal, PasswordRequestModal} from "../../modals";
-
-	import type {PluginData, TranslatorPluginSettings} from "../../../types";
-	import {SERVICES_INFO, SECURITY_MODES, DEFAULT_SETTINGS} from "../../../constants";
 
 	export let plugin: TranslatorPlugin;
 
-	const all_languages = Array.from($data.all_languages.entries()).map(([key, value]) => {
+	const current_all_languages = Array.from($all_languages.entries()).map(([key, value]) => {
 		return {
 			value: key,
 			text: value
@@ -101,7 +97,7 @@
 >
 	<Dropdown
 		slot="control"
-		options={[{value: "auto", text: "Detect automatically"}].concat(all_languages)}
+		options={[{value: "auto", text: "Detect automatically"}].concat(current_all_languages)}
 		value={$settings.default_source_language}
 		onChange={async (e) => {
 			$settings.default_source_language = e.target.value;
@@ -119,7 +115,7 @@
 >
 	<Dropdown
 		slot="control"
-		options={all_languages}
+		options={current_all_languages}
 		value={ $settings.default_target_language }
 		onChange={(e) => {
 			$settings.default_target_language = e.target.value;

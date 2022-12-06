@@ -1,7 +1,7 @@
 <script lang="ts">
 	import TranslatorPlugin from "../../../main";
 
-	import {settings, data} from "../../../stores";
+	import {settings, fasttext_data} from "../../../stores";
 	import {slide} from "svelte/transition";
 	import {onMount} from "svelte";
 
@@ -39,7 +39,7 @@
 
 	<div slot="control" class="setting-item-control">
 		<button
-			class:translator-success={$data.models?.fasttext}
+			class:translator-success={$fasttext_data.binary}
 			class="icon-text"
 			aria-label="Install"
 			on:click={async () => {
@@ -63,21 +63,22 @@
 							name: "lid.176.ftz",
 							size: model_result.arrayBuffer.byteLength,
 						}
-					}
+					},
+					version: "1.0.0",
 				}
 
 				detector = await plugin.reactivity.getTranslationService('fasttext');
 				if (!detector?.detector)
 					detector.setup_service(models);
 				detector.valid = true;
-				$data.models.fasttext = models;
+				$fasttext_data = models;
 				plugin.detector = detector;
 			}}
 		>
 			<Icon icon={"download"} />
 		</button>
 
-		{#if $data.models?.fasttext}
+		{#if $fasttext_data.binary}
 			<button
 				transition:slide
 				on:click={async (e) => {
@@ -88,8 +89,11 @@
 					async () => {
 						if (await app.vault.adapter.exists(`${app.vault.configDir}/plugins/obsidian-translate/models/fasttext`))
 							await app.vault.adapter.rmdir(`${app.vault.configDir}/plugins/obsidian-translate/models/fasttext`, true);
-						$data.models.fasttext = undefined;
-						$data.models = $data.models;
+						$fasttext_data = {
+							binary: undefined,
+							models: undefined,
+							valid: undefined
+						}
 
 						if (detector) {
 							detector.valid = false;
@@ -106,7 +110,7 @@
 	</div>
 </SettingItem>
 
-{#if $data.models?.fasttext}
+{#if $fasttext_data.binary}
 	<SettingItem
 		name="Always use FastText"
 		description="FastText will be used as the default language detection service"

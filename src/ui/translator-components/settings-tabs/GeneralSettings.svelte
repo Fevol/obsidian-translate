@@ -1,16 +1,22 @@
 <script lang="ts">
 	import TranslatorPlugin from "../../../main";
 
-	import {settings, data} from "../../../stores";
+	import {
+		all_languages,
+		available_services,
+		password,
+		passwords_are_encrypted,
+		settings,
+		settings_tab
+	} from "../../../stores";
 
-	import {Button, Dropdown, Slider, Toggle, Input, Icon, ToggleButton, ButtonList} from "../../components";
+	import {Button, Dropdown, ButtonList} from "../../components";
 	import {SettingItem} from "../../obsidian-components";
 	import {slide} from "svelte/transition"
 
 	import {PasswordModal, PasswordRequestModal, TextModal} from "../../modals";
 
-	import type {PluginData, TranslatorPluginSettings} from "../../../types";
-	import {SERVICES_INFO, SECURITY_MODES, DEFAULT_SETTINGS, ALL_SERVICES} from "../../../constants";
+	import {SERVICES_INFO, SECURITY_MODES, ALL_SERVICES} from "../../../constants";
 
 	export let plugin: TranslatorPlugin;
 
@@ -18,11 +24,11 @@
 
 	// const example_languages = ['en', 'fr', 'zh']
 	// Fun aside, let's people learn what the name of a language looks like in the native languages
-	const example_languages = [...$data.all_languages.keys()].sort(() => 0.5 - Math.random()).slice(0, 3);
+	const example_languages = [...$all_languages.keys()].sort(() => 0.5 - Math.random()).slice(0, 3);
 	let display_language_example = generateLanguageExample();
 
 	function generateLanguageExample() {
-		return example_languages.map((lang) => $data.all_languages.get(lang)).join(', ');
+		return example_languages.map((lang) => $all_languages.get(lang)).join(', ');
 	}
 
 
@@ -58,7 +64,6 @@
 		}
 	}
 
-
 </script>
 
 <SettingItem
@@ -71,7 +76,7 @@
 >
 	<div slot="control" class="flex-row-element">
 		<Dropdown
-			options={$data.available_services
+			options={$available_services
 			//.filter(service => SERVICES_INFO[service].type === 'translation')
 			.map(service => {
 				return {'value': service, 'text': SERVICES_INFO[service].display_name};
@@ -86,7 +91,7 @@
 			icon="user-cog"
 			tooltip="Open service's settings"
 			onClick={() => {
-				$data.tab = $settings.translation_service;
+				$settings_tab = $settings.translation_service;
 			}}
 		/>
 	</div>
@@ -156,11 +161,11 @@
 		description="Update locally stored password"
 	>
 		<div slot="control">
-			{#if !$data.password_are_encrypted}
+			{#if !$passwords_are_encrypted}
 				<Button
-					class={!$data.password ? 'translator-success' : ''}
-					tooltip={!$data.password ? 'No password is set' : 'Set a new password'}
-					text={!$data.password ? 'Set password' : 'Update password'}
+					class={!$password ? 'translator-success' : ''}
+					tooltip={!$password ? 'No password is set' : 'Set a new password'}
+					text={!$password ? 'Set password' : 'Update password'}
 					onClick={ () => new PasswordModal(plugin.app, plugin).open() }
 				/>
 			{:else}

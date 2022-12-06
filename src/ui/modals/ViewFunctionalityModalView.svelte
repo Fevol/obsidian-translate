@@ -1,17 +1,12 @@
 <script>
-	import {Button, Toggle, Icon, Dropdown, TextArea, DragAndDrop} from "../components";
+	import {Toggle, Dropdown} from "../components";
 	import {SettingItem} from "../obsidian-components";
 
-	import {settings, data} from "stores";
+	import {settings} from "stores";
 	import {createEventDispatcher} from "svelte";
 
-	import {
-		FILTER_MODES,
-		SERVICES_INFO,
-		VIEW_MODES,
-		QUICK_ACTIONS, QUICK_ACTIONS_BUTTONS,
-		QUICK_SETTINGS, QUICK_SETTINGS_BUTTONS,
-	} from "../../constants";
+	import {SERVICES_INFO} from "../../constants";
+	import {available_services} from "../../stores";
 
 
 	const dispatch = createEventDispatcher()
@@ -30,7 +25,7 @@
 >
 	<Dropdown
 		slot="control"
-		options={$data.available_services
+		options={$available_services
 			//.filter(service => SERVICES_INFO[service].type === 'translation')
 			.map(service => {
 				return {'value': service, 'text': SERVICES_INFO[service].display_name};

@@ -27,32 +27,6 @@ export interface TranslatorPluginSettings {
 	hotkeys: TranslatorHotKey[];
 }
 
-export interface PluginData {
-	// Cache the available language locales, and their corresponding names
-	all_languages: Map<string, string>;
-
-	// Which languages can be translated to and from for default translation service (with filters applied)
-	available_languages: Array<any>;
-
-	// Determines which services will be visible in the settings, modals, ...
-	available_services: Array<string>;
-
-	// Current spellchecker languages (synced at startup of the plugin)
-	spellchecker_languages: Array<any>;
-
-	// Installed models of the current vault (used for Bergamot and FastText)
-	models: Models;
-
-	// Selected tab of the settings page
-	tab: string;
-
-	// If any of the services API keys are still encrypted, this will be true
-	password_are_encrypted: boolean;
-
-	// This will be used to make password difference operations reactive
-	password: string;
-}
-
 export interface APIServiceProviders {
 	google_translate: APIServiceSettings;
 	azure_translator: APIServiceSettings;
@@ -189,4 +163,13 @@ export interface TranslatorHotKey {
 	id: string;
 	modifiers: Modifier[];
 	key: string;
+}
+
+// Generic template for commands
+export interface CommandI {
+	id: string,
+	name: string,
+	icon: string,
+	editor_context?: boolean
+	callback?: (...args: any[]) => any;
 }

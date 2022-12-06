@@ -2,14 +2,14 @@
 	import { Input } from "../components";
 	import {Notice} from "obsidian";
 	import {createEventDispatcher} from "svelte";
-	import {settings, data} from "../../stores";
+	import {password, settings} from "../../stores";
 
 	import {aesGcmEncrypt, aesGcmDecrypt} from "../../util";
 
 	let valid = null;
 	let input_1 = "";
 	let input_2 = "";
-	let current_password = $data.password;
+	let current_password = $password;
 	const dispatch = createEventDispatcher();
 
 	$: valid = (input_1 && input_2) ? input_1 === input_2 : null;
@@ -47,7 +47,7 @@
 			}
 		}
 		app.saveLocalStorage("password", input_1);
-		$data.password = input_1;
+		$password = input_1;
 		dispatch("close");
 	} else if (current_password && !input_1 && !input_2) {
 		// Password already existed and did not change, no need to re-encrypt passwords

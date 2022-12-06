@@ -1,4 +1,4 @@
-import type {PluginData, TranslatorPluginSettings} from "./types";
+import type {TranslatorPluginSettings} from "./types";
 import {moment} from "obsidian";
 
 // Add list of icons
@@ -38,17 +38,6 @@ export let ALL_SERVICES: string[] = [
 	"lingva_translate",
 	// "fasttext",
 ]
-
-export const DEFAULT_DATA: PluginData = {
-	available_languages: [],
-	available_services: ALL_SERVICES,
-	all_languages: new Map(),
-	spellchecker_languages: [],
-	models: {},
-	tab: 'general',
-	password_are_encrypted: false,
-	password: '',
-}
 
 export const DEFAULT_SETTINGS: TranslatorPluginSettings = {
 	display_language: 'display',

@@ -7,9 +7,16 @@
 
 	import TranslatorPlugin from "../../main";
 
-	import {settings, data, glossary } from "../../stores";
+	import {
+		settings,
+		glossary,
+		available_languages,
+		spellcheck_languages,
+		all_languages,
+		password,
+		bergamot_data, fasttext_data, available_services, passwords_are_encrypted
+	} from "../../stores";
 
-	import type {PluginData, TranslatorPluginSettings} from "../../types";
 	import {SERVICES_INFO, DEFAULT_SETTINGS, ALL_SERVICES} from "../../constants";
 	import ISO6391 from "iso-639-1";
 
@@ -40,16 +47,12 @@
 	let previous_service: string;
 
 	let display_language_observer: any;
-	let model_observer: any;
 
 	let active_services = new Map<string, DummyTranslate>();
 	let service_uses = new Map<string, number>();
 
-	let all_languages: Set<string>;
-
 	$: service_observer = $settings.translation_service;
 	$: filter_mode_observer = $settings.filter_mode;
-	$: model_observer = $data.models;
 	$: display_language_observer = $settings.display_language;
 	$: display_language_observer, updateLocales();
 
@@ -63,11 +66,11 @@
 	function setAvailableLanguages(translation_service: string, filter_mode: string) {
 		const languages = plugin.translator.available_languages || $settings.service_settings[translation_service].available_languages;
 		if (filter_mode === "1")
-			$data.available_languages = languages.filter(x => $data.spellchecker_languages.includes(x));
+			$available_languages = languages.filter(x => $spellcheck_languages.includes(x));
 		else if (filter_mode === "2")
-			$data.available_languages = languages.filter(x => $settings.service_settings[translation_service].selected_languages.includes(x));
+			$available_languages = languages.filter(x => $settings.service_settings[translation_service].selected_languages.includes(x));
 		else
-			$data.available_languages = languages;
+			$available_languages = languages;
 	}
 
 	export function setTranslationService(translation_service: string, filter_mode: string) {
@@ -79,7 +82,7 @@
 	}
 
 	function updateLocales() {
-		$data.all_languages.forEach((language, locale) => $data.all_languages.set(locale, formatLocale(locale)));
+		$all_languages.forEach((language, locale) => $all_languages.set(locale, formatLocale(locale)));
 	}
 
 	function formatLocale(locale) {
@@ -101,7 +104,7 @@
 
 	export async function getAPIKey(service: string, mode: string) {
 		if (mode === 'password')
-			return await aesGcmDecrypt($settings.service_settings[service].api_key, $data.password);
+			return await aesGcmDecrypt($settings.service_settings[service].api_key, $password);
 		else if (mode === 'local_only')
 			return app.loadLocalStorage(`${service}_api_key`);
 		else if (mode === 'dont_save')
@@ -112,7 +115,7 @@
 
 	export async function setAPIKey(service: string, mode: string, key: string) {
 		if (mode === "password")
-			$settings.service_settings[service].api_key = await aesGcmEncrypt(key, $data.password);
+			$settings.service_settings[service].api_key = await aesGcmEncrypt(key, $password);
 		else if (mode === "local_only")
 			app.saveLocalStorage(service + '_api_key', key);
 		else if (mode === "dont_save")
@@ -172,13 +175,13 @@
 				translation_service = new LibreTranslate(service_settings);
 			else if (service === "bergamot")
 				translation_service = new BergamotTranslate('fasttext' in active_services ? active_services['fasttext'] : await getTranslationService('fasttext', ''),
-					plugin, $data.models?.bergamot);
+					plugin, $bergamot_data);
 			else if (service === "amazon_translate")
 				translation_service = new AmazonTranslate(service_settings);
 			else if (service === "lingva_translate")
 				translation_service = new LingvaTranslate(service_settings);
 			else if (service === 'fasttext')
-				translation_service = new FastTextDetector(plugin, $data.models?.fasttext);
+				translation_service = new FastTextDetector(plugin, $fasttext_data);
 			else if (service === "fanyi_youdao")
 				translation_service = new FanyiYoudao(service_settings);
 			else if (service === "fanyi_qq")
@@ -201,21 +204,23 @@
 				});
 			}
 
-			// To be honest, I'm actually not sure whether it would be more efficient to just load all the locales,
-			// instead of going through them... one... by... one...
+			// This code adds in the locales of the service to the list of all locales ($all_languages)
+			// and also sets the locales to the internal list of locales for the service (translation_service.available_languages)
 			if (service === "bergamot") {
-				$data.all_languages.set("en", formatLocale("en"));
+				$all_languages.set("en", formatLocale("en"));
 				$settings.service_settings["bergamot"].downloadable_models
 					.map(m => m.locale)
 					.forEach(locale => {
-						$data.all_languages.set(locale, formatLocale(locale));
+						$all_languages.set(locale, formatLocale(locale));
 					});
+				translation_service.available_languages = $bergamot_data.models ? ["en", ...$bergamot_data.models.map(m => m.locale)] : ["en"];
 			} else if ($settings.service_settings[service]?.available_languages) {
 				$settings.service_settings[service].available_languages
-					.filter(locale => !$data.all_languages.has(locale))
+					.filter(locale => !$all_languages.has(locale))
 					.forEach(locale => {
-						$data.all_languages.set(locale, formatLocale(locale))
+						$all_languages.set(locale, formatLocale(locale))
 					});
+				translation_service.available_languages = $settings.service_settings[service].available_languages;
 			}
 
 			active_services[service] = translation_service;
@@ -234,33 +239,42 @@
 
 
 	$: {
-		if (Object.keys(model_observer).length)
-			app.saveLocalStorage('models', JSON.stringify(model_observer));
+		if ($bergamot_data && Object.values($bergamot_data).some(v => !(v == null)))
+			app.saveLocalStorage('bergamot', JSON.stringify($bergamot_data));
+		else
+			localStorage.removeItem(`${app.appId}-bergamot`);
+	}
+
+	$: {
+		if ($fasttext_data && Object.values($fasttext_data).some(v => !(v == null)))
+			app.saveLocalStorage('fasttext', JSON.stringify($fasttext_data));
+		else
+			localStorage.removeItem(`${app.appId}-fasttext`);
 	}
 
 	function updateSpellcheckerLanguages() {
-		$data.spellchecker_languages = [...new Set(app.vault.config.spellcheckLanguages.map((x) => {
+		$spellcheck_languages = [...new Set(app.vault.config.spellcheckLanguages.map((x) => {
 			return x.split('-')[0];
 		}))];
 	}
 
 	export function filterAvailableServices() {
-		let available_services = ALL_SERVICES;
+		let new_available_services = ALL_SERVICES;
 		if (Platform.isMobile)
-			available_services = available_services.filter(service => !SERVICES_INFO[service].desktop_only);
+			new_available_services = new_available_services.filter(service => !SERVICES_INFO[service].desktop_only);
 		if ($settings.filtered_services.length)
-			available_services = available_services.filter(service => $settings.filtered_services.includes(service));
-		$data.available_services = available_services;
-		if (!$data.available_services.includes($settings.translation_service))
-			$settings.translation_service = $data.available_services[0];
+			new_available_services = new_available_services.filter(service => $settings.filtered_services.includes(service));
+		$available_services = new_available_services;
+		if (!$available_services.includes($settings.translation_service))
+			$settings.translation_service = $available_services[0];
 	}
 
 	onMount(async () => {
 		if (app.vault.config.spellcheckLanguages)
-			$data.spellchecker_languages = [...new Set(app.vault.config.spellcheckLanguages.map(x => x.split('-')[0]))]
+			$spellcheck_languages = [...new Set(app.vault.config.spellcheckLanguages.map(x => x.split('-')[0]))]
 		else
 			// Mobile (iOS and Android) do not have spellchecker languages available (assume display language)
-			$data.spellchecker_languages = [plugin.current_language];
+			$spellcheck_languages = [plugin.current_language];
 
 		// FIXME: This is not an ideal solution, as config-changed gets called quite a bit
 		// Whenever config of spellchecker languages changed, update its list
@@ -274,10 +288,10 @@
 
 
 		// TODO: This can be done each time you add default service settings
-		if ($data.spellchecker_languages.length) {
+		if ($spellcheck_languages.length) {
 			for (let service in $settings.service_settings) {
 				if ($settings.service_settings[service].selected_languages !== undefined && !$settings.service_settings[service].selected_languages.length) {
-					$settings.service_settings[service].selected_languages = $data.spellchecker_languages;
+					$settings.service_settings[service].selected_languages = $spellcheck_languages;
 				}
 			}
 		}
@@ -287,8 +301,8 @@
 		if ($settings.security_setting === 'password') {
 			for (const [service, service_settings] of Object.entries($settings.service_settings)) {
 				if (SERVICES_INFO[service].requires_api_key && service_settings.api_key) {
-					if ((await aesGcmDecrypt(service_settings.api_key, $data.password)).endsWith('==')) {
-						$data.password_are_encrypted = true;
+					if ((await aesGcmDecrypt(service_settings.api_key, $password)).endsWith('==')) {
+						$passwords_are_encrypted = true;
 						new PasswordRequestModal(plugin).open();
 						break;
 					}
