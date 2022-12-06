@@ -14,6 +14,8 @@ if you want to view the source, please visit the github repository of this plugi
 `;
 
 const prod = (process.argv[2] === 'production');
+const dev = (process.argv[2] === 'development');
+const dev_watch = (process.argv[2] === 'development-watch');
 
 const dir = prod ? "./" : process.env.OUTDIR || "./";
 
@@ -49,11 +51,12 @@ esbuild.build({
 		'@codemirror/view',
 		...builtins],
 	format: 'cjs',
-	watch: !prod,
+	watch: dev_watch,
 	target: 'es2020',
 	logLevel: "info",
-	sourcemap: prod ? false : 'inline',
+	sourcemap: (prod || dev) ? false : 'inline',
 	treeShaking: true,
+	minify: prod,
 	outdir: dir,
 
 	plugins: [
