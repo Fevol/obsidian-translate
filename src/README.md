@@ -52,11 +52,15 @@ Path: `src/stores.ts`<br>
 This file contains all the global stores used by the plugin, some of which are reactive Svelte writables,
 others simple objects. The currently used stores are:
 - `settings`: Persistent plugin settings, changes made to this store are automatically saved to the `data.json`
-- `data`: Non-persistent plugin data, contains data that is used throughout the plugin,such as:
-  - `all_languages`: Key-value object of language locales to their display names (e.g. `en: English`)
-  - `available_languages`: The languages available for the **global translator**, changes based on filters set
-  - `available_services`: Services that the user can access, depends on platform and user-set settings
-  - `spellcheck_languages`: Obsidian's set spellchecker languages, used as a filter on all langauges
+- `all_languages`: Key-value object of language locales to their display names (e.g. `en: English`)
+- `available_languages`: The languages available for the **global translator**, changes based on filters set
+- `available_services`: Services that the user can access, depends on platform and user-set settings
+- `spellcheck_languages`: Obsidian's set spellchecker languages, used as a filter on all languages
+- `fasttext_data`: FastText model data, used for language detection
+- `bergamot_data`: Bergamot model data, used for translation
+- `settings_tab`: The currently active settings tab
+- `password`: Password used for encrypting the API keys
+- `passwords_are_encrypted`: Whether the API keys are still encrypted or not (i.e. when password has not been given)
 - `glossary`
   - `dicts`: Dictionary of language pairs to their respective glossaries
   - `replacements`: Glossary regex matching rules per language pair, case (in)sensitive based on settings

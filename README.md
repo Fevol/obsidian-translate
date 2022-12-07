@@ -5,7 +5,7 @@
 ---
 <div align="center">
 <a href="https://github.com/Fevol/obsidian-translate/">
-<img alt="Obsidian Translate downloads - latest release" src="https://img.shields.io/github/downloads/fevol/obsidian-translate/latest/total?label=Downloads:&logo=obsidian&color=8c79de&logoColor=8c79de">
+<img alt="Obsidian Translate downloads - latest release" src="https://img.shields.io/github/downloads/fevol/obsidian-translate/latest/main.js?label=Downloads:&logo=obsidian&color=8c79de&logoColor=8c79de">
 </a>
 <a href="https://github.com/Fevol/obsidian-translate/stargazers">
 <img alt="GitHub Repo stars" src="https://img.shields.io/github/stars/fevol/obsidian-translate?color=yellow&label=Stargazers%3A&logo=OpenTelemetry&logoColor=yellow">
@@ -79,19 +79,19 @@ whereas Bergamot works directly from Obsidian.
 
 
 
-| Translation Service                                                                                 | Supported | Free                          | Offline | Mobile | Languages |
-|-----------------------------------------------------------------------------------------------------|-----------|-------------------------------|---------|:-------|-----------|
-| <img height="16px" align="center" src="images/service icons/google-translate.svg"> Google Translate | ✅         | *(0.5M characters/month)* ¹ ² |         |        | 111       |
-| <img height="16px" align="center" src="images/service icons/deepl.svg"> Deepl                       | ✅         | *(0.5M characters/month)* ¹   |         |        | 27        |
-| <img height="16px" align="center" src="images/service icons/yandex-translate.svg"> Yandex Translate | ❓         | ❌                             |         |        | 93        |
-| <img height="16px" align="center" src="images/service icons/libre-translate.svg"> Libre Translate   | ✅         | ✅                             | ✅       |        | 30        |
-| <img height="16px" align="center" src="images/service icons/azure-translator.svg"> Azure Translator | ✅         | *(2M characters/month)* ¹     |         |        | 111       |
-| <img height="16px" align="center" src="images/service icons/amazon-translate.svg"> Amazon Translate | ⭕         | *(2M characters/month)* ¹ ²   |         |        |           |
-| <img height="16px" align="center" src="images/service icons/bergamot.svg"> Bergamot                 | ✅         | ✅                             | ✅       | ❌      | 14        |
-| <img height="16px" align="center" src="images/service icons/fanyi-qq.svg"> Fanyi QQ                 | ❓         |                               |         |        | 18        |
-| <img height="16px" align="center" src="images/service icons/fanyi-youdao.svg"> Fanyi Youdao         | ❓         |                               |         |        | 112       |
-| <img height="16px" align="center" src="images/service icons/fanyi-baidu.svg"> Fanyi Baidu           | ❓         |                               |         |        | 201       |
-| <img height="16px" align="center" src="images/service icons/lingva-translate.svg"> Lingva Translate | ✅         | ✅                             |         |        | 111       |
+| Translation Service                                                                                                                                                                                                | Supported | Free                          | Offline | Mobile | Languages |
+|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-----------|-------------------------------|---------|:-------|-----------|
+| <img height="16px" align="center" src="images/service icons/google-translate.svg"> <a href="https://cloud.google.com/translate/docs/setup">Google Translate</a>                                                    | ✅         | *(0.5M characters/month)* ¹ ² |         |        | 111       |
+| <img height="16px" align="center" src="images/service icons/deepl.svg"> <a href="https://www.deepl.com/pro-api?cta=header-pro-api/">Deepl</a>                                                                      | ✅         | *(0.5M characters/month)* ¹   |         |        | 27        |
+| <img height="16px" align="center" src="images/service icons/yandex-translate.svg"> <a href="https://yandex.com/dev/translate/">Yandex Translate</a>                                                                | ❓         | ❌                             |         |        | 93        |
+| <img height="16px" align="center" src="images/service icons/libre-translate.svg"> <a href="https://github.com/LibreTranslate/LibreTranslate">Libre Translate</a>                                                   | ✅         | ✅                             | ✅       |        | 30        |
+| <img height="16px" align="center" src="images/service icons/azure-translator.svg"> <a href="https://azure.microsoft.com/en-us/free/">Azure Translator</a>                                                          | ✅         | *(2M characters/month)* ¹     |         |        | 111       |
+| <img height="16px" align="center" src="images/service icons/amazon-translate.svg"> <a href="https://aws.amazon.com/translate/">Amazon Translate</a>                                                                | ⭕         | *(2M characters/month)* ¹ ²   |         |        |           |
+| <img height="16px" align="center" src="images/service icons/bergamot.svg"> <a href="https://browser.mt/">Bergamot</a>                                                                                              | ✅         | ✅                             | ✅       | ❌      | 14        |
+| <img height="16px" align="center" src="images/service icons/fanyi-qq.svg"> <a href="https://cloud.tencent.com/product/tmt">Fanyi QQ</a>                                                                            | ❓         |                               |         |        | 18        |
+| <img height="16px" align="center" src="images/service icons/fanyi-youdao.svg"> <a href="https://ai.youdao.com/doc-trans.s">Fanyi Youdao</a>                                                                        | ❓         |                               |         |        | 112       |
+| <img height="16px" align="center" src="images/service icons/fanyi-baidu.svg"> <a href="https://passport.baidu.com/v2/?login&u=https%3A%2F%2Ffanyi-api.baidu.com%2Fapi%2Ftrans%2Fproduct%2Fdesktop">Fanyi Baidu</a> | ❓         |                               |         |        | 201       |
+| <img height="16px" align="center" src="images/service icons/lingva-translate.svg"> <a href="https://github.com/TheDavidDelta/lingva-translate">Lingva Translate</a>                                                | ✅         | ✅                             |         |        | 111       |
 
 <sub>Icons displayed above are used in accordance with attribution requirements of each of the respective services. <br>
 Listed services are in no way associated with this plugin.  </sub> 
@@ -216,6 +216,18 @@ or suggest improvements, or message me over on Discord (@Fevol#9470).
 
 This plugin started off as a personal passion project. It ballooned into something much bigger than I had originally intended.
 I hope that this plugin will be useful to you, and I plan to keep improving on it in the future.
+
+---
+
+## Disclaimer
+This plugin makes use of full codefiles from the following projects:
+- [FastText](https://github.com/facebookresearch/fastText/tree/main/webassembly)
+- [Bergamot](https://github.com/mozilla/firefox-translations/tree/main/extension/controller/translation)
+
+Following projects were also referenced for writing functions, but adapted to fit the plugin's needs:
+- [Obsidian-Translator](https://github.com/luhaifeng666/obsidian-translator) - Hashing algorithm for Fanyi-Youdao
+- [Obsidian Periodic Notes](https://github.com/liamcain/obsidian-periodic-notes) - Base Svelte components for Obsidian
+
 
 ---
 
