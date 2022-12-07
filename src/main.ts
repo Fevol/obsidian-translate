@@ -93,11 +93,16 @@ export default class TranslatorPlugin extends Plugin {
 		if (models_data) {
 			localStorage.removeItem(`${app.appId}-models`);
 			const models = JSON.parse(models_data) || {};
-			if (models.fasttext)
-				fasttext_data.set(models.fasttext);
-			if (models.bergamot)
-				bergamot_data.set(models.bergamot);
-
+			fasttext_data.set(models.fasttext || {
+				binary: undefined,
+				models: undefined,
+				version: undefined
+			});
+			bergamot_data.set(models.bergamot || {
+				binary: undefined,
+				models: undefined,
+				version: undefined
+			});
 		} else {
 			fasttext_data.set(JSON.parse(app.loadLocalStorage('fasttext')) || {
 				binary: undefined,
