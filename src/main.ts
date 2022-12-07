@@ -12,7 +12,7 @@ import {
 
 import {get} from "svelte/store";
 import {settings, globals, available_languages, all_languages, fasttext_data, bergamot_data, password} from "./stores";
-import {Reactivity, ViewPage} from "./ui/translator-components";
+import {Reactivity} from "./ui/translator-components";
 
 import {TranslatorSettingsTab} from "./settings";
 import {TranslatorView} from "./view";
@@ -30,27 +30,51 @@ import {ICONS, DEFAULT_SETTINGS, TRANSLATOR_VIEW_ID, SERVICES_INFO} from "./cons
 import type {DummyTranslate} from "./handlers";
 import {nested_object_assign, rateLimit} from "./util";
 
-import ISO6391 from "iso-639-1";
 import {detect_selection, translate_selection} from "./helpers";
 
 export default class TranslatorPlugin extends Plugin {
+
+	/**
+	 * Svelte component that handles all reactive interactions within the plugin
+	 */
 	reactivity: Reactivity;
 
+	/**
+	 * Current display language of Obsidian
+	 */
 	current_language: string;
-	detected_language: string;
 
+	/**
+	 * This is a callback function that will be called on uninstallation of the plugin,
+	 * using monkey-around to execute additional code after the Obsidian uninstallation process has finished.
+	 */
 	uninstall: any;
 
-	available_languages: any[] = [];
-
-	locales = ISO6391.getAllCodes();
+	/**
+	 * Plugin's default (global) translator, is used for all commands (translate file, ...)
+	 * @public
+	 * */
 	translator: DummyTranslate;
+
+	/**
+	 * Plugin's default (global) language detector, is used for language detection commands and for glossary language determination
+	 * @public
+	 */
 	detector: DummyTranslate;
 
-	// Ensures that none of those annoying 'Translation service is not validated' messages are shown while changing settings
+	/**
+	 * Used to prevent Translation View messages from appearing while settings are being changed
+ 	 */
 	settings_open: boolean = false;
 
-	// Limit queue to only run one message of translator plugin at a time (limitCount 0 means that none of the proceeding messages will be queued)
+	/**
+	 * Notice queue for the plugin, it can be configured to only show one message at a time, only show unique messages, etc.
+	 * @param limitCount - The number of messages that can be queued at a time, other messages will be discarded
+	 * @param interval - The time in milliseconds between each message
+	 * @param unique - Whether to only show unique messages (identical content)
+	 * @param defaultTimeout - The default time each message will be shown
+	 * @param fn - Message constructor: (text: string, timeout?: number, priority?: boolean) => { new Notice }, can be customized
+	 */
 	message_queue: ((...args: any[]) => void)
 
 	async onload() {
@@ -87,18 +111,21 @@ export default class TranslatorPlugin extends Plugin {
 			});
 		}
 
-
 		password.set(app.loadLocalStorage('password') || '');
+
 
 		let loaded_settings: TranslatorPluginSettings = await this.loadData();
 		const translation_service = loaded_settings?.translation_service || DEFAULT_SETTINGS.translation_service;
 
-		// Translation services should only be added to the data.json if the user wants to use it
-		// Settings keys that may only be updated if they exist
+		/** Translation services should only be added to the data.json if the user wants to use it
+		 *  set_if_exists will be used in the nested_object_assign function to only add updated service settings
+		 *  to loaded_settings
+		 */
 		const set_if_exists = Object.keys(SERVICES_INFO).filter(key => translation_service !== key);
 
-		// Adds newly introduced settings to the data.json if they're not already there, this ensures that older settings
-		// are forwards compatible with newer versions of the plugin
+		/** Adds newly introduced settings to the data.json if they're not already there, this ensures that older settings
+		 *  are forwards compatible with newer versions of the plugin
+		 */
 		loaded_settings = nested_object_assign(DEFAULT_SETTINGS, loaded_settings ? loaded_settings : {}, new Set(set_if_exists));
 
 		// TODO: (Changed bing_translator -> azure_translator in v1.4.0, this patch will only be here for a couple versions)
@@ -116,17 +143,17 @@ export default class TranslatorPlugin extends Plugin {
 				// @ts-ignore (path exists in legacy versions)
 				await app.vault.adapter.rename(`${app.vault.configDir}/${loaded_settings.storage_path}`, `${app.vault.configDir}/plugins/obsidian-translate/models`);
 			} catch (e) {
-				// .obsidian/plugins/obsidian-translate/models already exists, shouldn't be an issue for 99% of users
 				console.error(e);
 			}
 			// @ts-ignore (path exists in legacy versions)
 			delete loaded_settings.storage_path;
 		}
 
-		// Check for any updates on the translation services
-		// In order to improve future compatibility, the user can manually update the available_languages/... with
-		//    the 'update languages' button in the settings (and thus fetch a more recent version than default);
-		//    these settings may not be overwritten by the plugin
+		/** Check for any updates on the translation services
+		 *  In order to improve future compatibility, the user can manually update the available_languages/... with
+		 *    the 'update languages' button in the settings (and thus fetch a more recent version than default);
+		 *    these settings may not be overwritten by the plugin
+		 */
 		for (const [key, value] of Object.entries(loaded_settings.service_settings as APIServiceProviders)) {
 			if (value.version < DEFAULT_SETTINGS.service_settings[key as keyof APIServiceProviders].version) {
 				// @ts-ignore (because this should never crash, and can't get add keyof APIServiceProvider to LHS)
@@ -142,15 +169,15 @@ export default class TranslatorPlugin extends Plugin {
 		settings.set(loaded_settings);
 
 
-		// Save all settings on update of this.settings
+		// On any change of the settings writable, settings will be saved to the data.json
 		this.register(settings.subscribe((settings_data) => {
 			this.saveSettings(settings_data);
 		}));
 
-		// This adds a settings tab so the user can configure various aspects of the plugin
+		// Register the plugin settings tab
 		this.addSettingTab(new TranslatorSettingsTab(this.app, this));
 
-		// Register the Translation View to the app.
+		// Register the Translation View to the app (as a valid workspace)
 		this.registerView(
 			TRANSLATOR_VIEW_ID,
 			(leaf) => new TranslatorView(leaf, this)
@@ -158,17 +185,49 @@ export default class TranslatorPlugin extends Plugin {
 
 		globals.plugin = this;
 
-		// Load icons into Obsidian
+		// Load custom icons into Obsidian
 		for (const [id, icon] of Object.entries(ICONS))
 			addIcon(id, icon);
 
 		this.reactivity = new Reactivity({
 			target: document.body,
 			props: {
-				app: this.app,
 				plugin: this,
 			}
 		});
+
+
+		this.uninstall = around(app.plugins, {
+			uninstallPlugin: (oldMethod) => {
+				return async (...args: string[]) => {
+					const result = oldMethod && oldMethod.apply(app.plugins, args);
+					if (args[0] === 'obsidian-translate') {
+						// Clean up local storage items on uninstallation
+						localStorage.removeItem(`${app.appId}-password`);
+						localStorage.removeItem(`${app.appId}-fasttext`);
+						localStorage.removeItem(`${app.appId}-bergamot`);
+						localStorage.removeItem(`${app.appId}-obfuscate_keys`);
+						localStorage.removeItem(`${app.appId}-hide_shortcut_tooltips_toggle`);
+
+						const loaded_settings = get(settings);
+						if (loaded_settings.security_setting === "local_only") {
+							for (const service of Object.keys(SERVICES_INFO)) {
+								localStorage.removeItem(`${app.appId}-${service}_api_key`);
+							}
+						}
+					}
+				};
+			}
+		})
+
+
+		// -------------------------------- Register Commands --------------------------------
+
+
+		// Potential future plans for URI access, not sure if anyone'd be interested in this
+		// this.registerObsidianProtocolHandler("translation-view", async (params) => {
+		// 	console.log(params)
+		// })
 
 		this.addRibbonIcon("translate", "Open translation view", async () => {
 			await this.activateTranslatorView();
@@ -307,28 +366,6 @@ export default class TranslatorPlugin extends Plugin {
 				}
 			})
 		);
-
-		this.uninstall = around(app.plugins, {
-			uninstallPlugin: (oldMethod) => {
-				return async (...args: string[]) => {
-					const result = oldMethod && oldMethod.apply(app.plugins, args);
-					if (args[0] === 'obsidian-translate') {
-						localStorage.removeItem(`${app.appId}-password`);
-						localStorage.removeItem(`${app.appId}-fasttext`);
-						localStorage.removeItem(`${app.appId}-bergamot`);
-						localStorage.removeItem(`${app.appId}-obfuscate_keys`);
-						localStorage.removeItem(`${app.appId}-hide_shortcut_tooltips_toggle`);
-
-						const loaded_settings = get(settings);
-						if (loaded_settings.security_setting === "local_only") {
-							for (const service of Object.keys(SERVICES_INFO)) {
-								localStorage.removeItem(`${app.appId}-${service}_api_key`);
-							}
-						}
-					}
-				};
-			}
-		})
 	}
 
 	async onunload() {
@@ -339,15 +376,11 @@ export default class TranslatorPlugin extends Plugin {
 	async activateTranslatorView() {
 		const loaded_settings = get(settings);
 		const translation_service: string = loaded_settings.translation_service;
-		// const available_languages = (loaded_settings.service_settings[translation_service as keyof APIServiceProviders] as APIServiceSettings).available_languages;
 
 		const view_state = {
 			type: TRANSLATOR_VIEW_ID,
 			active: true,
 			state: {
-
-				// language_from: available_languages.includes(loaded_settings.default_source_language) ? loaded_settings.default_source_language : 'auto',
-				// language_to: available_languages.includes(loaded_settings.default_source_language) ? loaded_settings.default_source_language : this.current_language,
 				language_from: loaded_settings.default_source_language || 'auto',
 				language_to: loaded_settings.default_target_language || this.current_language,
 				translation_service: translation_service,
@@ -370,16 +403,21 @@ export default class TranslatorPlugin extends Plugin {
 	// --------------------------------------------------------------
 
 
-	// ------------------  Process language codes  ------------------
 	async saveSettings(updatedSettings: any) {
 		await this.saveData(updatedSettings);
 	}
-	// --------------------------------------------------------------
 
 
 
-	// A way to change the main translation service via the console, access translator via 'plugin.translator'
-	// This is intended for debugging or development purposes only
+
+
+
+
+
+
+
+	// ------------------------- External Interface -------------------------
+
 	async setTranslationService(service: string) {
 		if (service in SERVICES_INFO) {
 			settings.update((x: TranslatorPluginSettings) => {

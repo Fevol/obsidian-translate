@@ -11,24 +11,47 @@ import {globals, glossary, settings} from "../stores";
 import t from "../l10n";
 
 export class DummyTranslate {
-	// Due to the fact that failure_count will be accessed many times, it's best if we don't have to call get from
-	//	svelte/store each time, as that will require a subscribe and an unsubscribe every time we execute translator logic
+	/**
+	 * Internal counter for the number of times the service has failed
+	 */
 	failure_count: number;
+
+	/**
+	 * Writable for the number of times the service has failed
+	 * @remark This is a writable store, so that a listener can set the service as invalidated if it fails too many times, and update other components
+	 */
 	failure_count_watcher: Writable<number>;
 
+	/**
+	 * Identifier for the service, used to get display name, icon, etc.
+	 * @virtual
+	 */
 	id = "dummy";
 
-	// Used for internal checking if language exists
+	/**
+	 * Lists all languages supported by the service
+	 */
 	available_languages: string[];
 
+	/**
+	 * Internal validity status of the service, service functionality cannot be used if this is false
+	 * @remark Service becomes invalid when it fails too many times, or when the user changes the settings
+	 */
 	valid: boolean;
 
+	/**
+	 * Determines whether the service is the default/global service for the plugin (i.e. the one used for translating files)
+	 */
 	default: boolean;
 
-	// Character limit of translation request in bytes
+	/**
+	 * The maximum number of bytes that can be sent in a single translation request
+	 */
 	character_limit: number = Infinity;
 
-	// Waiting time in milliseconds between requests
+	/**
+	 * Amount of time service should wait between sending requests
+	 */
 	wait_time: number = 0;
 
 	constructor() {
@@ -37,16 +60,28 @@ export class DummyTranslate {
 		this.valid = true;
 	}
 
+	/**
+	 * Internal function to handle errors, keep track of failure count
+	 * @internal
+	 */
 	failed(): void {
 		this.failure_count++;
 		this.failure_count_watcher.set(this.failure_count);
 	}
 
+	/**
+	 * Internal function to handle succesful requests, reset failure count
+	 * @internal
+	 */
 	success(): void {
 		this.failure_count = 0;
 		this.failure_count_watcher.set(0);
 	}
 
+	/**
+	 * Validate the service based upon its current settings
+	 * @returns Object containing validation output, status code, and message
+	 */
 	async validate(): Promise<ValidationResult> {
 		let output: ValidationResult;
 		try {
@@ -65,11 +100,20 @@ export class DummyTranslate {
 		}
 	}
 
+	/**
+	 * Internal function to run the service-specific validation logic
+	 * @virtual
+	 */
 	async service_validate(): Promise<ValidationResult> {
 		// Will always be valid
 		return {status_code: 400, valid: false, message: 'This should not ever be called'};
 	}
 
+	/**
+	 * Detect the language of the given input text
+	 * @param text - Text to detect language of
+	 * @returns Object containing detected languages and calculated confidences, status code, and message
+	 */
 	async detect(text: string): Promise<DetectionResult> {
 		if (!this.valid) {
 			if (this.id === "fasttext")
@@ -99,12 +143,24 @@ export class DummyTranslate {
 		}
 	}
 
+	/**
+	 * Internal function to run the service-specific language detection logic
+	 * @param text - Text to detect language of
+	 * @virtual
+	 */
 	async service_detect(text: string): Promise<DetectionResult> {
-		// Perfect detection
-		return null;
+		return {status_code: 400, detected_languages: [], message: 'This should not ever be called'};
 	}
 
-
+	/**
+	 * Translate the given text from a source language to a target language
+	 *
+	 * @param text - Text to translate
+	 * @param from - Source language, may be null if language is to be detected, must exist in available_languages
+	 * @param to - Target language, must exist in available_languages
+	 * @param [apply_glossary=false] - Whether to apply the glossary to the translation
+	 * @returns Object containing translated text, detected language, detection confidence, status code, and message
+	 */
 	async translate(text: string, from: string, to: string, apply_glossary: boolean = false): Promise<TranslationResult> {
 		if (!this.valid) {
 			if (this.id === "bergamot")
@@ -178,9 +234,10 @@ export class DummyTranslate {
 				const languages_occurrences = new DefaultDict({}, 0);
 
 
-				// This does *not* preserve sentence meaning when translating, as it splits sentences at spaces.
-				// However, this is the best (most efficient in both space and time) approach, without having to
-				//	perform sentence tokenization.
+				/** This does *not* preserve sentence meaning when translating, as it splits sentences at spaces.
+				 *  However, this is the best (most efficient in both space and time) approach, without having to
+				 *	perform sentence tokenization (aka: dreadful NLP processing).
+				 */
 				while (idx < text.length) {
 					let r_idx: number;
 					if (idx + this.character_limit >= text.length)
@@ -217,12 +274,24 @@ export class DummyTranslate {
 		}
 	}
 
+	/**
+	 * Internal function to run the service-specific translation logic
+	 * @param text - The text to translate
+	 * @param from - The language to translate from
+	 * @param to - The language to translate to
+	 * @param [glossary_id=undefined] - The glossary ID of the online service to use (leave undefined if not applicable)
+	 * @returns Object containing the translation and the detected language & confidence (if applicable), as well as the status code and message
+	 * @virtual
+	 */
 	async service_translate(text: string, from: string, to: string, glossary_id: string = undefined): Promise<TranslationResult> {
 		// Perfect translation
 		return {status_code: 400, translation: text, detected_language: null};
 	}
 
-
+	/**
+	 * Get most up-to-date list of supported languages for this service
+	 * @returns Object containing the list of supported languages, the status code and message
+	 */
 	async languages(): Promise<LanguagesFetchResult> {
 		if (!this.valid)
 			return {status_code: 400, message: "Translation service is not validated"};
@@ -241,11 +310,21 @@ export class DummyTranslate {
 		}
 	}
 
+	/**
+	 * Internal function to run the service-specific languages fetching logic
+	 * @returns Object containing the list of supported languages, the status code and message
+	 * @virtual
+	 */
 	async service_languages(): Promise<LanguagesFetchResult> {
 		// All languages
 		return {status_code: 400, message: 'This should not ever be called'};
 	}
 
+	/**
+	 * Get most up-to-date list of supported glossary language-pairs for this service
+	 * @returns Object containing the list of supported glossary language-pairs, the status code and message
+	 * @virtual
+	 */
 	async glossary_languages(): Promise<GlossaryFetchResult> {
 		if (!this.valid)
 			return {status_code: 400, message: "Translation service is not validated"};
@@ -256,11 +335,22 @@ export class DummyTranslate {
 		return output;
 	}
 
-
+	/**
+	 * Internal function to run the service-specific glossary languages fetching logic
+	 * @returns Object containing the list of supported glossary language-pairs, the status code and message
+	 * @virtual
+	 */
 	async service_glossary_languages(): Promise<GlossaryFetchResult> {
 		return {status_code: 400, message: 'This should not ever be called'};
 	}
 
+	/**
+	 * Upload glossaries for all supported language-pairs to this service
+	 * @param glossary - The glossaries to upload
+	 * @param glossary_languages - All supported glossary language-pairs
+	 * @param previous_glossaries_ids - The glossary IDs of the previous glossaries, will be removed and replaced by the new glossaries
+	 * @returns Object containing the list of new glossary IDs, the status code and message
+	 */
 	async glossary_upload(glossary: any, glossary_languages: Record<string, string[]>, previous_glossaries_ids: Record<string, string>): Promise<GlossaryUploadResult> {
 		if (!this.valid)
 			return {status_code: 400, message: "Translation service is not validated"};
@@ -276,15 +366,35 @@ export class DummyTranslate {
 		return output;
 	}
 
+	/**
+	 * Internal function to run the service-specific glossary uploading logic
+	 * @param glossary - The glossaries to upload
+	 * @param glossary_languages - All supported glossary language-pairs
+	 * @param previous_glossaries_ids - The glossary IDs of the previous glossaries, will be removed and replaced by the new glossaries
+	 * @returns Object containing the list of new glossary IDs, the status code and message
+	 * @virtual
+	 */
 	async service_glossary_upload(glossary: any, glossary_languages: Record<string, string[]>, previous_glossaries_ids: Record<string, string>): Promise<GlossaryUploadResult> {
 		return {status_code: 400, message: 'This should not ever be called'};
 	}
 
 
+	/**
+	 * Function to determine whether service is capable of auto-detecting the language of the text and translating from it
+	 * @returns Boolean indicating whether auto-detection is supported
+	 * @virtual
+	 */
 	has_autodetect_capability(): boolean {
 		return false;
 	}
 
+	/**
+	 * Internal function to prettify error messages from the handlers and update failure count
+	 * @param prefix - The prefix to add to the error message (e.g. "Translation failed")
+	 * @param response - The response object from the handler
+	 * @returns Object containing prettified status code and message
+	 * @private
+	 */
 	detected_error(prefix: string, response: {status_code?: number, message?: string}): { message: string, status_code: number } {
 		// Attempt to create a more descriptive error message is no message was given
 		if (!response.message) {

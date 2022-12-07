@@ -3,7 +3,7 @@
 <script lang="ts">
 
 	import {onMount} from "svelte";
-	import {App, Platform} from "obsidian";
+	import {Platform} from "obsidian";
 
 	import TranslatorPlugin from "../../main";
 
@@ -40,7 +40,6 @@
 	import {PasswordRequestModal} from "../modals";
 
 
-	export let app: App;
 	export let plugin: TranslatorPlugin;
 
 	let service_observer: any;

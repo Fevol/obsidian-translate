@@ -3,38 +3,64 @@ import type {TranslatorPluginSettings, ModelFileData} from "./types";
 import type TranslatorPlugin from "./main";
 import {ALL_SERVICES} from "./constants";
 
+/**
+ * The store for the plugin settings.
+ */
 export const settings = writable<TranslatorPluginSettings>();
 
-// Cache the available language locales, and their corresponding names
+/**
+ * A cache of the available language locales, and their corresponding names
+ */
 export const all_languages = writable<Map<string, string>>(new Map());
 
-// Which languages can be translated to and from for default translation service (with filters applied)
+/**
+ * Set of languages that can be translated to and from for the default/global translation service (with filters applied)
+ */
 export const available_languages = writable<string[]>([]);
 
-// Determines which services will be visible in the settings, modals, ...
+/**
+ * Set of services that can be accessed in settings, commands, etc.
+ */
 export const available_services = writable<string[]>(ALL_SERVICES);
 
-// Current spellchecker languages (synced at startup of the plugin)
+/**
+ * Set of languages that are used for spellchecking Obsidian
+ */
 export const spellcheck_languages = writable<string[]>([]);
 
-// Selected tab of the settings page
+/**
+ * The currently selected tab of the settings page
+ */
 export const settings_tab = writable<string>("general");
 
-// If any of the services API keys are still encrypted, this will be true
+/**
+ * Whether any of the services API keys are still encrypted (due to password not being entered yet)
+ */
 export const passwords_are_encrypted = writable<boolean>(false);
 
-// Password used to encrypt/decrypt the API keys
+/**
+ * The password used to encrypt/decrypt the API keys
+ */
 export const password = writable<string>("");
 
-// FastText data currently stored in the vault
+/**
+ * The list of FastText models and the binary currently downloaded in the vault
+ */
 export const fasttext_data = writable<ModelFileData>();
 
-// Bergamot data currently stored in the vault
+/**
+ * The list of Bergamot models and the binary currently downloaded in the vault
+ */
 export const bergamot_data = writable<ModelFileData>();
 
-
+/**
+ * Determines whether the shortcut tooltips should be hidden
+ */
 export let hide_shortcut_tooltips = writable<boolean>(false);
 
+/**
+ * Globally accessible instance of glossary data
+ */
 export const glossary = {
 	dicts: {},
 	replacements: {},

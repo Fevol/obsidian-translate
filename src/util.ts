@@ -63,7 +63,19 @@ export function removePunctuation(str: string) {
 }
 
 
-// Adapted from https://github.com/wankdanker/node-function-rate-limit/
+/**
+ * Rate limit a given function to be executed once every `delay` milliseconds, works with a FIFO queue:
+ * no more than n calls can be stored in the queue at the same time.
+ *
+ * @remarks Adapted from https://github.com/wankdanker/node-function-rate-limit/
+ *
+ * @param limitCount - The number of calls allowed in the queue
+ * @param interval - The time in milliseconds between every function call
+ * @param unique - Whether to enforce unique arguments for function call
+ * @param defaultTimeout - How long after the last call the next function call should be executed (equals the duration of function call)
+ * @param fn - The function to rate limit
+ */
+
 export function rateLimit(limitCount: number, interval: number, unique: boolean, default_timeout: number, fn: (...args: any) => void) {
 	// Contains set of function calls that need to be executed, limited by limitCount and executed every interval
 	const fifo: any[] = [];
