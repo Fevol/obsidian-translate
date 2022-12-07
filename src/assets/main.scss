@@ -116,7 +116,7 @@
 }
 
 .translator-fail {
-	background-color: var(--color-red) !important;
+	background-color: var(--background-modifier-error) !important;
 	color: var(--text-on-accent);
 }
 
@@ -127,8 +127,8 @@
 }
 
 .translator_input_fail {
-	color: var(--color-red) !important;
-	border-color: var(--color-red) !important;
+	color: var(--text-error) !important;
+	border-color: var(--background-modifier-error) !important;
 	border-width: 3px !important;
 }
 
@@ -137,7 +137,7 @@
 }
 
 .warning-text {
-	color: var(--color-red);
+	color: var(--text-error);
 }
 
 .warning-text::before {
@@ -145,7 +145,7 @@
 }
 
 .error-text {
-	color: var(--color-red);
+	color: var(--text-error);
 	font-weight: bold;
 }
 
@@ -382,7 +382,7 @@
 	height: 32px;
 	width: 80px;
 	border-radius: 50px;
-	background-color: var(--color-red);
+	background-color: var(--background-modifier-error);
 }
 .translator-dnd-trashcan-item {
 	display: none;
