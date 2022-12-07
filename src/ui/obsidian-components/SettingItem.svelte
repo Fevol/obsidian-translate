@@ -57,21 +57,3 @@
 	</div>
 </div>
 <slot name="subcontrol"/>
-
-<style lang="scss">
-	/* FIXME: Please, please, PLEASE fix this; this breaks all custom styles
-	          Brief explanation: you cannot assign classes to slots, so you either have to wrap the slot in a div,
-	          or access the slot via the :global tag over here. However, you cannot use the 'setting-item-control' class
-	          here, because the class is not defined yet. */
-	//.setting-item-control {
-	//	flex: 1 1 auto;
-	//	text-align: right;
-	//	display: flex;
-	//	justify-content: flex-end;
-	//	align-items: center;
-	//}
-	//
-	//:global( [slot="control"] ) {
-	//	@extend .setting-item-control;
-	//}
-</style>

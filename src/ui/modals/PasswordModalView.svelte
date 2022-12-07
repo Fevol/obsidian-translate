@@ -35,8 +35,9 @@
 </div>
 
 <button class="translator-password-modal-button" on:click={async () => {
-	// FIXME: I'm not entirely sure what I could do here: close() or this.close() cause the program to shut down,
-	// so the best choice is to communicate directly to the parent
+	/** FIXME: Im not entirely sure what I could do here: close() or this.close() cause the program to shut down,
+		so the best choice is to communicate directly to the parent
+	 **/
 	if (valid) {
 		for (const service of Object.keys($settings.service_settings)) {
 			let api_key = $settings.service_settings[service].api_key;
@@ -58,20 +59,3 @@
 }}>
 	Submit
 </button>
-
-
-<style>
-	.translator-password-modal-inputs {
-		display: grid;
-		grid-template-columns: auto 1fr;
-		grid-template-rows: 1fr 1fr;
-		grid-gap: 24px;
-		margin-bottom: 32px;
-		align-items: center;
-	}
-
-	.translator-password-modal-button {
-		float: right !important;
-		margin-right: 0;
-	}
-</style>

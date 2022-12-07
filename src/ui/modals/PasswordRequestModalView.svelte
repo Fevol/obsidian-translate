@@ -59,7 +59,7 @@
 		type="password"
 		value={input}
 		placeholder="Type here..."
-		class:translator_input_fail={invalid}
+		class:translator-input-fail={invalid}
 		on:keyup={(e) => {
 			invalid = false;
 			if (e.key === "Enter")
@@ -73,19 +73,3 @@
 <button class="translator-password-modal-button" on:click={async () => await test_password()}>
 	Submit
 </button>
-
-
-<style>
-	.translator-password-modal-inputs {
-		display: grid;
-		grid-template-columns: auto 1fr;
-		grid-gap: 24px;
-		margin-bottom: 32px;
-		align-items: center;
-	}
-
-	.translator-password-modal-button {
-		float: right !important;
-		margin-right: 0;
-	}
-</style>

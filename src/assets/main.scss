@@ -95,7 +95,7 @@
 	height: 50px;
 	background: var(--background-primary);
 	border: 1px solid var(--background-modifier-border);
-	display: grid !important;
+	display: grid;
 	justify-content: center;
 	align-content: center;
 	margin-right: 0;
@@ -106,30 +106,30 @@
 }
 
 .translator-extra {
-	background-color: var(--text-accent) !important;
-	color: var(--text-on-accent) !important;
-}
-
-.translator-success {
-	background-color: var(--color-green) !important;
+	background-color: var(--text-accent);
 	color: var(--text-on-accent);
 }
 
-.translator-fail {
-	background-color: var(--background-modifier-error) !important;
+button.translator-success {
+	background-color: var(--color-green);
 	color: var(--text-on-accent);
 }
 
-.translator_input_success {
-	color: var(--color-green) !important;
-	border-color: var(--color-green) !important;
-	border-width: 3px !important;
+button.translator-fail {
+	background-color: var(--background-modifier-error);
+	color: var(--text-on-accent);
 }
 
-.translator_input_fail {
-	color: var(--text-error) !important;
-	border-color: var(--background-modifier-error) !important;
-	border-width: 3px !important;
+.translator-input-success {
+	color: var(--color-green);
+	border-color: var(--color-green);
+	border-width: 3px;
+}
+
+.translator-input-fail {
+	color: var(--text-error);
+	border-color: var(--background-modifier-error);
+	border-width: 3px;
 }
 
 .translator-fail > * {
@@ -161,10 +161,6 @@
 	content: "ⓘ ";
 }
 
-.hide-element {
-	display: none !important;
-}
-
 .translator-dropdown-logo {
 	display: flex;
 	position: sticky;
@@ -181,7 +177,7 @@
 	//padding-right: 0;
 }
 
-.translator-dropdown-menu {
+div.translator-dropdown-menu {
 	display: none;
 	position: absolute;
 	left: 100%;
@@ -189,7 +185,7 @@
 	flex-direction: column;
 	flex: 1;
 	max-height: 100%;
-	overflow-y: auto !important;
+	overflow-y: auto;
 }
 
 .translator-dropdown::after {
@@ -228,6 +224,8 @@
 
 
 .translator-warning-message {
+	background-color: var(--background-modifier-error);
+	color: var(--text-on-accent);
 	display: flex;
 	flex-direction: row;
 	align-items: center;
@@ -237,6 +235,11 @@
 	gap: 16px;
 }
 
+.translator-icon-xxl > svg {
+	width: 48px;
+	height: 48px;
+	stroke-width: 1.9;
+}
 
 
 .translator-view {
@@ -505,13 +508,13 @@
 	background-color: var(--background-primary);
 }
 
-.translator-focused-button {
-	background-color: var(--color-accent) !important;
+button.translator-focused-button {
+	background-color: var(--color-accent);
 	color: var(--text-on-accent);
 }
 
-.translator-focused-element {
-	outline-color: var(--color-accent) !important;
+div.translator-focused-element {
+	outline-color: var(--color-accent);
 }
 
 .translator-confirmation-buttons {
@@ -570,11 +573,11 @@
 	outline: 3px solid var(--text-accent);
 }
 
-.translator-navigation-item-selected {
+div.translator-navigation-item-selected {
 	outline: unset !important;
-	background-color: var(--text-accent) !important;
+	background-color: var(--text-accent);
 	color: var(--text-on-accent);
-	padding: 4px 9px !important;
+	padding: 4px 9px;
 	max-width: 200px;
 	transition: color 0.25s ease-in-out,
 	padding 0.25s ease-in-out,
@@ -582,8 +585,8 @@
 	max-width 0.45s cubic-bezier(0.57, 0.04, 0.58, 1) 0.2s;
 }
 
-.translator-navigation-item-selected:hover {
-	background-color: var(--text-accent-hover) !important;
+div.translator-navigation-item-selected:hover {
+	background-color: var(--text-accent-hover);
 }
 
 .translator-navigation-item-text {
@@ -786,4 +789,36 @@ table.translator-table-cell-temporary td:first-of-type:empty:not(:focus):before 
 .is-phone .flex-row-element {
 	gap: var(--size-4-2);
 	flex: 1;
+}
+
+.translator-input-icon {
+	position: absolute;
+	background-color: var(--background-modifier-error);
+}
+
+.translator-password-modal-inputs {
+	display: grid;
+	grid-template-columns: auto 1fr;
+	grid-template-rows: 1fr 1fr;
+	grid-gap: 24px;
+	margin-bottom: 32px;
+	align-items: center;
+}
+
+.translator-password-modal-button {
+	float: right;
+	margin-right: 0;
+}
+
+.translator-password-modal-inputs {
+	display: grid;
+	grid-template-columns: auto 1fr;
+	grid-gap: 24px;
+	margin-bottom: 32px;
+	align-items: center;
+}
+
+.translator-password-modal-button {
+	float: right;
+	margin-right: 0;
 }

@@ -20,10 +20,3 @@
 		on:input={onChange} {val}
 	>
 </div>
-
-<style>
-	.translator-input-icon {
-		position: absolute;
-		background-color: red;
-	}
-</style>
