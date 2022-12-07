@@ -70,11 +70,11 @@
 	name="Translation Service"
 	description="Service used for the plugin's <i>commands</i>"
 	notices={[
-		{ type: 'text', text: `Used for the editor context menu and translating files`, style: 'info-text' }
+		{ type: 'text', text: `Used for the editor context menu and translating files`, style: 'translator-info-text' }
 	]}
 	type="dropdown"
 >
-	<div slot="control" class="flex-row-element">
+	<div slot="control" class="translator-flex-row-element">
 		<Dropdown
 			options={$available_services
 			//.filter(service => SERVICES_INFO[service].type === 'translation')
@@ -139,7 +139,7 @@
 	description="Determine how API keys will be stored on the device"
 	type="dropdown"
 	notices={[
-		{ type: 'text', text: `${SECURITY_MODES.find(x => x.value === $settings.security_setting).info}`, style: 'info-text' }
+		{ type: 'text', text: `${SECURITY_MODES.find(x => x.value === $settings.security_setting).info}`, style: 'translator-info-text' }
 	]}
 >
 	<Dropdown

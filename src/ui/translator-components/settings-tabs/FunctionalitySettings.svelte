@@ -22,7 +22,7 @@
 	type="toggle"
 	description="If one is available, online glossary will be applied to global commands (file translate, ...)"
 	notices={[
-		{ type: 'text', text: `This option requires <b>FastText</b> to resolve the language of the input text`, style: 'warning-text' }
+		{ type: 'text', text: `This option requires <b>FastText</b> to resolve the language of the input text`, style: 'translator-warning-text' }
 	]}
 >
 	<Toggle slot="control" value={$settings.apply_glossary}
@@ -38,8 +38,8 @@
 	type="toggle"
 	description="If no online glossary is available, glossary will be applied locally"
 	notices={[
-		{ type: 'text', text: `Glossary terms may not properly get translated`, style: 'info-text' },
-		{ type: 'text', text: `This option requires <b>FastText</b> to resolve the language of the input text`, style: 'warning-text' }
+		{ type: 'text', text: `Glossary terms may not properly get translated`, style: 'translator-info-text' },
+		{ type: 'text', text: `This option requires <b>FastText</b> to resolve the language of the input text`, style: 'translator-warning-text' }
 	]}
 >
 	<Toggle slot="control" value={$settings.local_glossary}
@@ -110,7 +110,7 @@
 	name="Default target language"
 	description="Determine which language to translate to <i>by default</i>"
 	notices={[
-		{ type: 'text', text: `Used when opening a new view or when translating text without selecting a language`, style: 'info-text' }
+		{ type: 'text', text: `Used when opening a new view or when translating text without selecting a language`, style: 'translator-info-text' }
 	]}
 >
 	<Dropdown

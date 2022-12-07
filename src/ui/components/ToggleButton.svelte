@@ -10,7 +10,7 @@
 
 </script>
 
-<button class="icon-text translator-toggle-button"
+<button class="translator-icon-text translator-toggle-button"
 		class:translator-success={value} class:translator-fail={value === false}
 		on:click={async () => {
 			value = null;

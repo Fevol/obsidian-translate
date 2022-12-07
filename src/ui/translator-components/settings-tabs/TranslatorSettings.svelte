@@ -192,7 +192,7 @@
 		description="Install Bergamot translation engine (size: 5.05MiB)"
 		type="button"
 		notices={translator?.has_autodetect_capability() ? [] : [
-			{ type: 'text', text: `Automatic language detection is <b>disabled</b>, install FastText to enable this feature`, style: 'info-text' }
+			{ type: 'text', text: `Automatic language detection is <b>disabled</b>, install FastText to enable this feature`, style: 'translator-info-text' }
 		]}
 	>
 		<div slot="control" class="setting-item-control">
@@ -201,7 +201,7 @@
 				aria-label={bergamot_update_available ? "Bergamot update available": "Install"}
 				class:translator-extra={bergamot_update_available}
 				class:translator-success={!bergamot_update_available && $bergamot_data.binary}
-				class="icon-text"
+				class="translator-icon-text"
 				style="justify-content: center; flex: 1;"
 				on:click={async () => {
 					if (bergamot_update_available) {
@@ -236,7 +236,7 @@
 						new ConfirmationModal(
 							plugin,
 							"Confirm uninstallation of Bergamot",
-							"Are you sure you want to uninstall Bergamot?<br><div class='warning-text'>This will also remove all local models you've installed.</div>",
+							"Are you sure you want to uninstall Bergamot?<br><div class='translator-warning-text'>This will also remove all local models you've installed.</div>",
 							async () => {
 								if (await app.vault.adapter.exists(`${app.vault.configDir}/plugins/obsidian-translate/models/bergamot`))
 									await app.vault.adapter.rmdir(`${app.vault.configDir}/plugins/obsidian-translate/models/bergamot`, true);
@@ -377,7 +377,7 @@
 		type="text"
 		notices={[
 			{ type: 'href', text: "ⓘ Sign up for an API key here", url: info.request_key},
-			...(api_key?.endsWith("==") ? [{ type: 'text', text: `API key is still encrypted`, style: 'error-text'}] : [])
+			...(api_key?.endsWith("==") ? [{ type: 'text', text: `API key is still encrypted`, style: 'translator-error-text'}] : [])
 		]}
 	>
 		<Input
@@ -504,7 +504,7 @@
 	type="toggle"
 	notices={
 		service === 'bergamot' ? [] :
-		[{text: "May result in the character quota of the service being spent more quickly", style: 'warning-text'}]
+		[{text: "May result in the character quota of the service being spent more quickly", style: 'translator-warning-text'}]
 	}
 >
 	<Toggle

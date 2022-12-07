@@ -59,7 +59,7 @@
 	<div class="translator-appearance-modal-settings" class:translator-appearance-modal-settings-active={current_editing_mode != null}>
 		{#if current_editing_mode === 0}
 			<div in:slide={{delay: 325, duration: 250}} out:slide={{duration: 250}}>
-				<div class="flex-row-element">
+				<div class="translator-flex-row-element">
 					<div class="setting-item-info">
 						<div class="setting-item-name">Quick settings</div>
 						<div class="setting-item-description">
@@ -75,16 +75,16 @@
 				</div>
 				<div class="translator-dnd-header">
 					<DragAndDrop items={[]} role="trashcan" class="translator-dnd-trashcan" itemstyle="translator-dnd-trashcan-item" tooltip="Delete action"/>
-					<DragAndDrop items={QUICK_SETTINGS_BUTTONS} role="source" class="translator-dnd-source flex-row-element" itemstyle="translator-dnd-source-item" />
+					<DragAndDrop items={QUICK_SETTINGS_BUTTONS} role="source" class="translator-dnd-source translator-flex-row-element" itemstyle="translator-dnd-source-item" />
 				</div>
 			</div>
 		{:else if current_editing_mode === 1}
-			<div class="flex-row-element" in:slide={{delay: 325, duration: 250}} out:slide={{duration: 250}}>
+			<div class="translator-flex-row-element" in:slide={{delay: 325, duration: 250}} out:slide={{duration: 250}}>
 				<div class="setting-item-info">
 					<div class="setting-item-name">Layout</div>
 					<div class="setting-item-description">
 						Determine the layout of the translator<br>
-						<span class="info-text">
+						<span class="translator-info-text">
 						`Automatic` layout will adapt the layout<br>based on the width and height of the view
 						</span>
 					</div>
@@ -105,7 +105,7 @@
 			</div>
 		{:else if current_editing_mode === 2}
 			<div in:slide={{delay: 325, duration: 250}} out:slide={{duration: 250}}>
-				<div class="flex-row-element">
+				<div class="translator-flex-row-element">
 					<div class="setting-item-info">
 						<div class="setting-item-name">Quick settings</div>
 						<div class="setting-item-description">
@@ -121,11 +121,11 @@
 				</div>
 				<div class="translator-dnd-header">
 					<DragAndDrop items={[]} role="trashcan" class="translator-dnd-trashcan" itemstyle="translator-dnd-trashcan-item" tooltip="Delete action"/>
-					<DragAndDrop items={QUICK_ACTIONS_BUTTONS} role="source" class="translator-dnd-source flex-row-element" itemstyle="translator-dnd-source-item" />
+					<DragAndDrop items={QUICK_ACTIONS_BUTTONS} role="source" class="translator-dnd-source translator-flex-row-element" itemstyle="translator-dnd-source-item" />
 				</div>
 			</div>
 		{:else if current_editing_mode === 3}
-			<div class="flex-row-element" in:slide={{delay: 325, duration: 250}} out:slide={{duration: 250}}>
+			<div class="translator-flex-row-element" in:slide={{delay: 325, duration: 250}} out:slide={{duration: 250}}>
 				<div class="setting-item-info">
 					<div class="setting-item-name">Attribution info</div>
 					<div class="setting-item-description">Add attribution to the bottom of the view</div>
@@ -153,7 +153,7 @@
 		</div>
 		<div
 			bind:clientWidth={w} bind:clientHeight={h}
-			class={`translator-view translator-appearance-modal-view ${current_view_mode}`}
+			class={`translator-view translator-appearance-modal-view translator-${current_view_mode}-layout`}
 			class:translator-focused-element={current_editing_mode === 1}
 			style="overflow-x: hidden"
 		>
@@ -171,7 +171,7 @@
 					readonly={true}
 				/>
 					<DragAndDrop bind:items={left_buttons} dragDisabled={current_editing_mode !== 2}
-								 itemstyle="rounded-translator-button clickable-icon"
+								 itemstyle="translator-rounded-button clickable-icon"
 								 class={`translator-textarea-quickbuttons translator-textarea-quickbuttons-editing
 							 		${current_editing_mode === 2 ? 'translator-focused-element' : ''}`}
 					/>
@@ -202,7 +202,7 @@
 					readonly={true}
 				/>
 					<DragAndDrop bind:items={right_buttons} dragDisabled={current_editing_mode !== 2}
-								 itemstyle="rounded-translator-button clickable-icon"
+								 itemstyle="translator-rounded-button clickable-icon"
 								 class={`translator-textarea-quickbuttons translator-textarea-quickbuttons-editing
 							 		${current_editing_mode === 2 ? 'translator-focused-element' : ''}`}
 					/>
@@ -213,7 +213,7 @@
 					 class:translator-focused-element={current_editing_mode === 3} transition:slide>
 					<div class="translator-attribution-column-text">
 						Using
-						<a href="https://www.youtube.com/watch?v=dQw4w9WgXcQ" target="_blank" class="icon-text translator-service-text">
+						<a href="https://www.youtube.com/watch?v=dQw4w9WgXcQ" target="_blank" class="translator-icon-text translator-service-text">
 							<Icon icon="translate"/>
 							Dummy Translate
 						</a>

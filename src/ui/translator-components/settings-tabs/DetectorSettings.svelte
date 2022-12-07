@@ -40,7 +40,7 @@
 	<div slot="control" class="setting-item-control">
 		<button
 			class:translator-success={$fasttext_data.binary}
-			class="icon-text"
+			class="translator-icon-text"
 			aria-label="Install"
 			on:click={async () => {
 				let model_path = `${app.vault.configDir}/plugins/obsidian-translate/models/fasttext/lid.176.ftz`

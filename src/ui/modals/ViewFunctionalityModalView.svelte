@@ -41,9 +41,9 @@
 	type="toggle"
 	notices={[
 		...($settings.service_settings[translation_service]?.auto_translate ? [] : [
-			{text: `The 'automatic translation' setting for ${SERVICES_INFO[translation_service].display_name} is not activated, enable it via the service's settings tab`, style: "warning-text"}
+			{text: `The 'automatic translation' setting for ${SERVICES_INFO[translation_service].display_name} is not activated, enable it via the service's settings tab`, style: "translator-warning-text"}
 		]),
-	 {text: "The delay for the automatic translation can be set in the global translation service settings", style: "info-text"},
+	 {text: "The delay for the automatic translation can be set in the global translation service settings", style: "translator-info-text"},
 	]}
 >
 	<Toggle
@@ -59,7 +59,7 @@
 	description="Glossary will be applied to the text before translation"
 	type="toggle"
 	notices={$settings.local_glossary ? [] :
-		[{text: "Global 'glossary' option has not been activated yet, you can enable it in the 'Functionality' settings tab", style: "warning-text"}]
+		[{text: "Global 'glossary' option has not been activated yet, you can enable it in the 'Functionality' settings tab", style: "translator-warning-text"}]
 	}
 >
 	<Toggle
@@ -75,7 +75,7 @@
 	description="Set which languages are visible for this view"
 	type="dropdown"
 	notices={[
-		{text: "Manual language selection can be set in the service's settings", style: "info-text"},
+		{text: "Manual language selection can be set in the service's settings", style: "translator-info-text"},
 	]}
 >
 	<Dropdown

@@ -295,7 +295,7 @@
 </script>
 
 
-<div class="flex-column-element markdown-rendered">
+<div class="translator-flex-column-element markdown-rendered">
 	<SettingItem
 		name="Add & Update terms in both directions"
 		description="When a glossary entry is added or updated,<br>an entry will be added or updated for the reverse language pair as well"
@@ -304,7 +304,7 @@
 		<Toggle slot="control" value={add_both_directions} onChange={() => add_both_directions = !add_both_directions}/>
 	</SettingItem>
 
-	<div class="flex-row-element translator-glossary-settings">
+	<div class="translator-flex-row-element translator-glossary-settings">
 		<Dropdown
 			options={current_all_languages}
 			value={ source_language }
@@ -406,10 +406,10 @@
 		name="Sync glossary configuration"
 		description="When you're finished with editing your glossary, sync it to selected translation service"
 		notices={[
-			{type: "text", text: "If the online glossary does not support a specific language pair, or if the service does not support online glossaries at all, glossary entries <i>can</i> be applied locally if <b>`Local Glossary`</b> setting is enabled", style: 'info-text'},
+			{type: "text", text: "If the online glossary does not support a specific language pair, or if the service does not support online glossaries at all, glossary entries <i>can</i> be applied locally if <b>`Local Glossary`</b> setting is enabled", style: 'translator-info-text'},
 		]}
 	>
-		<div slot="control" class="flex-column-element">
+		<div slot="control" class="translator-flex-column-element">
 			<Dropdown
 				class="translator-select"
 				slot="control"

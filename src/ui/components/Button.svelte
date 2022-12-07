@@ -11,7 +11,7 @@
 
 <button
 	class={$$props.class}
-	class:icon-text={icon}
+	class:translator-icon-text={icon}
 	aria-label={tooltip}
 	on:click={() => onClick()}
 >

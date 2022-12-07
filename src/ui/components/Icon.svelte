@@ -61,4 +61,4 @@
 </script>
 
 <!--FIXME: Icon div has extra height (about 15% extra) if inline style is not set, investigate 	-->
-<div bind:this={icon_element} class={$$props.class}  class:spinner={icon==='spinner'}></div>
+<div bind:this={icon_element} class={$$props.class}  class:translator-spinner={icon==='spinner'}></div>
