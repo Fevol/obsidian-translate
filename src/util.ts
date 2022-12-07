@@ -1,6 +1,9 @@
 import type {TranslatorHotKey} from "./types";
 import {Modifier, Platform} from "obsidian";
 
+/**
+ * DefaultDict class, used to create an object where new keys are automatically created with a default value.
+ */
 export class DefaultDict {
 	constructor(init: any = {}, value: any) {
 		return new Proxy(init, {
@@ -9,22 +12,34 @@ export class DefaultDict {
 	}
 }
 
+/**
+ * Converts a string to Title Case.
+ * @param str - The string to convert.
+ * @returns Title Case string.
+ */
 export function toTitleCase(str: string) {
 	return str.replace(/\w\S*/g, (txt) => {
 		return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
 	});
 }
 
+/**
+ * Convert a string to Sentence case.
+ * @param str - The string to convert.
+ * @returns Sentence case string.
+ */
 export function toSentenceCase(str: string) {
 	return str.toLowerCase().replace(/(^\w|\.\s*\w)/gi, (txt) => {
 		return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
 	});
 }
 
-export function getKeyValue<T extends object, U extends keyof T>(obj: T, key: U) {
-	return obj[key]
-}
-
+/**
+ * Array comparison function.
+ * @param a1 - First array.
+ * @param a2 - Second array.
+ * @returns True if the arrays are strictly equal, false otherwise.
+ */
 export function array_cmp(a1: Array<any>, a2: Array<any>) {
 	if (a1 === a2) return true;
 	if (a1 == null || a2 == null) return false;
@@ -35,11 +50,24 @@ export function array_cmp(a1: Array<any>, a2: Array<any>) {
 	return true
 }
 
+/**
+ * Given a regex string, get the index of the first match in the string.
+ * @param searchString - The string to search through.
+ * @param regex - The regex to search for.
+ * @param position - The index to start searching from.
+ * @returns The index of the first match, or -1 if no match is found.
+ */
 export function regexIndexOf(searchString: string, regex: RegExp, position?: number) {
 	const indexOf = searchString.substring(position || 0).search(regex);
 	return (indexOf >= 0) ? (indexOf + (position || 0)) : indexOf;
 }
 
+/**
+ * Given a regex string, get the index of the last match in the string.
+ * @param searchString - The string to search through.
+ * @param regex - The regex to search for.
+ * @param position - The index to start searching from.
+ */
 export function regexLastIndexOf(searchString: string, regex: RegExp, position?: number) {
 	regex = regex.global ? regex : new RegExp(regex.source, "g" + (regex.ignoreCase ? "i" : "") + (regex.multiline ? "m" : ""));
 	if (position == null)
@@ -58,6 +86,11 @@ export function regexLastIndexOf(searchString: string, regex: RegExp, position?:
 	return lastIndexOf;
 }
 
+/**
+ * Remove any punctuation from a string using unicode regex.
+ * @param str - The string to remove punctuation from.
+ * @returns A string with punctuation removed.
+ */
 export function removePunctuation(str: string) {
 	return str.replace(/\p{P}/gu, "");
 }
@@ -134,17 +167,29 @@ export function rateLimit(limitCount: number, interval: number, unique: boolean,
 	}
 }
 
+/**
+ * Helper function to generate a random hexadecimal number
+ * @returns A random hexadecimal string with length 4
+ */
 function S4() {
 	return (((1 + Math.random()) * 0x10000) | 0).toString(16).substring(1);
 }
 
+/**
+ * Generate a random GUID
+ * @param length - The length of the GUID to generate
+ * @returns A random GUID of the specified length
+ */
 export function generateIdentifier(length: number = 16) {
 	let str = "";
 	for (let i = 0; i < length / 4; i++)
 		str += S4();
 	return str.substring(0, length);
-};
+}
 
+/**
+ * Python-like formatting for strings.
+ */
 String.prototype.format = function () {
 	var i = 0, args = arguments;
 	return this.replace(/{}/g, function () {
@@ -152,8 +197,6 @@ String.prototype.format = function () {
 	});
 };
 
-
-// Taken from https://gist.github.com/deweller/13015c28ff6ef981693545b664591b01
 
 /**
  * Encrypts plaintext using AES-GCM with supplied password, for decryption with aesGcmDecrypt().
@@ -163,6 +206,7 @@ String.prototype.format = function () {
  * @param   {String} password - Password to use to encrypt plaintext.
  * @returns {String} Encrypted ciphertext.
  *
+ * @remarks Taken from https://gist.github.com/deweller/13015c28ff6ef981693545b664591b01
  * @example
  *   const ciphertext = await aesGcmEncrypt('my secret text', 'pw');
  *   aesGcmEncrypt('my secret text', 'pw').then(function(ciphertext) { console.log(ciphertext); });
@@ -237,8 +281,6 @@ export async function aesGcmDecrypt(ciphertext: string, password: string) {
 }
 
 
-// Adapted from https://stackoverflow.com/questions/10420352/converting-file-size-in-bytes-to-human-readable-string
-
 /**
  * Format bytes as human-readable text.
  *
@@ -247,6 +289,7 @@ export async function aesGcmDecrypt(ciphertext: string, password: string) {
  *           binary (IEC), aka powers of 1024.
  * @param dp Number of decimal places to display.
  *
+ * @remarks Taken from https://stackoverflow.com/questions/10420352/converting-file-size-in-bytes-to-human-readable-string
  * @return Formatted string.
  */
 export function humanFileSize(bytes: number, si: boolean = false, dp = 1) {
@@ -272,7 +315,10 @@ export function humanFileSize(bytes: number, si: boolean = false, dp = 1) {
 }
 
 
-// Standard Normal variate using Box-Muller transform.
+/**
+ * Generate a standard normal variate using the Box-Muller transform.
+ * @returns {number} - A normally distributed random number.
+ */
 export function randn_bm(): number {
 	let u = 0, v = 0;
 	while (u === 0) u = Math.random(); //Converting [0,1) to (0,1)
@@ -283,11 +329,19 @@ export function randn_bm(): number {
 	return num
 }
 
+/**
+ * Assign key-values from source object to target object if they do not exist in target object
+ * @param source - The object to assign from
+ * @param target - The object to assign to
+ * @param ignored_keys - An array of keys to ignore
+ * @returns {Object} - The target object with the new key-values
+ */
 export function nested_object_assign(source: any, target: any, ignored_keys: Set<string>) {
 	Object.keys(source)
 		.forEach(key => {
 			const s_val = source[key]
 			const t_val = target[key]
+			// Check if the key is in the ignored keys
 			if (t_val && ignored_keys.has(key) || !ignored_keys.has(key)) {
 				if (t_val) {
 					// If target and source both are objects, recursively check for keys in source to add to target
@@ -306,6 +360,11 @@ export function nested_object_assign(source: any, target: any, ignored_keys: Set
 	return target
 }
 
+/**
+ * Helper object to map modifier key to proper display name, based on the user's OS
+ * @example
+ * modifier_resolver['Mod'] -> '⌘'
+ */
 const modifier_resolver: Record<Modifier, string> = Platform.isSafari ? {
 	"Mod": "⌘",
 	"Ctrl": "Cmd",
@@ -320,19 +379,25 @@ const modifier_resolver: Record<Modifier, string> = Platform.isSafari ? {
 	"Shift": "Shift",
 };
 
+/**
+ * Helper function to generate a proper display name for a hotkey
+ * @param hotkey - The hotkey to generate a display name for
+ * @returns {string} - A display name for the hotkey
+ */
 export function getHotKeyString(hotkey: TranslatorHotKey) {
 	return `${!hotkey.modifiers.length ? '' : `${hotkey.modifiers.map(mod => modifier_resolver[mod]).join(' + ')} + `}${hotkey.key}`
 }
-
 
 type Reverser<T extends Record<PropertyKey, PropertyKey>> = {
 	[P in keyof T as T[P]]: P
 }
 
 
-// Fanyi Baidu has its own weird ISO system for language codes, not quite 639-3, making up their own codes for some languages
-// In order to not have to store 200 more three letter key codes for all of Obsidian's supported languages, it's more efficient
-// to just convert from 639-3 to 639-1 and back again
+/**
+ * Helper object to map custom ISO 639-3 language codes to standard ISO 639-1 language codes (if applicable)
+ * @remark Fanyi Baidu has its own weird ISO system for language codes, not quite 639-3,
+ * @remark making up their own codes for some languages; it is more efficient to map them to standard ISO 639-1 codes, rather than to also add localizations for all the custom codes
+ */
 export const iso639_3to1: Record<string, string> = {
 	"ach": "ace",
 	"afr": "af",
@@ -532,6 +597,12 @@ export const iso639_3to1: Record<string, string> = {
 	"frn": "fr-CA"
 }
 
+
+/**
+ * Helper object to map ISO 639-1 language codes to custom ISO 639-3 language codes
+ * @remark Fanyi Baidu has its own weird ISO system for language codes, not quite 639-3,
+ * @remark making up their own codes for some languages; it is more efficient to map them to standard ISO 639-1 codes, rather than to also add localizations for all the custom codes
+ */
 export const iso639_1to3: Record<string, string> = {
 	"ach": "ach",
 	"af": "afr",

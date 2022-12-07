@@ -57,11 +57,17 @@
 
 
 	$: {
+		// Whenever the global translation service changes, load in the new service
 		if (service_observer) {
 			setTranslationService(service_observer, filter_mode_observer);
 		}
 	}
 
+	/**
+	 * Update the available locales (available_languages) for the global service
+	 * @param translation_service - Translation service for which to update the locales
+	 * @param filter_mode - Filter locales by the filter mode
+	 */
 	function setAvailableLanguages(translation_service: string, filter_mode: string) {
 		const languages = plugin.translator.available_languages || $settings.service_settings[translation_service].available_languages;
 		if (filter_mode === "1")
@@ -72,6 +78,11 @@
 			$available_languages = languages;
 	}
 
+	/**
+	 * Set the global translation service
+	 * @param translation_service - Translation service to set
+	 * @param filter_mode - Mode to filter the service's locales by
+	 */
 	export function setTranslationService(translation_service: string, filter_mode: string) {
 		getTranslationService(translation_service, previous_service).then(service => {
 			plugin.translator = service
@@ -80,10 +91,17 @@
 		});
 	}
 
+	/**
+	 * Get display language for all locales based on the set display_language setting
+	 */
 	function updateLocales() {
 		$all_languages.forEach((language, locale) => $all_languages.set(locale, formatLocale(locale)));
 	}
 
+	/**
+	 * Format a locale based on the set display_language setting
+	 * @param locale - Locale to format
+	 */
 	function formatLocale(locale) {
 		let language: any = locale,
 			extra: string = '';
@@ -101,6 +119,11 @@
 		return language + extra;
 	}
 
+	/**
+	 * Get the API key for a translation service
+	 * @param service - Translation service to get the API key for
+	 * @param mode - The way the API key is stored ('none' | 'password' | 'local_only' | 'dont_save')
+	 */
 	export async function getAPIKey(service: string, mode: string) {
 		if (mode === 'password')
 			return await aesGcmDecrypt($settings.service_settings[service].api_key, $password);
@@ -112,6 +135,12 @@
 			return $settings.service_settings[service].api_key;
 	}
 
+	/**
+	 * Properly store the new API key of a translation service
+	 * @param service - Translation service to store the API key for
+	 * @param mode - The way the API key should be stored ('none' | 'password' | 'local_only' | 'dont_save')
+	 * @param key - The API key to store
+	 */
 	export async function setAPIKey(service: string, mode: string, key: string) {
 		if (mode === "password")
 			$settings.service_settings[service].api_key = await aesGcmEncrypt(key, $password);
@@ -124,14 +153,27 @@
 	}
 
 
+	/**
+	 * Get a translation service by name without loading it
+	 * @param service - Translation service to get
+	 * @returns Translator object is it was already loaded, otherwise null
+	 */
 	export function getExistingService(service: string) {
 		return active_services[service];
 	}
 
+	/**
+	 * Get all loaded translation services
+	 * @returns Map of all loaded translation services
+	 */
 	export function getAllServices(): Map<string, DummyTranslate> {
 		return active_services;
-	};
+	}
 
+	/**
+	 * Unload a translation service
+	 * @param service - Translation service to unload
+	 */
 	export function unloadService(service: string) {
 		service_uses[service] -= 1;
 		if (service_uses[service] === 0) {
@@ -140,10 +182,15 @@
 		}
 	}
 
+	/**
+	 * Get a translation service by name if it is already loaded, otherwise load it, manages active services
+	 * @param service - Translation service to get
+	 * @param old_service - Previously set translation service (default: '')
+	 * @returns Translator object
+	 */
 	export async function getTranslationService(service: string, old_service: string = ''): Promise<DummyTranslate> {
 		// Do not attempt to create a service if it does not exist
 		if (!service || !(service in SERVICES_INFO)) {
-			// console.log("DID NOT FIND SERVICE: " + service);
 			return null;
 		}
 
@@ -152,14 +199,12 @@
 		if (service in active_services) {
 			translator = active_services[service];
 			service_uses[service] += 1;
-			// console.log("LOADING SERVICE: ", service, " (", service_uses[service], "uses)");
 		} else {
 			// If translation service data does not exist in settings, ensure that it is loaded with default values
 			if (!$settings.service_settings[service])
 				$settings.service_settings[service] = DEFAULT_SETTINGS.service_settings[service];
 
 			const service_settings = $settings.service_settings[service];
-			// console.log("CREATING SERVICE: ", service);
 
 			let translation_service: DummyTranslate = null;
 			if (service === "google_translate")
@@ -195,6 +240,7 @@
 			if (service !== 'bergamot' && service !== 'fasttext') {
 				translation_service.valid &&= $settings.service_settings[service].validated;
 				translation_service.failure_count_watcher.subscribe(failure_count => {
+					// Automatically disable service if it fails too many times
 					if (failure_count >= 5) {
 						$settings.service_settings[service].validated = false;
 						translation_service.valid = false;
@@ -227,16 +273,17 @@
 			service_uses[service] = 1;
 		}
 
+		// Manage uses of old service and unload if necessary
 		if (old_service)
 			service_uses[old_service] -= 1;
 		if (old_service && old_service !== service && !service_uses[old_service]) {
 			delete active_services[old_service];
-			// console.log("UNLOADED SERVICE: " + old_service);
 		}
 		return translator;
 	}
 
 
+	// Save model data to localstorage if it was updated
 	$: {
 		if ($bergamot_data && Object.values($bergamot_data).some(v => !(v == null)))
 			app.saveLocalStorage('bergamot', JSON.stringify($bergamot_data));
@@ -251,12 +298,18 @@
 			localStorage.removeItem(`${app.appId}-fasttext`);
 	}
 
+	/**
+	 * Update the spellchecker languages writable store by the new spellchecker languages setting
+	 */
 	function updateSpellcheckerLanguages() {
 		$spellcheck_languages = [...new Set(app.vault.config.spellcheckLanguages.map((x) => {
 			return x.split('-')[0];
 		}))];
 	}
 
+	/**
+	 * Filter the available services that the user can select from and is able to change the settings of
+	 */
 	export function filterAvailableServices() {
 		let new_available_services = ALL_SERVICES;
 		if (Platform.isMobile)

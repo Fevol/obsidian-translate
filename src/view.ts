@@ -22,6 +22,7 @@ export class TranslatorView extends ItemView {
 	plugin: TranslatorPlugin;
 	view: SvelteComponent;
 
+	// Translation service store is shared with the View component
 	translation_service: Writable<string> = writable("dummy");
 
 	// TODO: navigation causes notes to be replaced
@@ -31,6 +32,7 @@ export class TranslatorView extends ItemView {
 		super(leaf);
 		this.plugin = plugin;
 
+		// Add view-specific settings modals to the tab title bar
 		this.addAction('palette', "Change the view's appearance", () => {
 			new ViewAppearanceModal(app, this).open();
 		});
@@ -62,6 +64,7 @@ export class TranslatorView extends ItemView {
 	getState(): any {
 		let state = super.getState();
 		if (this.view) {
+			// Get data straight from Svelte component context
 			state.language_from = this.view.$$.ctx[<number>this.view.$$.props.language_from];
 			state.language_to = this.view.$$.ctx[<number>this.view.$$.props.language_to];
 			state.translation_service = get(this.translation_service);
@@ -86,14 +89,16 @@ export class TranslatorView extends ItemView {
 
 		if (!this.view) {
 			this.translation_service.subscribe((value) => {
-				setIcon(this.leaf.tabHeaderInnerIconEl, value);
+				// Update the tab data whenever the translation service changes
 
+				setIcon(this.leaf.tabHeaderInnerIconEl, value);
 				const title = SERVICES_INFO[value].display_name;
 				this.leaf.tabHeaderEl.ariaLabel = title;
 				this.leaf.tabHeaderInnerTitleEl.innerText = title;
 				this.leaf.view.titleEl.innerText = title;
 			});
 
+			// If no translation service is set, use the global translation service
 			this.translation_service.set(state.translation_service || current_settings.translation_service);
 
 			this.view = new ViewPage({
@@ -103,6 +108,7 @@ export class TranslatorView extends ItemView {
 					id: this.contentEl.id,
 					translation_service: this.translation_service,
 
+					// Get either the stored state settings, or use the default settings
 					language_from: state.language_from || current_settings.default_source_language,
 					language_to: state.language_to || current_settings.default_target_language,
 					auto_translate: state.auto_translate || false,

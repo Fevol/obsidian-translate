@@ -1,32 +1,125 @@
 import type {Modifier} from "obsidian";
 
+/**
+ * Object containing all plugin settings
+ */
 export interface TranslatorPluginSettings {
+	/**
+	 * How API keys are stored on the device
+	 * - "none" - API keys are stored in plaintext in data.json
+	 * - "password" - API keys are stored in encrypted form in data.json
+	 * - "local_only" - API keys are stored in the device's local storage
+	 * - "no_save" - API keys are stored for the current session only
+	 */
 	security_setting: "none" | "password" | "local_only" | "no_save";
+
+	/**
+	 * In what language the language locales should be displayed
+	 * - "local" will display the name of the language in the language itself
+	 * - "display" will display the name of the language in English
+	 */
 	display_language: "local" | "display";
+
+	/**
+	 * Determines which languages are available for the global translator
+	 * - "0" - All languages, no filtering
+	 * - "1" - Only the languages that are also in Obsidian's spellchecker language list
+	 * - "2" - Only the languages that were manually selected in the service's settings
+	 */
 	filter_mode: string;
+
+	/**
+	 * The action that will be performed on the two textareas of the translation view, on click of the "Switch Language" button
+	 * - "switch-both" - Switch both the languages and text
+	 * - "switch-language" - Switch only the languages
+	 * - "switch-text" - Switch only the text
+	 */
 	switch_button_action: "switch-both" | "switch-language" | "switch-text";
+
+	/**
+	 * If true, apply the glossary operation to the global translator
+	 */
 	apply_glossary: boolean;
+
+	/**
+	 * If true and the glossary operation is applied, locally execute the glossary operation, in case the online glossary is not available
+	 */
 	local_glossary: boolean;
+
+	/**
+	 * If true, make the glossary operation case-insensitive (/Hello/ matches "hello" and "Hello")
+	 */
 	case_insensitive_glossary: boolean;
 
+	/**
+	 * The translation service that is used for the global translator, must exist in the services list
+	 */
 	translation_service: string;
+
+	/**
+	 * Object containing all services settings (API keys, etc.)
+	 */
 	service_settings: APIServiceProviders;
+
+	/**
+	 * List of services that can be selected as a translation service and that will be visible in the settings
+	 */
 	filtered_services: string[];
 
+	/**
+	 * Default source language that will be opened in the translation view
+	 * @remark <i>Not</i> used for determining which language to translate from for translation operations
+	 */
 	default_source_language: string;
+
+	/**
+	 * Default target language that will be opened in the translation view and shown first for translation operations
+	 */
 	default_target_language: string;
 
+	/**
+	 * Visual setting: whether to enable animations plugin-wide (default: true)
+	 */
 	enable_animations: boolean;
 
+	/**
+	 * Determines which quicksettings will be available by default on opening the translation view<br>
+	 * <b>Options:</b> ["change-service", "automatic-translation", "apply-glossary", "change-layout", "apply-filter", "open-settings"]  (reference QUICK_SETTINGS ct.)
+	 */
 	quicksettings_default: string[];
+
+	/**
+	 * Determines with layout will be used by default on opening the translation view<br>
+	 * <b>Options:</b> ["automatic", "horizontal", "vertical", "split"]  (reference VIEW_MODES ct.)
+	 */
 	layout_default: number;
+
+	/**
+	 * Determines which quick actions will be available by default on the left textarea of the translation view<br>
+	 * <b>Options:</b> ["copy", "paste", "clear"]  (reference QUICK_ACTIONS ct.)
+	 */
 	left_quickactions_default: string[];
+
+	/**
+	 * Determines which quick actions will be available by default on the right textarea of the translation view<br>
+	 * <b>Options:</b> ["copy", "paste", "clear"]  (reference QUICK_ACTIONS ct.)
+	 */
 	right_quickactions_default: string[];
+
+	/**
+	 * Determines whether the attribution info will be shown by default on opening the translation view
+	 */
 	hide_attribution_default: boolean;
 
+	/**
+	 * Users that the user has set for the plugin
+	 */
 	hotkeys: TranslatorHotKey[];
 }
 
+/**
+ * Object containing the settings for all API services
+ */
 export interface APIServiceProviders {
 	google_translate: APIServiceSettings;
 	azure_translator: APIServiceSettings;
@@ -42,134 +135,325 @@ export interface APIServiceProviders {
 	fasttext: FastTextData;
 }
 
+/**
+ * Object containing the settings for a single API service
+ */
 export interface APIServiceSettings {
-	// What languages did the user select? (locale codes)
+	/**
+	 * List of user-selected languages (locales) that will be available with the 'manually_selected' <i>(2)</i> filter mode
+	 */
 	selected_languages: Array<any>;
-	// What languages are available for *this translation service* (locale codes)
+
+	/**
+	 * List of languages (locales) that are supported by the service
+	 * @remark For Bergamot: this is the list of models that are available for the service
+	 */
 	available_languages: Array<string> | Array<LanguageModelData>;
 
-	// Available glossary pairs given source language ("en" -> ["fr", "de", ...])
+	/**
+	 * List of glossary pairs that are available for the service
+	 * @example
+	 * {"en": ["fr", "de", ...]}*/
 	glossary_languages?: Record<string, string[]>;
-	// Which glossaries are currently uploaded to the service, will be removed whenever new glossaries are uploaded
+
+	/**
+	 * Mapping of language locale to uploaded glossary ID, will be removed on upload of new set of glossaries
+	 * @example
+	 * {"en": "glossary_1", "fr": "glossary_2", ...}*/
 	uploaded_glossaries?: Record<string, string>;
 
+	/**
+	 * Only used for Bergamot: list of models that can be downloaded
+	 */
 	downloadable_models?: Array<LanguageModelData>;
+
+	/**
+	 * Version of the translation service settings, if the stored version is lower than the default version, new defaults will be added to the settings
+	 */
 	version?: string;
 
-	// Authentication settings for translation services
+	/**
+	 * API key for the service (if required)
+	 */
 	api_key?: string;
+
+	/**
+	 * App ID for the service<br>
+	 * <b>Used by:</b> Fanyi QQ, Fanyi Baidu
+	 */
 	app_id?: string;
+
+	/**
+	 * Region for the service<br>
+	 * <b>Used by:</b> Fanyi QQ, Azure Translator, Amazon Translate
+	 */
 	region?: string;
+
+	/**
+	 * Hostname for the service (if required)<br>
+	 * <b>Used by:</b> Lingva Translate, Libre Translate, DeepL
+	 */
 	host?: string;
 
-	// Automatically translate the text when the user types
+	/**
+	 * If enabled, allow the user to automatically translate in the translation view
+	 * @remark The reason for the two-step procedure, is that automatically translating can use up your API quota very quickly
+	 */
 	auto_translate: boolean;
 
-	// Determine how long to wait before translating the text
+	/**
+	 * Determine the time in milliseconds to wait from the last keypress before automatically translating in the translation view
+	 */
 	auto_translate_interval: number;
 
-	// Whether the translation service is validated (current authentication settings are valid)
+	/**
+	 * Whether the translation service is validated (current authentication settings are valid)
+	 */
 	validated: boolean;
 }
 
+/**
+ * Object containing the data for a single file
+ */
 export interface FileData {
+	/**
+	 * The file's name
+	 */
 	name: string;
+
+	/**
+	 * The size of the file in bytes
+	 */
 	size: number;
+
+	/**
+	 * Whether this file is used for a specific language pair, or shared between multiple language pairs
+	 * <b>Options:</b> ["from", "to", "both"]
+	 */
 	usage?: string;
 }
 
+/**
+ * Object containg the model data for a single language model
+ */
 export interface LanguageModelData {
 	name?: string;
+
+	/**
+	 * Locale associated with the language model
+	 */
 	locale?: string;
+
+	/**
+	 * List of model files associated with the language model
+	 */
 	files?: Array<FileData>;
+
+	/**
+	 * Whether the language model is in beta (according to Bergamot developers)
+	 */
 	dev?: boolean;
+
+	/**
+	 * The total size of the language model in bytes (sum of all files)
+	 */
 	size?: number;
 }
 
+/**
+ * Object containing all the model data for a local service (FastText/Bergamot)
+ */
 export interface ModelFileData {
+	/**
+	 * Current version of downloaded model files
+	 */
 	version?: string;
+
+	/**
+	 * Worker binary of the service (FastText/Bergamot)
+	 */
 	binary?: FileData;
+
+	/**
+	 * Installed model files as supplementary files for the worker binary
+	 */
 	models?: Array<LanguageModelData>;
 }
 
-export interface Models {
-	fasttext?: ModelFileData;
-	bergamot?: ModelFileData;
-}
-
+/**
+ * Settings for the FastText service
+ */
 export interface FastTextData {
+	/**
+	 * If true, FastText will be used as the default language detection service
+	 */
 	default_usage: boolean;
+
+	/**
+	 * Version of the translation service settings, if the stored version is lower than the default version, new defaults will be added to the settings
+	 */
 	version: string;
 }
 
-export interface TranslationResult {
+/**
+ * Base output of the translation services' API calls
+ */
+interface BaseResult {
+	/**
+	 * Message to be displayed to the user (not necessarily an error)
+	 */
+	message?: string;
+
+	/**
+	 * HTTP status code of the request
+	 */
+	status_code?: number;
+}
+
+/**
+ * Output of the translation function
+ */
+export interface TranslationResult extends BaseResult {
+	/**
+	 * Translated text
+	 */
 	translation?: string;
+
+	/**
+	 * Detected language of the input text (if language had to be detected)
+	 */
 	detected_language?: string;
+
+	/**
+	 * Confidence score of the detected language (if language had to be detected)
+	 */
 	confidence?: number;
-	message?: string;
-	status_code?: number;
 }
 
-export interface ValidationResult {
+/**
+ * Output of the service validation function
+ */
+export interface ValidationResult extends BaseResult {
+	/**
+	 * Boolean indicating whether the service is valid
+	 */
 	valid: boolean;
+
+	/**
+	 * Host that was determined to be used for the service, if applicable
+	 */
 	host?: string;
-	message?: string;
-	status_code?: number;
 }
 
-export interface LanguagesFetchResult {
+/**
+ * Output of the language fetching function
+ */
+export interface LanguagesFetchResult extends BaseResult {
+	/**
+	 * List of languages (locales) that are supported by the service
+	 * @remark For Bergamot: this is the list of models that can be downloaded
+	 */
 	languages?: Array<string> | Array<LanguageModelData>;
-	message?: string;
+
+	/**
+	 * Extra data that is returned by the service (only used by Bergamot to return the most recent version of the model files)
+	 */
 	data?: string;
-	status_code?: number;
 }
 
 
-export interface DetectionResult {
+/**
+ * Output of the language detection function
+ */
+export interface DetectionResult extends BaseResult {
+	/**
+	 * List of detected languages (locales) of the source text and their confidence scores
+	 */
 	detected_languages?: Array<{
+		/**
+		 * Detected language (locale)
+		 */
 		language?: string;
+
+		/**
+		 * Confidence score of the detected language
+		 */
 		confidence?: number;
 	}>;
-	message?: string;
-	status_code?: number;
 }
 
 
-
-// export interface GlossaryEntry {
-// 	source: string;
-// 	target: Array<string>;
-// }
-
-export interface GlossaryFetchResult {
+/**
+ * Output of the glossary language pair fetching function
+ */
+export interface GlossaryFetchResult extends BaseResult {
+	/**
+	 * List of language pairs that are supported by the service
+	 * @example
+	 * {"en": ["de", "fr"], "de": ["en", "fr"], "fr": ["en", "de"]}*/
 	languages?: Record<string, string[]>;
-	message?: string;
-	status_code?: number;
 }
 
-export interface GlossaryUploadResult {
-	message?: string;
-	status_code?: number;
+/**
+ * Output of the glossary upload function
+ */
+export interface GlossaryUploadResult extends BaseResult {
+	/**
+	 * IDs of the uploaded glossaries
+	 * @example
+	 * {"en": "glossary_1", "fr": "glossary_2", ...}*/
 	identifiers?: Record<string, string>;
 }
 
 
-export interface GlossaryResult {
-	translation: string;
-	detected_language: string;
-}
-
+/**
+ * Hotkey data for a single hotkey
+ */
 export interface TranslatorHotKey {
+	/**
+	 * Unique ID of the hotkey
+	 */
 	id: string;
+
+	/**
+	 * Active modifier keys for the hotkey
+	 */
 	modifiers: Modifier[];
+
+	/**
+	 * Key name of the hotkey
+	 */
 	key: string;
 }
 
-// Generic template for commands
+
+/**
+ * Generic template for an Obsidian command
+ */
 export interface CommandI {
+	/**
+	 * Unique ID of the command
+	 */
 	id: string,
+
+	/**
+	 * Display name of the command
+	 */
 	name: string,
+
+	/**
+	 * Icon to be displayed next to the command (only used for mobile toolbar)
+	 */
 	icon: string,
+
+	/**
+	 * Whether the command requires editor context (active note)
+	 */
 	editor_context?: boolean
+
+	/**
+	 * Callback function for the command
+	 * @param args - Set of arguments passed to the command
+	 */
 	callback?: (...args: any[]) => any;
 }

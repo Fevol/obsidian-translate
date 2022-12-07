@@ -336,7 +336,6 @@ export default class TranslatorPlugin extends Plugin {
 
 							let dropdown_menu = element.createEl("div", {cls: "menu translator-dropdown-menu"});
 
-							// TODO: Sveltelize this?
 							let dropdown_menu_items = Array.from(languages)
 								.map((locale) => { return [locale, languages_dict.get(locale)]; })
 								.sort((a, b) => a[1].localeCompare(b[1]));
