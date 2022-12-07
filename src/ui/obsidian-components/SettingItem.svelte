@@ -30,22 +30,26 @@
 				{#if description}
 					{@html description}
 					{#each notices as notice}
-						<br>
-						{#if notice.type === "href"}
-							<a href={notice.url}> {notice.text} </a>
-						{:else}
-							<span class={notice.style}> {@html notice.text} </span>
+						{#if notice}
+							<br>
+							{#if notice.type === "href"}
+								<a href={notice.url}> {notice.text} </a>
+							{:else}
+								<span class={notice.style}> {@html notice.text} </span>
+							{/if}
 						{/if}
 					{/each}
 				{:else}
 					{#each notices as notice, idx}
-						{#if notice.type === "href"}
-							<a href={notice.url}> {notice.text} </a>
-						{:else}
-							<span class={notice.style}> {@html notice.text} </span>
-						{/if}
-						{#if idx < notices.length - 1}
-							<br>
+						{#if notice}
+							{#if notice.type === "href"}
+								<a href={notice.url}> {notice.text} </a>
+							{:else}
+								<span class={notice.style}> {@html notice.text} </span>
+							{/if}
+							{#if idx < notices.length - 1}
+								<br>
+							{/if}
 						{/if}
 					{/each}
 				{/if}
