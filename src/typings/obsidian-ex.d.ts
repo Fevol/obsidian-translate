@@ -9,21 +9,65 @@ declare global {
 
 
 interface AppVaultConfig {
-	accentColor?: string;
-	alwaysUpdateLinks?: boolean;
-	baseFontSize?: number;
-	communityPluginSortOrder?: string;
-	communityThemeSortOrder?: string;
-	cssTheme?: string;
+	accentColor: "" | string;
+	alwaysUpdateLinks?: false | boolean;
+	attachmentFolderPath?: "/" | string;
+	autoConvertHtml?: true | boolean;
+	autoPairBrackets?: true | boolean;
+	autoPairMarkdown?: true | boolean;
+	baseFontSize?: 16 | number;
+	baseFontSizeAction?: true | boolean;
+	communityPluginSortOrder: "download" | "update" | "release" | "alphabetical";
+	communityThemeSortOrder: "download" | "update" | "release" | "alphabetical";
+	// Name/ID of community theme being used, "" is default theme
+	cssTheme?: "" | string;
+	defaultViewMode?: "source" | "preview";
+	emacsyKeys?: true | boolean;
 	enabledCssSnippets?: string[];
-	interfaceFontFamily?: string;
-	nativeMenus?: boolean;
-	promptDelete?: boolean;
-	showInlineTitle?: boolean;
-	showViewHeader?: boolean;
-	spellcheckLanguages?: string[];
-	theme?: string;
-	translucency?: boolean;
+	fileSortOrder?: "alphabetical";
+	foldHeading?: true | boolean;
+	foldIndent?: true | boolean;
+	hotkeys?: {[key: string]: string};
+	interfaceFontFamily?: "" | string;
+	legacyEditor?: false | boolean;
+	livePreview?: true | boolean;
+	mobilePullAction?: "command-palette:open" | string;
+	mobileToolbarCommands?: string[];
+	monospaceFontFamily?: "" | string;
+	nativeMenus?: null | boolean;
+	newFileFolderPath?: "/" | string;
+	newFileLocation?: "root" | "current";
+	pdfExportSettings?: {
+		pageSize: "letter" | string;
+		landscape: false | boolean;
+		margin: "0" | string;
+		downscalePercent: 100 | number;
+	};
+	newLinkFormat?: "shortest" | "relative" | "absolute";
+	promptDelete?: true | boolean;
+	readableLineLength?: true | boolean;
+	rightToLeft?: false | boolean;
+	showFrontmatter?: false | boolean;
+	showIndentGuide?: true | boolean;
+	showInlineTitle?: true | boolean;
+	showLineNumber?: false | boolean;
+	showUnsupportedFiles?: false | boolean;
+	showViewHeader?: false | boolean;
+	smartIndentList?: true | boolean;
+	spellcheck?: false | boolean;
+	spellcheckDictionary?: [] | string[];
+	spellcheckLanguages?: null | string[];
+	strictLineBreaks?: false | boolean;
+	tabSize?: 4 | number;
+	textFontFamily?: "" | string;
+	// "moonstone" is light theme, "obsidian" is dark theme
+	theme?: "moonstone" | "obsidian";
+	translucency?: false | boolean;
+	trashOption?: "system" | "local" | "none";
+	useMarkdownLinks?: false | boolean;
+	useTab?: true | boolean;
+	userIgnoreFilters?: null | string[];
+	vimMode?: false | boolean;
 }
 
 interface PluginManifest {
