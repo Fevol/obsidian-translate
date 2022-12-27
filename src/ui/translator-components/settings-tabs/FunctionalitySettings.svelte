@@ -47,8 +47,8 @@
 			$settings.local_glossary = !$settings.local_glossary;
 			if ($settings.local_glossary && !Object.keys(glossary.dicts).length) {
 				let loaded_glossaries = null;
-				if (await app.vault.adapter.exists(`${app.vault.configDir}/plugins/obsidian-translate/glossary.json`))
-					loaded_glossaries = await app.vault.adapter.read(`${app.vault.configDir}/plugins/obsidian-translate/glossary.json`);
+				if (await app.vault.adapter.exists(`${app.vault.configDir}/plugins/translate/glossary.json`))
+					loaded_glossaries = await app.vault.adapter.read(`${app.vault.configDir}/plugins/translate/glossary.json`);
 				if (loaded_glossaries) {
 					glossary.dicts = JSON.parse(loaded_glossaries);
 					for (let key in glossary.dicts)

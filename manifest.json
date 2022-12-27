@@ -1,9 +1,9 @@
 {
-	"id": "obsidian-translate",
+	"id": "translate",
 	"name": "Translate",
-	"version": "1.4.1",
+	"version": "1.4.2",
 	"minAppVersion": "1.0.0",
-	"description": "Translate text with any API you desire!",
+	"description": "Translate text and notes with Google Translate, DeepL, Azure, and more.",
 	"author": "Fevol",
 	"authorUrl": "https://github.com/Fevol/",
 	"isDesktopOnly": false,

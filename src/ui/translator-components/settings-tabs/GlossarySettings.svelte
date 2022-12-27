@@ -106,8 +106,8 @@
 	onMount(async () => {
 		if (!$settings.local_glossary && !Object.keys(glossary.dicts).length) {
 			let loaded_glossaries = null;
-			if (await app.vault.adapter.exists(`${app.vault.configDir}/plugins/obsidian-translate/glossary.json`))
-				loaded_glossaries = await app.vault.adapter.read(`${app.vault.configDir}/plugins/obsidian-translate/glossary.json`);
+			if (await app.vault.adapter.exists(`${app.vault.configDir}/plugins/translate/glossary.json`))
+				loaded_glossaries = await app.vault.adapter.read(`${app.vault.configDir}/plugins/translate/glossary.json`);
 			if (loaded_glossaries) {
 				glossaries = new DefaultDict(JSON.parse(loaded_glossaries), []);
 				glossary_pair = glossaries[language_pair]
@@ -122,7 +122,7 @@
 	onDestroy(() => {
 		let local_glossaries: Object = Object.assign({}, glossaries);
 
-		app.vault.adapter.write(`${app.vault.configDir}/plugins/obsidian-translate/glossary.json`, JSON.stringify(local_glossaries, null, "\t"));
+		app.vault.adapter.write(`${app.vault.configDir}/plugins/translate/glossary.json`, JSON.stringify(local_glossaries, null, "\t"));
 		glossary.dicts = local_glossaries;
 		for (let key in glossary.dicts) {
 			glossary.replacements[key] = new RegExp(glossary.dicts[key].map((item) => item[0]).join("|"),

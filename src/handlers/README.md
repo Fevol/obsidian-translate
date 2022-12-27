@@ -16,7 +16,7 @@ There are as of writing 11 translation services implemented in code (but not nec
 
 
 Every service inherits from the `DummyTranslate` base class. Services functionality can be accessed
-via `app.plugins.plugins['obsidian-translate'].translator`.
+via `app.plugins.plugins['translate'].translator`.
 
 ## Methods
 Every method prefixed by `service_` is an implementation of the `DummyTranslate` base class method.

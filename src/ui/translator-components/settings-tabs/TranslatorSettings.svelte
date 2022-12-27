@@ -62,7 +62,7 @@
 		          but the wasm could change between versions of Bergamot, with older models being incompatible with the newer binary
 		          or vice versa; plus new features could be introduced (such as support for mobile platforms).
 		          So to be safe, we will always download the latest version of Bergamot when an update is available. */
-		let binary_path = `${app.vault.configDir}/plugins/obsidian-translate/models/bergamot/bergamot-translator-worker.wasm`
+		let binary_path = `${app.vault.configDir}/plugins/translate/models/bergamot/bergamot-translator-worker.wasm`
 		let binary_result = await requestUrl({url: "https://github.com/mozilla/firefox-translations/blob/main/extension/model/static/translation/bergamot-translator-worker.wasm?raw=true"});
 		await writeRecursive(binary_path, binary_result.arrayBuffer);
 
@@ -74,7 +74,7 @@
 
 		for (let model of updatable_models) {
 			for (let modelfile of model.files) {
-				const path = `${app.vault.configDir}/plugins/obsidian-translate/models/bergamot/${model.locale}/${modelfile.name}`;
+				const path = `${app.vault.configDir}/plugins/translate/models/bergamot/${model.locale}/${modelfile.name}`;
 				const stats = await app.vault.adapter.stat(path);
 				// If file does not exist (new file of model), or filesizes differ (updated file of model), download new version
 				if (!stats || stats.size !== modelfile.size) {
@@ -91,7 +91,7 @@
 			// Remove files that are no longer included in the model
 			let to_remove = current_models[model_index].files.filter(x => !model.files.find(y => y.name === x.name));
 			for (let file of to_remove)
-				await app.vault.adapter.remove(`${app.vault.configDir}/plugins/obsidian-translate/models/bergamot/${model.locale}/${file.name}`);
+				await app.vault.adapter.remove(`${app.vault.configDir}/plugins/translate/models/bergamot/${model.locale}/${file.name}`);
 
 			current_models[model_index] = model;
 		}
@@ -208,7 +208,7 @@
 						await updateBergamot();
 						translator.update_data($bergamot_data);
 					} else {
-						let binary_path = `${app.vault.configDir}/plugins/obsidian-translate/models/bergamot/bergamot-translator-worker.wasm`
+						let binary_path = `${app.vault.configDir}/plugins/translate/models/bergamot/bergamot-translator-worker.wasm`
 						let binary_result = await requestUrl({url: "https://github.com/mozilla/firefox-translations/blob/main/extension/model/static/translation/bergamot-translator-worker.wasm?raw=true"});
 						await writeRecursive(binary_path, binary_result.arrayBuffer);
 
@@ -238,8 +238,8 @@
 							"Confirm uninstallation of Bergamot",
 							"Are you sure you want to uninstall Bergamot?<br><div class='translator-warning-text'>This will also remove all local models you've installed.</div>",
 							async () => {
-								if (await app.vault.adapter.exists(`${app.vault.configDir}/plugins/obsidian-translate/models/bergamot`))
-									await app.vault.adapter.rmdir(`${app.vault.configDir}/plugins/obsidian-translate/models/bergamot`, true);
+								if (await app.vault.adapter.exists(`${app.vault.configDir}/plugins/translate/models/bergamot`))
+									await app.vault.adapter.rmdir(`${app.vault.configDir}/plugins/translate/models/bergamot`, true);
 								$bergamot_data = {binary: undefined, models: undefined, version: undefined};
 								$settings.service_settings[service].validated = null;
 								plugin.message_queue("Successfully uninstalled Bergamot and its language models");
@@ -270,7 +270,7 @@
 					onClick={async (e) => {
 						const model = $bergamot_data.models.find(x => x.locale === e);
 
-						const model_dir = `${app.vault.configDir}/plugins/obsidian-translate/models/bergamot/${model.locale}/`;
+						const model_dir = `${app.vault.configDir}/plugins/translate/models/bergamot/${model.locale}/`;
 						if (await app.vault.adapter.exists(model_dir))
 							await app.vault.adapter.rmdir(model_dir, true);
 
@@ -309,7 +309,7 @@
 								// Larger files have a higher download speed, which will offer a better upper limit on the remaining time
 								for (const [index, modelfile] of model.files.sort((a, b) => { return b.size - a.size; }).entries()) {
 									const start_time = Date.now();
-									const path = `${app.vault.configDir}/plugins/obsidian-translate/models/bergamot/${model.locale}/${modelfile.name}`;
+									const path = `${app.vault.configDir}/plugins/translate/models/bergamot/${model.locale}/${modelfile.name}`;
 									const stats = await app.vault.adapter.stat(path);
 									if (stats && stats.size === modelfile.size)
 										continue;

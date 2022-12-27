@@ -31,7 +31,7 @@ export async function writeRecursive(path: string, data: any) {
  */
 export function openSettingTab() {
 	app.setting.open();
-	if (app.setting.lastTabId !== 'obsidian-translate') {
-		app.setting.openTabById("obsidian-translate");
+	if (app.setting.lastTabId !== 'translate') {
+		app.setting.openTabById("translate");
 	}
 }

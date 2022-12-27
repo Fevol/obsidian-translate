@@ -146,7 +146,7 @@ export default class TranslatorPlugin extends Plugin {
 		if (loaded_settings.storage_path) {
 			try {
 				// @ts-ignore (path exists in legacy versions)
-				await app.vault.adapter.rename(`${app.vault.configDir}/${loaded_settings.storage_path}`, `${app.vault.configDir}/plugins/obsidian-translate/models`);
+				await app.vault.adapter.rename(`${app.vault.configDir}/${loaded_settings.storage_path}`, `${app.vault.configDir}/plugins/translate/models`);
 			} catch (e) {
 				console.error(e);
 			}
@@ -206,7 +206,7 @@ export default class TranslatorPlugin extends Plugin {
 			uninstallPlugin: (oldMethod) => {
 				return async (...args: string[]) => {
 					const result = oldMethod && oldMethod.apply(app.plugins, args);
-					if (args[0] === 'obsidian-translate') {
+					if (args[0] === 'translate') {
 						// Clean up local storage items on uninstallation
 						localStorage.removeItem(`${app.appId}-password`);
 						localStorage.removeItem(`${app.appId}-fasttext`);

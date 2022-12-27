@@ -43,11 +43,11 @@
 			class="translator-icon-text"
 			aria-label="Install"
 			on:click={async () => {
-				let model_path = `${app.vault.configDir}/plugins/obsidian-translate/models/fasttext/lid.176.ftz`
+				let model_path = `${app.vault.configDir}/plugins/translate/models/fasttext/lid.176.ftz`
 				let model_result = await requestUrl({url: "https://dl.fbaipublicfiles.com/fasttext/supervised-models/lid.176.ftz"});
 				await writeRecursive(model_path, model_result.arrayBuffer);
 
-				let binary_path = `${app.vault.configDir}/plugins/obsidian-translate/models/fasttext/fasttext_wasm.wasm`
+				let binary_path = `${app.vault.configDir}/plugins/translate/models/fasttext/fasttext_wasm.wasm`
 				let binary_result = await requestUrl({url: "https://github.com/Fevol/obsidian-translate/blob/master/models/fasttext_wasm.wasm?raw=true"});
 				await writeRecursive(binary_path, binary_result.arrayBuffer);
 
@@ -87,8 +87,8 @@
 					"Confirm uninstallation of FastText",
 					"Are you sure you want to uninstall FastText?</div>",
 					async () => {
-						if (await app.vault.adapter.exists(`${app.vault.configDir}/plugins/obsidian-translate/models/fasttext`))
-							await app.vault.adapter.rmdir(`${app.vault.configDir}/plugins/obsidian-translate/models/fasttext`, true);
+						if (await app.vault.adapter.exists(`${app.vault.configDir}/plugins/translate/models/fasttext`))
+							await app.vault.adapter.rmdir(`${app.vault.configDir}/plugins/translate/models/fasttext`, true);
 						$fasttext_data = {
 							binary: undefined,
 							models: undefined,
