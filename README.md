@@ -11,7 +11,7 @@
 <img alt="GitHub Repo stars" src="https://img.shields.io/github/stars/fevol/obsidian-translate?color=yellow&label=Stargazers%3A&logo=OpenTelemetry&logoColor=yellow">
 </a>
 <a href="https://github.com/Fevol/obsidian-translate/actions/workflows/release.yml">
-<img alt="GitHub Workflow Status" src="https://img.shields.io/github/workflow/status/fevol/obsidian-translate/Build%20obsidian%20plugin?label=Build%20status%3A&logo=buddy&logoColor=5cff1e">
+<img alt="GitHub Workflow Status" src="https://img.shields.io/github/actions/workflow/status/fevol/obsidian-translate/.github/workflows/release.yml?label=Build%20status%3A&logo=buddy&logoColor=5cff1e">
 </a>
 <a href="https://github.com/Fevol/obsidian-translate/releases/latest">
 <img alt="GitHub release (latest by date including pre-releases)" src="https://img.shields.io/github/v/release/fevol/obsidian-translate?color=%234e96af&display_name=tag&include_prereleases&label=Latest%20release%3A&logo=Dropbox&logoColor=%236abdd9">
@@ -83,14 +83,14 @@ whereas Bergamot works directly from Obsidian.
 |--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-----------|-------------------------------|---------|:-------|-----------|
 | <img height="16px" align="center" src="images/service icons/google-translate.svg"> <a href="https://cloud.google.com/translate/docs/setup">Google Translate</a>                                                    | ✅         | *(0.5M characters/month)* ¹ ² |         |        | 111       |
 | <img height="16px" align="center" src="images/service icons/deepl.svg"> <a href="https://www.deepl.com/pro-api?cta=header-pro-api/">Deepl</a>                                                                      | ✅         | *(0.5M characters/month)* ¹   |         |        | 27        |
-| <img height="16px" align="center" src="images/service icons/yandex-translate.svg"> <a href="https://yandex.com/dev/translate/">Yandex Translate</a>                                                                | ❓         | ❌                             |         |        | 93        |
+| <img height="16px" align="center" src="images/service icons/yandex-translate.svg"> <a href="https://yandex.com/dev/translate/">Yandex Translate</a>                                                                | ✅ [❓]     | ❌                             |         |        | 93        |
 | <img height="16px" align="center" src="images/service icons/libre-translate.svg"> <a href="https://github.com/LibreTranslate/LibreTranslate">Libre Translate</a>                                                   | ✅         | ✅                             | ✅       |        | 30        |
 | <img height="16px" align="center" src="images/service icons/azure-translator.svg"> <a href="https://azure.microsoft.com/en-us/free/">Azure Translator</a>                                                          | ✅         | *(2M characters/month)* ¹     |         |        | 111       |
 | <img height="16px" align="center" src="images/service icons/amazon-translate.svg"> <a href="https://aws.amazon.com/translate/">Amazon Translate</a>                                                                | ⭕         | *(2M characters/month)* ¹ ²   |         |        |           |
 | <img height="16px" align="center" src="images/service icons/bergamot.svg"> <a href="https://browser.mt/">Bergamot</a>                                                                                              | ✅         | ✅                             | ✅       | ❌      | 14        |
-| <img height="16px" align="center" src="images/service icons/fanyi-qq.svg"> <a href="https://cloud.tencent.com/product/tmt">Fanyi QQ</a>                                                                            | ❓         |                               |         |        | 18        |
-| <img height="16px" align="center" src="images/service icons/fanyi-youdao.svg"> <a href="https://ai.youdao.com/doc-trans.s">Fanyi Youdao</a>                                                                        | ❓         |                               |         |        | 112       |
-| <img height="16px" align="center" src="images/service icons/fanyi-baidu.svg"> <a href="https://passport.baidu.com/v2/?login&u=https%3A%2F%2Ffanyi-api.baidu.com%2Fapi%2Ftrans%2Fproduct%2Fdesktop">Fanyi Baidu</a> | ❓         |                               |         |        | 201       |
+| <img height="16px" align="center" src="images/service icons/fanyi-qq.svg"> <a href="https://cloud.tencent.com/product/tmt">Fanyi QQ</a>                                                                            | ✅ [❓]     |                               |         |        | 18        |
+| <img height="16px" align="center" src="images/service icons/fanyi-youdao.svg"> <a href="https://ai.youdao.com/doc-trans.s">Fanyi Youdao</a>                                                                        | ✅ [❓]     |                               |         |        | 112       |
+| <img height="16px" align="center" src="images/service icons/fanyi-baidu.svg"> <a href="https://passport.baidu.com/v2/?login&u=https%3A%2F%2Ffanyi-api.baidu.com%2Fapi%2Ftrans%2Fproduct%2Fdesktop">Fanyi Baidu</a> | ✅ [❓]     |                               |         |        | 201       |
 | <img height="16px" align="center" src="images/service icons/lingva-translate.svg"> <a href="https://github.com/TheDavidDelta/lingva-translate">Lingva Translate</a>                                                | ✅         | ✅                             |         |        | 111       |
 
 <sub>Icons displayed above are used in accordance with attribution requirements of each of the respective services. <br>
@@ -99,12 +99,12 @@ Listed services are in no way associated with this plugin.  </sub>
 _¹ Requires a valid credit card to sign up for a free API key_<br>
 _² Your credit card will be charged if you exceed the free limit_<br>
 
-| Symbol | Description                         |
-|--------|-------------------------------------|
-| ✅      | Fully tested, **_should_** work     |
-| ❌      | Fully tested, **does _not_** work   |
-| ❓      | Implemented, **needs to be tested** |
-| ⭕      | Plans to implement                  |
+| Symbol | Description        |
+|--------|--------------------|
+| ✅      | Supported          |
+| ❌      | Not supported      |
+| ❓      | Needs to be tested |
+| ⭕      | Plans to add       |
 
 ### Notes
 
