@@ -120,7 +120,7 @@ make sure to keep your eyes on it!
 ## Features
 For more information, head over to the [documentation](https://github.com/Fevol/obsidian-translate/blob/master/docs/TUTORIAL.md).
 
-<video src="images/obsidian-translate.webm"></video>
+<video src="https://raw.githubusercontent.com/Fevol/obsidian-translate/master/images/obsidian-translate.webm" controls></video>
 
 ### Commands
 - **Translate current file:** Translate _current_ file
