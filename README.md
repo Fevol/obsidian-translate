@@ -5,7 +5,7 @@
 ---
 <div align="center">
 <a href="https://github.com/Fevol/obsidian-translate/">
-<img alt="Obsidian Translate downloads - latest release" src="https://img.shields.io/github/downloads/fevol/obsidian-translate/latest/main.js?label=Downloads:&logo=obsidian&color=8c79de&logoColor=8c79de">
+<img alt="Obsidian Translate downloads - latest release" src="https://img.shields.io/badge/dynamic/json?query=%24%5B%22translate%22%5D.downloads&url=https%3A%2F%2Fraw.githubusercontent.com%2Fobsidianmd%2Fobsidian-releases%2Fmaster%2Fcommunity-plugin-stats.json&label=Downloads:&logo=obsidian&color=8c79de&logoColor=8c79de">
 </a>
 <a href="https://github.com/Fevol/obsidian-translate/stargazers">
 <img alt="GitHub Repo stars" src="https://img.shields.io/github/stars/fevol/obsidian-translate?color=yellow&label=Stargazers%3A&logo=OpenTelemetry&logoColor=yellow">
@@ -35,13 +35,11 @@ integrates with ten different translation services.
 <img src="images/obsidian-windows-combined.png">
 <br>
 
-
 ---
 
 ## Set-up
 
-Enable the plugin by manually downloading one of the releases from GitHub, or by
-using [BRAT](https://github.com/TfTHacker/obsidian42-brat).
+Install the plugin via the community plugins browser, or via [BRAT](https://github.com/TfTHacker/obsidian42-brat) if you want to help test out beta releases.
 
 To set up your translation service, open up the plugin's settings. In the `General` settings tab, opened by default,
 select the translation service you want to use in the `Translation service` dropdown menu.
@@ -121,6 +119,8 @@ make sure to keep your eyes on it!
 
 ## Features
 For more information, head over to the [documentation](https://github.com/Fevol/obsidian-translate/blob/master/docs/TUTORIAL.md).
+
+<video src="https://user-images.githubusercontent.com/8179397/209738980-499f9fcc-13f2-44f7-affd-8bd87b9bee08.webm)"></video>
 
 ### Commands
 - **Translate current file:** Translate _current_ file
