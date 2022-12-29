@@ -1,5 +1,5 @@
 // Thanks to AquaCat/pjkaufman for the suggestion to add typings
-import {App, Command, Vault} from 'obsidian';
+import {App, Command, Vault, Plugin, SettingTab} from 'obsidian';
 
 declare global {
 	interface Window {
@@ -82,6 +82,14 @@ interface PluginManifest {
 	version?: string;
 }
 
+interface SettingTabI extends SettingTab {
+	containerEl: HTMLElement;
+	id: string;
+	name: string;
+	navEl: HTMLElement;
+	plugin?: Plugin;
+}
+
 declare module 'obsidian' {
 	interface App {
 		account: {
@@ -111,7 +119,7 @@ declare module 'obsidian' {
 		plugins: {
 			enabledPlugins: Set<string>;
 			manifests: Map<string, PluginManifest>;
-			plugins: Map<string, any>;
+			plugins: {[key: string]: Plugin};
 			updates: Map<string, string>;
 			uninstallPlugin(...args): void;
 		};
@@ -121,7 +129,12 @@ declare module 'obsidian' {
 			lastTabId: string;
 			open: () => void;
 			openTabById: (id: string) => void;
+			// Obsidian Options
+			settingTabs: SettingTabI[];
+			// Obsidian core + community plugins
+			pluginTabs: SettingTabI[];
 		};
+
 		vault: Vault;
 		workspace: Workspace;
 

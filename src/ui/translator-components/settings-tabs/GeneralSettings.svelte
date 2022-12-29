@@ -17,6 +17,7 @@
 	import {PasswordModal, PasswordRequestModal, TextModal} from "../../modals";
 
 	import {SERVICES_INFO, SECURITY_MODES, ALL_SERVICES} from "../../../constants";
+	import {openGithubIssueLink} from "../../../obsidian-util";
 
 	export let plugin: TranslatorPlugin;
 
@@ -208,11 +209,21 @@
 	</div>
 </SettingItem>
 
-<Button
-	class="translator-license-button"
-	text="DISCLAIMER"
-	icon="scale"
-	onClick={ () => new TextModal(plugin, "Legal information", `
+<div class="translator-important-buttons">
+	<Button
+		class="translator-important-button"
+		text="DISCLAIMER"
+		icon="scale"
+		onClick={ () => new TextModal(plugin, "Legal information", `
 	THIS SERVICE MAY CONTAIN TRANSLATIONS POWERED BY GOOGLE. GOOGLE DISCLAIMS ALL WARRANTIES RELATED TO THE TRANSLATIONS, EXPRESS OR IMPLIED, INCLUDING ANY WARRANTIES OF ACCURACY, RELIABILITY, AND ANY IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
 	<br>`).open() }
-/>
+	/>
+
+	<Button
+		class="translator-important-button translator-fail"
+		text="REPORT BUG"
+		icon="bug"
+		onClick={ () => openGithubIssueLink() }
+	/>
+</div>
+

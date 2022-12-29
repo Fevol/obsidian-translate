@@ -757,13 +757,15 @@ table.translator-table-cell-temporary td:first-of-type:empty:not(:focus):before 
 	background-color: var(--background-primary-alt);
 }
 
-.translator-license-button {
+.translator-important-buttons {
 	position: absolute;
+	display: flex;
 	right: var(--size-4-6);
 	bottom: var(--size-4-2);
+	gap: var(--size-4-2);
 }
 
-.is-phone .translator-license-button {
+.is-phone .translator-important-button {
 	width: unset;
 }
 

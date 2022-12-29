@@ -15,7 +15,7 @@
 
 	import {Notice, requestUrl, Platform} from "obsidian";
 	import {humanFileSize} from "../../../util";
-	import {writeRecursive} from "../../../obsidian-util";
+	import {openGithubIssueLink, writeRecursive} from "../../../obsidian-util";
 
 	import t from "../../../l10n";
 
@@ -167,17 +167,7 @@
 		<div>
 			<b>WARNING:</b> {info.display_name} has not been tested, so it is very likely that it does not work properly.<br><br>
 			If you encounter any issue, please open an issue over on
-				<a href={`https://github.com/Fevol/obsidian-translate/issues/new?` + new URLSearchParams({
-					title: `[BUG] ${info.display_name} – ADD A TITLE HERE`,
-					body: `# User report\n**Description:** ADD A SHORT DESCRIPTION HERE \n\n\n\n---\n# Debugger data (do not alter)\n${Array.from(Object.entries({
-						obsidian_version: navigator.userAgent.match(/obsidian\/([\d\.]+\d+)/)?.[1] || "unknown",
-						plugin_version: "1.4.0",
-						service_version: $settings.service_settings[service].version,
-						platform: Platform.isMobileApp ? (Platform.isAndroidApp ? 'Android' : Platform.isIosApp ? 'iOS' : 'mobile') :
-						                                 (Platform.isMacOS ? 'macOS' : 'Desktop'),
-					})).map((x) => `**${x[0]}**: ${JSON.stringify(x[1])}`).join("\n")}`,
-					labels: `bug`
-				})}>GitHub</a>,
+				<a on:click={() => {openGithubIssueLink(info.display_name, {})}}>GitHub</a>,
 			I will try to fix it as soon as possible.<br>
 			Likewise, if the service works properly, let me know!
 		</div>
