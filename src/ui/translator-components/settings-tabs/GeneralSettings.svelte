@@ -223,7 +223,12 @@
 		class="translator-important-button translator-fail"
 		text="REPORT BUG"
 		icon="bug"
-		onClick={ () => openGithubIssueLink() }
+		onClick={ () => openGithubIssueLink(
+			undefined,
+			{
+				selected_service: $settings.translation_service,
+			}
+		) }
 	/>
 </div>
 
