@@ -40,7 +40,10 @@ export class FanyiQq extends DummyTranslate {
 		async function hmac_hash_string(str: string, key: string, encoding: string = '') {
 			const encoder = new TextEncoder();
 
-			const imported_key = await crypto.subtle.importKey('raw', encoder.encode(key), {name: 'HMAC', hash: 'SHA-256'}, false, ['sign', 'verify']);
+			const imported_key = await crypto.subtle.importKey('raw', encoder.encode(key), {
+				name: 'HMAC',
+				hash: 'SHA-256'
+			}, false, ['sign', 'verify']);
 			const digest = await crypto.subtle.sign('HMAC', imported_key, encoder.encode(str));
 			const buffer = new Uint8Array(digest);
 			if (encoding === 'hex')
@@ -115,7 +118,7 @@ export class FanyiQq extends DummyTranslate {
 		return {
 			status_code: status_code,
 			valid: status_code === 200,
-			message:  data.Response.Error?.Message
+			message: data.Response.Error?.Message
 		};
 	}
 
@@ -193,15 +196,24 @@ export class FanyiQq extends DummyTranslate {
 
 				// If translation via pivot fails, exit
 				if (response.status !== 200 || data.Response.Error)
-					return {status_code: response.status !== 200 ? response.status : 400, message: data.Response.Error.Message};
+					return {
+						status_code: response.status !== 200 ? response.status : 400,
+						message: data.Response.Error.Message
+					};
 
 				response = await this.attempt_translation(data.Response.TargetText, 'en', to);
 				data = response.json;
 
 				if (response.status !== 200 || data.Response.Error)
-					return {status_code: response.status !== 200 ? response.status : 400, message: data.Response.Error.Message};
+					return {
+						status_code: response.status !== 200 ? response.status : 400,
+						message: data.Response.Error.Message
+					};
 			} else {
-				return {status_code: response.status !== 200 ? response.status : 400, message: data.Response.Error.Message};
+				return {
+					status_code: response.status !== 200 ? response.status : 400,
+					message: data.Response.Error.Message
+				};
 			}
 		}
 
@@ -215,8 +227,10 @@ export class FanyiQq extends DummyTranslate {
 
 	async service_languages(): Promise<LanguagesFetchResult> {
 		// TODO: Figure out if QQ has an endpoint for getting the current languages
-		return {languages: ["ar", "de", "en", "es", "fr", "hi", "id", "it", "ja",
-							"ko", "ms", "pt", "ru", "th", "tr", "vi", "zh", "zh-TW"]
+		return {
+			status_code: 200,
+			languages: ["ar", "de", "en", "es", "fr", "hi", "id", "it", "ja",
+				"ko", "ms", "pt", "ru", "th", "tr", "vi", "zh", "zh-TW"]
 		}
 	}
 

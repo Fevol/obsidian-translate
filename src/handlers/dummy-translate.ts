@@ -54,6 +54,23 @@ export class DummyTranslate {
 	 */
 	wait_time: number = 0;
 
+	base_status_code_lookup: {[key: number]: string} = {
+		200: undefined,
+		400: "Bad request, query parameters missing [OPEN ISSUE ON GITHUB]",
+		401: "Unauthenticated request, check credentials",
+		402: "Insufficient funds, check API key status",
+		403: "Unauthorized request, check credentials/free quota exceeded",
+		404: "Not found [OPEN ISSUE ON GITHUB]",
+		405: "Method not allowed",
+		408: "Request timed out, try again later",
+		413: "Request too large, reduce text size [OPEN ISSUE ON GITHUB]",
+		422: "Text can not be translated",
+		429: "Exceeded rate limit, try again later",
+		456: "Character quota exceeded",
+		500: "Internal server error, try again later",
+		503: "Service unavailable, try again later",
+	};
+
 	constructor() {
 		this.failure_count = 0;
 		this.failure_count_watcher = writable<number>(0);
@@ -398,13 +415,13 @@ export class DummyTranslate {
 	detected_error(prefix: string, response: {status_code?: number, message?: string}): { message: string, status_code: number } {
 		// Attempt to create a more descriptive error message is no message was given
 		if (!response.message) {
-			switch (response.status_code) {
-				case 400:
-					response.message = 'Bad request';
-					break;
-				default:
-					response.message = `Unknown error (${response.status_code})`;
-			}
+			response.message = this.base_status_code_lookup[response.status_code];
+			if (!response.message)
+				response.message = `Unknown error (${response.status_code})`;
+			else
+				response.message += ` (${response.status_code})`;
+		} else {
+			response.message += ` (${response.status_code})`;
 		}
 
 		this.failed();

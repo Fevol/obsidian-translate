@@ -18,6 +18,22 @@ export class FanyiBaidu extends DummyTranslate {
 
 	character_limit = 6000;
 
+	status_code_lookup: {[key: number]: {message: string, status_code: number}} = {
+		52000: {message: undefined, status_code: 200},
+		52001: {message: "Request timed out, please try again later", status_code: 408},
+		52002: {message: "System error, please try again later", status_code: 500},
+		52003: {message: "Unauthorized user, check credentials", status_code: 401},
+		54000: {message: "Required parameter is missing [OPEN ISSUE ON GITHUB]", status_code: 400},
+		54001: {message: "Invalid signature [OPEN ISSUE ON GITHUB]", status_code: 400},
+		54003: {message: "Too many requests, please try again later", status_code: 429},
+		54004: {message: "Insufficient balance, please check your account", status_code: 402},
+		54005: {message: "Frequent long queries, please try again later", status_code: 429},
+		58000: {message: "Client IP is not whitelisted", status_code: 403},
+		58001: {message: "Target language is not supported", status_code: 400},
+		58002: {message: "Service unavailable, please try again later", status_code: 503},
+		90107: {message: "Certification failed/invalid, please check certification", status_code: 401},
+	}
+
 	constructor(settings: APIServiceSettings) {
 		super();
 		this.api_key = settings.api_key;
@@ -56,13 +72,18 @@ export class FanyiBaidu extends DummyTranslate {
 		});
 
 		const data = response.json;
-		const status_code = data.error_code ? parseInt(data.error_code) : response.status;
 
-		return {
-			status_code: status_code,
-			valid: status_code === 200,
-			message: data.error_msg,
-		};
+		if (response.status !== 200)
+			return {status_code: response.status, valid: false};
+
+		// TODO: It is not clear whether output of request will always contain an error_code (since 52000 error_code is equal to 200)
+		// Making the assumption that baidu will never return HTTP status codes other than 200
+		if (data.error_code) {
+			const output = this.status_code_lookup[parseInt(data.error_code)];
+			if (output.status_code !== 200)
+				return {valid: false, ...(output || {status_code: data.error_code, message: data.error_msg})};
+		}
+		return {status_code: 200, valid: true};
 	}
 
 
@@ -84,13 +105,15 @@ export class FanyiBaidu extends DummyTranslate {
 
 		// Data = {"data":{"src": "en"} }
 		const data = response.json;
-		const status_code = data.error_code ? parseInt(data.error_code) : response.status;
 
-		if (status_code !== 200)
-			return {status_code: status_code, message: data.error_msg}
+		if (data.error_code) {
+			const output = this.status_code_lookup[parseInt(data.error_code)];
+			if (output.status_code !== 200)
+				return output || {status_code: data.error_code, message: data.error_msg};
+		}
 
 		return {
-			status_code: response.status,
+			status_code: 200,
 			detected_languages: [{language: iso639_3to1[data.src] || data.src}]
 		};
 	}
@@ -116,20 +139,24 @@ export class FanyiBaidu extends DummyTranslate {
 
 		// Data = {"from":"en", "to":"zh", "trans_result":[{"src": "Hello", "dst": "你好"}] }
 		let data = response.json;
-		const status_code = data.error_code ? parseInt(data.error_code) : response.status;
-		if (status_code !== 200)
-			return {status_code: status_code, message: data.error_msg}
 
+		if (data.error_code) {
+			const output = this.status_code_lookup[parseInt(data.error_code)];
+			if (output.status_code !== 200)
+				return output || {status_code: data.error_code, message: data.error_msg};
+		}
 
 		return {
-			status_code: response.status,
+			status_code: 200,
 			translation: data.trans_result[0].dst,
 			detected_language: (from === "auto" &&  data.to) ? (iso639_3to1[data.to] || data.to) : null
 		};
 	}
 
 	async service_languages(): Promise<LanguagesFetchResult> {
-		return {languages:
+		return {
+			status_code: 200,
+			languages:
 				[
 					"ach", "af", "ak", "am", "an", "ar", "arq", "as", "ast", "ay", "az", "ba", "bal", "be", "bem", "ber",
 					"bg", "bho", "bi", "bli", "bn", "br", "bs", "ca", "ceb", "chr", "cht", "co", "cr", "cri", "cs", "cv",

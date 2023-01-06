@@ -9,6 +9,37 @@ export class FanyiYoudao extends DummyTranslate {
 
 	character_limit = 5000;
 
+	status_code_lookup: {[key: number]: {message: string, status_code: number}} = {
+		0:   {message: undefined, status_code: 200},
+		101: {message: "Missing required parameter", status_code: 400},
+		102: {message: "Unsupported language type", status_code: 400},
+		103: {message: "Translated text is too long", status_code: 400},
+		104: {message: "Unsupported API type", status_code: 400},
+		105: {message: "Unsupported signature type", status_code: 400},
+		106: {message: "Unsupported response type", status_code: 400},
+		107: {message: "Unsupported transport encryption type", status_code: 400},
+		108: {message: "Invalid app ID", status_code: 401},
+		110: {message: "No application of related service", status_code: 401},
+		111: {message: "Invalid developer account", status_code: 401},
+		112: {message: "Invalid request service", status_code: 401},
+		113: {message: "Query may not be empty", status_code: 400},
+		201: {message: "Decryption failed (DES/BASE64/URLDecode error)", status_code: 400},
+		202: {message: "Signature verification failed, possibly query encoding error", status_code: 400},
+		203: {message: "Access IP is not in list of accessible IPs", status_code: 401},
+		205: {message: "Requested interface inconsistent with platform type of application", status_code: 401},
+		206: {message: "Signature verification failed due to invalid timestamp", status_code: 400},
+		301: {message: "Dictionary lookup failed", status_code: 500},
+		302: {message: "Translation query failed", status_code: 500},
+		303: {message: "Unknown error server-side", status_code: 500},
+		304: {message: "Session idle for too long, timed out", status_code: 408},
+		309: {message: "Domain parameter error", status_code: 400},
+		401: {message: "Insufficient account balance", status_code: 402},
+		402: {message: "Offlinesdk is not available", status_code: 400},
+		411: {message: "Access frequency is too high, please try again later", status_code: 429},
+		412: {message: "Too many big requests, please try again later", status_code: 429},
+		1411:{message: "Access frequency limited", status_code: 429},
+	};
+
 	constructor(settings: APIServiceSettings) {
 		super();
 		this.api_key = settings.api_key;
@@ -41,10 +72,15 @@ export class FanyiYoudao extends DummyTranslate {
 
 		const data = response.json;
 
-		return {
-			status_code: data.errorCode ? parseInt(data.errorCode) : 200,
-			valid: data.errorCode === undefined,
-		};
+		if (response.status !== 200)
+			return {status_code: response.status, valid: false};
+
+		const output = this.status_code_lookup[parseInt(data.errorCode)];
+		if (output) {
+			return {...output, valid: output.status_code === 200};
+		} else {
+			return {status_code: data.errorCode, valid: false};
+		}
 	}
 
 
@@ -104,23 +140,26 @@ export class FanyiYoudao extends DummyTranslate {
 		// 			"web":[{"key":"good", "value":["好"]}]}
 		const data = response.json;
 
-		if (data.errorCode)
-			return {status_code: parseInt(data.errorCode)}
-
-		let detected_language = null;
-		if (from === 'auto')
-			detected_language = data.l.split("2")[0].toLowerCase();
-
-		return {
-			status_code: response.status,
-			translation: data.translation.join('\n'),
-			detected_language: detected_language
-		};
+		const output = this.status_code_lookup[parseInt(data.errorCode)];
+		if (output) {
+			if (output.status_code === 200) {
+				return {
+					...output,
+					translation: data.translation.join('\n'),
+					detected_language: from === 'auto' ? data.l.split("2")[0].toLowerCase() : undefined,
+				}
+			} else {
+				return {...output};
+			}
+		} else {
+			return {status_code: data.errorCode};
+		}
 	}
 
 	async service_languages(): Promise<LanguagesFetchResult> {
 		// TODO: Figure out if Youdao has an endpoint for getting the current languages
 		return {
+			status_code: 200,
 			languages: [
 				"af", "am", "ar", "az", "be", "bg", "bn", "bs", "ca", "ceb", "co", "cs", "cy", "da", "de", "el", "en",
 				"eo", "es", "et", "eu", "fa", "fi", "fj", "fr", "fy", "ga", "gd", "gl", "gu", "ha", "haw", "he", "hi",

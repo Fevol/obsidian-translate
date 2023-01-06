@@ -96,6 +96,8 @@ export default {
 	// "PIQD": "",
 	"MONG": "Mongolian",
 	"MTEI": "Meitei",
+	"CHS": "Simplified",
+	"CHT": "Traditional",
 
 	// Region specifiers for locales
 	"TW": "Taiwanese",
