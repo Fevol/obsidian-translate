@@ -89,7 +89,7 @@ export class DummyTranslate {
 			if (output.valid)
 				this.failure_count = 0;
 			else
-				output.message = `Validation failed:\n\t${output.message}`;
+				output.message = `Validation failed:\n\t${output.message || output.status_code}`;
 
 			return output;
 		} catch (e) {
