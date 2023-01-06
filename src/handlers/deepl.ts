@@ -88,7 +88,7 @@ export class Deepl extends DummyTranslate {
 				text: text,
 				source_lang: from === "auto" ? "" : from,
 				target_lang: to,
-				split_sentences: "0",
+				split_sentences: "1",
 				preserve_formatting: "0",
 				glossary_id: glossary_id || ""
 			}),
