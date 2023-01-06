@@ -419,7 +419,7 @@
 									menu.addItem((item) => item.setTitle("No suggestions...").setSection('spellcheck'));
 								} else {
 									for (const suggestion of suggestions) {
-										menu.addItem((item) => item.setTitle(suggestion).setSection('spellcheck')
+										menu.addItem((item) => item.setTitle(suggestion).setSection('spellcheck').setIcon('book-open')
 											.onClick(() => {
 												const leftBound = e.target.selectionStart,
 													  rightBound = e.target.selectionEnd;
