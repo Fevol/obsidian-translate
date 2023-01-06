@@ -47,6 +47,7 @@ export const DEFAULT_SETTINGS: TranslatorPluginSettings = {
 	switch_button_action: 'switch-both',
 	apply_glossary: false,
 	local_glossary: false,
+	glossary_preference: 'online',
 	case_insensitive_glossary: false,
 	enable_animations: true,
 

@@ -56,14 +56,15 @@
 
 <SettingItem
 	name="Apply glossary"
-	description="Glossary will be applied to the text before translation"
+	description="Replace words with their glossary translation"
 	type="toggle"
-	notices={$settings.local_glossary ? [] :
+	notices={$settings.apply_glossary ? [] :
 		[{text: "Global 'glossary' option has not been activated yet, you can enable it in the 'Functionality' settings tab", style: "translator-warning-text"}]
 	}
 >
 	<Toggle
 		slot="control"
+		disabled={ !$settings.apply_glossary }
 		value={ apply_glossary }
 		onChange={(val) => { apply_glossary = val; }}
 	/>

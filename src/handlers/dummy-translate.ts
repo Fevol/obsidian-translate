@@ -219,10 +219,13 @@ export class DummyTranslate {
 						const language_pair = from + '_' + to;
 						const loaded_settings = get(settings);
 
-						// @ts-ignore (service is always in service_settings)
-						glossary_id = loaded_settings.service_settings[this.id].uploaded_glossaries?.[language_pair];
+						// First, check if online glossary is available, always prefer this
+						if (loaded_settings.glossary_preference !== 'local') {
+							// @ts-ignore (service is always in service_settings)
+							glossary_id = loaded_settings.service_settings[this.id].uploaded_glossaries?.[language_pair];
+						}
 
-						if (!glossary_id && loaded_settings.local_glossary) {
+						if (loaded_settings.glossary_preference === 'local' || (loaded_settings.glossary_preference === 'online' && !glossary_id)) {
 							const glossary_pair: string[][] = glossary.dicts[language_pair as keyof typeof glossary.dicts];
 							if (from && glossary_pair) {
 								text = text.replace(glossary.replacements[language_pair as keyof typeof glossary.replacements],

@@ -142,6 +142,13 @@ export default class TranslatorPlugin extends Plugin {
 			delete loaded_settings.service_settings['bing_translator' as keyof APIServiceProviders];
 		}
 
+		// TODO: (Changed local_glossary --> glossary_preference in v1.4.3, this patch will only be here for a couple versions)
+		if (loaded_settings.local_glossary !== undefined) {
+			loaded_settings.glossary_preference = loaded_settings.local_glossary ? 'both' : 'online';
+			loaded_settings.local_glossary = undefined;
+		}
+
+
 		// @ts-ignore (path exists in legacy versions)
 		if (loaded_settings.storage_path) {
 			try {

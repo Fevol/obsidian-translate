@@ -104,8 +104,9 @@
 	app.keymap.pushScope(view_scope);
 
 	onMount(async () => {
-		if (!$settings.local_glossary && !Object.keys(glossary.dicts).length) {
+		if ($settings.glossary_preference !== 'online' && !Object.keys(glossary.dicts).length) {
 			let loaded_glossaries = null;
+			// Load local glossaries, in case they have not been loaded in yet
 			if (await app.vault.adapter.exists(`${app.vault.configDir}/plugins/translate/glossary.json`))
 				loaded_glossaries = await app.vault.adapter.read(`${app.vault.configDir}/plugins/translate/glossary.json`);
 			if (loaded_glossaries) {

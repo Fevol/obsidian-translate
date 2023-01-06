@@ -37,17 +37,26 @@ export interface TranslatorPluginSettings {
 	switch_button_action: "switch-both" | "switch-language" | "switch-text";
 
 	/**
-	 * If true, apply the glossary operation to the global translator
+	 * If true, glossary operation is enabled
 	 */
 	apply_glossary: boolean;
 
 	/**
-	 * If true and the glossary operation is applied, locally execute the glossary operation, in case the online glossary is not available
+	 * @deprecated
+	 * If true and the glossary operation is enabled, the local glossary will be applied before the online glossary
 	 */
 	local_glossary: boolean;
 
 	/**
-	 * If true, make the glossary operation case-insensitive (/Hello/ matches "hello" and "Hello")
+	 * Determines which glossaries will be applied when translating
+	 * - "both" - Online glossary if applied first, if it is not available, the local glossary will be applied
+	 * - "online" - Only the online glossary will be applied
+	 * - "local" - Only the local glossary will be applied
+	 */
+	glossary_preference: "both" | "online" | "local";
+
+	/**
+	 * If true, make the local glossary look-up case-insensitive (/Hello/ matches "hello" and "Hello")
 	 */
 	case_insensitive_glossary: boolean;
 

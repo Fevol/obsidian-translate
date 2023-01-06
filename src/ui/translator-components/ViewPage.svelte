@@ -64,7 +64,7 @@
 
 	$: top_button_disabled = {
 		'automatic-translation': !$settings.service_settings[$translation_service].auto_translate,
-		// 'apply-glossary': !$settings.local_glossary,
+		'apply-glossary': !$settings.apply_glossary,
 	}
 
 	let top_button_states = {}
