@@ -345,6 +345,7 @@
 									plugin.message_queue(`Successfully installed ${t(model.locale)} model`, 4000);
 								}
 							} catch (e) {
+								console.log("Installing language model failed: ", e);
 								if (progress_bar.noticeEl.isConnected) {
 									progress_bar.setMessage(`Installation of ${t(model.locale)} model failed\nProgress:\t\t   [${'↯'.repeat(progress_bar_length)}]\nRemaining time:\t\t   Failed!\n$Reason: ${e.message}`);
 								} else {

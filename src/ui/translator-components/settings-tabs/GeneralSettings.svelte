@@ -136,7 +136,7 @@
 </SettingItem>
 
 <SettingItem
-	name="Security settings for authentication data"
+	name="Storage settings for plugin authentication data"
 	description="Determine how API keys will be stored on the device"
 	type="dropdown"
 	notices={[
@@ -183,8 +183,8 @@
 
 
 <SettingItem
-	name="Services selection"
-	description="Show only the selected services in settings, modals and commands"
+	name="Filter services"
+	description="Only the selected services will be visible in settings, modals and commands"
 >
 	<div slot="control" transition:slide class="setting-item-control">
 		<ButtonList
