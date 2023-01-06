@@ -420,12 +420,9 @@ export class DummyTranslate {
 		if (!response.message) {
 			response.message = this.base_status_code_lookup[response.status_code];
 			if (!response.message)
-				response.message = `Unknown error (${response.status_code})`;
-			else
-				response.message += ` (${response.status_code})`;
-		} else {
-			response.message += ` (${response.status_code})`;
+				response.message = `Unknown error`;
 		}
+		response.message += ` (${response.status_code})`;
 
 		this.failed();
 		return {
@@ -433,6 +430,4 @@ export class DummyTranslate {
 			status_code: response.status_code || 400,
 		};
 	}
-
-
 }

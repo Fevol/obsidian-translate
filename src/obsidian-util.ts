@@ -1,4 +1,4 @@
-import {Platform} from "obsidian";
+import {apiVersion, Platform} from "obsidian";
 
 /**
  * Helper function for overwriting a file if it exists, else saving it as a new file
@@ -44,27 +44,14 @@ export function openSettingTab() {
  * @returns \{platform: string, plugin_version: string, obsidian_version: string, framework_version: string}
  */
 export async function getObsidianData() {
-	let framework_version, obsidian_version;
+	let framework_version;
 	if (Platform.isMobileApp) {
 		// @ts-ignore (Capacitor exists)
 		const capacitor_info = await Capacitor.nativePromise('App', 'getInfo');
-		if (capacitor_info) {
+		if (capacitor_info)
 			framework_version = capacitor_info.version + " (" + capacitor_info.build + ")";
-
-			// 	Get Obsidian version from settings
-			const about_settings = app.setting.settingTabs.find(tab => tab.id === 'about');
-			if (about_settings) {
-				about_settings.display();
-				// @ts-ignore (Element is HTMLElement with innerText)
-				const version_str = about_settings.containerEl.children[0].getElementsByClassName('setting-item-description')[0].innerText;
-				obsidian_version = version_str.match(/API v([\d\.]+\d+)/)?.[1] || "unknown";
-
-				about_settings.hide();
-			}
-		}
 	} else {
-		framework_version = navigator.userAgent.match(/obsidian\/([\d\.]+\d+)/)?.[1] || "unknown",
-			obsidian_version = window.require('electron').ipcRenderer.sendSync('version');
+		framework_version = navigator.userAgent.match(/obsidian\/([\d\.]+\d+)/)?.[1] || "unknown"
 	}
 
 	return {
@@ -72,7 +59,7 @@ export async function getObsidianData() {
 		platform: Platform.isMobileApp ? (Platform.isAndroidApp ? 'Android' : Platform.isIosApp ? 'iOS' : 'mobile') :
 			(Platform.isMacOS ? 'macOS' : 'Desktop'),
 		framework_version,
-		obsidian_version
+		obsidian_version: apiVersion,
 	}
 }
 

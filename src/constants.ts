@@ -1085,4 +1085,4 @@ export const QUICK_ACTIONS_BUTTONS = Object.entries(QUICK_ACTIONS).map(([key, va
 });
 
 
-export const UNTESTED_SERVICES = ['yandex_translate', 'fanyi_qq', 'fanyi_youdao', 'fanyi_baidu'];
+export const UNTESTED_SERVICES = ['yandex_translate', 'fanyi_qq', 'fanyi_baidu'];
