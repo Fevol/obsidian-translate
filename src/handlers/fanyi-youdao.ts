@@ -32,7 +32,7 @@ export class FanyiYoudao extends DummyTranslate {
 					from: 'en',
 					to: 'en',
 					sign: signed_message.signature,
-					signtype: "v3",
+					signType: "v3",
 					curtime: signed_message.current_time,
 					vocabId: "",
 				}),
@@ -64,10 +64,9 @@ export class FanyiYoudao extends DummyTranslate {
 
 		const salt = (new Date).getTime();
 		const current_time = Math.round(new Date().getTime()/1000);
-		message = truncate(message);
 
 		// The implementation of the hashing is taken from 'https://github.com/luhaifeng666/obsidian-translator"
-		const hashMessage = this.app_id + message + salt + current_time + this.api_key;
+		const hashMessage = this.app_id + truncate(message) + salt + current_time + this.api_key;
 		const hashBuffer = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(hashMessage))
 		const hashArray = Array.from(new Uint8Array(hashBuffer));
 		const signature = hashArray.map((b) => b.toString(16).padStart(2, "0")).join("");
@@ -92,7 +91,7 @@ export class FanyiYoudao extends DummyTranslate {
 					from: from,
 					to: to,
 					sign: signed_message.signature,
-					signtype: "v3",
+					signType: "v3",
 					curtime: signed_message.current_time,
 					vocabId: "",
 				}),
