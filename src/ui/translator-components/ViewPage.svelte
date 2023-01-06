@@ -28,7 +28,7 @@
 
 	import {Scope, Platform, Menu} from "obsidian";
 	import t from "../../l10n";
-	import {getHotKeyString} from "../../util";
+	import {getHotKeyString, regexIndexOf, regexLastIndexOf} from "../../util";
 	import {openSettingTab} from "../../obsidian-util";
 
 	export let plugin: TranslatorPlugin;
@@ -387,14 +387,58 @@
 						}
 					}}
 					onContextmenu={async (e) => {
-						const selection = e.target.value.substring(e.target.selectionStart, e.target.selectionEnd).trim();
+						let selection = e.target.value.substring(e.target.selectionStart, e.target.selectionEnd).trim();
 						const all_text = selection || text_from;
 
+						let has_selection = selection.length > 0;
 						let menu = new Menu();
+
+						// Find whitespace boundaries of word under cursor
+						if (!has_selection) {
+							// Match first/last non-letter character via unicode regex given range
+							// FIXME: In Obsidian MD view, only incorrect words will make the selection flood fill
+							let leftBound = regexLastIndexOf(all_text, /[^\p{L}]/gu, e.target.selectionStart - 1);
+							let rightBound = regexIndexOf(all_text, /[^\p{L}]/gu, e.target.selectionStart);
+							if (leftBound === -1) leftBound = 0;
+							else leftBound += 1;
+							if (rightBound === -1) rightBound = all_text.length;
+							e.target.setSelectionRange(leftBound, rightBound);
+
+							selection = all_text.substring(leftBound, rightBound);
+							has_selection = selection.length > 0;
+						}
+
+						// Find spellchecker suggestions for selection
+						selection = selection.trim();
+						if (has_selection && !selection.match(/[^\p{L}]/gu)) {
+							const electron = require('electron');
+							// FIXME: isWordMisspelled only really considers one language
+							if (electron?.webFrame.isWordMisspelled(selection)) {
+								const suggestions = electron.webFrame.getWordSuggestions(selection);
+								if (!suggestions.length) {
+									menu.addItem((item) => item.setTitle("No suggestions...").setSection('spellcheck'));
+								} else {
+									for (const suggestion of suggestions) {
+										menu.addItem((item) => item.setTitle(suggestion).setSection('spellcheck')
+											.onClick(() => {
+												const leftBound = e.target.selectionStart,
+													  rightBound = e.target.selectionEnd;
+												// FIXME: textarea is missing undo/redo stack functionality, it is not possible to undo replacement
+												e.target.setRangeText(suggestion, leftBound, rightBound, 'end');
+												e.target.dispatchEvent(new Event('input'));
+											})
+										)
+									}
+								}
+								menu.addSeparator();
+							}
+						}
+
 						menu.addItem((item) => {
 							item.setTitle("Cut")
 								.setIcon("scissors")
 								.setSection("general")
+								.setDisabled(!has_selection)
 								.onClick((e) => {
 									navigator.clipboard.writeText(all_text);
 									text_to = "";
@@ -404,6 +448,7 @@
 							item.setTitle("Copy")
 								.setIcon("copy")
 								.setSection("general")
+								.setDisabled(!has_selection)
 								.onClick((e) => {
 									navigator.clipboard.writeText(all_text);
 								})
@@ -423,6 +468,7 @@
 								item.setTitle("Add to glossary")
 									.setIcon("book-open")
 									.setSection("translate")
+									.setDisabled(!has_selection)
 									.onClick(async (e) => {
 										$settings_tab = "glossary";
 										if (language_from === "auto") {
