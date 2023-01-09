@@ -1,5 +1,6 @@
 import {empty_settings, filled_settings, input_desc, services} from "./services";
 import type {APIServiceProviders, APIServiceSettings} from "../src/types";
+import {DEFAULT_SETTINGS} from "../src/constants";
 
 test('Load correct-data.json (required for test)', () => {
 	expect(filled_settings).not.toBe(undefined);
@@ -9,6 +10,7 @@ if (filled_settings) {
 	for (const [id, config] of Object.entries(services)) {
 		const service_settings = filled_settings?.service_settings[id as keyof APIServiceProviders] as APIServiceSettings;
 		const translator = new config.service(service_settings);
+		translator.available_languages = <string[]>(<APIServiceSettings>DEFAULT_SETTINGS.service_settings[id as keyof typeof DEFAULT_SETTINGS.service_settings]).available_languages
 
 		describe(config.name, () => {
 			test('Service settings loaded', () => {

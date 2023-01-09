@@ -3,6 +3,8 @@ import { TextEncoder, TextDecoder } from 'util';
 global.TextEncoder = TextEncoder;
 global.TextDecoder = TextDecoder;
 
+import {Platform} from "obsidian";
+
 // Add mock for SubtleCrypto
 const crypto = require('crypto');
 Object.defineProperty(global.self, "crypto", {
@@ -18,6 +20,9 @@ const fs = require('fs');
 export const filled_settings: TranslatorPluginSettings =
 	fs.existsSync('tests/correct-data.json') ? JSON.parse(fs.readFileSync('tests/correct-data.json').toString())
 											: undefined;
+
+// @ts-ignore (Add mock for Obsidian Platform (prevent part of code from crashing))
+Platform = {}
 
 import {
 	AzureTranslator,

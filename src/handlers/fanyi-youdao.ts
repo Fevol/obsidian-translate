@@ -1,6 +1,7 @@
 import {DummyTranslate} from "./dummy-translate";
 import type {APIServiceSettings, DetectionResult, LanguagesFetchResult, TranslationResult, ValidationResult} from "../types";
 import {requestUrl} from "obsidian";
+import {DEFAULT_SETTINGS} from "../constants";
 
 export class FanyiYoudao extends DummyTranslate {
 	api_key: string;
@@ -160,15 +161,7 @@ export class FanyiYoudao extends DummyTranslate {
 		// TODO: Figure out if Youdao has an endpoint for getting the current languages
 		return {
 			status_code: 200,
-			languages: [
-				"af", "am", "ar", "az", "be", "bg", "bn", "bs", "ca", "ceb", "co", "cs", "cy", "da", "de", "el", "en",
-				"eo", "es", "et", "eu", "fa", "fi", "fj", "fr", "fy", "ga", "gd", "gl", "gu", "ha", "haw", "he", "hi",
-				"hr", "ht", "hu", "hy", "id", "ig", "is", "it", "ja", "jw", "ka", "kk", "km", "kn", "ko", "ku", "ky",
-				"la", "lb", "lo", "lt", "lv", "mg", "mi", "mk", "ml", "mn", "mr", "ms", "mt", "mww", "my", "ne", "nl",
-				"no", "ny", "otq", "pa", "pl", "ps", "pt", "ro", "ru", "sd", "si", "sk", "sl", "sm", "sn", "so", "sq",
-				"sr-Cyrl", "sr-Latn", "st", "su", "sv", "sw", "ta", "te", "tg", "th", "tl", "tlh", "to", "tr", "ty",
-				"uk", "ur", "uz", "vi", "xh", "yi", "yo", "yua", "yue", "zh-CHS", "zh-CHT", "zu"
-			]
+			languages: DEFAULT_SETTINGS.service_settings.fanyi_youdao.available_languages
 		}
 	}
 

@@ -10,6 +10,7 @@ import {MD5} from "./md5";
 
 import {requestUrl} from "obsidian";
 import {iso639_3to1, iso639_1to3} from "../util";
+import {DEFAULT_SETTINGS} from "../constants";
 
 export class FanyiBaidu extends DummyTranslate {
 	api_key: string;
@@ -156,22 +157,7 @@ export class FanyiBaidu extends DummyTranslate {
 	async service_languages(): Promise<LanguagesFetchResult> {
 		return {
 			status_code: 200,
-			languages:
-				[
-					"ach", "af", "ak", "am", "an", "ar", "arq", "as", "ast", "ay", "az", "ba", "bal", "be", "bem", "ber",
-					"bg", "bho", "bi", "bli", "bn", "br", "bs", "ca", "ceb", "chr", "cht", "co", "cr", "cri", "cs", "cv",
-					"da", "de", "dv", "el", "en", "eno", "eo", "es", "et", "eu", "fa", "fa", "ff", "fi", "fil", "fo",
-					"fr", "fr-CA", "frm", "fur", "fy", "ga", "gd", "gl", "gn", "gra", "gu", "gv", "ha", "hak", "haw",
-					"he", "hi", "hil", "hr", "ht", "hu", "hup", "hy", "ia", "id", "ig", "ing", "io", "is", "it", "iu",
-					"ja", "ka", "kab", "kah", "kg", "kli", "km", "kn", "ko", "kok", "kr", "ks", "ku", "kw", "ky", "la",
-					"lag", "lb", "lg", "li", "ln", "lo", "log", "loj", "los", "lt", "lv", "lzh", "mai", "mau", "mg",
-					"mh", "mi", "mk", "ml", "mot", "mr", "ms", "mt", "my", "nb", "ne", "nea", "nl", "nn", "no", "nqo",
-					"nr", "ny", "oc", "oj", "om", "or", "os", "pa", "pam", "pap", "ped", "pl", "pot", "ps", "pt", "qu",
-					"rm", "ro", "rom", "ru", "ruy", "rw", "sa", "sc", "sd", "se", "sec", "sha", "si", "sil", "sk", "sk",
-					"sm", "sn", "so", "sol", "sq", "sr", "src", "st", "su", "sv", "sw", "syr", "ta", "te", "tet", "tg",
-					"th", "ti", "tk", "tl", "tr", "ts", "tt", "tua", "tw", "uk", "ur", "ve", "vi", "wa", "wen", "wo",
-					"xh", "yi", "yo", "yue", "zh", "zu"
-				]
+			languages: DEFAULT_SETTINGS.service_settings.fanyi_baidu.available_languages
 		}
 	}
 

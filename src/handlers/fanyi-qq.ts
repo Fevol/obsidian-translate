@@ -9,6 +9,7 @@ import type {
 import {TextDecoder} from "util";
 import type {RequestUrlResponse} from "obsidian";
 import {requestUrl} from "obsidian";
+import {DEFAULT_SETTINGS} from "../constants";
 
 export class FanyiQq extends DummyTranslate {
 	api_key: string;
@@ -229,8 +230,7 @@ export class FanyiQq extends DummyTranslate {
 		// TODO: Figure out if QQ has an endpoint for getting the current languages
 		return {
 			status_code: 200,
-			languages: ["ar", "de", "en", "es", "fr", "hi", "id", "it", "ja",
-				"ko", "ms", "pt", "ru", "th", "tr", "vi", "zh", "zh-TW"]
+			languages: DEFAULT_SETTINGS.service_settings.fanyi_qq.available_languages
 		}
 	}
 

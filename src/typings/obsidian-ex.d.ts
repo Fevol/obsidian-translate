@@ -1,5 +1,5 @@
 // Thanks to AquaCat/pjkaufman for the suggestion to add typings
-import {App, Command, Vault, Plugin, SettingTab} from 'obsidian';
+import {App, Command, Vault, Plugin, SettingTab, MenuItem} from 'obsidian';
 
 declare global {
 	interface Window {
@@ -158,5 +158,20 @@ declare module 'obsidian' {
 	interface Vault {
 		on(name: 'config-changed', callback: () => void, ctx?: any): EventRef;
 		config: AppVaultConfig;
+	}
+
+	interface Menu {
+		dom: HTMLElement;
+		items: MenuItem[];
+		onMouseOver: (evt: MouseEvent) => void;
+		hide: () => void;
+	}
+
+	interface MenuItem {
+		callback:  () => void;
+		dom: HTMLElement;
+		setSubmenu: () => Menu;
+		onClick: (evt: MouseEvent) => void;
+		disabled: boolean;
 	}
 }
