@@ -124,7 +124,7 @@
 
 <SettingItem
 	name="Default source language"
-	description="This will be the default source language used when opening a translation view"
+	description="This will be the default source language used when opening a <i>translation view</i>"
 >
 	<Dropdown
 		slot="control"

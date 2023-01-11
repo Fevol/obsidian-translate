@@ -285,7 +285,7 @@ export default class TranslatorPlugin extends Plugin {
 			},
 			{
 				id: "translator-selection",
-				name: "Translate selection (any language)",
+				name: "Translate selection (choose language)",
 				icon: "translate-selection-filled",
 				editor_context: true,
 				callback: () => {
@@ -458,12 +458,18 @@ export default class TranslatorPlugin extends Plugin {
 		const loaded_settings = get(settings);
 		const translation_service: string = loaded_settings.translation_service;
 
+		let target_language = this.current_language;
+		if (loaded_settings.target_language_preference === "last")
+			target_language = loaded_settings.last_used_target_languages.last() || loaded_settings.default_target_language;
+		else if (loaded_settings.target_language_preference === "specific")
+			target_language = loaded_settings.default_target_language;
+
 		const view_state = {
 			type: TRANSLATOR_VIEW_ID,
 			active: true,
 			state: {
 				language_from: loaded_settings.default_source_language || 'auto',
-				language_to: loaded_settings.default_target_language || this.current_language,
+				language_to: target_language,
 				translation_service: translation_service,
 			}
 		};
