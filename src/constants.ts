@@ -65,6 +65,8 @@ export const DEFAULT_SETTINGS: TranslatorPluginSettings = {
 
 
 	default_source_language: 'auto',
+	target_language_preference: 'specific',
+	last_used_target_languages: [],
 	default_target_language: moment.locale(),
 	filtered_services: [],
 	hotkeys: [
@@ -779,7 +781,7 @@ export let SERVICES_INFO: { [key: string]: any } = {
 	azure_translator: {
 		display_name: "Azure Translator",
 		requires_api_key: true,
-		request_key: "https://azure.microsoft.com/en-us/free/",
+		request_key: "https://learn.microsoft.com/en-us/azure/cognitive-services/translator/how-to-create-translator-resource",
 		url: "http://aka.ms/MicrosoftTranslatorAttribution",
 		attribution: "azure_translator_attribution",
 		type: 'translation',

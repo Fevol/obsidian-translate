@@ -64,7 +64,7 @@ export default class TranslatorPlugin extends Plugin {
 
 	/**
 	 * Used to prevent Translation View messages from appearing while settings are being changed
- 	 */
+	 */
 	settings_open: boolean = false;
 
 	/**
@@ -83,7 +83,7 @@ export default class TranslatorPlugin extends Plugin {
 		// Set up message queue for the plugin, this rate limits the number of messages the plugin can send at the same time,
 		// and allows for the messages to be ordered in a certain way
 		const default_timeout = 4000;
-		this.message_queue = rateLimit(5, 3000, true, default_timeout,(text: string, timeout: number = default_timeout, priority: boolean = false) => {
+		this.message_queue = rateLimit(5, 3000, true, default_timeout, (text: string, timeout: number = default_timeout, priority: boolean = false) => {
 			new Notice(text, timeout);
 		});
 
@@ -258,16 +258,20 @@ export default class TranslatorPlugin extends Plugin {
 				id: "translator-change-service",
 				name: "Change Translator Service",
 				icon: "cloud",
-				callback: () => {new SwitchService(this.app, this, (service) => {
-					this.setTranslationService(service);
-				}).open()}
+				callback: () => {
+					new SwitchService(this.app, this, (service) => {
+						this.setTranslationService(service);
+					}).open()
+				}
 			},
 			{
 				id: "translator-to-new-file",
 				name: "Translate note to new file",
 				icon: "translate-file-new",
 				editor_context: true,
-				callback: () => {new TranslateModal(this.app, this, "file-new").open()}
+				callback: () => {
+					new TranslateModal(this.app, this, "file-new").open()
+				}
 			},
 
 			{
@@ -275,14 +279,40 @@ export default class TranslatorPlugin extends Plugin {
 				name: "Translate note and replace current file",
 				icon: "translate-file-new",
 				editor_context: true,
-				callback: () => {new TranslateModal(this.app, this, "file-current").open()}
+				callback: () => {
+					new TranslateModal(this.app, this, "file-current").open()
+				}
 			},
 			{
 				id: "translator-selection",
-				name: "Translate selection to selected language",
+				name: "Translate selection (any language)",
 				icon: "translate-selection-filled",
 				editor_context: true,
-				callback: () => {new TranslateModal(this.app, this, "selection").open()}
+				callback: () => {
+					new TranslateModal(this.app, this, "selection").open()
+				}
+			},
+			{
+				id: "translator-selection-default",
+				name: "Translate selection (default language)",
+				icon: "translate-selection-filled",
+				editor_context: true,
+				callback: async (editor: Editor, view: MarkdownView) => {
+					const loaded_settings = get(settings);
+
+					let language = this.current_language;
+					if (loaded_settings.target_language_preference === "last") {
+						language = loaded_settings.last_used_target_languages?.first();
+						if (!language) {
+							this.message_queue("No last language found, select language manually");
+							new TranslateModal(this.app, this, "selection").open()
+							return;
+						}
+					} else if (loaded_settings.target_language_preference === "specific")
+						language = loaded_settings.default_target_language;
+
+					await translate_selection(this, editor, language, loaded_settings.apply_glossary);
+				}
 			},
 			{
 				id: "translator-detection",
@@ -297,7 +327,7 @@ export default class TranslatorPlugin extends Plugin {
 
 
 		for (let command of commands) {
-			delete Object.assign(command, {[(Platform.isMobile || command.editor_context) ? "editorCallback" : "callback"]: command["callback"] })["callback"];
+			delete Object.assign(command, {[(Platform.isMobile || command.editor_context) ? "editorCallback" : "callback"]: command["callback"]})["callback"];
 			this.addCommand(command);
 		}
 
@@ -326,39 +356,79 @@ export default class TranslatorPlugin extends Plugin {
 							item.setTitle("Translate")
 								.setIcon("translate")
 								.setDisabled(!this.translator.valid || !editor.getSelection())
-								.onClick(async (e) => {
-									// @ts-ignore (e.target exists)
-									if (e.target.className !== "menu-item") {
-										const loaded_settings = get(settings);
-										if (loaded_settings.default_target_language && languages.includes(loaded_settings.default_target_language))
-											await translate_selection(this, editor, loaded_settings.default_target_language, loaded_settings.apply_glossary);
-										else if (languages.includes(this.current_language))
-											await translate_selection(this, editor, this.current_language, loaded_settings.apply_glossary);
-										else
-											return false;
-									}
-								})
 								.setSection("translate")
 
-							const element = (item as any).dom as HTMLElement;
-							element.classList.add("translator-dropdown")
-							let dropdown_icon = element.createEl("span", {cls: "translator-dropdown-logo"})
-							setIcon(dropdown_icon, "chevron-right");
+								const subMenu = item.setSubmenu();
+								subMenu.dom.style.maxHeight = "300px";
+								subMenu.dom.style.overflowY = "auto";
+
+								const loaded_settings = get(settings);
+								let pinned_languages: string[] = [];
+								if (loaded_settings.target_language_preference === "last") {
+									pinned_languages = loaded_settings.last_used_target_languages;
+								} else if (loaded_settings.target_language_preference === "specific") {
+									pinned_languages = [loaded_settings.default_target_language];
+								} else if (loaded_settings.target_language_preference === "display") {
+									pinned_languages = [this.current_language];
+								}
+
+								pinned_languages = pinned_languages.filter(x => languages.includes(x));
+
+								const translation_callback = async (language: string) => {
+									const output = await translate_selection(this, editor, language, loaded_settings.apply_glossary);
+									if (output.status_code === 200) {
+										settings.update((x: TranslatorPluginSettings) => {
+											if (!x.last_used_target_languages.contains(language)) {
+												x.last_used_target_languages = [language, ...x.last_used_target_languages].slice(0, 3);
+											} else {
+												x.last_used_target_languages = x.last_used_target_languages.filter(x => x !== language);
+												x.last_used_target_languages = [language, ...x.last_used_target_languages];
+											}
+											return x;
+										});
+									} else if (output.message) {
+										this.message_queue(output.message)
+									}
+								}
 
 
-							let dropdown_menu = element.createEl("div", {cls: "menu translator-dropdown-menu"});
+								item.callback = async () => {
+									menu.hide();
+									if (pinned_languages)
+										await translation_callback(pinned_languages.first());
+									else
+										await translation_callback(this.current_language);
+								};
 
-							let dropdown_menu_items = Array.from(languages)
-								.map((locale) => { return [locale, languages_dict.get(locale)]; })
-								.sort((a, b) => a[1].localeCompare(b[1]));
 
-							for (let [locale, name] of dropdown_menu_items) {
-								let dropdown_item = dropdown_menu.createEl("div", {cls: "menu-item", text: name});
-								this.registerDomEvent(dropdown_item, "click", async () => {
-									await translate_selection(this, editor, locale, get(settings).apply_glossary);
-								});
-							}
+								let dropdown_menu_items = Array.from(languages)
+									.map((locale) => {
+										return [locale, languages_dict.get(locale)];
+									})
+									.sort((a, b) => a[1].localeCompare(b[1]));
+
+								if (pinned_languages) {
+									for (const locale of pinned_languages) {
+										subMenu.addItem((item) => {
+											item.setTitle(languages_dict.get(locale))
+												.onClick(async (e) => {
+													await translation_callback(locale);
+												});
+										});
+									}
+									subMenu.addSeparator();
+								}
+
+								for (let [locale, name] of dropdown_menu_items) {
+									subMenu.addItem((item) => {
+										item.setTitle(name)
+											.onClick(async (e) => {
+												await translation_callback(locale);
+											})
+									})
+								}
 						});
+
 					}
 
 				}
@@ -411,20 +481,13 @@ export default class TranslatorPlugin extends Plugin {
 			this.app.workspace.revealLeaf(right_leaf);
 		}
 	}
+
 	// --------------------------------------------------------------
 
 
 	async saveSettings(updatedSettings: any) {
 		await this.saveData(updatedSettings);
 	}
-
-
-
-
-
-
-
-
 
 
 	// ------------------------- External Interface -------------------------

@@ -1,6 +1,7 @@
 import {TFile, Editor, Notice} from "obsidian";
 import type TranslatorPlugin from "./main";
 import t from "./l10n";
+import type {TranslationResult} from "./types";
 
 /**
  * Helper function for translating a file, making a new file or replacing the original one with the translation.
@@ -11,15 +12,13 @@ import t from "./l10n";
  * @param apply_glossary - Whether to apply the glossary to the translated file
  */
 export async function translate_file(plugin: TranslatorPlugin, file: TFile, language_to: string, replace_original: boolean = false,
-									 apply_glossary: boolean = false): Promise<void> {
-	if (!file) {
-		plugin.message_queue("No file was selected");
-		return;
-	}
+									 apply_glossary: boolean = false): Promise<TranslationResult> {
+	if (!file)
+		return {status_code: 400, message: "No file was selected"};
 
 	const file_content = await plugin.app.vault.read(file);
 	if (!file_content.trim()) {
-		plugin.message_queue("Selected file is empty");
+		return {status_code: 400, message: "Selected file is empty"};
 	}
 
 	let paragraphs = file_content.split("\n\n");
@@ -32,8 +31,8 @@ export async function translate_file(plugin: TranslatorPlugin, file: TFile, lang
 		} else {
 			const output = (await plugin.translator.translate(paragraph, "auto", language_to, apply_glossary));
 			if (output.status_code !== 200) {
-				plugin.message_queue(output.message);
-				return;
+				output.translation = translated_text.join('\n\n');
+				return output;
 			}
 
 			translated_text.push(output.translation);
@@ -67,6 +66,11 @@ export async function translate_file(plugin: TranslatorPlugin, file: TFile, lang
 		plugin.app.workspace.setActiveLeaf(leaf, {focus: true});
 		await leaf.openFile(existing_file as TFile, {eState: {focus: true}});
 	}
+
+	return {
+		status_code: 200,
+		translation: translated_text.join("\n\n"),
+	}
 }
 
 /**
@@ -76,7 +80,7 @@ export async function translate_file(plugin: TranslatorPlugin, file: TFile, lang
  * @param language_to - The language to translate to
  * @param apply_glossary - Whether to apply the glossary to the translated file
  */
-export async function translate_selection(plugin: TranslatorPlugin, editor: Editor, language_to: string, apply_glossary: boolean = false): Promise<void> {
+export async function translate_selection(plugin: TranslatorPlugin, editor: Editor, language_to: string, apply_glossary: boolean = false): Promise<TranslationResult> {
 	if (editor.getSelection().length === 0) {
 		plugin.message_queue("Selection is empty");
 		return;
@@ -89,6 +93,8 @@ export async function translate_selection(plugin: TranslatorPlugin, editor: Edit
 		editor.replaceSelection(results.translation);
 	if (results.message)
 		plugin.message_queue(results.message);
+
+	return results;
 }
 
 /**

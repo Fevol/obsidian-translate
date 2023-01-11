@@ -82,6 +82,21 @@ export interface TranslatorPluginSettings {
 	default_source_language: string;
 
 	/**
+	 * Determine how default target language is chosen
+	 * - "last" - The last target language that was used
+	 * - "display" - Obsidian's display language
+	 * - "specific" - User-specified language
+	 */
+	target_language_preference: "last" | "display" | "specific";
+
+	/**
+	 * List of most recently used target languages
+	 * @remark Will only keep track of the last three languages
+	 */
+	last_used_target_languages: string[];
+
+
+	/**
 	 * Default target language that will be opened in the translation view and shown first for translation operations
 	 */
 	default_target_language: string;

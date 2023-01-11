@@ -22,6 +22,21 @@
 		online: "Only the online glossary will be applied",
 		local: "Only the local glossary will be applied"
 	}
+
+	const target_language_preference = {
+		last: {
+			description: "Translate to most recently used language by default",
+			example: {type: 'text', text: `Current last used languages: ${$settings.last_used_target_languages.map(x => $all_languages.get(x)) }`, style: 'translator-info'}
+		},
+		display: {
+			description: "Translate to display language by default",
+		},
+		specific: {
+			description: "Translate to language specified in setting below by default",
+		}
+	}
+
+	$: selected_target_language_preference = target_language_preference[$settings.target_language_preference];
 </script>
 
 <SettingItem
@@ -123,18 +138,36 @@
 </SettingItem>
 
 <SettingItem
-	name="Default target language"
-	description="This will be the default target language used when opening a translation view"
-	notices={[
-		{ type: 'text', text: `Language will also be shown first when using translation commands`, style: 'translator-info-text' }
-	]}
+	name="Determine default target language"
+	description={selected_target_language_preference.description}
+	notices={[selected_target_language_preference.example]}
 >
 	<Dropdown
 		slot="control"
-		options={current_all_languages}
-		value={ $settings.default_target_language }
+		options={[
+			{value: "last", text: "Most recently used"},
+			{value: "display", text: "Display language"},
+			{value: "specific", text: "Manually selected"}
+		]}
+		value={ $settings.target_language_preference }
 		onChange={(e) => {
-			$settings.default_target_language = e.target.value;
+			$settings.target_language_preference = e.target.value;
 		}}
 	/>
 </SettingItem>
+
+{#if $settings.target_language_preference === 'specific'}
+	<SettingItem
+		name="Default target language"
+		description="This will language will be the default language used for translations"
+	>
+		<Dropdown
+			slot="control"
+			options={current_all_languages}
+			value={ $settings.default_target_language }
+			onChange={(e) => {
+				$settings.default_target_language = e.target.value;
+			}}
+		/>
+	</SettingItem>
+{/if}
