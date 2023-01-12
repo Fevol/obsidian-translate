@@ -480,4 +480,6 @@ export interface CommandI {
 	 * @param args - Set of arguments passed to the command
 	 */
 	callback?: (...args: any[]) => any;
+
+	editorCallback?: (...args: any[]) => any;
 }

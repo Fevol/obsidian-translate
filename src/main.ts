@@ -252,7 +252,7 @@ export default class TranslatorPlugin extends Plugin {
 				icon: "translate",
 				callback: async () => {
 					await this.activateTranslatorView();
-				}
+				},
 			},
 			{
 				id: "translator-change-service",
@@ -327,7 +327,11 @@ export default class TranslatorPlugin extends Plugin {
 
 
 		for (let command of commands) {
-			delete Object.assign(command, {[(Platform.isMobile || command.editor_context) ? "editorCallback" : "callback"]: command["callback"]})["callback"];
+			if (Platform.isMobile || command.editor_context) {
+				command.editorCallback = command.callback;
+				delete command.callback;
+			}
+
 			this.addCommand(command);
 		}
 
@@ -358,75 +362,75 @@ export default class TranslatorPlugin extends Plugin {
 								.setDisabled(!this.translator.valid || !editor.getSelection())
 								.setSection("translate")
 
-								const subMenu = item.setSubmenu();
-								subMenu.dom.style.maxHeight = "300px";
-								subMenu.dom.style.overflowY = "auto";
+							const subMenu = item.setSubmenu();
+							subMenu.dom.style.maxHeight = "300px";
+							subMenu.dom.style.overflowY = "auto";
 
-								const loaded_settings = get(settings);
-								let pinned_languages: string[] = [];
-								if (loaded_settings.target_language_preference === "last") {
-									pinned_languages = loaded_settings.last_used_target_languages;
-								} else if (loaded_settings.target_language_preference === "specific") {
-									pinned_languages = [loaded_settings.default_target_language];
-								} else if (loaded_settings.target_language_preference === "display") {
-									pinned_languages = [this.current_language];
+							const loaded_settings = get(settings);
+							let pinned_languages: string[] = [];
+							if (loaded_settings.target_language_preference === "last") {
+								pinned_languages = loaded_settings.last_used_target_languages;
+							} else if (loaded_settings.target_language_preference === "specific") {
+								pinned_languages = [loaded_settings.default_target_language];
+							} else if (loaded_settings.target_language_preference === "display") {
+								pinned_languages = [this.current_language];
+							}
+
+							pinned_languages = pinned_languages.filter(x => languages.includes(x));
+
+							const translation_callback = async (language: string) => {
+								const output = await translate_selection(this, editor, language, loaded_settings.apply_glossary);
+								if (output.status_code === 200) {
+									settings.update((x: TranslatorPluginSettings) => {
+										if (!x.last_used_target_languages.contains(language)) {
+											x.last_used_target_languages = [language, ...x.last_used_target_languages].slice(0, 3);
+										} else {
+											x.last_used_target_languages = x.last_used_target_languages.filter(x => x !== language);
+											x.last_used_target_languages = [language, ...x.last_used_target_languages];
+										}
+										return x;
+									});
+								} else if (output.message) {
+									this.message_queue(output.message)
 								}
-
-								pinned_languages = pinned_languages.filter(x => languages.includes(x));
-
-								const translation_callback = async (language: string) => {
-									const output = await translate_selection(this, editor, language, loaded_settings.apply_glossary);
-									if (output.status_code === 200) {
-										settings.update((x: TranslatorPluginSettings) => {
-											if (!x.last_used_target_languages.contains(language)) {
-												x.last_used_target_languages = [language, ...x.last_used_target_languages].slice(0, 3);
-											} else {
-												x.last_used_target_languages = x.last_used_target_languages.filter(x => x !== language);
-												x.last_used_target_languages = [language, ...x.last_used_target_languages];
-											}
-											return x;
-										});
-									} else if (output.message) {
-										this.message_queue(output.message)
-									}
-								}
+							}
 
 
-								item.callback = async () => {
-									menu.hide();
-									if (pinned_languages)
-										await translation_callback(pinned_languages.first());
-									else
-										await translation_callback(this.current_language);
-								};
+							item.callback = async () => {
+								menu.hide();
+								if (pinned_languages)
+									await translation_callback(pinned_languages.first());
+								else
+									await translation_callback(this.current_language);
+							};
 
 
-								let dropdown_menu_items = Array.from(languages)
-									.map((locale) => {
-										return [locale, languages_dict.get(locale)];
-									})
-									.sort((a, b) => a[1].localeCompare(b[1]));
+							let dropdown_menu_items = Array.from(languages)
+								.map((locale) => {
+									return [locale, languages_dict.get(locale)];
+								})
+								.sort((a, b) => a[1].localeCompare(b[1]));
 
-								if (pinned_languages) {
-									for (const locale of pinned_languages) {
-										subMenu.addItem((item) => {
-											item.setTitle(languages_dict.get(locale))
-												.onClick(async (e) => {
-													await translation_callback(locale);
-												});
-										});
-									}
-									subMenu.addSeparator();
-								}
-
-								for (let [locale, name] of dropdown_menu_items) {
+							if (pinned_languages) {
+								for (const locale of pinned_languages) {
 									subMenu.addItem((item) => {
-										item.setTitle(name)
+										item.setTitle(languages_dict.get(locale))
 											.onClick(async (e) => {
 												await translation_callback(locale);
-											})
-									})
+											});
+									});
 								}
+								subMenu.addSeparator();
+							}
+
+							for (let [locale, name] of dropdown_menu_items) {
+								subMenu.addItem((item) => {
+									item.setTitle(name)
+										.onClick(async (e) => {
+											await translation_callback(locale);
+										})
+								})
+							}
 						});
 
 					}
@@ -475,8 +479,7 @@ export default class TranslatorPlugin extends Plugin {
 		};
 		// @ts-ignore (Prevent build crash)
 		if (!(this.app.workspace.activeLeaf == null) && this.app.workspace.activeLeaf.getRoot() == this.app.workspace.rootSplit) {
-			// @ts-ignore (Prevent build crash - TS2345: Argument of type 'true' is not assignable to parameter of type 'split'.)
-			await this.app.workspace.getLeaf(true, 'vertical').setViewState(view_state)
+			await this.app.workspace.getLeaf('split', 'vertical').setViewState(view_state)
 		} else {
 			const right_leaf = this.app.workspace.getRightLeaf(false);
 

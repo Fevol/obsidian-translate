@@ -1,11 +1,5 @@
 // Thanks to AquaCat/pjkaufman for the suggestion to add typings
-import {App, Command, Vault, Plugin, SettingTab, MenuItem} from 'obsidian';
-
-declare global {
-	interface Window {
-		app: App;
-	}
-}
+import {Command, Vault, Plugin, SettingTab, MenuItem} from 'obsidian';
 
 
 interface AppVaultConfig {
