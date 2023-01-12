@@ -26,11 +26,11 @@
 </div>
 
 ---
-<center>
+<div align="center">
  <a href="https://github.com/Fevol/obsidian-translate/blob/master/docs/API.md">API</a>&nbsp;&nbsp;
  <a href="https://github.com/Fevol/obsidian-translate/blob/master/docs/TUTORIAL.md">FEATURES</a>&nbsp;&nbsp;
  <a href="https://github.com/Fevol/obsidian-translate/blob/master/src/README.md">CODE</a>
-</center>
+</div>
 
 ---
 
@@ -64,7 +64,7 @@ integrates with ten different translation services.
 
 ---
 
-<a name="setup"/>
+<a name="setup"></a>
 
 ## Set-up
 
@@ -86,7 +86,7 @@ For most services, you _will_ have to sign-up for an account (with a credit card
 [table below](https://github.com/fevol/obsidian-translate#services-overview) to see which services require sign-up.
 ***This plugin does not provide any API keys.*** 
 
-<a name="free-alternatives"/>
+<a name="free-alternatives"></a>
 
 ### Free alternatives
 
@@ -103,10 +103,10 @@ whereas Bergamot works directly from Obsidian.
 
 ---
 
-<a name="translation-services"/>
+<a name="translation-services"></a>
 
 ## Translation Services
-<a name="services-overview"/>
+<a name="services-overview"></a>
 
 ### Services overview
 
@@ -139,7 +139,7 @@ _² Your credit card will be charged if you exceed the free limit_<br>
 | ❓      | Needs to be tested |
 | ⭕      | Plans to add       |
 
-<a name="notes"/>
+<a name="notes"></a>
 
 ### Notes
 
@@ -154,12 +154,14 @@ make sure to keep your eyes on it!
 
 ---
 
-<a name="features"/>
+<a name="features"></a>
 
 ## Features
 For more information, head over to the [documentation](https://github.com/Fevol/obsidian-translate/blob/master/docs/TUTORIAL.md).
 
-If you want to use this plugin 
+If you want to use this plugin with extensions, make sure to take a look at the [API](https://github.com/Fevol/obsidian-translate/blob/master/docs/API.md).
+
+
 
 <video src="https://raw.githubusercontent.com/Fevol/obsidian-translate/master/images/obsidian-translate.webm" controls></video>
 
@@ -193,11 +195,11 @@ In Files:
 - Glossary support, both offline and online
 
 ---
-<a name="disclaimers"/>
+<a name="disclaimers"></a>
 
 ## Disclaimers
 
-<a name="legal"/>
+<a name="legal"></a>
 
 ### Legal
 Obsidian Translate is not officially associated with any of the aforementioned translation services,
@@ -208,7 +210,7 @@ the respective services are not responsible for any modifications or alterations
 unless explicitly stated in documentation or displayed in the UI.
 
 
-<a name="privacy"/>
+<a name="privacy"></a>
 
 ### Privacy
 The plugin will only make requests to translation services on specific user inputs, such as translating text or
@@ -229,7 +231,7 @@ your data stays on your computer.
 
 LingvaTranslate does not offer a privacy statement.
 
-<a name="security"/>
+<a name="security"></a>
 
 ### Security
 Please be aware that your API keys are stored in plain text by default,
@@ -239,7 +241,7 @@ device itself (without storing them in the plugin data).
 
 ---
 
-<a name="discussion-and-feedback"/>
+<a name="discussion-and-feedback"></a>
 
 ## Discussion and Feedback
 Any feedback would *very* much be appreciated. Please use the [GitHub issue tracker](https://github.com/Fevol/obsidian-translate/issues/new) to report bugs, request features,
@@ -250,7 +252,7 @@ I hope that this plugin will be useful to you, and I plan to keep improving on i
 
 ---
 
-<a name="code-disclaimer"/>
+<a name="code-disclaimer"></a>
 
 ## Code Disclaimer
 This plugin makes use of full codefiles from the following projects:
@@ -264,7 +266,7 @@ Following projects were also referenced for writing functions, but adapted to fi
 
 ---
 
-<a name="contributors"/>
+<a name="contributors"></a>
 
 ## Contributors
 @kometenstaub - Helping me out many times throughout the development of this plugin and testing<br>
@@ -272,7 +274,7 @@ Following projects were also referenced for writing functions, but adapted to fi
 @TfTHacker - Providing incredibly helpful feedback and testing<br>
 
 ---
-<a name="support"/>
+<a name="support"></a>
 
 ## Support
 
