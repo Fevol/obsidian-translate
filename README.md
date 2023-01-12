@@ -27,9 +27,13 @@
 
 ---
 <div align="center">
- <a href="https://github.com/Fevol/obsidian-translate/blob/master/docs/API.md">API</a>&nbsp;&nbsp;
- <a href="https://github.com/Fevol/obsidian-translate/blob/master/docs/TUTORIAL.md">FEATURES</a>&nbsp;&nbsp;
+<h4>
+ <a href="https://github.com/Fevol/obsidian-translate/blob/master/docs/API.md">API</a>
+ <span>&nbsp;·&nbsp;</span>
+ <a href="https://github.com/Fevol/obsidian-translate/blob/master/docs/TUTORIAL.md">FEATURES</a>
+ <span>&nbsp;·&nbsp;</span>
  <a href="https://github.com/Fevol/obsidian-translate/blob/master/src/README.md">CODE</a>
+</h4>
 </div>
 
 ---
@@ -43,30 +47,31 @@ integrates with ten different translation services.
 <br>
 
 ---
+<a name="table-of-contents"></a>
 
-## Table of Contents
-
-- [Set-up](#setup)
+## 📑 Table of Contents
+- [📑 Table of Contents](#table-of-contents)
+- [🧰 Set-up](#setup)
   - [Free alternatives](#free-alternatives)
-- [Translation Services](#translation-services)
+- [🔣 Translation Services](#translation-services)
   - [Services overview](#services-overview)
   - [Notes](#notes)
-- [Features](#features)
-- [Disclaimers](#disclaimers)
-  - [Legal](#legal)
-  - [Privacy](#privacy)
-  - [Security](#security)
-- [Discussion and Feedback](#discussion-and-feedback)
-- [Code Disclaimer](#code-disclaimer)
-- [Contributors](#contributors)
-- [Support](#support)
+- [🎯 Features](#features)
+- [⚠️ Disclaimers](#disclaimers)
+  - [⚖️ Legal](#legal)
+  - [👁️‍🗨️ Privacy](#privacy)
+  - [🔑 Security](#security)
+- [💬 Discussion and Feedback](#discussion-and-feedback)
+- [💎 Acknowledgements](#acknowledgements)
+- [🤝 Contributors](#contributors)
+- [❤️ Support](#support)
 
 
 ---
 
 <a name="setup"></a>
 
-## Set-up
+## 🧰 Set-up
 
 Install the plugin via the community plugins browser, or via [BRAT](https://github.com/TfTHacker/obsidian42-brat) if you want to help test out beta releases.
 
@@ -156,7 +161,7 @@ make sure to keep your eyes on it!
 
 <a name="features"></a>
 
-## Features
+## 🎯 Features
 For more information, head over to the [documentation](https://github.com/Fevol/obsidian-translate/blob/master/docs/TUTORIAL.md).
 
 If you want to use this plugin with extensions, make sure to take a look at the [API](https://github.com/Fevol/obsidian-translate/blob/master/docs/API.md).
@@ -197,11 +202,11 @@ In Files:
 ---
 <a name="disclaimers"></a>
 
-## Disclaimers
+## ⚠️ Disclaimers
 
 <a name="legal"></a>
 
-### Legal
+### ⚖️ Legal
 Obsidian Translate is not officially associated with any of the aforementioned translation services,
 it only provides an user-facing UI to integrate with each of the services' APIs.
 
@@ -212,7 +217,7 @@ unless explicitly stated in documentation or displayed in the UI.
 
 <a name="privacy"></a>
 
-### Privacy
+### 👁️‍🗨️ Privacy
 The plugin will only make requests to translation services on specific user inputs, such as translating text or
 downloading language models. The plugin will **not** send requests to any of the services on its own.
 
@@ -233,7 +238,7 @@ LingvaTranslate does not offer a privacy statement.
 
 <a name="security"></a>
 
-### Security
+### 🔑 Security
 Please be aware that your API keys are stored in plain text by default,
 and can be accessed by anyone that has access to your vault. If you wish to keep your API keys private,
 you can enable the option to encrypt them with a password under `General Settings`, or choose to only store them on the
@@ -243,7 +248,7 @@ device itself (without storing them in the plugin data).
 
 <a name="discussion-and-feedback"></a>
 
-## Discussion and Feedback
+## 💬 Discussion and Feedback
 Any feedback would *very* much be appreciated. Please use the [GitHub issue tracker](https://github.com/Fevol/obsidian-translate/issues/new) to report bugs, request features,
 or suggest improvements, or message me over on Discord (@Fevol#9470).
 
@@ -252,9 +257,9 @@ I hope that this plugin will be useful to you, and I plan to keep improving on i
 
 ---
 
-<a name="code-disclaimer"></a>
+<a name="acknowledgements"></a>
 
-## Code Disclaimer
+## 💎 Acknowledgements
 This plugin makes use of full codefiles from the following projects:
 - [FastText](https://github.com/facebookresearch/fastText/tree/main/webassembly)
 - [Bergamot](https://github.com/mozilla/firefox-translations/tree/main/extension/controller/translation)
@@ -263,12 +268,14 @@ Following projects were also referenced for writing functions, but adapted to fi
 - [Obsidian-Translator](https://github.com/luhaifeng666/obsidian-translator) - Hashing algorithm for Fanyi-Youdao
 - [Obsidian Periodic Notes](https://github.com/liamcain/obsidian-periodic-notes) - Base Svelte components for Obsidian
 
+This README is inspired by many other Obsidian plugins and this [template](https://github.com/Louis3797/awesome-readme-template),
+and makes use of [shields.io](https://shields.io) for badges.
 
 ---
 
 <a name="contributors"></a>
 
-## Contributors
+## 🤝 Contributors
 @kometenstaub - Helping me out many times throughout the development of this plugin and testing<br>
 @sailkiteV - Teaching me in the arts of CSS wizardry and creating some of the animations<br>
 @TfTHacker - Providing incredibly helpful feedback and testing<br>
@@ -276,7 +283,7 @@ Following projects were also referenced for writing functions, but adapted to fi
 ---
 <a name="support"></a>
 
-## Support
+## ❤️ Support
 
 I personally don't feel entirely comfortable receiving money for these passion projects, so before you consider donating to me,
 consider some of these charities first:
@@ -284,7 +291,7 @@ consider some of these charities first:
 - Local foodbanks and shelters
 - [Doctors Without Borders/Médecins Sans Frontières](https://www.doctorswithoutborders.org/)
 - FOSS projects you use and love 
-  - (personal choice) [Mozilla](https://donate.mozilla.org/en-US/) (co-developed Bergamot)
+  - (personal preference) [Mozilla](https://donate.mozilla.org/en-US/) (co-developed Bergamot)
   - [Wikimedia](https://donate.wikimedia.org/)
   
 If you still feel like donating to me, you can do so here: 
