@@ -26,6 +26,13 @@
 </div>
 
 ---
+<center>
+ <a href="https://github.com/Fevol/obsidian-translate/blob/master/docs/API.md">API</a>&nbsp;&nbsp;
+ <a href="https://github.com/Fevol/obsidian-translate/blob/master/docs/TUTORIAL.md">FEATURES</a>&nbsp;&nbsp;
+ <a href="https://github.com/Fevol/obsidian-translate/blob/master/src/README.md">CODE</a>
+</center>
+
+---
 
 A plugin for [Obsidian](https://obsidian.md/) that adds several commands for translating text and files,
 and also comes with an easy-to-use and extensively customizable translation interface that
@@ -36,6 +43,28 @@ integrates with ten different translation services.
 <br>
 
 ---
+
+## Table of Contents
+
+- [Set-up](#setup)
+  - [Free alternatives](#free-alternatives)
+- [Translation Services](#translation-services)
+  - [Services overview](#services-overview)
+  - [Notes](#notes)
+- [Features](#features)
+- [Disclaimers](#disclaimers)
+  - [Legal](#legal)
+  - [Privacy](#privacy)
+  - [Security](#security)
+- [Discussion and Feedback](#discussion-and-feedback)
+- [Code Disclaimer](#code-disclaimer)
+- [Contributors](#contributors)
+- [Support](#support)
+
+
+---
+
+<a name="setup"/>
 
 ## Set-up
 
@@ -57,6 +86,8 @@ For most services, you _will_ have to sign-up for an account (with a credit card
 [table below](https://github.com/fevol/obsidian-translate#services-overview) to see which services require sign-up.
 ***This plugin does not provide any API keys.*** 
 
+<a name="free-alternatives"/>
+
 ### Free alternatives
 
 If you wish to use a service that does not require any sign-up, there are three _free_ options available: 
@@ -72,7 +103,11 @@ whereas Bergamot works directly from Obsidian.
 
 ---
 
+<a name="translation-services"/>
+
 ## Translation Services
+<a name="services-overview"/>
+
 ### Services overview
 
 
@@ -104,6 +139,8 @@ _² Your credit card will be charged if you exceed the free limit_<br>
 | ❓      | Needs to be tested |
 | ⭕      | Plans to add       |
 
+<a name="notes"/>
+
 ### Notes
 
 - Most services require an _active_ internet connection to work. If you want to translate text offline, you can use
@@ -117,10 +154,15 @@ make sure to keep your eyes on it!
 
 ---
 
+<a name="features"/>
+
 ## Features
 For more information, head over to the [documentation](https://github.com/Fevol/obsidian-translate/blob/master/docs/TUTORIAL.md).
 
+If you want to use this plugin 
+
 <video src="https://raw.githubusercontent.com/Fevol/obsidian-translate/master/images/obsidian-translate.webm" controls></video>
+
 
 ### Commands
 - **Translate current file:** Translate _current_ file
@@ -151,27 +193,12 @@ In Files:
 - Glossary support, both offline and online
 
 ---
-
-## Future plans
-### Features
-- More auto-translate options
-- Localization support
-- Integration with Translation Memories
-- Custom view for translation notes (with before/after comparisons)
-- Add method to keep track of used characters
-
-### Improvements
-- Preservation of Markdown formatting
-- Opening up integration with other plugins
-- Reducing the amount of characters sent to the translation services
-  - Caching translation results of sentence (continuous typing in translation view will not result in linear growth of amount of characters being sent over)
-  - ...
-
-Most up-to-date plans can be found [here](https://github.com/users/Fevol/projects/1)
-
----
+<a name="disclaimers"/>
 
 ## Disclaimers
+
+<a name="legal"/>
+
 ### Legal
 Obsidian Translate is not officially associated with any of the aforementioned translation services,
 it only provides an user-facing UI to integrate with each of the services' APIs.
@@ -181,7 +208,7 @@ the respective services are not responsible for any modifications or alterations
 unless explicitly stated in documentation or displayed in the UI.
 
 
-
+<a name="privacy"/>
 
 ### Privacy
 The plugin will only make requests to translation services on specific user inputs, such as translating text or
@@ -202,6 +229,8 @@ your data stays on your computer.
 
 LingvaTranslate does not offer a privacy statement.
 
+<a name="security"/>
+
 ### Security
 Please be aware that your API keys are stored in plain text by default,
 and can be accessed by anyone that has access to your vault. If you wish to keep your API keys private,
@@ -209,6 +238,8 @@ you can enable the option to encrypt them with a password under `General Setting
 device itself (without storing them in the plugin data).
 
 ---
+
+<a name="discussion-and-feedback"/>
 
 ## Discussion and Feedback
 Any feedback would *very* much be appreciated. Please use the [GitHub issue tracker](https://github.com/Fevol/obsidian-translate/issues/new) to report bugs, request features,
@@ -219,7 +250,9 @@ I hope that this plugin will be useful to you, and I plan to keep improving on i
 
 ---
 
-## Disclaimer
+<a name="code-disclaimer"/>
+
+## Code Disclaimer
 This plugin makes use of full codefiles from the following projects:
 - [FastText](https://github.com/facebookresearch/fastText/tree/main/webassembly)
 - [Bergamot](https://github.com/mozilla/firefox-translations/tree/main/extension/controller/translation)
@@ -231,12 +264,16 @@ Following projects were also referenced for writing functions, but adapted to fi
 
 ---
 
+<a name="contributors"/>
+
 ## Contributors
 @kometenstaub - Helping me out many times throughout the development of this plugin and testing<br>
 @sailkiteV - Teaching me in the arts of CSS wizardry and creating some of the animations<br>
 @TfTHacker - Providing incredibly helpful feedback and testing<br>
 
 ---
+<a name="support"/>
+
 ## Support
 
 I personally don't feel entirely comfortable receiving money for these passion projects, so before you consider donating to me,
