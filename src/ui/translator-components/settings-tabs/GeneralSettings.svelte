@@ -159,6 +159,7 @@
 	<SettingItem
 		name="Password"
 		type="password"
+		class="translator-setting-subsetting"
 		description="Update locally stored password"
 	>
 		<div slot="control">

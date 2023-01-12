@@ -245,7 +245,7 @@
 	</SettingItem>
 
 	{#if $bergamot_data.binary }
-		<SettingItem name="Manage Bergamot models">
+		<SettingItem name="Manage Bergamot models" 	class="translator-setting-subsetting">
 			<div slot="control" class="setting-item-control">
 				<!-- TODO: Removal should consider whether model was already removed via FS  -->
 				<ButtonList
@@ -510,6 +510,7 @@
 {#if $settings.service_settings[service].auto_translate}
 	<SettingItem
 		name="Translation delay"
+		class="translator-setting-subsetting"
 		description="How long after the user stops typing should the translation be performed (in milliseconds)"
 		type="slider"
 	>

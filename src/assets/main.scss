@@ -2,6 +2,13 @@
 	border-top: unset;
 }
 
+.translator-setting-subsetting {
+	//padding-left: var(--size-4-8);
+	margin-left: var(--size-4-8);
+	border-color: var(--background-modifier-active-hover);
+}
+
+
 .translator-textarea {
 	resize: none;
 	width: 100%;

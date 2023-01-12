@@ -114,6 +114,7 @@
 	<SettingItem
 		name="Always use FastText"
 		description="FastText will be used as the default language detection service"
+		class="translator-setting-subsetting"
 		type="toggle"
 	>
 		<Toggle

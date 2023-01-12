@@ -23,20 +23,11 @@
 		local: "Only the local glossary will be applied"
 	}
 
-	const target_language_preference = {
-		last: {
-			description: "Translate to most recently used language by default",
-			example: {type: 'text', text: `Current last used languages: ${$settings.last_used_target_languages.map(x => $all_languages.get(x)) }`, style: 'translator-info'}
-		},
-		display: {
-			description: "Translate to display language by default",
-		},
-		specific: {
-			description: "Translate to language specified in setting below by default",
-		}
+	$: target_language_preference = {
+		last: `Translate to last used language by default (${$all_languages.get($settings.last_used_target_languages.last())})`,
+		display:`Translate to display language by default (${$all_languages.get(plugin.current_language)})`,
+		specific: `Translate to manually selected language (${$all_languages.get($settings.default_target_language)})`
 	}
-
-	$: selected_target_language_preference = target_language_preference[$settings.target_language_preference];
 </script>
 
 <SettingItem
@@ -58,6 +49,7 @@
 {#if $settings.apply_glossary}
 	<SettingItem
 		name="Glossary preference"
+		class="translator-setting-subsetting"
 		type="dropdown"
 		description="Determine whether glossary operation should be applied locally or by the online service"
 		notices={[
@@ -92,6 +84,7 @@
 
 	<SettingItem
 		name="Case insensitive glossary"
+		class="translator-setting-subsetting"
 		description="Local glossary will attempt to match terms regardless of case"
 		type="toggle"
 	>
@@ -138,16 +131,18 @@
 </SettingItem>
 
 <SettingItem
-	name="Determine default target language"
-	description={selected_target_language_preference.description}
-	notices={[selected_target_language_preference.example]}
+	name="Default target language"
+	description="This will determine which language will be translated to by default"
+	notices={[
+		{ type: 'text', text: target_language_preference[$settings.target_language_preference] , style: 'translator-info-text' }
+	]}
 >
 	<Dropdown
 		slot="control"
 		options={[
 			{value: "last", text: "Most recently used"},
 			{value: "display", text: "Display language"},
-			{value: "specific", text: "Manually selected"}
+			{value: "specific", text: "Manually select language"}
 		]}
 		value={ $settings.target_language_preference }
 		onChange={(e) => {
@@ -158,8 +153,9 @@
 
 {#if $settings.target_language_preference === 'specific'}
 	<SettingItem
-		name="Default target language"
-		description="This will language will be the default language used for translations"
+		name="Select target language"
+		class="translator-setting-subsetting"
+		description="Set the default target language"
 	>
 		<Dropdown
 			slot="control"
