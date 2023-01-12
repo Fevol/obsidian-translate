@@ -110,7 +110,7 @@ whereas Bergamot works directly from Obsidian.
 
 <a name="translation-services"></a>
 
-## Translation Services
+## 🔣 Translation Services
 <a name="services-overview"></a>
 
 ### Services overview
