@@ -1,6 +1,3 @@
-import {get} from "svelte/store";
-import {settings} from "../../stores";
-
 var FastTextModule = (function() {
 	var _scriptDir = typeof document !== 'undefined' && document.currentScript ? document.currentScript.src : undefined;
 	if (typeof __filename !== 'undefined') _scriptDir = _scriptDir || __filename;
@@ -1818,10 +1815,6 @@ var FastTextModule = (function() {
 						// Don't use streaming for file:// delivered objects in a webview, fetch them synchronously.
 						!isFileURI(wasmBinaryFile) &&
 						typeof fetch === 'function') {
-
-						// TODO: Get access to app.vault and plugin.manifest here!
-						await app.plugins.loadManifests();
-						let settings_data = get(settings)
 
 						let path = `${app.vault.configDir}/plugins/translate/models/fasttext/fasttext_wasm.wasm`;
 

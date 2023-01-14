@@ -225,7 +225,7 @@
 			else if (service === "lingva_translate")
 				translation_service = new LingvaTranslate(service_settings);
 			else if (service === 'fasttext')
-				translation_service = new FastTextDetector(plugin, $fasttext_data);
+				translation_service = new FastTextDetector($fasttext_data);
 			else if (service === "fanyi_youdao")
 				translation_service = new FanyiYoudao(service_settings);
 			else if (service === "fanyi_qq")

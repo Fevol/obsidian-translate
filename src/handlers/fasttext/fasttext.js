@@ -8,10 +8,6 @@
 
 
 import fastTextModularized from './fasttext_wasm.js';
-import {App, TFile} from "obsidian";
-import {settings} from "../../stores";
-import {get} from "svelte/store";
-
 
 var fastTextModule = null
 
@@ -75,11 +71,8 @@ class FastText {
 	 * @return {Promise}   promise object that resolves to a `FastTextModel`
 	 */
 	async loadModel(url) {
-		// var self = this.plugin;
-		// let adapter = app.vault.adapter;
 		const fastTextNative = this.f;
 		try {
-			let settings_data = get(settings);
 			let bytes = await app.vault.adapter.readBinary(`${app.vault.configDir}/plugins/translate/models/fasttext/${url}`);
 			const FS = fastTextModule.FS
 			FS.writeFile(modelFileInWasmFs, new Uint8Array(bytes));

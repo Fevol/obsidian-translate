@@ -6,14 +6,13 @@ import type {
 	ModelFileData
 } from "../types";
 import {FastText, FastTextModel} from "./fasttext/fasttext";
+import {Notice} from "obsidian";
 
 export class FastTextDetector extends DummyTranslate {
 	detector: FastTextModel;
 	id = "fasttext";
 
 	version: number;
-
-	plugin: TranslatorPlugin;
 
 	status: string = '';
 	data: any = null;
@@ -22,13 +21,13 @@ export class FastTextDetector extends DummyTranslate {
 
 	setup_service(available_models: ModelFileData) {
 		if (available_models?.binary) {
-			FastText.create(this.plugin).then(ft => {
+			FastText.create().then(ft => {
 				// FIXME: For some reason, you cannot catch the abort of fasttext_wasm here, so this is done in the fasttext wrapper
 				//  by returning the error
 				try {
 					if (ft instanceof WebAssembly.RuntimeError) {
 						this.valid = false;
-						this.plugin.message_queue(ft.message.match(/\(([^)]+)\)/)[0].slice(1, -1));
+						new Notice(ft.message.match(/\(([^)]+)\)/)[0].slice(1, -1), 4000);
 					} else {
 						ft.loadModel(Object.values(available_models.models)[0].name).then((model: FastTextModel) => {
 							this.detector = model;
@@ -39,7 +38,7 @@ export class FastTextDetector extends DummyTranslate {
 					}
 				} catch (e) {
 					this.valid = false;
-					console.log("Error loading model: " + e);
+					new Notice("Error loading model: " + e, 4000);
 				}
 			})
 		} else {
@@ -48,9 +47,8 @@ export class FastTextDetector extends DummyTranslate {
 		}
 	}
 
-	constructor(plugin: TranslatorPlugin, available_models: ModelFileData) {
+	constructor(available_models: ModelFileData) {
 		super();
-		this.plugin = plugin;
 		this.setup_service(available_models);
 	}
 
