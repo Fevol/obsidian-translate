@@ -357,27 +357,6 @@ export default class TranslatorPlugin extends Plugin {
 					const languages_dict = get(all_languages);
 					if (languages.length) {
 						menu.addItem((item) => {
-							item.setTitle("Translate")
-								.setIcon("translate")
-								.setDisabled(!this.translator.valid || !editor.getSelection())
-								.setSection("translate")
-
-							const subMenu = item.setSubmenu();
-							subMenu.dom.style.maxHeight = "300px";
-							subMenu.dom.style.overflowY = "auto";
-
-							const loaded_settings = get(settings);
-							let pinned_languages: string[] = [];
-							if (loaded_settings.target_language_preference === "last") {
-								pinned_languages = loaded_settings.last_used_target_languages;
-							} else if (loaded_settings.target_language_preference === "specific") {
-								pinned_languages = [loaded_settings.default_target_language];
-							} else if (loaded_settings.target_language_preference === "display") {
-								pinned_languages = [this.current_language];
-							}
-
-							pinned_languages = pinned_languages.filter(x => languages.includes(x));
-
 							const translation_callback = async (language: string) => {
 								const output = await translate_selection(this, editor, language, loaded_settings.apply_glossary);
 								if (output.status_code === 200) {
@@ -395,46 +374,58 @@ export default class TranslatorPlugin extends Plugin {
 								}
 							}
 
+							const loaded_settings = get(settings);
+							let pinned_languages: string[] = [];
+							if (loaded_settings.target_language_preference === "last")
+								pinned_languages = loaded_settings.last_used_target_languages;
+							else if (loaded_settings.target_language_preference === "specific")
+								pinned_languages = [loaded_settings.default_target_language];
+							else if (loaded_settings.target_language_preference === "display")
+								pinned_languages = [this.current_language];
+							pinned_languages = pinned_languages.filter(x => languages.includes(x));
 
-							item.callback = async () => {
-								menu.hide();
-								if (pinned_languages)
-									await translation_callback(pinned_languages.first());
-								else
-									await translation_callback(this.current_language);
-							};
+
+							item.setTitle("Translate")
+								.setIcon("translate")
+								.setDisabled(!this.translator.valid || !editor.getSelection())
+								.setSection("translate")
+								.onClick(async (e) => {
+									// @ts-ignore (e.target exists)
+									if (e.target.className !== "menu-item") {
+										const language: string = pinned_languages.first() ||
+											(languages.includes(loaded_settings.default_target_language) && loaded_settings.default_target_language) ||
+											(languages.includes(this.current_language) && this.current_language) ||
+											languages.first();
+										await translation_callback(language)
+									}
+								});
+
+							const element = (item as any).dom as HTMLElement;
+							element.classList.add("translator-dropdown")
+							let dropdown_icon = element.createEl("span", {cls: "translator-dropdown-logo"})
+							setIcon(dropdown_icon, "chevron-right");
 
 
-							let dropdown_menu_items = Array.from(languages)
-								.map((locale) => {
-									return [locale, languages_dict.get(locale)];
-								})
+							let d_menu = element.createDiv( {cls: "menu translator-dropdown-menu"});
+
+							let d_menu_items = Array.from(languages)
+								.map((locale) => { return [locale, languages_dict.get(locale)]; })
 								.sort((a, b) => a[1].localeCompare(b[1]));
 
 							if (pinned_languages) {
-								for (const locale of pinned_languages) {
-									subMenu.addItem((item) => {
-										item.setTitle(languages_dict.get(locale))
-											.onClick(async (e) => {
-												await translation_callback(locale);
-											});
-									});
+								for (let locale of pinned_languages) {
+									let d_item = d_menu.createDiv({cls: "menu-item translator-dropdown-menu-item", text: languages_dict.get(locale)});
+									this.registerDomEvent(d_item, "click", async () => translation_callback(locale));
 								}
-								subMenu.addSeparator();
+								d_menu.createDiv({cls: "menu-separator"});
 							}
 
-							for (let [locale, name] of dropdown_menu_items) {
-								subMenu.addItem((item) => {
-									item.setTitle(name)
-										.onClick(async (e) => {
-											await translation_callback(locale);
-										})
-								})
+							for (let [locale, name] of d_menu_items) {
+								let d_item = d_menu.createDiv({cls: "menu-item", text: name});
+								this.registerDomEvent(d_item, "click", async () => translation_callback(locale));
 							}
 						});
-
 					}
-
 				}
 
 				if (this.translator?.has_autodetect_capability()) {
