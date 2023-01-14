@@ -1,6 +1,6 @@
 {
 	"name": "obsidian-translate",
-	"version": "1.4.3",
+	"version": "1.4.4",
 	"description": "Translate text and notes in Obsidian.md with Google Translate, DeepL, Azure, and more.",
 	"main": "main.js",
 	"scripts": {
