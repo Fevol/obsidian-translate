@@ -1,9 +1,7 @@
 import type TranslatorPlugin from "../main";
 import {DummyTranslate} from "./dummy-translate";
-import type {
-	DetectionResult, ValidationResult, TranslationResult,
-	LanguagesFetchResult, ModelFileData, LanguageModelData
-} from "../types";
+import type { DetectionResult, ValidationResult, TranslationResult, LanguagesFetchResult } from "./types";
+import type {ModelFileData, LanguageModelData} from "../types";
 
 import {Bergamot} from "./bergamot/bergamot";
 
@@ -87,7 +85,11 @@ export class BergamotTranslate extends DummyTranslate {
 		if (!this.available_languages.includes(to))
 			return {status_code: 400, message: `${t(to)} is not installed as a language model`};
 
-		return {status_code: 200, translation: await this.translator.translate(text, from, to), detected_language: detected_language};
+		return {
+			status_code: 200,
+			translation: await this.translator.translate(text, from, to),
+			detected_language: detected_language
+		};
 	}
 
 	async service_languages(): Promise<LanguagesFetchResult> {
@@ -105,33 +107,39 @@ export class BergamotTranslate extends DummyTranslate {
 		//  If not, support one-directional translation (will require additional checks)
 		// Only support languages that support translation in both directions
 		let available_languages = all_language_pairs
-			.filter(x => {return x.startsWith("en")})
-			.map(x => {return x.substring(2)})
-			.filter(x => {return all_language_pairs.includes(`${x}en`)});
+			.filter(x => {
+				return x.startsWith("en")
+			})
+			.map(x => {
+				return x.substring(2)
+			})
+			.filter(x => {
+				return all_language_pairs.includes(`${x}en`)
+			});
 		let mapped_languages: Array<LanguageModelData> = available_languages.map(x => {
 			let duplicates = Object.values(registry[`${x}en`]).map((x: any) => x.name)
-				     .concat(Object.values(registry[`en${x}`]).map((x: any) => x.name))
+				.concat(Object.values(registry[`en${x}`]).map((x: any) => x.name))
 				.filter((e: any, i: any, a: any) => a.indexOf(e) !== i);
 
 			const models_from = Object.values(registry[`${x}en`]).map((x: any) => {
-				return { name: x.name, size: x.size as number, usage: duplicates.includes(x.name) ? "both" : "from" }
+				return {name: x.name, size: x.size as number, usage: duplicates.includes(x.name) ? "both" : "from"}
 			});
 			const models_to = Object.values(registry[`en${x}`])
 				.filter((x: any) => !duplicates.includes(x.name))
 				.map((x: any) => {
-					return { name: x.name, size: x.size as number, usage: duplicates.includes(x.name) ? "both" : "to"  }
+					return {name: x.name, size: x.size as number, usage: duplicates.includes(x.name) ? "both" : "to"}
 				});
 
 			let files = models_from.concat(models_to);
 
 			return {
-					size: files.reduce((acc, x) => acc + x.size, 0),
-					locale: x,
-					files: models_from.concat(models_to),
-					dev: registry[`en${x}`].lex.modelType === 'dev',
+				size: files.reduce((acc, x) => acc + x.size, 0),
+				locale: x,
+				files: models_from.concat(models_to),
+				dev: registry[`en${x}`].lex.modelType === 'dev',
 			};
 		});
-		return { status_code: 200, languages: mapped_languages, data: version};
+		return {status_code: 200, languages: mapped_languages, data: version};
 	}
 
 	has_autodetect_capability(): boolean {

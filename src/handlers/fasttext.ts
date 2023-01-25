@@ -3,8 +3,8 @@ import {DummyTranslate} from "./dummy-translate";
 import type {
 	DetectionResult,
 	ValidationResult,
-	ModelFileData
-} from "../types";
+} from "./types";
+import type {ModelFileData} from "../types";
 import {FastText, FastTextModel} from "./fasttext/fasttext";
 import {Notice} from "obsidian";
 

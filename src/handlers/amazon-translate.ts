@@ -2,12 +2,12 @@
 
 import {DummyTranslate} from "./dummy-translate";
 import type {
-	APIServiceSettings,
+	ServiceSettings,
 	DetectionResult,
 	LanguagesFetchResult,
 	TranslationResult,
 	ValidationResult
-} from "../types";
+} from "./types";
 
 export class AmazonTranslate extends DummyTranslate {
 	api_key: string;
@@ -16,7 +16,7 @@ export class AmazonTranslate extends DummyTranslate {
 
 	character_limit = 5000;
 
-	constructor(settings: APIServiceSettings) {
+	constructor(settings: ServiceSettings) {
 		super();
 		this.api_key = settings.api_key;
 		this.region = settings.region;

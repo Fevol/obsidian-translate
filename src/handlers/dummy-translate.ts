@@ -4,7 +4,7 @@ import type {
 	LanguagesFetchResult,
 	TranslationResult,
 	ValidationResult
-} from "../types";
+} from "./types";
 import {get, writable, type Writable} from "svelte/store";
 import {DefaultDict, regexLastIndexOf} from "../util";
 import {globals, glossary, settings} from "../stores";

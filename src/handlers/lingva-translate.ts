@@ -1,5 +1,5 @@
 import {DummyTranslate} from "./dummy-translate";
-import type {APIServiceSettings, DetectionResult, LanguagesFetchResult, TranslationResult, ValidationResult} from "../types";
+import type {ServiceSettings, DetectionResult, LanguagesFetchResult, TranslationResult, ValidationResult} from "./types";
 import {requestUrl} from "obsidian";
 
 export class LingvaTranslate extends DummyTranslate {
@@ -8,7 +8,7 @@ export class LingvaTranslate extends DummyTranslate {
 
 	character_limit = 7500;
 
-	constructor(settings: APIServiceSettings) {
+	constructor(settings: ServiceSettings) {
 		super();
 		this.host = settings.host;
 	}

@@ -1,11 +1,11 @@
 import {DummyTranslate} from "./dummy-translate";
 import type {
-	APIServiceSettings,
+	ServiceSettings,
 	DetectionResult,
 	LanguagesFetchResult,
 	TranslationResult,
 	ValidationResult
-} from "../types";
+} from "./types";
 import {MD5} from "./md5";
 
 import {requestUrl} from "obsidian";
@@ -35,7 +35,7 @@ export class FanyiBaidu extends DummyTranslate {
 		90107: {message: "Certification failed/invalid, please check certification", status_code: 401},
 	}
 
-	constructor(settings: APIServiceSettings) {
+	constructor(settings: ServiceSettings) {
 		super();
 		this.api_key = settings.api_key;
 		this.app_id = settings.app_id;

@@ -1,7 +1,7 @@
 import {TFile, Editor, Notice} from "obsidian";
 import type TranslatorPlugin from "./main";
 import t from "./l10n";
-import type {TranslationResult} from "./types";
+import type {TranslationResult} from "./handlers/types";
 
 /**
  * Helper function for translating a file, making a new file or replacing the original one with the translation.

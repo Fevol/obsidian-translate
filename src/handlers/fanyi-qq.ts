@@ -1,11 +1,11 @@
 import {DummyTranslate} from "./dummy-translate";
 import type {
-	APIServiceSettings,
+	ServiceSettings,
 	DetectionResult,
 	LanguagesFetchResult,
 	TranslationResult,
 	ValidationResult
-} from "../types";
+} from "./types";
 import {TextDecoder} from "util";
 import type {RequestUrlResponse} from "obsidian";
 import {requestUrl} from "obsidian";
@@ -19,7 +19,7 @@ export class FanyiQq extends DummyTranslate {
 
 	character_limit = 2000;
 
-	constructor(settings: APIServiceSettings) {
+	constructor(settings: ServiceSettings) {
 		super();
 		this.api_key = settings.api_key;
 		this.app_id = settings.app_id;

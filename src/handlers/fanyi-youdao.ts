@@ -1,5 +1,5 @@
 import {DummyTranslate} from "./dummy-translate";
-import type {APIServiceSettings, DetectionResult, LanguagesFetchResult, TranslationResult, ValidationResult} from "../types";
+import type {ServiceSettings, DetectionResult, LanguagesFetchResult, TranslationResult, ValidationResult} from "./types";
 import {requestUrl} from "obsidian";
 import {DEFAULT_SETTINGS} from "../constants";
 
@@ -41,7 +41,7 @@ export class FanyiYoudao extends DummyTranslate {
 		1411:{message: "Access frequency limited", status_code: 429},
 	};
 
-	constructor(settings: APIServiceSettings) {
+	constructor(settings: ServiceSettings) {
 		super();
 		this.api_key = settings.api_key;
 		this.app_id = settings.app_id;

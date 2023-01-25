@@ -3,7 +3,8 @@ import type TranslatorPlugin from "main";
 import {get} from "svelte/store";
 import {translate_file, translate_selection} from "../../helpers";
 import {settings, available_languages, all_languages} from "../../stores";
-import type {TranslationResult, TranslatorPluginSettings} from "../../types";
+import type {TranslatorPluginSettings} from "../../types";
+import type {TranslationResult} from "../../handlers/types";
 
 export default class TranslateModal extends FuzzySuggestModal<string>{
 	plugin: TranslatorPlugin;

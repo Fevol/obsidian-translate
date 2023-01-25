@@ -1,11 +1,11 @@
 import {DummyTranslate} from "./dummy-translate";
 import type {
-	APIServiceSettings,
+	ServiceSettings,
 	DetectionResult, GlossaryFetchResult, GlossaryUploadResult,
 	LanguagesFetchResult,
 	TranslationResult,
 	ValidationResult
-} from "../types";
+} from "./types";
 import {requestUrl} from "obsidian";
 
 // TODO: Allow for formality features to be accessed
@@ -21,7 +21,7 @@ export class Deepl extends DummyTranslate {
 	// Body size may maximally be 128KiB
 	character_limit = 130000;
 
-	constructor(settings: APIServiceSettings) {
+	constructor(settings: ServiceSettings) {
 		super();
 		this.api_key = settings.api_key;
 		this.host = settings.host || 'https://api-free.deepl.com/v2';
