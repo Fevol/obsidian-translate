@@ -381,16 +381,16 @@
 				plugin.detector.default = true;
 		}
 
-		if ($settings.glossary_preference !== 'online') {
-			let loaded_glossaries = null;
-			if (await app.vault.adapter.exists(`${app.vault.configDir}/plugins/translate/glossary.json`))
-				loaded_glossaries = await app.vault.adapter.read(`${app.vault.configDir}/plugins/translate/glossary.json`);
-			if (loaded_glossaries) {
-				glossary.dicts = JSON.parse(loaded_glossaries);
-				for (let key in glossary.dicts) {
-					glossary.replacements[key] = new RegExp(glossary.dicts[key].map((item) => item[0]).join("|"),
-					$settings.case_insensitive_glossary ? "gi" : "g");
-				}
+		let loaded_glossaries = null;
+
+		// Glossary will always be loaded in on plugin load, even if it is not used (slight performance hit)
+		if (await app.vault.adapter.exists(`${app.vault.configDir}/plugins/translate/glossary.json`))
+			loaded_glossaries = await app.vault.adapter.read(`${app.vault.configDir}/plugins/translate/glossary.json`);
+		if (loaded_glossaries) {
+			glossary.dicts = JSON.parse(loaded_glossaries);
+			for (let key in glossary.dicts) {
+				glossary.replacements[key] = new RegExp(glossary.dicts[key].map((item) => item[0]).join("|"),
+				$settings.case_insensitive_glossary ? "gi" : "g");
 			}
 		}
 

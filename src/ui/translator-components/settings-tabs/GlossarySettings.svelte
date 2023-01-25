@@ -104,17 +104,6 @@
 	app.keymap.pushScope(view_scope);
 
 	onMount(async () => {
-		if ($settings.glossary_preference !== 'online' && !Object.keys(glossary.dicts).length) {
-			let loaded_glossaries = null;
-			// Load local glossaries, in case they have not been loaded in yet
-			if (await app.vault.adapter.exists(`${app.vault.configDir}/plugins/translate/glossary.json`))
-				loaded_glossaries = await app.vault.adapter.read(`${app.vault.configDir}/plugins/translate/glossary.json`);
-			if (loaded_glossaries) {
-				glossaries = new DefaultDict(JSON.parse(loaded_glossaries), []);
-				glossary_pair = glossaries[language_pair]
-			}
-		}
-
 		if (sync_service)
 			translator = await plugin.reactivity.getTranslationService(sync_service);
 		new_row = glossary.text;
