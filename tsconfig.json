@@ -4,7 +4,7 @@
 		"baseUrl": "./src",
 		"inlineSources": true,
 		"module": "ESNext",
-		"target": "es2018",
+		"target": "ESNext",
 		"allowJs": true,
 		"noImplicitAny": true,
 		"moduleResolution": "node",
@@ -15,7 +15,6 @@
 		},
 		"lib": [
 			"DOM",
-			"ES2020",
 			"ESNext"
 		],
 		"types": [

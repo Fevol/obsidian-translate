@@ -10,22 +10,26 @@ import type {
 import {requestUrl} from "obsidian";
 
 export class LibreTranslate extends DummyTranslate {
-	host: string;
+	#host: string;
 	id = "libre_translate";
 
 	constructor(settings: ServiceSettings) {
 		super();
-		this.host = settings.host;
+		this.#host = settings.host;
+	}
+
+	update_settings(settings: ServiceSettings): void {
+		this.#host = settings.host ?? this.#host;
 	}
 
 	async service_validate(): Promise<ValidationResult> {
-		if (!this.host)
+		if (!this.#host)
 			return {status_code: 400, valid: false, message: "Host was not specified"};
 
 		const response = await requestUrl({
 			throw: false,
 			method: "GET",
-			url: `${this.host}/languages`,
+			url: `${this.#host}/languages`,
 		});
 
 		const data = response.json;
@@ -40,7 +44,7 @@ export class LibreTranslate extends DummyTranslate {
 		const response = await requestUrl({
 			throw: false,
 			method: "POST",
-			url: `${this.host}/detect`,
+			url: `${this.#host}/detect`,
 			body: JSON.stringify({q: text}),
 			headers: {"Content-Type": "application/json"}
 		});
@@ -63,7 +67,7 @@ export class LibreTranslate extends DummyTranslate {
 		const response = await requestUrl({
 			throw: false,
 			method: "POST",
-			url: `${this.host}/translate`,
+			url: `${this.#host}/translate`,
 			body: JSON.stringify({
 				q: text,
 				source: from,
@@ -87,7 +91,7 @@ export class LibreTranslate extends DummyTranslate {
 		const response = await requestUrl({
 			throw: false,
 			method: "GET",
-			url: `${this.host}/languages`,
+			url: `${this.#host}/languages`,
 		});
 
 		const data = response.json;

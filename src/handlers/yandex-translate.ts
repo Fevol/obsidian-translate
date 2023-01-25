@@ -12,18 +12,22 @@ import {requestUrl} from "obsidian";
 // FIXME: Check what translate returns when no language_from was specified
 
 export class YandexTranslate extends DummyTranslate {
-	api_key: string;
+	#api_key: string;
 	id = "yandex_translate";
 
 	character_limit = 10000;
 
 	constructor(settings: ServiceSettings) {
 		super();
-		this.api_key = settings.api_key;
+		this.#api_key = settings.api_key;
+	}
+
+	update_settings(settings: ServiceSettings): void {
+		this.#api_key = settings.api_key ?? this.#api_key;
 	}
 
 	async service_validate(): Promise<ValidationResult> {
-		if (!this.api_key)
+		if (!this.#api_key)
 			return {status_code: 400, valid: false, message: "API key was not specified"};
 
 		const response = await requestUrl({
@@ -31,7 +35,7 @@ export class YandexTranslate extends DummyTranslate {
 			method: "POST",
 			url: `https://translate.yandex.net/api/v1.5/tr.json/getLangs?` +
 				new URLSearchParams({
-					key: this.api_key,
+					key: this.#api_key,
 					ui: "en"
 				}),
 		});
@@ -52,7 +56,7 @@ export class YandexTranslate extends DummyTranslate {
 			method: "POST",
 			url: `https://translate.yandex.net/api/v1.5/tr.json/detect?` +
 				new URLSearchParams({
-					key: this.api_key,
+					key: this.#api_key,
 					text: text
 				}),
 		});
@@ -75,7 +79,7 @@ export class YandexTranslate extends DummyTranslate {
 			method: "POST",
 			url: `https://translate.yandex.net/api/v1.5/tr.json/translate?` +
 				new URLSearchParams({
-					key: this.api_key,
+					key: this.#api_key,
 					text: text,
 					lang: from === 'auto' ? to : `${from}-${to}`,
 					format: "plain"
@@ -101,7 +105,7 @@ export class YandexTranslate extends DummyTranslate {
 			method: "POST",
 			url: `https://translate.yandex.net/api/v1.5/tr.json/getLangs?` +
 				new URLSearchParams({
-					key: this.api_key,
+					key: this.#api_key,
 					ui: "en"
 				}),
 		});

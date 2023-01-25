@@ -11,24 +11,30 @@ import type {
 } from "./types";
 
 export class AmazonTranslate extends DummyTranslate {
-	api_key: string;
-	region: string;
+	#api_key: string;
+	#region: string;
 	id = "amazon_translate";
 
 	character_limit = 5000;
 
 	constructor(settings: ServiceSettings) {
 		super();
-		this.api_key = settings.api_key;
-		this.region = settings.region;
+		this.#api_key = settings.api_key;
+		this.#region = settings.region;
 	}
 
+	update_settings(settings: ServiceSettings): void {
+		this.#api_key = settings.api_key ?? this.#api_key;
+		this.#region = settings.region ?? this.#region;
+	}
+
+
 	async service_validate(): Promise<ValidationResult> {
-		if (!this.api_key)
+		if (!this.#api_key)
 			return {status_code: 400, valid: false, message: "API key was not specified"};
 
 		// Will not contribute to character quota, as it's translating to the same language
-		const response = await fetch(`https://translate.${this.region}.amazonaws.com/TranslateText`, {
+		const response = await fetch(`https://translate.${this.#region}.amazonaws.com/TranslateText`, {
 			body: JSON.stringify({
 				Text: 'I',
 				SourceLanguageCode: 'en',
@@ -58,7 +64,7 @@ export class AmazonTranslate extends DummyTranslate {
 	}
 
 	async service_translate(text: string, from: string, to: string, options: ServiceOptions = {}): Promise<TranslationResult> {
-		const response = await fetch(`https://translate.${this.region}.amazonaws.com/TranslateText`, {
+		const response = await fetch(`https://translate.${this.#region}.amazonaws.com/TranslateText`, {
 			body: JSON.stringify({
 				Text: text,
 				SourceLanguageCode: from,
@@ -86,7 +92,7 @@ export class AmazonTranslate extends DummyTranslate {
 	}
 
 	async service_languages(): Promise<LanguagesFetchResult> {
-		const response = await fetch(`https://translate.${this.region}.amazonaws.com/ListLanguages`, {
+		const response = await fetch(`https://translate.${this.#region}.amazonaws.com/ListLanguages`, {
 			headers: {
 				'Content-Type': 'application/json',
 				'Accept': 'application/json',

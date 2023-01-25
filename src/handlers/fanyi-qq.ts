@@ -13,19 +13,26 @@ import {requestUrl} from "obsidian";
 import {DEFAULT_SETTINGS} from "../constants";
 
 export class FanyiQq extends DummyTranslate {
-	api_key: string;
-	app_id: string;
-	region: string;
+	#api_key: string;
+	#app_id: string;
+	#region: string;
 	id = "fanyi_qq";
 
 	character_limit = 2000;
 
 	constructor(settings: ServiceSettings) {
 		super();
-		this.api_key = settings.api_key;
-		this.app_id = settings.app_id;
-		this.region = settings.region;
+		this.#api_key = settings.api_key;
+		this.#app_id = settings.app_id;
+		this.#region = settings.region;
 	}
+
+	update_settings(settings: ServiceSettings): void {
+		this.#api_key = settings.api_key ?? this.#api_key;
+		this.#app_id = settings.app_id ?? this.#app_id;
+		this.#region = settings.region ?? this.#region;
+	}
+
 
 	async sign_message(payload: any) {
 		// Returns hex string of SHA-256 hash of message
@@ -70,13 +77,13 @@ export class FanyiQq extends DummyTranslate {
 		const credential_scope = `${full_date}/tmt/tc3_request`;
 		const message_string = ['TC3-HMAC-SHA256', timestamp, credential_scope, hashed_canonical_request].join('\n');
 
-		const keyed_date = await hmac_hash_string(full_date, 'TC3' + this.api_key);
+		const keyed_date = await hmac_hash_string(full_date, 'TC3' + this.#api_key);
 		const keyed_service = await hmac_hash_string('tmt', keyed_date);
 		const keyed_signing = await hmac_hash_string('tc3_request', keyed_service);
 		const signature = await hmac_hash_string(message_string, keyed_signing, 'hex');
 
 		const authorization = [
-			'TC3-HMAC-SHA256 Credential=' + this.api_key + '/' + credential_scope,
+			'TC3-HMAC-SHA256 Credential=' + this.#api_key + '/' + credential_scope,
 			'SignedHeaders=' + signed_headers,
 			'Signature=' + signature
 		].join(', ');
@@ -88,17 +95,17 @@ export class FanyiQq extends DummyTranslate {
 	}
 
 	async service_validate(): Promise<ValidationResult> {
-		if (!this.api_key)
+		if (!this.#api_key)
 			return {status_code: 400, valid: false, message: "API key was not specified"};
-		if (!this.app_id)
+		if (!this.#app_id)
 			return {status_code: 400, valid: false, message: "App ID was not specified"};
 
 		const payload = {
 			Action: 'LanguageDetect',
 			Version: '2018-03-21',
-			Region: this.region,
+			Region: this.#region,
 			Text: 'I',
-			ProjectId: this.app_id,
+			ProjectId: this.#app_id,
 		}
 		const signature = await this.sign_message(payload);
 
@@ -129,9 +136,9 @@ export class FanyiQq extends DummyTranslate {
 		const payload = {
 			Action: 'LanguageDetect',
 			Version: '2018-03-21',
-			Region: this.region,
+			Region: this.#region,
 			Text: text,
-			ProjectId: this.app_id,
+			ProjectId: this.#app_id,
 		}
 		const signature = await this.sign_message(payload);
 
@@ -163,11 +170,11 @@ export class FanyiQq extends DummyTranslate {
 		const payload = {
 			Action: 'TextTranslate',
 			Version: '2018-03-21',
-			Region: this.region,
+			Region: this.#region,
 			SourceText: sourceText,
 			Source: source,
 			Target: target,
-			ProjectId: this.app_id,
+			ProjectId: this.#app_id,
 		}
 		const signature = await this.sign_message(payload);
 

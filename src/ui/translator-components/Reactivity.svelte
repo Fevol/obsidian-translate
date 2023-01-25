@@ -205,8 +205,11 @@
 				$settings.service_settings[service] = DEFAULT_SETTINGS.service_settings[service];
 
 			const service_settings = $settings.service_settings[service];
+			if ($settings.security_setting !== 'none' && SERVICES_INFO[service].requires_api_key)
+				service_settings.api_key = await getAPIKey(service, $settings.security_setting);
 
 			let translation_service: DummyTranslate = null;
+
 			if (service === "google_translate")
 				translation_service = new GoogleTranslate(service_settings);
 			else if (service === "azure_translator")
@@ -218,8 +221,8 @@
 			else if (service === "libre_translate")
 				translation_service = new LibreTranslate(service_settings);
 			else if (service === "bergamot")
-				translation_service = new BergamotTranslate('fasttext' in active_services ? active_services['fasttext'] : await getTranslationService('fasttext', ''),
-					plugin, $bergamot_data);
+				translation_service = new BergamotTranslate('fasttext' in active_services ? active_services['fasttext'] :
+											await getTranslationService('fasttext', ''), plugin, $bergamot_data);
 			else if (service === "amazon_translate")
 				translation_service = new AmazonTranslate(service_settings);
 			else if (service === "lingva_translate")
@@ -232,10 +235,6 @@
 				translation_service = new FanyiQq(service_settings);
 			else if (service === "fanyi_baidu")
 				translation_service = new FanyiBaidu(service_settings);
-
-
-			if ($settings.security_setting !== 'none' && SERVICES_INFO[service].requires_api_key)
-				translation_service.api_key = await getAPIKey(service, $settings.security_setting);
 
 			if (service !== 'bergamot' && service !== 'fasttext') {
 				translation_service.valid &&= $settings.service_settings[service].validated;

@@ -14,8 +14,8 @@ import {iso639_3to1, iso639_1to3} from "../util";
 import {DEFAULT_SETTINGS} from "../constants";
 
 export class FanyiBaidu extends DummyTranslate {
-	api_key: string;
-	app_id: string;
+	#api_key: string;
+	#app_id: string;
 	id = "fanyi_baidu";
 
 	character_limit = 6000;
@@ -38,13 +38,19 @@ export class FanyiBaidu extends DummyTranslate {
 
 	constructor(settings: ServiceSettings) {
 		super();
-		this.api_key = settings.api_key;
-		this.app_id = settings.app_id;
+		this.#api_key = settings.api_key;
+		this.#app_id = settings.app_id;
 	}
+
+	update_settings(settings: ServiceSettings): void {
+		this.#api_key = settings.api_key ?? this.#api_key;
+		this.#app_id = settings.app_id ?? this.#app_id;
+	}
+
 
 	async sign_message(text: any) {
 		const salt = Date.now().toString();
-		const signature_text = `${this.app_id}${text}${salt}${this.api_key}`;
+		const signature_text = `${this.#app_id}${text}${salt}${this.#api_key}`;
 		const signature = MD5(signature_text);
 		return {
 			signature: signature,
@@ -53,15 +59,15 @@ export class FanyiBaidu extends DummyTranslate {
 	}
 
 	async service_validate(): Promise<ValidationResult> {
-		if (!this.api_key)
+		if (!this.#api_key)
 			return {status_code: 400, valid: false, message: "API key was not specified"};
-		if (!this.app_id)
+		if (!this.#app_id)
 			return {status_code: 400, valid: false, message: "App ID was not specified"};
 
 		const signature = await this.sign_message('I');
 		const payload = {
 			q: 'I',
-			appid: this.app_id,
+			appid: this.#app_id,
 			salt: signature.salt,
 			sign: signature.signature,
 		}
@@ -93,7 +99,7 @@ export class FanyiBaidu extends DummyTranslate {
 		const signature = await this.sign_message(text);
 		const payload = {
 			q: text,
-			appid: this.app_id,
+			appid: this.#app_id,
 			salt: signature.salt,
 			sign: signature.signature,
 		}
@@ -127,7 +133,7 @@ export class FanyiBaidu extends DummyTranslate {
 			q: text,
 			from: from,
 			to: iso639_1to3[to] || to,
-			appid: this.app_id,
+			appid: this.#app_id,
 			salt: signature.salt,
 			sign: signature.signature,
 		}

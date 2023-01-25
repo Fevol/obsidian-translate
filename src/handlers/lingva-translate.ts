@@ -10,23 +10,27 @@ import type {
 import {requestUrl} from "obsidian";
 
 export class LingvaTranslate extends DummyTranslate {
-	host: string;
+	#host: string;
 	id = "lingva_translate";
 
 	character_limit = 7500;
 
 	constructor(settings: ServiceSettings) {
 		super();
-		this.host = settings.host;
+		this.#host = settings.host;
+	}
+
+	update_settings(settings: ServiceSettings): void {
+		this.#host = settings.host ?? this.#host;
 	}
 
 	async service_validate(): Promise<ValidationResult> {
-		if (!this.host)
+		if (!this.#host)
 			return {status_code: 400, valid: false, message: "Host was not specified"};
 
 		const response = await requestUrl({
 			throw: false,
-			url: `https://${this.host}/api/v1/languages`
+			url: `https://${this.#host}/api/v1/languages`
 		});
 		const data = response.json;
 
@@ -47,7 +51,7 @@ export class LingvaTranslate extends DummyTranslate {
 	async service_translate(text: string, from: string, to: string, options: ServiceOptions = {}): Promise<TranslationResult> {
 		const response = await requestUrl({
 			throw: false,
-			url: `https://${this.host}/api/v1/${from}/${to}/${text}`
+			url: `https://${this.#host}/api/v1/${from}/${to}/${text}`
 		});
 
 		// Data = {"translation": "...", "info": {
@@ -72,7 +76,7 @@ export class LingvaTranslate extends DummyTranslate {
 	async service_languages(): Promise<LanguagesFetchResult> {
 		const response = await requestUrl({
 			throw: false,
-			url: `https://${this.host}/api/v1/languages`
+			url: `https://${this.#host}/api/v1/languages`
 		});
 		// Data = {"languages": [{"code":"en", "name":"English"}, ...]}
 		const data = response.json;

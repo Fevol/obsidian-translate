@@ -52,7 +52,7 @@ esbuild.build({
 		...builtins],
 	format: 'cjs',
 	watch: dev_watch,
-	target: 'es2020',
+	target: 'esnext',
 	logLevel: "info",
 	sourcemap: (prod || dev) ? false : 'inline',
 	treeShaking: true,

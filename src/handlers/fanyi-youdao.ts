@@ -11,8 +11,8 @@ import {requestUrl} from "obsidian";
 import {DEFAULT_SETTINGS} from "../constants";
 
 export class FanyiYoudao extends DummyTranslate {
-	api_key: string;
-	app_id: string;
+	#api_key: string;
+	#app_id: string;
 	id = "fanyi_youdao";
 
 	character_limit = 5000;
@@ -50,14 +50,19 @@ export class FanyiYoudao extends DummyTranslate {
 
 	constructor(settings: ServiceSettings) {
 		super();
-		this.api_key = settings.api_key;
-		this.app_id = settings.app_id;
+		this.#api_key = settings.api_key;
+		this.#app_id = settings.app_id;
+	}
+
+	update_settings(settings: ServiceSettings): void {
+		this.#api_key = settings.api_key ?? this.#api_key;
+		this.#app_id = settings.app_id ?? this.#app_id;
 	}
 
 	async service_validate(): Promise<ValidationResult> {
-		if (!this.api_key)
+		if (!this.#api_key)
 			return {status_code: 400, valid: false, message: "API key was not specified"};
-		if (!this.app_id)
+		if (!this.#app_id)
 			return {status_code: 400, valid: false, message: "App ID was not specified"};
 
 		const signed_message = await this.sign_message('I');
@@ -66,7 +71,7 @@ export class FanyiYoudao extends DummyTranslate {
 			url: `https://openapi.youdao.com/api?` +
 				new URLSearchParams({
 					q: 'I',
-					appKey: this.app_id,
+					appKey: this.#app_id,
 					salt: signed_message.salt,
 					from: 'en',
 					to: 'en',
@@ -110,7 +115,7 @@ export class FanyiYoudao extends DummyTranslate {
 		const current_time = Math.round(new Date().getTime()/1000);
 
 		// The implementation of the hashing is taken from 'https://github.com/luhaifeng666/obsidian-translator"
-		const hashMessage = this.app_id + truncate(message) + salt + current_time + this.api_key;
+		const hashMessage = this.#app_id + truncate(message) + salt + current_time + this.#api_key;
 		const hashBuffer = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(hashMessage))
 		const hashArray = Array.from(new Uint8Array(hashBuffer));
 		const signature = hashArray.map((b) => b.toString(16).padStart(2, "0")).join("");
@@ -130,7 +135,7 @@ export class FanyiYoudao extends DummyTranslate {
 			url: `https://openapi.youdao.com/api?` +
 				new URLSearchParams({
 					q: text,
-					appKey: this.app_id,
+					appKey: this.#app_id,
 					salt: signed_message.salt,
 					from: from,
 					to: to,

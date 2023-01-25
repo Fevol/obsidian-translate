@@ -10,8 +10,8 @@ import type {
 import {requestUrl} from "obsidian";
 
 export class AzureTranslator extends DummyTranslate {
-	api_key: string;
-	region: string;
+	#api_key: string;
+	#region: string;
 	id = "azure_translator";
 
 	character_limit = 50000;
@@ -21,21 +21,27 @@ export class AzureTranslator extends DummyTranslate {
 
 	constructor(settings: ServiceSettings) {
 		super();
-		this.api_key = settings.api_key;
-		this.region = settings.region;
+		this.#api_key = settings.api_key;
+		this.#region = settings.region;
 	}
 
+	update_settings(settings: ServiceSettings): void {
+		this.#api_key = settings.api_key ?? this.#api_key;
+		this.#region = settings.region ?? this.#region;
+	}
+
+
 	async service_validate(): Promise<ValidationResult> {
-		if (!this.api_key)
+		if (!this.#api_key)
 			return {status_code: 400, valid: false, message: "API key was not specified"};
 
 		// TODO: Check if there is a better way to validate the API key
 		const headers: any = {
 			"Content-Type": "application/json",
-			"Ocp-Apim-Subscription-Key": this.api_key,
+			"Ocp-Apim-Subscription-Key": this.#api_key,
 		}
-		if (this.region)
-			headers["Ocp-Apim-Subscription-Region"] = this.region;
+		if (this.#region)
+			headers["Ocp-Apim-Subscription-Region"] = this.#region;
 
 		const response = await requestUrl({
 			throw: false,
@@ -63,10 +69,10 @@ export class AzureTranslator extends DummyTranslate {
 	async service_detect(text: string): Promise<DetectionResult> {
 		const headers: any = {
 			"Content-Type": "application/json",
-			"Ocp-Apim-Subscription-Key": this.api_key,
+			"Ocp-Apim-Subscription-Key": this.#api_key,
 		}
-		if (this.region)
-			headers["Ocp-Apim-Subscription-Region"] = this.region;
+		if (this.#region)
+			headers["Ocp-Apim-Subscription-Region"] = this.#region;
 
 		const response = await requestUrl({
 			throw: false,
@@ -100,10 +106,10 @@ export class AzureTranslator extends DummyTranslate {
 	async service_translate(text: string, from: string, to: string, options: ServiceOptions = {}): Promise<TranslationResult> {
 		const headers: any = {
 			"Content-Type": "application/json",
-			"Ocp-Apim-Subscription-Key": this.api_key,
+			"Ocp-Apim-Subscription-Key": this.#api_key,
 		}
-		if (this.region)
-			headers["Ocp-Apim-Subscription-Region"] = this.region;
+		if (this.#region)
+			headers["Ocp-Apim-Subscription-Region"] = this.#region;
 
 		const response = await requestUrl({
 			throw: false,

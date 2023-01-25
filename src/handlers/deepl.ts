@@ -15,8 +15,8 @@ import {requestUrl} from "obsidian";
 //   --> .join all the translations together
 
 export class Deepl extends DummyTranslate {
-	api_key: string;
-	host: string;
+	#api_key: string;
+	#host: string;
 	id = "deepl";
 
 	// Body size may maximally be 128KiB
@@ -24,22 +24,28 @@ export class Deepl extends DummyTranslate {
 
 	constructor(settings: ServiceSettings) {
 		super();
-		this.api_key = settings.api_key;
-		this.host = settings.host || 'https://api-free.deepl.com/v2';
+		this.#api_key = settings.api_key;
+		this.#host = settings.host || 'https://api-free.deepl.com/v2';
 	}
 
+	update_settings(settings: ServiceSettings): void {
+		this.#api_key = settings.api_key ?? this.#api_key;
+		this.#host = settings.host ?? this.#host;
+	}
+
+
 	async service_validate(): Promise<ValidationResult> {
-		if (!this.api_key)
+		if (!this.#api_key)
 			return {status_code: 400, valid: false, message: "API key was not specified"};
 
-		this.host = this.api_key.endsWith(":fx") ? "https://api-free.deepl.com/v2" : "https://api.deepl.com/v2";
+		this.#host = this.#api_key.endsWith(":fx") ? "https://api-free.deepl.com/v2" : "https://api.deepl.com/v2";
 
 		const response = await requestUrl({
 			throw: false,
-			url: `${this.host}/usage`,
+			url: `${this.#host}/usage`,
 			method: "GET",
 			headers: {
-				"Authorization": "DeepL-Auth-Key " + this.api_key
+				"Authorization": "DeepL-Auth-Key " + this.#api_key
 			}
 		});
 
@@ -50,7 +56,7 @@ export class Deepl extends DummyTranslate {
 		return {
 			status_code: response.status,
 			valid: response.status === 200,
-			host: this.host,
+			host: this.#host,
 		};
 
 	}
@@ -60,13 +66,13 @@ export class Deepl extends DummyTranslate {
 	async service_detect(text: string): Promise<DetectionResult> {
 		const response = await requestUrl({
 			throw: false,
-			url: `${this.host}/translate?` + new URLSearchParams({
+			url: `${this.#host}/translate?` + new URLSearchParams({
 				text: text,
 				target_lang: "en"
 			}),
 			method: "POST",
 			headers: {
-				"Authorization": "DeepL-Auth-Key " + this.api_key
+				"Authorization": "DeepL-Auth-Key " + this.#api_key
 			}
 		});
 
@@ -85,7 +91,7 @@ export class Deepl extends DummyTranslate {
 	async service_translate(text: string, from: string, to: string, options: ServiceOptions = {}): Promise<TranslationResult> {
 		const response = await requestUrl({
 			throw: false,
-			url: `${this.host}/translate?` + new URLSearchParams({
+			url: `${this.#host}/translate?` + new URLSearchParams({
 				text: text,
 				source_lang: from === "auto" ? "" : from,
 				target_lang: to,
@@ -95,7 +101,7 @@ export class Deepl extends DummyTranslate {
 			}),
 			method: "POST",
 			headers: {
-				"Authorization": "DeepL-Auth-Key " + this.api_key
+				"Authorization": "DeepL-Auth-Key " + this.#api_key
 			}
 		});
 
@@ -118,10 +124,10 @@ export class Deepl extends DummyTranslate {
 	async service_languages(): Promise<LanguagesFetchResult> {
 		const response = await requestUrl({
 			throw: false,
-			url: `${this.host}/languages`,
+			url: `${this.#host}/languages`,
 			method: "POST",
 			headers: {
-				"Authorization": "DeepL-Auth-Key " + this.api_key
+				"Authorization": "DeepL-Auth-Key " + this.#api_key
 			}
 		});
 
@@ -140,10 +146,10 @@ export class Deepl extends DummyTranslate {
 	async service_glossary_languages(): Promise<GlossaryFetchResult> {
 		const response = await requestUrl({
 			throw: false,
-			url: `${this.host}/glossary-language-pairs`,
+			url: `${this.#host}/glossary-language-pairs`,
 			method: "GET",
 			headers: {
-				"Authorization": "DeepL-Auth-Key " + this.api_key
+				"Authorization": "DeepL-Auth-Key " + this.#api_key
 			}
 		});
 
@@ -175,10 +181,10 @@ export class Deepl extends DummyTranslate {
 		for (const [language_pair, id] of Object.entries(previous_glossaries_ids)) {
 			const response = await requestUrl({
 				throw: false,
-				url: `${this.host}/glossaries/${id}`,
+				url: `${this.#host}/glossaries/${id}`,
 				method: "DELETE",
 				headers: {
-					"Authorization": "DeepL-Auth-Key " + this.api_key
+					"Authorization": "DeepL-Auth-Key " + this.#api_key
 				}
 			});
 			if (response.status > 400)
@@ -192,7 +198,7 @@ export class Deepl extends DummyTranslate {
 				if (glossary[source_lang + '_' + target_lang]) {
 					const response = await requestUrl({
 						throw: false,
-						url: `${this.host}/glossaries?`,
+						url: `${this.#host}/glossaries?`,
 						body: ''+ new URLSearchParams({
 							name: source_lang + '' + target_lang,
 							source_lang: source_lang,
@@ -202,7 +208,7 @@ export class Deepl extends DummyTranslate {
 						}),
 						method: "POST",
 						headers: {
-							"Authorization": "DeepL-Auth-Key " + this.api_key,
+							"Authorization": "DeepL-Auth-Key " + this.#api_key,
 							"Content-Type": "application/x-www-form-urlencoded"
 						}
 					});

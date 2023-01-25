@@ -4,7 +4,8 @@ import type {
 	LanguagesFetchResult,
 	TranslationResult,
 	ValidationResult,
-	ServiceOptions
+	ServiceOptions,
+	ServiceSettings
 } from "./types";
 import {get, writable, type Writable} from "svelte/store";
 import {DefaultDict, regexLastIndexOf} from "../util";
@@ -95,6 +96,12 @@ export class DummyTranslate {
 		this.failure_count = 0;
 		this.failure_count_watcher.set(0);
 	}
+
+	/**
+	 * Helper function to update private translator variables
+	 * @param settings - Settings to update
+	 */
+	update_settings(settings: ServiceSettings): void {}
 
 	/**
 	 * Validate the service based upon its current settings

@@ -377,7 +377,7 @@
 			val={api_key}
 			onChange={(e) => {
 				api_key = e.target.value;
-				translator.api_key = e.target.value;
+				translator.update_settings({api_key: e.target.value});
 
 				plugin.reactivity.setAPIKey(service, $settings.security_setting, e.target.value);
 				invalidateService();
@@ -399,7 +399,7 @@
 				class={obfuscate_api_key ? 'obfuscate-text' : ''}
 				onChange={(e) => {
 					$settings.service_settings[service].app_id = e.target.value;
-					translator.app_id = e.target.value;
+					translator.update_settings({app_id: e.target.value});
 
 					invalidateService();
 				}}
@@ -420,7 +420,7 @@
 				value={$settings.service_settings[service].region}
 				onChange={(e) => {
 					$settings.service_settings[service].region = e.target.value;
-					translator.region = e.target.value;
+					translator.update_settings({region: e.target.value});
 
 					invalidateService();
 				}}
@@ -445,7 +445,7 @@
 					value={$settings.service_settings[service].host}
 					onChange={(e) => {
 						$settings.service_settings[service].host = e.target.value;
-						translator.host = e.target.value;
+						translator.update_settings({host: e.target.value});
 
 						invalidateService();
 					}}
@@ -455,7 +455,7 @@
 					val={$settings.service_settings[service].host}
 					onChange={(e) => {
 						$settings.service_settings[service].host = e.target.value;
-						translator.host = e.target.value;
+						translator.update_settings({host: e.target.value});
 
 						invalidateService();
 					}}
