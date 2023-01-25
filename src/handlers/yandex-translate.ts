@@ -1,5 +1,12 @@
 import {DummyTranslate} from "./dummy-translate";
-import type {ServiceSettings, DetectionResult, LanguagesFetchResult, TranslationResult, ValidationResult} from "./types";
+import type {
+	ServiceSettings,
+	DetectionResult,
+	LanguagesFetchResult,
+	TranslationResult,
+	ValidationResult,
+	ServiceOptions
+} from "./types";
 import {requestUrl} from "obsidian";
 
 // FIXME: Check what translate returns when no language_from was specified
@@ -22,7 +29,7 @@ export class YandexTranslate extends DummyTranslate {
 		const response = await requestUrl({
 			throw: false,
 			method: "POST",
-			url:`https://translate.yandex.net/api/v1.5/tr.json/getLangs?` +
+			url: `https://translate.yandex.net/api/v1.5/tr.json/getLangs?` +
 				new URLSearchParams({
 					key: this.api_key,
 					ui: "en"
@@ -43,7 +50,7 @@ export class YandexTranslate extends DummyTranslate {
 		const response = await requestUrl({
 			throw: false,
 			method: "POST",
-			url:`https://translate.yandex.net/api/v1.5/tr.json/detect?` +
+			url: `https://translate.yandex.net/api/v1.5/tr.json/detect?` +
 				new URLSearchParams({
 					key: this.api_key,
 					text: text
@@ -62,11 +69,11 @@ export class YandexTranslate extends DummyTranslate {
 		};
 	}
 
-	async service_translate(text: string, from: string, to: string): Promise<TranslationResult> {
+	async service_translate(text: string, from: string, to: string, options: ServiceOptions = {}): Promise<TranslationResult> {
 		const response = await requestUrl({
 			throw: false,
 			method: "POST",
-			url:`https://translate.yandex.net/api/v1.5/tr.json/translate?` +
+			url: `https://translate.yandex.net/api/v1.5/tr.json/translate?` +
 				new URLSearchParams({
 					key: this.api_key,
 					text: text,
@@ -84,7 +91,7 @@ export class YandexTranslate extends DummyTranslate {
 		return {
 			status_code: response.status,
 			translation: data.text[0],
-		 	detected_language: from === "auto" && data.lang ? data.lang : null
+			detected_language: from === "auto" && data.lang ? data.lang : null
 		};
 	}
 
@@ -92,7 +99,7 @@ export class YandexTranslate extends DummyTranslate {
 		const response = await requestUrl({
 			throw: false,
 			method: "POST",
-			url:`https://translate.yandex.net/api/v1.5/tr.json/getLangs?` +
+			url: `https://translate.yandex.net/api/v1.5/tr.json/getLangs?` +
 				new URLSearchParams({
 					key: this.api_key,
 					ui: "en"

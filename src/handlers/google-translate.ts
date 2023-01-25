@@ -1,5 +1,12 @@
 import {DummyTranslate} from "./dummy-translate";
-import type {ServiceSettings, DetectionResult, LanguagesFetchResult, TranslationResult, ValidationResult} from "./types";
+import type {
+	ServiceSettings,
+	DetectionResult,
+	LanguagesFetchResult,
+	TranslationResult,
+	ValidationResult,
+	ServiceOptions
+} from "./types";
 import {requestUrl} from "obsidian";
 
 export class GoogleTranslate extends DummyTranslate {
@@ -20,7 +27,7 @@ export class GoogleTranslate extends DummyTranslate {
 
 		const response = await requestUrl({
 			throw: false,
-			url:`https://translation.googleapis.com/language/translate/v2/languages?` +
+			url: `https://translation.googleapis.com/language/translate/v2/languages?` +
 				new URLSearchParams({
 					key: this.api_key,
 					target: 'en',
@@ -46,7 +53,7 @@ export class GoogleTranslate extends DummyTranslate {
 		const response = await requestUrl({
 			throw: false,
 			method: 'POST',
-			url:`https://translation.googleapis.com/language/translate/v2/detect?` +
+			url: `https://translation.googleapis.com/language/translate/v2/detect?` +
 				new URLSearchParams({
 					key: this.api_key,
 				}),
@@ -66,15 +73,18 @@ export class GoogleTranslate extends DummyTranslate {
 
 		return {
 			status_code: response.status,
-			detected_languages: [{language: data.data.detections[0][0].language, confidence: data.data.detections[0][0].confidence}]
+			detected_languages: [{
+				language: data.data.detections[0][0].language,
+				confidence: data.data.detections[0][0].confidence
+			}]
 		};
 	}
 
-	async service_translate(text: string, from: string, to: string): Promise<TranslationResult> {
+	async service_translate(text: string, from: string, to: string, options: ServiceOptions = {}): Promise<TranslationResult> {
 		const response = await requestUrl({
 			throw: false,
 			method: "POST",
-			url:`https://translation.googleapis.com/language/translate/v2?` +
+			url: `https://translation.googleapis.com/language/translate/v2?` +
 				new URLSearchParams({
 					key: this.api_key,
 				}),
@@ -99,8 +109,8 @@ export class GoogleTranslate extends DummyTranslate {
 		return {
 			status_code: response.status,
 			translation: data.data.translations[0].translatedText,
-			detected_language: (from === "auto" &&  data.data.translations[0].detectedSourceLanguage) ?
-								    data.data.translations[0].detectedSourceLanguage : null
+			detected_language: (from === "auto" && data.data.translations[0].detectedSourceLanguage) ?
+				data.data.translations[0].detectedSourceLanguage : null
 		};
 	}
 
@@ -108,7 +118,7 @@ export class GoogleTranslate extends DummyTranslate {
 		const response = await requestUrl({
 			throw: false,
 			method: "POST",
-			url:`https://translation.googleapis.com/language/translate/v2/languages?` +
+			url: `https://translation.googleapis.com/language/translate/v2/languages?` +
 				new URLSearchParams({
 					key: this.api_key,
 					target: 'en',

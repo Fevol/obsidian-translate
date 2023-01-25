@@ -4,7 +4,8 @@ import type {
 	DetectionResult, GlossaryFetchResult, GlossaryUploadResult,
 	LanguagesFetchResult,
 	TranslationResult,
-	ValidationResult
+	ValidationResult,
+	ServiceOptions
 } from "./types";
 import {requestUrl} from "obsidian";
 
@@ -81,7 +82,7 @@ export class Deepl extends DummyTranslate {
 		};
 	}
 
-	async service_translate(text: string, from: string, to: string, glossary_id: string): Promise<TranslationResult> {
+	async service_translate(text: string, from: string, to: string, options: ServiceOptions = {}): Promise<TranslationResult> {
 		const response = await requestUrl({
 			throw: false,
 			url: `${this.host}/translate?` + new URLSearchParams({
@@ -90,7 +91,7 @@ export class Deepl extends DummyTranslate {
 				target_lang: to,
 				split_sentences: "1",
 				preserve_formatting: "0",
-				glossary_id: glossary_id || ""
+				glossary_id: options.glossary || ""
 			}),
 			method: "POST",
 			headers: {

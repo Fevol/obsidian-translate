@@ -1,5 +1,12 @@
 import {DummyTranslate} from "./dummy-translate";
-import type {ServiceSettings, DetectionResult, LanguagesFetchResult, TranslationResult, ValidationResult} from "./types";
+import type {
+	ServiceSettings,
+	DetectionResult,
+	LanguagesFetchResult,
+	TranslationResult,
+	ValidationResult,
+	ServiceOptions
+} from "./types";
 import {requestUrl} from "obsidian";
 
 export class AzureTranslator extends DummyTranslate {
@@ -90,7 +97,7 @@ export class AzureTranslator extends DummyTranslate {
 		};
 	}
 
-	async service_translate(text: string, from: string = 'auto', to: string): Promise<TranslationResult> {
+	async service_translate(text: string, from: string, to: string, options: ServiceOptions = {}): Promise<TranslationResult> {
 		const headers: any = {
 			"Content-Type": "application/json",
 			"Ocp-Apim-Subscription-Key": this.api_key,
@@ -105,7 +112,8 @@ export class AzureTranslator extends DummyTranslate {
 				new URLSearchParams({
 					from: from === "auto" ? "" : from,
 					to: to,
-					textType: "plain"
+					textType: "plain",
+					allowFallback: "true"
 				}),
 			headers: headers,
 			body: JSON.stringify([{Text: text}]),

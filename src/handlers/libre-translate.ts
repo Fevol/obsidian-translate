@@ -1,5 +1,12 @@
 import {DummyTranslate} from "./dummy-translate";
-import type {ServiceSettings, DetectionResult, LanguagesFetchResult, TranslationResult, ValidationResult} from "./types";
+import type {
+	ServiceSettings,
+	DetectionResult,
+	LanguagesFetchResult,
+	TranslationResult,
+	ValidationResult,
+	ServiceOptions
+} from "./types";
 import {requestUrl} from "obsidian";
 
 export class LibreTranslate extends DummyTranslate {
@@ -18,7 +25,7 @@ export class LibreTranslate extends DummyTranslate {
 		const response = await requestUrl({
 			throw: false,
 			method: "GET",
-			url:`${this.host}/languages`,
+			url: `${this.host}/languages`,
 		});
 
 		const data = response.json;
@@ -33,8 +40,8 @@ export class LibreTranslate extends DummyTranslate {
 		const response = await requestUrl({
 			throw: false,
 			method: "POST",
-			url:`${this.host}/detect`,
-			body: JSON.stringify({ q: text }),
+			url: `${this.host}/detect`,
+			body: JSON.stringify({q: text}),
 			headers: {"Content-Type": "application/json"}
 		});
 
@@ -45,15 +52,18 @@ export class LibreTranslate extends DummyTranslate {
 
 		return {
 			status_code: response.status,
-			detected_languages: response.status === 200 ? [{language: data[0].language, confidence: data[0].confidence/100}] : undefined
+			detected_languages: response.status === 200 ? [{
+				language: data[0].language,
+				confidence: data[0].confidence / 100
+			}] : undefined
 		};
 	}
 
-	async service_translate(text: string, from: string, to: string): Promise<TranslationResult> {
+	async service_translate(text: string, from: string, to: string, options: ServiceOptions = {}): Promise<TranslationResult> {
 		const response = await requestUrl({
 			throw: false,
 			method: "POST",
-			url:`${this.host}/translate`,
+			url: `${this.host}/translate`,
 			body: JSON.stringify({
 				q: text,
 				source: from,
@@ -69,7 +79,7 @@ export class LibreTranslate extends DummyTranslate {
 		return {
 			status_code: response.status,
 			translation: data.translatedText,
-			detected_language: (from === "auto" && data.detectedLanguage.language  ? data.detectedLanguage.language : undefined)
+			detected_language: (from === "auto" && data.detectedLanguage.language ? data.detectedLanguage.language : undefined)
 		};
 	}
 
@@ -77,7 +87,7 @@ export class LibreTranslate extends DummyTranslate {
 		const response = await requestUrl({
 			throw: false,
 			method: "GET",
-			url:`${this.host}/languages`,
+			url: `${this.host}/languages`,
 		});
 
 		const data = response.json;

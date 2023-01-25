@@ -1,5 +1,12 @@
 import {DummyTranslate} from "./dummy-translate";
-import type {ServiceSettings, DetectionResult, LanguagesFetchResult, TranslationResult, ValidationResult} from "./types";
+import type {
+	ServiceSettings,
+	DetectionResult,
+	LanguagesFetchResult,
+	TranslationResult,
+	ValidationResult,
+	ServiceOptions
+} from "./types";
 import {requestUrl} from "obsidian";
 import {DEFAULT_SETTINGS} from "../constants";
 
@@ -116,7 +123,7 @@ export class FanyiYoudao extends DummyTranslate {
 		}
 	}
 
-	async service_translate(text: string, from: string, to: string): Promise<TranslationResult> {
+	async service_translate(text: string, from: string, to: string, options: ServiceOptions = {}): Promise<TranslationResult> {
 		const signed_message = await this.sign_message(text);
 		const response = await requestUrl({
 			throw: false,

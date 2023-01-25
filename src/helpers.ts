@@ -1,7 +1,7 @@
 import {TFile, Editor, Notice} from "obsidian";
 import type TranslatorPlugin from "./main";
 import t from "./l10n";
-import type {TranslationResult} from "./handlers/types";
+import type {TranslationResult, ServiceOptions} from "./handlers/types";
 
 /**
  * Helper function for translating a file, making a new file or replacing the original one with the translation.
@@ -12,7 +12,7 @@ import type {TranslationResult} from "./handlers/types";
  * @param apply_glossary - Whether to apply the glossary to the translated file
  */
 export async function translate_file(plugin: TranslatorPlugin, file: TFile, language_to: string, replace_original: boolean = false,
-									 apply_glossary: boolean = false): Promise<TranslationResult> {
+									 options: ServiceOptions): Promise<TranslationResult> {
 	if (!file)
 		return {status_code: 400, message: "No file was selected"};
 
@@ -29,7 +29,7 @@ export async function translate_file(plugin: TranslatorPlugin, file: TFile, lang
 		if (paragraph.trim().length === 0) {
 			translated_text.push(paragraph);
 		} else {
-			const output = (await plugin.translator.translate(paragraph, "auto", language_to, apply_glossary));
+			const output = (await plugin.translator.translate(paragraph, "auto", language_to, options));
 			if (output.status_code !== 200) {
 				output.translation = translated_text.join('\n\n');
 				return output;
@@ -45,7 +45,7 @@ export async function translate_file(plugin: TranslatorPlugin, file: TFile, lang
 		// Translate the filename as well, if possible
 		let filename = file?.name.replace(/\.[^/.]+$/, "");
 
-		const filename_translation = (await plugin.translator.translate(filename, "auto", language_to, apply_glossary)).translation;
+		const filename_translation = (await plugin.translator.translate(filename, "auto", language_to, options)).translation;
 
 		const translated_filename = (!filename_translation || filename_translation === filename)
 			? `[${language_to}] ${filename}`
@@ -78,9 +78,9 @@ export async function translate_file(plugin: TranslatorPlugin, file: TFile, lang
  * @param plugin - The plugin instance (to get message_queue, global translator, etc.)
  * @param editor - Note editor instance
  * @param language_to - The language to translate to
- * @param apply_glossary - Whether to apply the glossary to the translated file
+ * @param options - Options for the translation service (e.g.: apply glossary)
  */
-export async function translate_selection(plugin: TranslatorPlugin, editor: Editor, language_to: string, apply_glossary: boolean = false): Promise<TranslationResult> {
+export async function translate_selection(plugin: TranslatorPlugin, editor: Editor, language_to: string, options: ServiceOptions): Promise<TranslationResult> {
 	if (editor.getSelection().length === 0) {
 		plugin.message_queue("Selection is empty");
 		return;
@@ -88,7 +88,7 @@ export async function translate_selection(plugin: TranslatorPlugin, editor: Edit
 
 	let text = editor.getSelection();
 
-	let results = await plugin.translator.translate(text, "auto", language_to, apply_glossary);
+	let results = await plugin.translator.translate(text, "auto", language_to, options);
 	if (results.translation)
 		editor.replaceSelection(results.translation);
 	if (results.message)

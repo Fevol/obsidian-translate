@@ -66,10 +66,14 @@ export default class TranslateModal extends FuzzySuggestModal<string>{
 		let output: TranslationResult;
 		if (this.translation_type.contains("file")) {
 			output = await translate_file(this.plugin, this.file || this.app.workspace.getActiveFile(), item.value,
-				this.translation_type === "file-current", this.settings.apply_glossary);
+				this.translation_type === "file-current", {
+					apply_glossary: this.settings.apply_glossary
+				});
 		} else if (this.translation_type === "selection") {
 			let editor: Editor = this.app.workspace.getActiveViewOfType(MarkdownView).editor;
-			output = await translate_selection(this.plugin, editor, item.value, this.settings.apply_glossary);
+			output = await translate_selection(this.plugin, editor, item.value, {
+				apply_glossary: this.settings.apply_glossary
+			});
 		}
 
 		if (output.status_code === 200) {

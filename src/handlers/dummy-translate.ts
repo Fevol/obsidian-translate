@@ -3,7 +3,8 @@ import type {
 	GlossaryFetchResult, GlossaryUploadResult,
 	LanguagesFetchResult,
 	TranslationResult,
-	ValidationResult
+	ValidationResult,
+	ServiceOptions
 } from "./types";
 import {get, writable, type Writable} from "svelte/store";
 import {DefaultDict, regexLastIndexOf} from "../util";
@@ -175,10 +176,10 @@ export class DummyTranslate {
 	 * @param text - Text to translate
 	 * @param from - Source language, may be null if language is to be detected, must exist in available_languages
 	 * @param to - Target language, must exist in available_languages
-	 * @param [apply_glossary=false] - Whether to apply the glossary to the translation
+	 * @param options - Additional options to pass to the service, see 'types.d.ts' for more information
 	 * @returns Object containing translated text, detected language, detection confidence, status code, and message
 	 */
-	async translate(text: string, from: string, to: string, apply_glossary: boolean = false): Promise<TranslationResult> {
+	async translate(text: string, from: string, to: string, options: ServiceOptions = {}): Promise<TranslationResult> {
 		if (!this.valid) {
 			if (this.id === "bergamot")
 				return {status_code: 400, message: "Bergamot is not installed"};
@@ -200,9 +201,8 @@ export class DummyTranslate {
 		let output: TranslationResult;
 		try {
 			let temp_detected_language = from;
-			let glossary_id: string = undefined;
 			let detecting_language = false;
-			if (apply_glossary) {
+			if (options.apply_glossary && !options.glossary) {
 				detecting_language = from === 'auto' && !(globals.plugin.detector == null ) && globals.plugin.detector.valid;
 				// TODO: Give warning if globals.plugin.detector is null
 				if (detecting_language || from !== 'auto') {
@@ -222,10 +222,10 @@ export class DummyTranslate {
 						// First, check if online glossary is available, always prefer this
 						if (loaded_settings.glossary_preference !== 'local') {
 							// @ts-ignore (service is always in service_settings)
-							glossary_id = loaded_settings.service_settings[this.id].uploaded_glossaries?.[language_pair];
+							options.glossary_id = loaded_settings.service_settings[this.id].uploaded_glossaries?.[language_pair];
 						}
 
-						if (loaded_settings.glossary_preference === 'local' || (loaded_settings.glossary_preference === 'online' && !glossary_id)) {
+						if (loaded_settings.glossary_preference === 'local' || (loaded_settings.glossary_preference === 'online' && !options.glossary)) {
 							const glossary_pair: string[][] = glossary.dicts[language_pair as keyof typeof glossary.dicts];
 							if (from && glossary_pair) {
 								text = text.replace(glossary.replacements[language_pair as keyof typeof glossary.replacements],
@@ -243,7 +243,7 @@ export class DummyTranslate {
 			}
 
 			if (text.length < this.character_limit) {
-				output = await this.service_translate(text, from, to, glossary_id);
+				output = await this.service_translate(text, from, to,);
 				if (output.status_code !== 200)
 					return this.detected_error("Translation failed", output);
 				if (detecting_language && temp_detected_language)
@@ -270,7 +270,7 @@ export class DummyTranslate {
 
 
 					const chunk = text.slice(idx, r_idx).trim();
-					const result = await this.service_translate(chunk, from, to, glossary_id);
+					const result = await this.service_translate(chunk, from, to, options);
 					if (result.status_code !== 200) {
 						return this.detected_error("Translation failed", result);
 					} else {
@@ -303,7 +303,7 @@ export class DummyTranslate {
 	 * @returns Object containing the translation and the detected language & confidence (if applicable), as well as the status code and message
 	 * @virtual
 	 */
-	async service_translate(text: string, from: string, to: string, glossary_id: string = undefined): Promise<TranslationResult> {
+	async service_translate(text: string, from: string, to: string, options: ServiceOptions = {} = {}): Promise<TranslationResult> {
 		// Perfect translation
 		return {status_code: 400, translation: text, detected_language: null};
 	}

@@ -4,7 +4,8 @@ import type {
 	DetectionResult,
 	LanguagesFetchResult,
 	TranslationResult,
-	ValidationResult
+	ValidationResult,
+	ServiceOptions
 } from "./types";
 import {MD5} from "./md5";
 
@@ -119,7 +120,7 @@ export class FanyiBaidu extends DummyTranslate {
 		};
 	}
 
-	async service_translate(text: string, from: string, to: string): Promise<TranslationResult> {
+	async service_translate(text: string, from: string, to: string, options: ServiceOptions = {}): Promise<TranslationResult> {
 		const signature = await this.sign_message(text);
 
 		const payload = {

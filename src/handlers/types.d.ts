@@ -27,6 +27,109 @@ interface ServiceSettings {
 
 }
 
+/**
+ * Options for a translation request
+ * @remark Defines additional options that can be used by the translation services, if supported
+ */
+interface ServiceOptions {
+	/**
+	 * Apply glossary to the translation
+	 */
+	apply_glossary?: boolean;
+
+	/**
+	 * Glossary ID/resource to apply to the translation cloud-side
+	 */
+	glossary?: string;
+
+	/**
+	 * Split translation input into sentences, based on punctuation/newlines
+	 * @remark Supported by DeepL
+	 * @property { "punctuation" | "newline" | "both" } [split_sentences] - Split sentences based on punctuation or newlines
+	 */
+	split_sentences?: "punctuation" | "newline" | "both";
+
+	/**
+	 * Preserve formatting of the input text (i.e.: punctuation or upper/lowercase at beginning/end of sentences)
+	 * @remark Supported by DeepL
+	 */
+	preserve_formatting?: boolean;
+
+	/**
+	 * Lean towards a more formal/informal translation
+	 * @remark Supported by DeepL (pro), Amazon Translate
+	 * @property { "more" | "less" } [formality] - Lean towards a more formal/informal translation
+	 */
+	formality?: "formal" | "informal";
+
+
+	/**
+	 * Document type of input text
+	 * @todo Add support for HTML/XML-like text
+	 * @remark Supported by DeepL, Azure, Yandex, Libre Translate
+	 */
+	text_type?: "plain" | "html";
+
+	/**
+	 * Profanity filter for translation
+	 * @remark Supported by Azure and Amazon Translate
+	 * @todo Add support for profanity filtering
+	 * @property { "Marked" | "Deleted" } action - Action to take when profanity is detected
+	 * @property { string } [profanity_filter.marker] - Marker to use when profanity is detected (only used when action is "Marked")
+	 */
+	profanity_filter?: {
+		action: "mark" | "delete";
+		marker?: string;
+	}
+
+	/**
+	 * From script of the input text
+	 * @remark Supported by Azure
+	 * @todo Add support for non-Latin scripts
+	 */
+	from_script?: "Latn" | "Cyrl" | "Arab" | "Hebr" | "Hans" | "Hant" | "Jpan" | "Kore" | "Thaa";
+
+	/**
+	 * To script of the output text
+	 * @remark Supported by Azure
+	 * @todo Add support for non-Latin scripts
+	 */
+	to_script?: "Latn" | "Cyrl" | "Arab" | "Hebr" | "Hans" | "Hant" | "Jpan" | "Kore" | "Thaa";
+
+
+	/**
+	 * Include word alignment of source - translation
+	 * @remark Supported by Azure
+	 * @todo Add support for word alignment in output
+	 */
+	word_alignment?: boolean;
+
+	/**
+	 * Include sentence alignment of source - translation (length of sentences between source and translation)
+	 * @remark Supported by Azure
+	 * @todo Add support for sentence alignment in output
+	 */
+	sentence_alignment?: boolean;
+
+
+	// TODO: DeepL has five more options, these will be added in once I figure out how to properly integrate XML parsing into
+	//  the translation process (i.e.: markdown -> html/xml -> translation -> translated html/xml -> translated markdown)
+	//  Use-case example:
+	//  		"I have a [English site](https://example.com) I visit"
+	//  	--> "I have a <a href="https://example.com">English site</a> I visit"
+	//    	--> "Ich habe eine <a href="https://example.com">Englische Seite</a> die ich besuche"
+	//    	--> "Ich habe eine [Englische Seite](https://example.com) die ich besuche"
+	// Significantly improves translation quality for services that do not know how to handle markdown (e.g. Bergamot),
+	// but also adds complexity overhead to the translation process, and might not jive well with very custom markdown
+	//
+	// Example tags:
+	// - tag_handling
+	// - non_splitting_tags
+	// - outline_detection
+	// - splitting_tags
+	// - ignore_tags
+}
+
 
 /**
  * Base output of the translation services' API calls

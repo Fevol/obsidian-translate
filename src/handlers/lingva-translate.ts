@@ -1,5 +1,12 @@
 import {DummyTranslate} from "./dummy-translate";
-import type {ServiceSettings, DetectionResult, LanguagesFetchResult, TranslationResult, ValidationResult} from "./types";
+import type {
+	ServiceSettings,
+	DetectionResult,
+	LanguagesFetchResult,
+	TranslationResult,
+	ValidationResult,
+	ServiceOptions
+} from "./types";
 import {requestUrl} from "obsidian";
 
 export class LingvaTranslate extends DummyTranslate {
@@ -37,7 +44,7 @@ export class LingvaTranslate extends DummyTranslate {
 		return result;
 	}
 
-	async service_translate(text: string, from: string, to: string): Promise<TranslationResult> {
+	async service_translate(text: string, from: string, to: string, options: ServiceOptions = {}): Promise<TranslationResult> {
 		const response = await requestUrl({
 			throw: false,
 			url: `https://${this.host}/api/v1/${from}/${to}/${text}`
@@ -58,7 +65,7 @@ export class LingvaTranslate extends DummyTranslate {
 		return {
 			status_code: response.status,
 			translation: data.translation,
-			detected_language: (from === "auto" &&  data.info?.detectedSource) ? data.info.detectedSource : null
+			detected_language: (from === "auto" && data.info?.detectedSource) ? data.info.detectedSource : null
 		};
 	}
 

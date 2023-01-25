@@ -6,7 +6,8 @@ import type {
 	DetectionResult,
 	LanguagesFetchResult,
 	TranslationResult,
-	ValidationResult
+	ValidationResult,
+	ServiceOptions
 } from "./types";
 
 export class AmazonTranslate extends DummyTranslate {
@@ -56,7 +57,7 @@ export class AmazonTranslate extends DummyTranslate {
 		return {detected_languages: [{language: result.detected_language}], status_code: result.status_code};
 	}
 
-	async service_translate(text: string, from: string, to: string): Promise<TranslationResult> {
+	async service_translate(text: string, from: string, to: string, options: ServiceOptions = {}): Promise<TranslationResult> {
 		const response = await fetch(`https://translate.${this.region}.amazonaws.com/TranslateText`, {
 			body: JSON.stringify({
 				Text: text,

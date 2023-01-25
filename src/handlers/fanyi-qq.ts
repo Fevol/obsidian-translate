@@ -4,7 +4,8 @@ import type {
 	DetectionResult,
 	LanguagesFetchResult,
 	TranslationResult,
-	ValidationResult
+	ValidationResult,
+	ServiceOptions
 } from "./types";
 import {TextDecoder} from "util";
 import type {RequestUrlResponse} from "obsidian";
@@ -183,7 +184,7 @@ export class FanyiQq extends DummyTranslate {
 		});
 	}
 
-	async service_translate(text: string, from: string, to: string): Promise<TranslationResult> {
+	async service_translate(text: string, from: string, to: string, options: ServiceOptions = {}): Promise<TranslationResult> {
 		let response = await this.attempt_translation(text, from, to);
 
 		// Data = {"Response": {"TargetText":"Hello", "Source":"en", "Target":"zh", "RequestId": "..." } }

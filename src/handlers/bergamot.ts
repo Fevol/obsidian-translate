@@ -1,6 +1,6 @@
 import type TranslatorPlugin from "../main";
 import {DummyTranslate} from "./dummy-translate";
-import type { DetectionResult, ValidationResult, TranslationResult, LanguagesFetchResult } from "./types";
+import type {DetectionResult, ValidationResult, TranslationResult, LanguagesFetchResult, ServiceOptions} from "./types";
 import type {ModelFileData, LanguageModelData} from "../types";
 
 import {Bergamot} from "./bergamot/bergamot";
@@ -63,7 +63,7 @@ export class BergamotTranslate extends DummyTranslate {
 		return this.detector.detect(text);
 	}
 
-	async service_translate(text: string, from: string = 'auto', to: string): Promise<TranslationResult> {
+	async service_translate(text: string, from: string, to: string, options: ServiceOptions = {}): Promise<TranslationResult> {
 		let detected_language = '';
 		if (from === 'auto') {
 			if (this.has_autodetect_capability()) {
