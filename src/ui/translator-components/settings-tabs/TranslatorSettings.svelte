@@ -163,7 +163,7 @@
 <!-- Show warning when service is untested -->
 {#if UNTESTED_SERVICES.includes(service)}
 	<div class="translator-warning-message">
-		<Icon icon="alert-triangle" class="translator-icon-xxl" />
+		<Icon icon="alert-triangle" size={50}/>
 		<div>
 			<b>WARNING:</b> {info.display_name} has not been tested, so it is very likely that it does not work properly.<br><br>
 			If you encounter any issue, please open an issue over on

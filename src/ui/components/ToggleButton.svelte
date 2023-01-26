@@ -3,7 +3,7 @@
 
 	export let value: boolean | null = null;
 	export let text: string;
-	export let size: number = 16;
+	export let size: number;
 	export let fn: () => Promise<boolean>;
 
 	let running: boolean = false;

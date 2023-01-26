@@ -14,7 +14,7 @@
 	export let icon: string;
 	export let tooltip: string;
 	export let disabled: boolean;
-	export let size: number = 8;
+	export let size: number;
 </script>
 
 <div class="setting-command-hotkeys" transition:slide>
@@ -22,7 +22,7 @@
 		<span class="setting-hotkey translator-icon-text" in:horizontalSlide out:horizontalSlide>
 			{text}
 			{#if !disabled}
-				<span on:click={onClick(value, index)} class="setting-hotkey-icon" style="display: block" aria-label={tooltip}>
+				<span on:click={onClick(value, index)} class="setting-hotkey-icon" style="display: flex" aria-label={tooltip}>
 					<Icon icon={icon} size={size} />
 				</span>
 			{/if}

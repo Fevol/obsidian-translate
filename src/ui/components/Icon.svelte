@@ -1,64 +1,54 @@
 <script lang="ts">
-	import {onMount} from "svelte";
-	import {setIcon} from "obsidian";
+	import {getIcon} from "obsidian";
 
-	export let icon: string | string[2];
-	export let content: string;
-	export let size: number;
+	export let icon: string;
+	export let size: number | number[2] | string;
+	export let stroke_width: number;
 
-	let icon_element : HTMLElement;
+	let icon_element: SVGElement;
 
-	onMount(() => {
-		if (icon !== 'spinner') {
-			if (!content) {
-				setIcon(icon_element, icon, size);
-				icon_element.style.display = 'flex';
-			}
-
-			// resize();
-			// Custom loader for SVG icons that does not restrict the size of the icon
-			else
-				icon_element.innerHTML = content.trim();
-		}
-
-	});
-
-	// function resize() {
-	// 	// If size was of type [width, height], resize the SVG such that it fits for one of the dimensions
-	// 	if (size instanceof Array) {
-	// 		icon_element = icon_element.children[0].children[0] as HTMLElement;
-	// 		// let child = icon_element.children[0];
-	//
-	// 		// let [width, height] = child.getAttribute("viewBox").split(" ").splice(2).map((x) => parseInt(x));
-	// 		// let scale = Math.min(svg_size[0] / width, svg_size[1] / height);
-	// 		// child.style.width = `${width * scale}px`;
-	// 		// icon_element.children[0].style.height = `${height * scale}px`;
-	// 		// child.setAttribute("width", (width * scale).toString());
-	// 		// child.setAttribute("height", (height * scale).toString());
-	// 		child.setAttribute("width", svg_size[0].toString());
-	// 		child.setAttribute("height", svg_size[1].toString());
-	//
-	// 	}
-	// }
-
-	$: {
-		// Reactivity fires once *before* the element gets mounted, understandingly, this causes errors
-		if (icon_element) {
-			icon_element.empty();
-			if (icon !== 'spinner') {
-				if (!content) {
-					setIcon(icon_element, icon, size);
-					icon_element.style.display = 'flex';
-				}
-				// resize();
-				else
-					icon_element.innerHTML = content.trim();
-			}
-		}
+	function setSize() {
 
 	}
 
+
+	$: {
+		if (icon !== 'spinner') {
+			if (!icon.startsWith('<svg')) {
+				icon_element = getIcon(icon);
+			} else {
+				icon_element = <SVGElement>new DOMParser().parseFromString(icon, 'text/html').body.childNodes[0];
+			}
+
+			if ($$props.class)
+				icon_element.classList.add(...$$props.class.split(' '));
+		} else {
+			icon_element.innerHTML = '';
+			icon_element.classList.add('translator-spinner');
+		}
+	}
+
+	$: {
+		if (icon_element && size) {
+			if (typeof size === 'number') {
+				icon_element.style.width = size + 'px';
+				icon_element.style.height = size + 'px';
+			} else if (Array.isArray(size)) {
+				icon_element.style.width = size[0] + 'px';
+				icon_element.style.height = size[1] + 'px';
+			} else {
+				icon_element.style.width = `var(--${size})`;
+				icon_element.style.height = `var(--${size})`;
+				icon_element.style.strokeWidth = `var(--${size}-stroke-width)`;
+			}
+		}
+	}
+
+	$: {
+		if (icon_element && stroke_width) {
+			icon_element.style.strokeWidth = stroke_width + 'px';
+		}
+	}
 </script>
 
-<!--FIXME: Icon div has extra height (about 15% extra) if inline style is not set, investigate 	-->
-<div bind:this={icon_element} class={$$props.class}  class:translator-spinner={icon==='spinner'}></div>
+{@html icon_element.outerHTML}

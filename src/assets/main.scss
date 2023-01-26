@@ -546,7 +546,8 @@ div.translator-focused-element {
 	display: flex;
 	flex-direction: row;
 	white-space: nowrap;
-	padding: 4px 6px;
+	//padding: calc(var(--icon-size) / 3);
+	padding: 6px;
 	align-items: center;
 	gap: 4px;
 	outline: 0 solid transparent;
@@ -561,8 +562,9 @@ div.translator-focused-element {
 	background-color 0.35s cubic-bezier(0.45, 0.25, 0.83, 0.67),
 	max-width 0.35s cubic-bezier(0.57, 0.04, 0.58, 1),
 	outline 0.15s ease-in-out;
+	//max-width: calc(var(--icon-size) * (5/3) + 2px);
 	max-width: 32px;
-	height: 32px;
+	height: fit-content;
 }
 
 .translator-navigation-item:hover {
@@ -574,7 +576,7 @@ div.translator-navigation-item-selected {
 	outline: unset !important;
 	background-color: var(--text-accent);
 	color: var(--text-on-accent);
-	padding: 4px 9px;
+	padding: 6px 9px;
 	max-width: 200px;
 	transition: color 0.25s ease-in-out,
 	padding 0.25s ease-in-out,
@@ -587,6 +589,10 @@ div.translator-navigation-item-selected:hover {
 }
 
 .translator-navigation-item-text {
+	height: 18px;
+}
+
+.translator-navigation-selected-item-text {
 	//display: none;
 	color: transparent;
 	overflow: clip;
@@ -749,6 +755,7 @@ table.translator-table-cell-temporary td:first-of-type:empty:not(:focus):before 
 }
 
 .translator-filter-input-icon {
+	display: flex;
 	position: absolute;
 	cursor: pointer;
 	right: 7px;
@@ -791,6 +798,7 @@ table.translator-table-cell-temporary td:first-of-type:empty:not(:focus):before 
 }
 
 .translator-input-icon {
+	display: flex;
 	position: absolute;
 	background-color: var(--background-modifier-error);
 }

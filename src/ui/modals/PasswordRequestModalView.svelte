@@ -32,7 +32,7 @@
 			app.saveLocalStorage("password", input);
 			$password = input;
 			for (const [service, key] of decrypted_keys.entries())
-				active_services[service].update_settings({api_key: key});
+				active_services[service].api_key = key;
 
 			$passwords_are_encrypted = false;
 

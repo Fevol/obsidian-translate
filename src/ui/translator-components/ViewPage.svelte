@@ -461,7 +461,7 @@
 							<Button class="translator-rounded-button clickable-icon" icon={QUICK_ACTIONS[quick_button].icon[0]}
 									tooltip={QUICK_ACTIONS[quick_button].tooltip[0] + ($hide_shortcut_tooltips || !$settings.hotkeys.find(x => x.id.endsWith(quick_button)).key
 												? '' : `\n[${getHotKeyString($settings.hotkeys.find(x => x.id.endsWith(quick_button)))}]`)}
-									size="16" onClick={() => left_button_actions[quick_button]()}/>
+									onClick={() => left_button_actions[quick_button]()}/>
 						{/each}
 					</div>
 				{/if}
@@ -482,7 +482,7 @@
 						on:click={async () => {await translate();}}
 						aria-label={`Translate${$hide_shortcut_tooltips || !$settings.hotkeys.find(x => x.id === 'view-language-switch').key ?
 									'' : `\n[${getHotKeyString($settings.hotkeys.find(x => x.id === 'view-translate'))}]`}`}>
-					<Icon icon=translate size={20}/>
+					<Icon icon=translate size={"icon-xl"}/>
 				</button>
 			{/if}
 
@@ -564,7 +564,7 @@
 							<Button class="translator-rounded-button clickable-icon" icon={QUICK_ACTIONS[quick_button].icon[0]}
 									tooltip={QUICK_ACTIONS[quick_button].tooltip[0] + (($hide_shortcut_tooltips || !$settings.hotkeys.find(x => x.id.endsWith(quick_button)).key) ?
 												'' : `\n[${getHotKeyString($settings.hotkeys.find(x => x.id.endsWith(quick_button)))}]`)}
-									size="16" onClick={() => right_button_actions[quick_button]()}/>
+									onClick={() => right_button_actions[quick_button]()}/>
 						{/each}
 					</div>
 				{/if}
@@ -590,7 +590,7 @@
 
 
 				{#if services[$translation_service].attribution !== undefined}
-					<Icon content={ICONS[$translation_service + '_attribution']} size={40} svg_size={[160, 40]}/>
+					<Icon icon={ICONS[$translation_service + '_attribution']}/>
 				{/if}
 
 			</div>
