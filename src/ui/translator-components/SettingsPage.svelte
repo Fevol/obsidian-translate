@@ -116,8 +116,10 @@
 					}
 				}}
 			>
-				<Icon icon="{icon}" size="20" class={id === $settings.translation_service ? 'translator-selected-element' : ''} />
-				<div class:translator-navigation-item-text={$settings_tab !== id}>{name}</div>
+				<div style="display: flex">
+					<Icon icon="{icon}" class={id === $settings.translation_service ? 'translator-selected-element' : ''} />
+				</div>
+				<div  class="translator-navigation-item-text" class:translator-navigation-selected-item-text={$settings_tab !== id}>{name}</div>
 			</div>
 		{/each}
 	</nav>

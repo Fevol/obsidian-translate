@@ -474,7 +474,7 @@
 									'' : `\n[${getHotKeyString($settings.hotkeys.find(x => x.id === 'view-language-switch'))}]`}`}
 					on:click={async () => { await switchLanguages(); }}
 			>
-					<Icon icon=switch size={20}/>
+					<Icon icon="switch" size={20}/>
 			</button>
 
 			{#if !auto_translate}
@@ -482,7 +482,7 @@
 						on:click={async () => {await translate();}}
 						aria-label={`Translate${$hide_shortcut_tooltips || !$settings.hotkeys.find(x => x.id === 'view-language-switch').key ?
 									'' : `\n[${getHotKeyString($settings.hotkeys.find(x => x.id === 'view-translate'))}]`}`}>
-					<Icon icon=translate size={"icon-xl"}/>
+					<Icon icon="translate" size={20} />
 				</button>
 			{/if}
 
