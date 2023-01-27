@@ -267,6 +267,14 @@
 				translation_service.available_languages = $settings.service_settings[service].available_languages;
 			}
 
+			// Provide default options to the service
+			translation_service.options = {
+				split_sentences: service_settings.split_sentences,
+				preserve_formatting: service_settings.preserve_formatting,
+				formality: service_settings.formality,
+				profanity_filter: service_settings.profanity_filter,
+			}
+
 			active_services[service] = translation_service;
 			translator = translation_service;
 			service_uses[service] = 1;

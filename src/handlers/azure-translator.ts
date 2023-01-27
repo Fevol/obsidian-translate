@@ -111,6 +111,19 @@ export class AzureTranslator extends DummyTranslate {
 		if (this.#region)
 			headers["Ocp-Apim-Subscription-Region"] = this.#region;
 
+		let profanity_action = "NoAction";
+		if (options.profanity_filter.action === "mark")
+			profanity_action = "Marked";
+		else if (options.profanity_filter.action === "delete")
+			profanity_action = "Deleted";
+		let profanity_mark = undefined;
+		if (options.profanity_filter.marker === "mask")
+			profanity_mark = "Asterisk";
+		else if (options.profanity_filter.marker === "html-tag")
+			profanity_mark = "Tag";
+
+
+
 		const response = await requestUrl({
 			throw: false,
 			method: "POST",
@@ -119,7 +132,9 @@ export class AzureTranslator extends DummyTranslate {
 					from: from === "auto" ? "" : from,
 					to: to,
 					textType: "plain",
-					allowFallback: "true"
+					allowFallback: "true",
+					profanityAction: profanity_action,
+					profanityMarker: profanity_mark
 				}),
 			headers: headers,
 			body: JSON.stringify([{Text: text}]),

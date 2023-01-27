@@ -89,15 +89,31 @@ export class Deepl extends DummyTranslate {
 	}
 
 	async service_translate(text: string, from: string, to: string, options: ServiceOptions = {}): Promise<TranslationResult> {
+
+		let split_sentences = "1";
+		if (options.split_sentences === "punctuation")
+			split_sentences = "nonewlines";
+		else if (options.split_sentences === "newline" || options.split_sentences === "both")
+			split_sentences = "0";
+
+		let preserve_formatting = options.preserve_formatting ? "1" : "0";
+
+		let formality = "default";
+		if (options.formality === "formal")
+			formality = "prefer_more";
+		else if (options.formality === "informal")
+			formality = "prefer_less";
+
 		const response = await requestUrl({
 			throw: false,
 			url: `${this.#host}/translate?` + new URLSearchParams({
 				text: text,
 				source_lang: from === "auto" ? "" : from,
 				target_lang: to,
-				split_sentences: "1",
-				preserve_formatting: "0",
-				glossary_id: options.glossary || ""
+				glossary_id: options.glossary || "",
+				split_sentences: split_sentences,
+				preserve_formatting: preserve_formatting,
+				formality: formality
 			}),
 			method: "POST",
 			headers: {

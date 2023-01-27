@@ -1,4 +1,5 @@
 import type {Modifier} from "obsidian";
+import type {ServiceOptions} from "./handlers/types";
 
 /**
  * Object containing all plugin settings
@@ -162,7 +163,7 @@ export interface APIServiceProviders {
 /**
  * Object containing the settings for a single API service
  */
-export interface APIServiceSettings {
+export interface APIServiceSettings extends ServiceOptions {
 	/**
 	 * List of user-selected languages (locales) that will be available with the 'manually_selected' <i>(2)</i> filter mode
 	 */

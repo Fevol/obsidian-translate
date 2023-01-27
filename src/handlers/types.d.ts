@@ -47,7 +47,7 @@ interface ServiceOptions {
 	 * @remark Supported by DeepL
 	 * @property { "punctuation" | "newline" | "both" } [split_sentences] - Split sentences based on punctuation or newlines
 	 */
-	split_sentences?: "punctuation" | "newline" | "both";
+	split_sentences?: "none" | "punctuation" | "newline" | "both";
 
 	/**
 	 * Preserve formatting of the input text (i.e.: punctuation or upper/lowercase at beginning/end of sentences)
@@ -60,7 +60,7 @@ interface ServiceOptions {
 	 * @remark Supported by DeepL (pro), Amazon Translate
 	 * @property { "more" | "less" } [formality] - Lean towards a more formal/informal translation
 	 */
-	formality?: "formal" | "informal";
+	formality?: "default" | "formal" | "informal";
 
 
 	/**
@@ -78,8 +78,8 @@ interface ServiceOptions {
 	 * @property { string } [profanity_filter.marker] - Marker to use when profanity is detected (only used when action is "Marked")
 	 */
 	profanity_filter?: {
-		action: "mark" | "delete";
-		marker?: string;
+		action: "none" | "mark" | "delete";
+		marker?: "mask" | "html-tag";
 	}
 
 	/**

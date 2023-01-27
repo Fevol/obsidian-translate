@@ -848,7 +848,10 @@ export let SERVICES_INFO: { [key: string]: any } = {
 			{value: 'westus', text: 'West US'},
 			{value: 'westus2', text: 'West US 2'},
 			{value: 'westus3', text: 'West US 3'}
-		]
+		],
+		options: {
+			profanity_filter: true,
+		}
 	},
 	yandex_translate: {
 		display_name: "Yandex Translate",
@@ -864,6 +867,11 @@ export let SERVICES_INFO: { [key: string]: any } = {
 		url: "https://www.deepl.com/",
 		type: 'translation',
 		online_glossary: true,
+		options: {
+			split_sentences: true,
+			preserve_formatting: true,
+			formality: true,
+		}
 	},
 	libre_translate: {
 		display_name: "Libre Translate",
@@ -953,7 +961,10 @@ export let SERVICES_INFO: { [key: string]: any } = {
 			{value: "us-west-1", text: ""},
 			{value: "us-west-2", text: ""},
 			{value: "us-west-2-fips", text: ""}
-		]
+		],
+		options: {
+			formality: true,
+		}
 	},*/
 	lingva_translate: {
 		display_name: "Lingva Translate",

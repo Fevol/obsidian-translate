@@ -175,8 +175,12 @@
 {/if}
 
 
-
 {#if service === 'bergamot'}
+	<SettingItem
+		name="Service set-up"
+		type="heading"
+	/>
+
 	<SettingItem
 		name="Setup local translation"
 		description="Install Bergamot translation engine (size: 5.05MiB)"
@@ -360,6 +364,11 @@
 	{/if}
 
 {/if}
+
+<SettingItem
+	name="General settings"
+	type="heading"
+/>
 
 {#if info.request_key !== undefined}
 	<SettingItem
@@ -609,4 +618,122 @@
 			}}
 		/>
 	</SettingItem>
+{/if}
+
+{#if info.options}
+<SettingItem
+	name="Service-specific options"
+	type="heading"
+/>
+
+	{#if info.options.split_sentences}
+		<SettingItem
+			name="Split sentences"
+			description="Determine if sentences should be split into separate lines"
+			type="dropdown"
+		>
+			<Dropdown
+				slot="control"
+				value={ $settings.service_settings[service].split_sentences ?? "none" }
+				options={[
+					{value: "none", text: "Do not split sentences"},
+					{value: "punctuation", text: "Split sentences on punctuation"},
+					{value: "newline", text: "Split sentences on newlines"},
+					{value: "both", text: "Split sentences on both"}
+				]}
+				onChange={(e) => {
+					$settings.service_settings[service].split_sentences = e.target.value;
+					translator.options.split_sentences = e.target.value;
+				}}
+			/>
+		</SettingItem>
+	{/if}
+
+	{#if info.options.preserve_formatting}
+		<SettingItem
+			name="Preserve formatting"
+			description="Do not change the formatting of the source text"
+			type="toggle"
+		>
+			<Toggle
+				slot="control"
+				value={ $settings.service_settings[service].preserve_formatting }
+				onChange={(val) => {
+					$settings.service_settings[service].preserve_formatting = val;
+					translator.options.preserve_formatting = val;
+				}}
+			/>
+		</SettingItem>
+	{/if}
+
+	{#if info.options.formality}
+		<SettingItem
+			name="Formality"
+			description="How formal should the translation be"
+			type="dropdown"
+			notices={[
+				{type: "info", text: "Not all languages support formality", style: "translator-info-text"}
+			]}
+		>
+			<Dropdown
+				slot="control"
+				value={ $settings.service_settings[service].formality ?? "default" }
+				options={[
+					{value: "default", text: "Default"},
+					{value: "formal", text: "More formal"},
+					{value: "informal", text: "Less formal"}
+				]}
+				onChange={(e) => {
+					$settings.service_settings[service].formality = e.target.value;
+					translator.options.formality = e.target.value;
+				}}
+			/>
+		</SettingItem>
+	{/if}
+
+	{#if info.options.profanity_filter}
+		<SettingItem
+			name="Profanity filter"
+			description="If profanity should be filtered out of the translation"
+			type="dropdown"
+		>
+			<Dropdown
+				slot="control"
+				value={ $settings.service_settings[service].profanity_filter?.action ?? "none" }
+				options={[
+					{value: "none", text: "Do not filter profanity"},
+					{value: "mark", text: "Mask profanity with marker"},
+					{value: "delete", text: "Remove profanity"}
+				]}
+				onChange={(val) => {
+					let profanity = $settings.service_settings[service].profanity_filter ?? {};
+					profanity.action = val.target.value;
+					$settings.service_settings[service].profanity_filter = profanity;
+					translator.options.profanity_filter = profanity;
+				}}
+			/>
+		</SettingItem>
+
+		{#if $settings.service_settings[service].profanity_filter?.action === "mark"}
+			<SettingItem
+				name="Profanity marker"
+				description="The type of marker to use when masking profanity"
+				type="dropdown"
+				class="translator-setting-subsetting"
+			>
+				<Dropdown
+					slot="control"
+					value={ $settings.service_settings[service].profanity_filter?.marker ?? "mask" }
+					options={[
+						{value: "mask", text: "Mask"},
+						{value: "html-tag", text: "HTML tag"},
+					]}
+					onChange={(val) => {
+						$settings.service_settings[service].profanity_filter.marker = val.target.value;
+						translator.options.profanity_filter.marker = val.target.value;
+					}}
+				/>
+			</SettingItem>
+		{/if}
+	{/if}
 {/if}

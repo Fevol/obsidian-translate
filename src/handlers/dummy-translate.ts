@@ -36,6 +36,11 @@ export class DummyTranslate {
 	available_languages: string[];
 
 	/**
+	 * Default options/actions for the service
+	 */
+	options: ServiceOptions = {};
+
+	/**
 	 * Internal validity status of the service, service functionality cannot be used if this is false
 	 * @remark Service becomes invalid when it fails too many times, or when the user changes the settings
 	 */
@@ -249,8 +254,11 @@ export class DummyTranslate {
 				}
 			}
 
+			// Merges provided options with default service options, provided options take precedence
+			options = {...options, ...this.options};
+
 			if (text.length < this.character_limit) {
-				output = await this.service_translate(text, from, to,);
+				output = await this.service_translate(text, from, to, options);
 				if (output.status_code !== 200)
 					return this.detected_error("Translation failed", output);
 				if (detecting_language && temp_detected_language)
