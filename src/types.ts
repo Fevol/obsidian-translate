@@ -6,6 +6,11 @@ import type {ServiceOptions} from "./handlers/types";
  */
 export interface TranslatorPluginSettings {
 	/**
+	 * Version of the settings file
+	 */
+	version: string;
+
+	/**
 	 * How API keys are stored on the device
 	 * - "none" - API keys are stored in plaintext in data.json
 	 * - "password" - API keys are stored in encrypted form in data.json

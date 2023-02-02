@@ -128,6 +128,13 @@ export default class TranslatorPlugin extends Plugin {
 		 */
 		const set_if_exists = Object.keys(SERVICES_INFO).filter(key => translation_service !== key);
 
+		// TODO: Version field was introduced in 1.4.5
+		//  (Changed loaded_settings to also filter fasttext, ensure that it is not immediately filtered away even if used,
+		//   this patch will only be here for a few versions)
+		if (!loaded_settings?.version && loaded_settings.filtered_services) {
+			loaded_settings.filtered_services = [...loaded_settings.filtered_services, 'fasttext']
+		}
+
 		/** Adds newly introduced settings to the data.json if they're not already there, this ensures that older settings
 		 *  are forwards compatible with newer versions of the plugin
 		 */
@@ -147,6 +154,10 @@ export default class TranslatorPlugin extends Plugin {
 			loaded_settings.glossary_preference = loaded_settings.local_glossary ? 'both' : 'online';
 			loaded_settings.local_glossary = undefined;
 		}
+
+		// Update the version number in the data.json, only saved if the settings get changed
+		loaded_settings.version = DEFAULT_SETTINGS.version;
+
 
 
 		// @ts-ignore (path exists in legacy versions)

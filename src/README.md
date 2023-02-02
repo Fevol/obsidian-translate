@@ -54,7 +54,8 @@ others simple objects. The currently used stores are:
 - `settings`: Persistent plugin settings, changes made to this store are automatically saved to the `data.json`
 - `all_languages`: Key-value object of language locales to their display names (e.g. `en: English`)
 - `available_languages`: The languages available for the **global translator**, changes based on filters set
-- `available_services`: Services that the user can access, depends on platform and user-set settings
+- `available_translator_services`: Translator services that the user can access, depends on platform and user-set settings
+- `available_detector_services`: Language detector services that the user can access, depends on platform and user-set settings
 - `spellcheck_languages`: Obsidian's set spellchecker languages, used as a filter on all languages
 - `fasttext_data`: FastText model data, used for language detection
 - `bergamot_data`: Bergamot model data, used for translation

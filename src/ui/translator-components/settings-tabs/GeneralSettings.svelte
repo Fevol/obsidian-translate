@@ -3,7 +3,7 @@
 
 	import {
 		all_languages,
-		available_services,
+		available_translator_services,
 		password,
 		passwords_are_encrypted,
 		settings,
@@ -16,7 +16,11 @@
 
 	import {PasswordModal, PasswordRequestModal, TextModal} from "../../modals";
 
-	import {SERVICES_INFO, SECURITY_MODES, ALL_SERVICES} from "../../../constants";
+	import {
+		SERVICES_INFO,
+		SECURITY_MODES,
+		ALL_SERVICES
+	} from "../../../constants";
 	import {openGithubIssueLink} from "../../../obsidian-util";
 
 	export let plugin: TranslatorPlugin;
@@ -77,7 +81,7 @@
 >
 	<div slot="control" class="translator-flex-row-element">
 		<Dropdown
-			options={$available_services
+			options={$available_translator_services
 			//.filter(service => SERVICES_INFO[service].type === 'translation')
 			.map(service => {
 				return {'value': service, 'text': SERVICES_INFO[service].display_name};

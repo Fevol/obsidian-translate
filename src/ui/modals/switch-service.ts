@@ -1,7 +1,7 @@
 import { FuzzySuggestModal, App } from "obsidian";
 import type TranslatorPlugin from "main";
 import {SERVICES_INFO} from "../../constants";
-import {available_services} from "../../stores";
+import {available_translator_services} from "../../stores";
 import {get} from "svelte/store";
 
 export default class SwitchService extends FuzzySuggestModal<string>{
@@ -13,10 +13,7 @@ export default class SwitchService extends FuzzySuggestModal<string>{
 		super(app);
 		this.plugin = plugin;
 
-		const loaded_available_services = get(available_services);
-
-		this.options = loaded_available_services
-				//.filter(service => SERVICES_INFO[service].type === 'translation')
+		this.options = get(available_translator_services)
 				.map(service => { return {'value': service, 'label': SERVICES_INFO[service].display_name} })
 				.sort((a, b) => a.label.localeCompare(b.label));
 

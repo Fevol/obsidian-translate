@@ -14,10 +14,14 @@
 		spellcheck_languages,
 		all_languages,
 		password,
-		bergamot_data, fasttext_data, available_services, passwords_are_encrypted
+		bergamot_data,
+		fasttext_data,
+		available_translator_services,
+		passwords_are_encrypted,
+		available_detector_services
 	} from "../../stores";
 
-	import {SERVICES_INFO, DEFAULT_SETTINGS, ALL_SERVICES} from "../../constants";
+	import {SERVICES_INFO, DEFAULT_SETTINGS, ALL_TRANSLATOR_SERVICES, ALL_SERVICES} from "../../constants";
 	import ISO6391 from "iso-639-1";
 
 	import t from "../../l10n";
@@ -190,7 +194,7 @@
 	 */
 	export async function getTranslationService(service: string, old_service: string = ''): Promise<DummyTranslate> {
 		// Do not attempt to create a service if it does not exist
-		if (!service || !(service in SERVICES_INFO)) {
+		if (!service || !(service in SERVICES_INFO) || ($settings.filtered_services && !$settings.filtered_services.contains(service))) {
 			return null;
 		}
 
@@ -323,9 +327,11 @@
 			new_available_services = new_available_services.filter(service => !SERVICES_INFO[service].desktop_only);
 		if ($settings.filtered_services.length)
 			new_available_services = new_available_services.filter(service => $settings.filtered_services.includes(service));
-		$available_services = new_available_services;
-		if (!$available_services.includes($settings.translation_service))
-			$settings.translation_service = $available_services[0];
+		$available_translator_services = new_available_services.filter(service => SERVICES_INFO[service].type === 'translation');
+		$available_detector_services = new_available_services.filter(service => SERVICES_INFO[service].type === 'detection');
+
+		if (!$available_translator_services.includes($settings.translation_service))
+			$settings.translation_service = $available_translator_services[0];
 	}
 
 	onMount(async () => {
@@ -381,8 +387,8 @@
 		}
 		filterAvailableServices();
 
-
-		if (!plugin.detector && ($settings.apply_glossary || $settings.service_settings?.fasttext?.default_usage)) {
+		// TODO: Replace 'fasttext' with settings detector service
+		if ($available_detector_services.contains('fasttext') && !plugin.detector && ($settings.apply_glossary || $settings.service_settings?.fasttext?.default_usage)) {
 			plugin.detector = await getTranslationService('fasttext');
 			if ($settings.service_settings?.fasttext?.default_usage)
 				plugin.detector.default = true;

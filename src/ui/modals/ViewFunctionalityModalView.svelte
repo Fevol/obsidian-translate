@@ -6,7 +6,7 @@
 	import {createEventDispatcher} from "svelte";
 
 	import {SERVICES_INFO} from "../../constants";
-	import {available_services} from "../../stores";
+	import {available_translator_services} from "../../stores";
 
 
 	const dispatch = createEventDispatcher()
@@ -25,11 +25,12 @@
 >
 	<Dropdown
 		slot="control"
-		options={$available_services
+		options={$available_translator_services
 			//.filter(service => SERVICES_INFO[service].type === 'translation')
 			.map(service => {
 				return {'value': service, 'text': SERVICES_INFO[service].display_name};
-		})}
+			})
+		}
 		value={ translation_service }
 		onChange={(e) => { translation_service = e.target.value; }}
 	/>

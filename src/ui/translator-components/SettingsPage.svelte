@@ -1,7 +1,7 @@
 <script lang="ts">
 	import TranslatorPlugin from "../../main";
 
-	import {available_services, settings, settings_tab} from "../../stores";
+	import {available_translator_services, available_detector_services, settings, settings_tab} from "../../stores";
 
 	import {slide} from "svelte/transition";
 	import {horizontalSlide} from "../animations";
@@ -9,7 +9,7 @@
 	import {Icon} from ".././components";
 
 
-	import {SERVICES_INFO, SETTINGS_TABS, ALL_SERVICES} from "../../constants";
+	import {SERVICES_INFO, SETTINGS_TABS, ALL_SERVICES, ALL_TRANSLATOR_SERVICES} from "../../constants";
 	import {DummyTranslate} from "../../handlers";
 
 	import {
@@ -27,13 +27,13 @@
 
 	let tabs = generateTabs();
 	let tab_idx = tabs.findIndex(t => t.id === $settings_tab);
-	$: $available_services, tabs = generateTabs();
+	$: $available_translator_services, $available_detector_services, tabs = generateTabs();
 
 	function generateTabs() {
 		return [
 			...SETTINGS_TABS,
-			...$available_services.map(service => ({id: service, name: SERVICES_INFO[service].display_name, icon: service})),
-			{id: "fasttext", name: "FastText", icon: "fasttext"}
+			...$available_translator_services.map(service => ({id: service, name: SERVICES_INFO[service].display_name, icon: service})),
+			...$available_detector_services.map(service => ({id: service, name: SERVICES_INFO[service].display_name, icon: service})),
 		];
 	}
 
@@ -89,13 +89,15 @@
 				on:contextmenu={e => {
 					if (ALL_SERVICES.includes(id)) {
 						let menu = new Menu();
-						menu.addItem((item) => {
-							item.setTitle("Set as default")
-								.setIcon("translate")
-								.onClick((e) => {
-									$settings.translation_service = id
-								})
-						});
+						if (ALL_TRANSLATOR_SERVICES.contains(id)) {
+							menu.addItem((item) => {
+								item.setTitle("Set as default")
+									.setIcon("translate")
+									.onClick((e) => {
+										$settings.translation_service = id
+									})
+							});
+						}
 						menu.addItem((item) => {
 								item.setTitle("Hide service")
 									.setIcon("eye-off")

@@ -9,7 +9,7 @@
 		glossary,
 		settings_tab,
 		spellcheck_languages,
-		bergamot_data, fasttext_data, available_services, all_languages
+		bergamot_data, fasttext_data, available_translator_services, all_languages
 	} from "../../stores";
 	import {horizontalSlide} from "../animations";
 
@@ -322,8 +322,9 @@
 	}
 
 	onMount(() => {
-		if (!$available_services.includes($translation_service))
+		if (!$available_translator_services.includes($translation_service))
 			$translation_service = $settings.translation_service;
+		// TODO: Make user aware of translation service not existing?
 	})
 
 	onDestroy(() => {
