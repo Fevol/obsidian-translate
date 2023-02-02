@@ -32,8 +32,7 @@
 
 	let filtered_languages: any[];
 	let downloadable_models: any[];
-
-	let bergamot_update_available = $bergamot_data.models && $bergamot_data.version < $settings.service_settings.bergamot.version;
+	let bergamot_update_available = $bergamot_data.models && $bergamot_data.version < $settings.service_settings.bergamot?.version;
 	let api_key = null;
 	let info: any = {};
 
