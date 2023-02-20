@@ -56,6 +56,7 @@ export const DEFAULT_SETTINGS: TranslatorPluginSettings = {
 	glossary_preference: 'online',
 	case_insensitive_glossary: false,
 	enable_animations: true,
+	glossary_bidirectional: false,
 
 	quicksettings_default: [
 		"change-service",

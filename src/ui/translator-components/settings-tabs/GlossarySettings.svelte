@@ -38,7 +38,6 @@
 	let old_row = [];
 	let new_row: string[] = ["", ""];
 
-	let add_both_directions = false;
 	let filter_text = "";
 	let sort_direction = -1;
 	let translator: DummyTranslate;
@@ -54,7 +53,7 @@
 	
 	$: {
 		language_pair = source_language + '_' + target_language;
-		reverse_language_pair = target_language + source_language;
+		reverse_language_pair = target_language + '_' + source_language;
 		glossary.source_language = source_language;
 		glossary.target_language = target_language;
 		updateGlossary();
@@ -144,7 +143,7 @@
 
 		let duplicate_row = glossaries[language_pair].find((row) => row[0] === new_row[0]);
 		let reverse_duplicate_row: string[];
-		if (add_both_directions)
+		if ($settings.glossary_bidirectional)
 			reverse_duplicate_row = glossaries[reverse_language_pair].find((row) => row[0] === new_row[1]);
 
 		if (duplicate_row || reverse_duplicate_row) {
@@ -169,11 +168,11 @@
 				async () => {
 					if (duplicate_row)
 						glossaries[language_pair].splice(glossaries[language_pair].indexOf(duplicate_row), 1);
-					if (add_both_directions && reverse_duplicate_row)
+					if ($settings.glossary_bidirectional && reverse_duplicate_row)
 						glossaries[reverse_language_pair] = glossaries[reverse_language_pair].filter((row) => row[0] !== reverse_duplicate_row[0]);
 
 					glossaries[language_pair] = [...glossaries[language_pair], [...new_row]];
-					if (add_both_directions)
+					if ($settings.glossary_bidirectional)
 						glossaries[reverse_language_pair] = [...glossaries[reverse_language_pair], [new_row[1], new_row[0]]];
 					new_row = ["", ""];
 
@@ -183,7 +182,7 @@
 			).open();
 		} else {
 			glossaries[language_pair] = [...glossaries[language_pair], [...new_row]];
-			if (add_both_directions)
+			if ($settings.glossary_bidirectional)
 				glossaries[reverse_language_pair] = [...glossaries[reverse_language_pair], [new_row[1], new_row[0]]];
 			new_row = ["", ""];
 			updateGlossary();
@@ -199,7 +198,7 @@
 	function deleteRow(row) {
 		glossaries[language_pair] = glossaries[language_pair].filter(r => r != row);
 		updateGlossary();
-		if (add_both_directions)
+		if ($settings.glossary_bidirectional)
 			glossaries[reverse_language_pair] = glossaries[reverse_language_pair].filter(r => r[0] != row[1] && r[1] != row[0]);
 	}
 
@@ -237,7 +236,7 @@
 					return;
 				}
 			}
-		} else if (add_both_directions) {
+		} else if ($settings.glossary_bidirectional) {
 			// If reverse links should be checked too, check if value of updated row is duplicate in reverse glossary
 			let reverse_duplicate_rows = glossaries[reverse_language_pair].filter(r => r[0] === row[1]);
 			if (reverse_duplicate_rows)
@@ -260,7 +259,7 @@
 				async () => {
 					if (duplicate_row) {
 						glossaries[language_pair] = glossaries[language_pair].filter(r => r !== duplicate_row);
-						if (add_both_directions) {
+						if ($settings.glossary_bidirectional) {
 							glossaries[reverse_language_pair] = glossaries[reverse_language_pair]
 								.map(r => r[0] === old_row[1] && r[1] === old_row[0] ? [row[1], row[0]] : r);
 						}
@@ -277,7 +276,7 @@
 				},
 			).open();
 			glossaries[language_pair] = glossaries[language_pair].map(r => r === row ? old_row : r);
-		} else if (add_both_directions) {
+		} else if ($settings.glossary_bidirectional) {
 			glossaries[reverse_language_pair] = glossaries[reverse_language_pair]
 				.map(r => r[0] === old_row[1] && r[1] === old_row[0] ? [row[1], row[0]] : r);
 		}
@@ -291,7 +290,7 @@
 		description="When a glossary entry is added or updated,<br>an entry will be added or updated for the reverse language pair as well"
 		type="toggle"
 	>
-		<Toggle slot="control" value={add_both_directions} onChange={() => add_both_directions = !add_both_directions}/>
+		<Toggle slot="control" value={$settings.glossary_bidirectional} onChange={() => $settings.glossary_bidirectional = !$settings.glossary_bidirectional}/>
 	</SettingItem>
 
 	<div class="translator-flex-row-element translator-glossary-settings">

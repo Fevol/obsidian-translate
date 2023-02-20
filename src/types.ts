@@ -145,6 +145,11 @@ export interface TranslatorPluginSettings {
 	 * Users that the user has set for the plugin
 	 */
 	hotkeys: TranslatorHotKey[];
+
+	/**
+	 * Store term in glossary for both translation directions
+	 */
+	glossary_bidirectional: boolean;
 }
 
 /**
