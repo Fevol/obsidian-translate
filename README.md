@@ -168,7 +168,7 @@ If you want to use this plugin with extensions, make sure to take a look at the 
 
 
 
-<video src="https://raw.githubusercontent.com/Fevol/obsidian-translate/master/images/obsidian-translate.webm" controls></video>
+<video src="https://raw.githubusercontent.com/Fevol/obsidian-translate/master/images/obsidian-translate.webm.mp4" controls></video>
 
 
 ### Commands
