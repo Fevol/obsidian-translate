@@ -507,7 +507,6 @@
 					placeholder="Translation"
 					class="translator-textarea"
 					text={text_to}
-					readonly={true}
 					onContextmenu={async (e) => {
 						const selection = e.target.value.substring(e.target.selectionStart, e.target.selectionEnd).trim();
 						const all_text = selection || text_to;
