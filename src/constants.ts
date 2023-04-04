@@ -48,7 +48,7 @@ export const DEFAULT_SETTINGS: TranslatorPluginSettings = {
 	version: "1.4.5",
 	display_language: 'display',
 	filter_mode: "0",
-	translation_service: 'google_translate',
+	translation_service: 'dummy_translate',
 	security_setting: 'none',
 	switch_button_action: 'switch-both',
 	apply_glossary: false,

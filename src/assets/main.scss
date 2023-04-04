@@ -166,13 +166,13 @@ button.translator-fail {
 }
 
 
-.menu {
-	// Temporary solution: overflow: hidden causes the dropdown menu to not be drawn
-	overflow: unset;
-	// Temporary solution: padding makes it hard to reach the dropdown menu, without deactivating the :hover selector
-	//padding-left: 0;
-	//padding-right: 0;
-}
+//.menu {
+//	// Temporary solution: overflow: hidden causes the dropdown menu to not be drawn
+//	//overflow: unset;
+//	// Temporary solution: padding makes it hard to reach the dropdown menu, without deactivating the :hover selector
+//	//padding-left: 0;
+//	//padding-right: 0;
+//}
 
 div.translator-dropdown-menu {
 	display: none;

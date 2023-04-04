@@ -15,7 +15,7 @@
 		},
 		"lib": [
 			"DOM",
-			"ESNext"
+				"ESNext"
 		],
 		"types": [
 			"jest",
