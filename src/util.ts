@@ -1,5 +1,6 @@
 import type {TranslatorHotKey} from "./types";
-import {Modifier, Platform} from "obsidian";
+import {Platform} from "obsidian";
+import type {Modifier} from "obsidian";
 
 /**
  * DefaultDict class, used to create an object where new keys are automatically created with a default value.

@@ -51,7 +51,6 @@ esbuild.build({
 		'@codemirror/view',
 		...builtins],
 	format: 'cjs',
-	watch: dev_watch,
 	target: 'esnext',
 	logLevel: "info",
 	sourcemap: (prod || dev) ? false : 'inline',
