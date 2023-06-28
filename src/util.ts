@@ -91,9 +91,9 @@ export function regexLastIndexOf(searchString: string, regex: RegExp, position?:
  * @param str - The string to remove punctuation from.
  * @returns A string with punctuation removed.
  */
-export function removePunctuation(str: string) {
-	return str.replace(/\p{P}/gu, "");
-}
+// export function removePunctuation(str: string) {
+// 	return str.replace(/\p{P}/gu, "");
+// }
 
 
 /**

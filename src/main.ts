@@ -7,7 +7,7 @@ import {
 	setIcon,
 	Platform,
 	moment,
-	TFile, TFolder
+	TFile, TFolder, WorkspaceSplit
 } from 'obsidian';
 
 import {get} from "svelte/store";
@@ -157,7 +157,6 @@ export default class TranslatorPlugin extends Plugin {
 
 		// Update the version number in the data.json, only saved if the settings get changed
 		loaded_settings.version = DEFAULT_SETTINGS.version;
-
 
 
 		// @ts-ignore (path exists in legacy versions)
@@ -335,6 +334,26 @@ export default class TranslatorPlugin extends Plugin {
 				callback: async (editor: Editor, view: MarkdownView) => {
 					await detect_selection(this, editor);
 				},
+			},
+			{
+				id: "translator-focus-view",
+				name: "Focus on translation view",
+				icon: "search",
+				callback: () => {
+					const translator_views = this.app.workspace.getLeavesOfType("translator-view");
+					if (!translator_views.length) return;
+					let most_recent_view = translator_views.reduce(
+						(prev, curr) => curr.activeTime > prev.activeTime ? curr : prev);
+					if (!most_recent_view) return;
+					if (<WorkspaceSplit>(most_recent_view.parent?.parent) === this.app.workspace.rightSplit)
+						this.app.workspace.rightSplit.expand();
+					else if (<WorkspaceSplit>(most_recent_view.parent?.parent) === this.app.workspace.leftSplit)
+						this.app.workspace.leftSplit.expand();
+					this.app.workspace.setActiveLeaf(most_recent_view);
+
+					(<HTMLButtonElement> most_recent_view.view.containerEl.find(".translator-left-column").children[1].children[0]).focus();
+
+				}
 			}
 		]
 

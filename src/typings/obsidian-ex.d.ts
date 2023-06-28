@@ -142,7 +142,9 @@ declare module 'obsidian' {
 	}
 
 	interface WorkspaceLeaf {
+		activeTime: number;
 		id?: string;
+		parent: WorkspaceLeaf;
 
 		tabHeaderEl: HTMLElement;
 		tabHeaderInnerIconEl: HTMLElement;
