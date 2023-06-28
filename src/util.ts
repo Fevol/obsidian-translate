@@ -187,16 +187,6 @@ export function generateIdentifier(length: number = 16) {
 	return str.substring(0, length);
 }
 
-/**
- * Python-like formatting for strings.
- */
-String.prototype.format = function () {
-	var i = 0, args = arguments;
-	return this.replace(/{}/g, function () {
-		return typeof args[i] != 'undefined' ? args[i++] : '';
-	});
-};
-
 
 /**
  * Encrypts plaintext using AES-GCM with supplied password, for decryption with aesGcmDecrypt().
