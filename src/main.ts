@@ -7,7 +7,7 @@ import {
 	setIcon,
 	Platform,
 	moment,
-	TFile, TFolder, WorkspaceSplit
+	TFile, TFolder, WorkspaceSplit, WorkspaceLeaf
 } from 'obsidian';
 
 import {get} from "svelte/store";
@@ -351,7 +351,7 @@ export default class TranslatorPlugin extends Plugin {
 						this.app.workspace.leftSplit.expand();
 					this.app.workspace.setActiveLeaf(most_recent_view);
 
-					(<HTMLButtonElement> most_recent_view.view.containerEl.find(".translator-left-column").children[1].children[0]).focus();
+					(<HTMLTextAreaElement> most_recent_view.view.containerEl.find(".translator-left-column").children[1].children[0]).focus();
 
 				}
 			}
@@ -500,20 +500,26 @@ export default class TranslatorPlugin extends Plugin {
 				language_from: loaded_settings.default_source_language || 'auto',
 				language_to: target_language,
 				translation_service: translation_service,
-			}
+			},
 		};
-		// @ts-ignore (Prevent build crash)
-		if (!(this.app.workspace.activeLeaf == null) && this.app.workspace.activeLeaf.getRoot() == this.app.workspace.rootSplit) {
-			await this.app.workspace.getLeaf('split', 'vertical').setViewState(view_state)
-		} else {
-			const right_leaf = this.app.workspace.getRightLeaf(false);
 
-			// Add the translator leaf to the right sidebar
-			await right_leaf.setViewState(view_state);
-
-			// Get the translator leaf and reveal it
-			this.app.workspace.revealLeaf(right_leaf);
+		const empheral_state = {
+			receive_focus: true,
 		}
+
+
+		let translation_leaf: WorkspaceLeaf;
+		// Adds translation view to main body of the app if it currently is receiving focus
+		if (!(this.app.workspace.activeLeaf == null) && this.app.workspace.activeLeaf.getRoot() == this.app.workspace.rootSplit) {
+			translation_leaf = await this.app.workspace.getLeaf('split', 'vertical');
+		} else {
+			translation_leaf = this.app.workspace.getRightLeaf(false);
+			this.app.workspace.revealLeaf(translation_leaf);
+		}
+
+		await translation_leaf.setViewState(view_state);
+		await translation_leaf.setEphemeralState(empheral_state);
+
 	}
 
 	// --------------------------------------------------------------

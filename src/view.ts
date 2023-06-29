@@ -143,6 +143,12 @@ export class TranslatorView extends ItemView {
 		await super.setState(state, result);
 	}
 
+	async setEphemeralState(state: any): Promise<void> {
+		if (state.receive_focus) {
+			(<HTMLTextAreaElement>this.containerEl.find(".translator-left-column").children[1].children[0]).focus();
+		}
+	}
+
 	async onClose() {
 		this.view.$destroy();
 		this.containerEl.detach()
