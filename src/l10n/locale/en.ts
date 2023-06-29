@@ -148,6 +148,11 @@ export default {
 	"tua": "Wiarumus",
 	"wen": "Sorbian",
 
+	// Locales introduced by Azure Translator
+	"nya": "Nyanja",
+	"lug": "Ganda",
+	"run": "Rundi",
+
 
 	// Locales, you definitely do not need to add these, they are already provided for all of Obsidian's display languages
 	"aa":	"Afar",

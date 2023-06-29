@@ -133,16 +133,16 @@ export const DEFAULT_SETTINGS: TranslatorPluginSettings = {
 			auto_translate_interval: 500,
 			validated: null,
 			available_languages: [
-				"af", "am", "ar", "as", "az", "ba", "bg", "bn", "bo", "bs", "ca", "cs", "cy", "da", "de", "dv", "el",
-				"en", "es", "et", "eu", "fa", "fi", "fil", "fj", "fo", "fr", "fr-CA", "ga", "gl", "gu", "he", "hi",
-				"hr", "hsb", "ht", "hu", "hy", "id", "ikt", "is", "it", "iu", "iu-Latn", "ja", "ka", "kk", "km", "kmr",
-				"kn", "ko", "ku", "ky", "lo", "lt", "lv", "lzh", "mg", "mi", "mk", "ml", "mn-Cyrl", "mn-Mong", "mr",
-				"ms", "mt", "mww", "my", "nb", "ne", "nl", "or", "otq", "pa", "pl", "prs", "ps", "pt", "pt-PT", "ro",
-				"ru", "sk", "sl", "sm", "so", "sq", "sr-Cyrl", "sr-Latn", "sv", "sw", "ta", "te", "th", "ti", "tk",
-				"tlh-Latn", "tlh-Piqd", "to", "tr", "tt", "ty", "ug", "uk", "ur", "uz", "vi", "yua", "yue", "zh-Hans",
-				"zh-Hant", "zu"
+				"af", "am", "ar", "as", "az", "ba", "bg", "bn", "bo", "bs", "ca", "cs", "cy", "da", "de", "dsb", "dv", "el",
+				"en", "es", "et", "eu", "fa", "fi", "fil", "fj", "fo", "fr", "fr-CA", "ga", "gl", "gom", "gu", "ha", "he", "hi",
+				"hr", "hsb", "ht", "hu", "hy", "id", "ig", "ikt", "is", "it", "iu", "iu-Latn", "ja", "ka", "kk", "km", "kmr",
+				"kn", "ko", "ku", "ky", "ln", "lo", "lt", "lug", "lv", "lzh", "mai", "mg", "mi", "mk", "ml", "mn-Cyrl",
+				"mn-Mong", "mr", "ms", "mt", "mww", "my", "nb", "ne", "nl", "nso", "nya", "or", "otq", "pa", "pl", "prs",
+				"ps", "pt", "pt-PT", "ro", "ru", "run", "rw", "sd", "si", "sk", "sl", "sm", "sn", "so", "sq", "sr-Cyrl",
+				"sr-Latn", "st", "sv", "sw", "ta", "te", "th", "ti", "tk", "tlh-Latn", "tlh-Piqd", "tn", "to", "tr", "tt",
+				"ty", "ug", "uk", "ur", "uz", "vi", "xh", "yo", "yua", "yue", "zh-Hans", "zh-Hant", "zu"
 			],
-			version: "1.0.0"
+			version: "1.0.1"
 		},
 		yandex_translate: {
 			selected_languages: [],
@@ -167,10 +167,10 @@ export const DEFAULT_SETTINGS: TranslatorPluginSettings = {
 			auto_translate_interval: 500,
 			validated: null,
 			available_languages: [
-				"en", "ar", "az", "zh", "cs", "da", "nl", "eo", "fi", "fr", "de", "el", "he", "hi", "hu", "id", "ga",
-				"it", "ja", "ko", "fa", "pl", "pt", "ru", "sk", "es", "sv", "tr", "uk"
+				"ar", "az", "ca", "cs", "da", "de", "el", "en", "eo", "es", "fa", "fi", "fr", "ga", "he", "hi",
+				"hu", "id", "it", "ja", "ko", "nl", "pl", "pt", "ru", "sk", "sv", "th", "tr", "uk", "zh",
 			],
-			version: "1.0.1"
+			version: "1.0.2"
 		},
 		deepl: {
 			selected_languages: [],
@@ -179,8 +179,8 @@ export const DEFAULT_SETTINGS: TranslatorPluginSettings = {
 			auto_translate_interval: 500,
 			validated: null,
 			available_languages: [
-				"bg", "cs", "da", "de", "el", "en", "es", "et", "fi", "fr", "hu", "id", "it", "ja", "lt", "lv", "nl",
-				"pl", "pt", "ro", "ru", "sk", "sl", "sv", "tr", "uk", "zh"
+				"bg", "cs", "da", "de", "el", "en", "es", "et", "fi", "fr", "hu", "id", "it", "ja", "ko", "lt", "lv",
+				"nb", "nl", "pl", "pt", "ro", "ru", "sk", "sl", "sv", "tr", "uk", "zh"
 			],
 			glossary_languages: {
 				"de": ["en", "fr"],
@@ -192,7 +192,7 @@ export const DEFAULT_SETTINGS: TranslatorPluginSettings = {
 				"pl": ["en"],
 				"nl": ["en"]
 			},
-			version: "1.0.2"
+			version: "1.0.3"
 		},
 		bergamot: {
 			selected_languages: [],
