@@ -8,7 +8,7 @@
 </script>
 
 
-<!-- FIXME: For some reason, using name 'value' causes conflicts	-->
+<!--NOTE TO SELF: If input parameter is 'value', then something breaks -->
 <input
 	type={type}
 	value={val}

@@ -10,7 +10,6 @@
 </script>
 
 
-<!-- FIXME: For some reason, using name 'value' causes conflicts	-->
 <div>
 	<Icon icon={valid ? 'check' : 'cross'} class="translator-input-icon"/>
 	<input

@@ -9,11 +9,6 @@ import type {
 } from "./types";
 import {requestUrl} from "obsidian";
 
-// TODO: Allow for formality features to be accessed
-// TODO: Allow for formatting to be preserved
-// Check if split_sentences option causes problems
-//   --> .join all the translations together
-
 export class Deepl extends DummyTranslate {
 	#api_key: string;
 	#host: string;
@@ -61,8 +56,10 @@ export class Deepl extends DummyTranslate {
 
 	}
 
-	// FIXME: DeepL doesn't actually support language detection, this is translating the text to get the language
-	//         Obviously this is not desirable, might just disable this feature for DeepL
+	// DeepL doesn't actually support language detection, so the text is being auto-translated to English in order
+	//   to detect the language
+	// Language detection is not really a high-volume operation, so this is good-enough.
+	// Amount of characters being sent is also reduced by the base detect method (selecting only first 20 words)
 	async service_detect(text: string): Promise<DetectionResult> {
 		const response = await requestUrl({
 			throw: false,

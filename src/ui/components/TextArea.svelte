@@ -12,7 +12,6 @@
 
 
 <!-- FIXME: It is not possible to bind the value to 'value', due to ??? -->
-<!-- FIXME: Check if $$props.class is harmful -->
 
 {#if !typingdelay}
 	<textarea

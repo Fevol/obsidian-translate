@@ -35,7 +35,7 @@
 </div>
 
 <button class="translator-password-modal-button" on:click={async () => {
-	/** FIXME: Im not entirely sure what I could do here: close() or this.close() cause the program to shut down,
+	/** FIXME: I'm not entirely sure what I could do here: close() or this.close() cause the program to shut down,
 		so the best choice is to communicate directly to the parent
 	 **/
 	if (valid) {
