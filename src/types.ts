@@ -43,6 +43,14 @@ export interface TranslatorPluginSettings {
 	switch_button_action: "switch-both" | "switch-language" | "switch-text";
 
 	/**
+	 * How the input text will be handled when translating with translation command
+	 * - "replace" - Replace the input text with the translated text
+	 * - "below" - Insert the translated text below the input text
+	 */
+	translation_command_action: "replace" | "below" | "clipboard";
+
+
+	/**
 	 * If true, glossary operation is enabled
 	 */
 	apply_glossary: boolean;

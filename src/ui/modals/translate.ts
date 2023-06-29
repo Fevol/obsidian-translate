@@ -70,10 +70,12 @@ export default class TranslateModal extends FuzzySuggestModal<string>{
 					apply_glossary: this.settings.apply_glossary
 				});
 		} else if (this.translation_type === "selection") {
+			const loaded_settings = get(settings);
+
 			let editor: Editor = this.app.workspace.getActiveViewOfType(MarkdownView).editor;
 			output = await translate_selection(this.plugin, editor, item.value, {
 				apply_glossary: this.settings.apply_glossary
-			});
+			}, loaded_settings.translation_command_action);
 		}
 
 		if (output.status_code === 200) {

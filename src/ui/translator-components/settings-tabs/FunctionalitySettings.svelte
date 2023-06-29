@@ -89,7 +89,7 @@
 
 <SettingItem
 	name="Switch button action"
-	description="Translation view: determine which action will be executed when pressing the language switch button"
+	description="<b>Translation view</b>: determine which action will be executed when pressing the language switch button"
 	type="dropdown"
 >
 	<Dropdown
@@ -98,6 +98,22 @@
 		value={ $settings.switch_button_action }
 		onChange={(e) => {
 			$settings.switch_button_action = e.target.value;
+		}}
+	>
+	</Dropdown>
+</SettingItem>
+
+<SettingItem
+	name="Translate action"
+	description="Determines how the text selection will be translated using translate <i>commands</i>"
+	type="dropdown"
+>
+	<Dropdown
+		slot="control"
+		options={[{"value": "replace", "text": "Replace input with translation"}, {"value": "below", "text": "Translation added below input"}, {"value": "clipboard", "text": "Copy to clipboard"}]}
+		value={ $settings.translation_command_action }
+		onChange={(e) => {
+			$settings.translation_command_action = e.target.value;
 		}}
 	>
 	</Dropdown>

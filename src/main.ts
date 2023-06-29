@@ -322,8 +322,8 @@ export default class TranslatorPlugin extends Plugin {
 						language = loaded_settings.default_target_language;
 
 					await translate_selection(this, editor, language, {
-						apply_glossary: loaded_settings.apply_glossary
-					});
+						apply_glossary: loaded_settings.apply_glossary,
+					}, loaded_settings.translation_command_action);
 				}
 			},
 			{
@@ -392,7 +392,7 @@ export default class TranslatorPlugin extends Plugin {
 							const translation_callback = async (language: string) => {
 								const output = await translate_selection(this, editor, language, {
 									apply_glossary: loaded_settings.apply_glossary
-								});
+								}, loaded_settings.translation_command_action);
 								if (output.status_code === 200) {
 									settings.update((x: TranslatorPluginSettings) => {
 										if (!x.last_used_target_languages.contains(language)) {

@@ -51,6 +51,7 @@ export const DEFAULT_SETTINGS: TranslatorPluginSettings = {
 	translation_service: 'dummy_translate',
 	security_setting: 'none',
 	switch_button_action: 'switch-both',
+	translation_command_action: 'replace',
 	apply_glossary: false,
 	local_glossary: false,
 	glossary_preference: 'online',

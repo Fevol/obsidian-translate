@@ -79,8 +79,9 @@ export async function translate_file(plugin: TranslatorPlugin, file: TFile, lang
  * @param editor - Note editor instance
  * @param language_to - The language to translate to
  * @param options - Options for the translation service (e.g.: apply glossary)
+ * @param handle_text - What to do with the translation (replace input, append below, copy to clipboard, ...)
  */
-export async function translate_selection(plugin: TranslatorPlugin, editor: Editor, language_to: string, options: ServiceOptions): Promise<TranslationResult> {
+export async function translate_selection(plugin: TranslatorPlugin, editor: Editor, language_to: string, options: ServiceOptions, handle_text = "replace"): Promise<TranslationResult> {
 	if (editor.getSelection().length === 0) {
 		plugin.message_queue("Selection is empty");
 		return;
@@ -89,8 +90,15 @@ export async function translate_selection(plugin: TranslatorPlugin, editor: Edit
 	let text = editor.getSelection();
 
 	let results = await plugin.translator.translate(text, "auto", language_to, options);
-	if (results.translation)
-		editor.replaceSelection(results.translation);
+	if (results.translation) {
+		if (handle_text === "replace")
+			editor.replaceSelection(results.translation);
+		else if (handle_text === "below")
+			editor.replaceSelection(text + "\n" + results.translation);
+		else if (handle_text === "clipboard")
+			await navigator.clipboard.writeText(results.translation);
+	}
+
 	if (results.message)
 		plugin.message_queue(results.message);
 
