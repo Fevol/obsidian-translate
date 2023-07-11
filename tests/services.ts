@@ -35,13 +35,14 @@ import {
 } from "../src/handlers";
 import type {APIServiceSettings} from "../src/types";
 import type {TranslatorPluginSettings} from "../src/types";
+import {OpenaiTranslator} from "../src/handlers/openai-translator";
 
 /** @public Test config for a Translation Service */
 interface ServiceConfig {
 	/** @public Constructor for Translation Service object */
 	service: typeof GoogleTranslate | typeof AzureTranslator | typeof YandexTranslate | typeof FanyiBaidu |
 			 typeof FanyiQq | typeof FanyiYoudao | typeof Deepl | typeof DummyTranslate | typeof LibreTranslate |
-			 typeof LingvaTranslate,
+			 typeof LingvaTranslate | typeof OpenaiTranslator,
 	/** @public Display name for test output */
 	name: string,
 	/** @public Required inputs for the translation service */
@@ -104,6 +105,11 @@ export const services: Record<string, ServiceConfig> = {
 		"service": YandexTranslate,
 		"inputs": ["api_key"],
 		"name": "Yandex Translate"
+	},
+	"openai_translator": {
+		"service": OpenaiTranslator,
+		"inputs": ["api_key", "host"],
+		"name": "OpenAI Translator"
 	}
 }
 

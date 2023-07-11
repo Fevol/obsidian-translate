@@ -42,6 +42,7 @@
 	} from "../../handlers";
 	import {aesGcmDecrypt, aesGcmEncrypt, toTitleCase} from "../../util";
 	import {PasswordRequestModal} from "../modals";
+	import {OpenaiTranslator} from "../../handlers/openai-translator";
 
 
 	export let plugin: TranslatorPlugin;
@@ -239,6 +240,8 @@
 				translation_service = new FanyiQq(service_settings);
 			else if (service === "fanyi_baidu")
 				translation_service = new FanyiBaidu(service_settings);
+			else if (service === "openai_translator")
+				translation_service = new OpenaiTranslator(service_settings);
 
 			if (service !== 'bergamot' && service !== 'fasttext') {
 				translation_service.valid &&= $settings.service_settings[service].validated;

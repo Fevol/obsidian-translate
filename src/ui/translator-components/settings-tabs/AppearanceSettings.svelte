@@ -35,6 +35,10 @@
 	})
 </script>
 
+<SettingItem
+	name="General appearance settings"
+	type="heading"
+/>
 
 <SettingItem
 	name="Enable plugin animations"

@@ -175,6 +175,7 @@ export interface APIServiceProviders {
 	/*amazon_translate: APIServiceSettings;*/
 	lingva_translate: APIServiceSettings;
 	bergamot: APIServiceSettings;
+	openai_translator: APIServiceSettings;
 	fasttext: FastTextData;
 }
 

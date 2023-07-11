@@ -18,6 +18,7 @@
 	import {SwitchService} from "../modals";
 
 	import {
+		ALL_TRANSLATOR_LANGUAGES,
 		ICONS,
 		QUICK_ACTIONS,
 		QUICK_SETTINGS,

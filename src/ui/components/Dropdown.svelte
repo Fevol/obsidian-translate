@@ -8,6 +8,14 @@
 	export let options: IOption[] = [];
 	export let value: string;
 	export let disabled: boolean = false;
+	export let default_value: string = "";
+
+	$: value, setDefaultValue();
+
+	function setDefaultValue() {
+		if (default_value && options.findIndex((option) => option.value === value) === -1)
+			value = default_value;
+	}
 </script>
 
 <select class={$$props.class ? $$props.class + " dropdown" : "dropdown"} disabled={disabled} on:change={onChange} {value}>

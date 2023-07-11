@@ -25,6 +25,11 @@ interface ServiceSettings {
 	 */
 	host?: string;
 
+	/**
+	 * Type of model used for translation<br>
+	 * <b>Used by:</b> OpenAI Translator
+	 */
+	model?: string;
 }
 
 /**

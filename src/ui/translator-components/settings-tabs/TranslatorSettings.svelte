@@ -26,7 +26,7 @@
 
 	let translator: DummyTranslate;
 	let old_service = '';
-	
+
 	let current_available_languages: string[] = [];
 	let selectable_languages: any[];
 
@@ -47,7 +47,7 @@
 			api_key = await plugin.reactivity.getAPIKey(service, $settings.security_setting);
 
 		current_available_languages = translator.available_languages || $settings.service_settings[service].available_languages;
-		
+
 		old_service = service;
 	}
 
@@ -174,12 +174,12 @@
 {/if}
 
 
-{#if service === 'bergamot'}
-	<SettingItem
-		name="Service set-up"
-		type="heading"
-	/>
+<SettingItem
+	name="Service set-up"
+	type="heading"
+/>
 
+{#if service === 'bergamot'}
 	<SettingItem
 		name="Setup local translation"
 		description="Install Bergamot translation engine (size: 5.05MiB)"
@@ -364,12 +364,7 @@
 
 {/if}
 
-<SettingItem
-	name="General settings"
-	type="heading"
-/>
-
-{#if info.request_key !== undefined}
+{#if info.requires_api_key !== undefined}
 	<SettingItem
 		name="API Key"
 		description="API key for translation service"
@@ -437,13 +432,13 @@
 	{/if}
 {/if}
 
-{#if info.host !== undefined}
+{#if info.requires_host}
 	<SettingItem
 		name="Host"
 		description="Enter the URL of the translation service"
 		type="text"
 		notices={[
-			{ type: 'href', text: "ⓘ You can host this service locally", url: info.local_host}
+			service === 'openai_translator' ? null : { type: 'href', text: "ⓘ You can host this service locally", url: info.local_host}
 		]}
 	>
 		<div slot="control">
@@ -451,8 +446,9 @@
 				<Dropdown
 					options={info.host_options}
 					value={$settings.service_settings[service].host}
+					default_value={info.default_custom_host}
 					onChange={(e) => {
-						$settings.service_settings[service].host = e.target.value;
+						$settings.service_settings[service].host = e.target.value
 						translator.update_settings({host: e.target.value});
 
 						invalidateService();
@@ -460,6 +456,7 @@
 				/>
 			{:else}
 				<Input
+					slot="control"
 					val={$settings.service_settings[service].host}
 					onChange={(e) => {
 						$settings.service_settings[service].host = e.target.value;
@@ -468,6 +465,53 @@
 						invalidateService();
 					}}
 					type="text"
+				/>
+			{/if}
+		</div>
+	</SettingItem>
+
+	{#if service === "openai_translator" && !translator?.requires_api_key}
+		<SettingItem
+			name="Custom domain"
+			class="translator-setting-subsetting"
+			description="Enter an alternative GPT service proxy"
+			type="text"
+		>
+			<Input
+				slot="control"
+				val={$settings.service_settings[service].host}
+				onChange={(e) => {
+						$settings.service_settings[service].host = e.target.value;
+						translator.update_settings({host: e.target.value});
+
+						invalidateService();
+					}}
+				type="text"
+			/>
+		</SettingItem>
+	{/if}
+{/if}
+
+{#if service === "openai_translator" && translator?.requires_api_key}
+	<SettingItem
+		name="Model"
+		description="Select which model to use for translation"
+		type="text"
+		notices={[
+			{ type: 'text', text: "ⓘ GPT-4 can be more expensive but result in more accurate translations"}
+		]}
+	>
+		<div slot="control">
+			{#if info.model_options}
+				<Dropdown
+					options={info.model_options}
+					value={$settings.service_settings[service].model}
+					onChange={(e) => {
+						$settings.service_settings[service].model = e.target.value;
+						translator.update_settings({model: e.target.value});
+
+						invalidateService();
+					}}
 				/>
 			{/if}
 		</div>
@@ -496,6 +540,12 @@
 		/>
 	</SettingItem>
 {/if}
+
+
+<SettingItem
+	name="Translator settings"
+	type="heading"
+/>
 
 <SettingItem
 	name="Automatic translate"

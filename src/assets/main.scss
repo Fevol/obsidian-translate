@@ -533,9 +533,11 @@ div.translator-focused-element {
 	flex-wrap: wrap;
 	gap: 12px;
 
-	padding: 4px 4px 16px;
-	margin-bottom: 16px;
-	border-bottom: 1px solid var(--background-modifier-border);
+	margin-bottom: var(--size-4-8);
+	//border-bottom: 1px solid var(--background-modifier-border);
+	background-color: var(--background-primary-alt);
+	padding: var(--size-4-3);
+	border-radius: var(--radius-l);
 }
 
 .translator-navigation-item {
@@ -554,8 +556,8 @@ div.translator-focused-element {
 
 	overflow: hidden;
 
-	background-color: var(--background-primary-secondary-alt);
-	border: 1px solid var(--background-modifier-border);
+	background-color: var(--background-primary);
+	border: 1px solid var(--background-modifier-border-hover);
 
 	transition: color 0.25s ease-in-out,
 	padding 0.25s ease-in-out,
