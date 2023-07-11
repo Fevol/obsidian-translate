@@ -1,0 +1,11 @@
+{
+	"id": "translate",
+	"name": "Translate",
+	"version": "1.4.5",
+	"minAppVersion": "1.0.0",
+	"description": "Translate text and notes with Google Translate, DeepL, Azure, and more.",
+	"author": "Fevol",
+	"authorUrl": "https://github.com/Fevol/",
+	"isDesktopOnly": false,
+	"fundingUrl": "https://ko-fi.com/fevol"
+}
