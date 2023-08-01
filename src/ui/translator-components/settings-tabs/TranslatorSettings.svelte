@@ -473,11 +473,11 @@
 		</div>
 	</SettingItem>
 
-	{#if service === "openai_translator" && !translator?.requires_api_key}
+	{#if info.requires_host && info.default_custom_host && ($settings.service_settings[service].host === info.default_custom_host || !info.host_options?.find(x => x.value === $settings.service_settings[service].host))}
 		<SettingItem
 			name="Custom domain"
 			class="translator-setting-subsetting"
-			description="Enter an alternative GPT service proxy"
+			description="Enter an alternative service domain"
 			type="text"
 		>
 			<Input

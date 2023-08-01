@@ -18,10 +18,14 @@ export class LingvaTranslate extends DummyTranslate {
 	constructor(settings: ServiceSettings) {
 		super();
 		this.#host = settings.host;
+		if (!this.#host.startsWith("http"))
+			this.#host = `https://${this.#host}`;
 	}
 
 	update_settings(settings: ServiceSettings): void {
 		this.#host = settings.host ?? this.#host;
+		if (!this.#host.startsWith("http"))
+			this.#host = `https://${this.#host}`;
 	}
 
 	async service_validate(): Promise<ValidationResult> {
@@ -30,7 +34,7 @@ export class LingvaTranslate extends DummyTranslate {
 
 		const response = await requestUrl({
 			throw: false,
-			url: `https://${this.#host}/api/v1/languages`
+			url: `${this.#host}/api/v1/languages`
 		});
 		const data = response.json;
 
@@ -51,7 +55,7 @@ export class LingvaTranslate extends DummyTranslate {
 	async service_translate(text: string, from: string, to: string, options: ServiceOptions = {}): Promise<TranslationResult> {
 		const response = await requestUrl({
 			throw: false,
-			url: `https://${this.#host}/api/v1/${from}/${to}/${encodeURIComponent(text)}`
+			url: `${this.#host}/api/v1/${from}/${to}/${encodeURIComponent(text)}`
 		});
 
 		// Data = {"translation": "...", "info": {
@@ -76,7 +80,7 @@ export class LingvaTranslate extends DummyTranslate {
 	async service_languages(): Promise<LanguagesFetchResult> {
 		const response = await requestUrl({
 			throw: false,
-			url: `https://${this.#host}/api/v1/languages`
+			url: `${this.#host}/api/v1/languages`
 		});
 		// Data = {"languages": [{"code":"en", "name":"English"}, ...]}
 		const data = response.json;

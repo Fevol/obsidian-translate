@@ -1040,6 +1040,7 @@ export let SERVICES_INFO: { [key: string]: any } = {
 		url: "https://github.com/TheDavidDelta/lingva-translate",
 		requires_host: true,
 		type: 'translation',
+		default_custom_host: "http://YOURDOMAINHERE.com",
 		host_options: [
 			{text: "translate.plausibility.cloud", value: "translate.plausibility.cloud"},
 			{text: "lingva.lunar.icu", value: "lingva.lunar.icu"},
