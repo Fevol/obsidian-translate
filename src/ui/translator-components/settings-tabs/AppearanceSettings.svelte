@@ -25,13 +25,13 @@
 	});
 
 	$: top_quickbuttons = Array.from($settings.quicksettings_default).map((id) => {
-		return { value: id, text: QUICK_SETTINGS[id].text,  };
+		return { value: id, text: QUICK_SETTINGS[id as keyof typeof QUICK_SETTINGS].text,  };
 	});
 	$: left_quickactions = $settings.left_quickactions_default.map((id) => {
-		return { value: id, text: QUICK_ACTIONS[id].text, };
+		return { value: id, text: QUICK_ACTIONS[id as keyof typeof QUICK_ACTIONS].text, };
 	});
 	$: right_quickactions = $settings.right_quickactions_default.map((id) => {
-		return { value: id, text: QUICK_ACTIONS[id].text, };
+		return { value: id, text: QUICK_ACTIONS[id as keyof typeof QUICK_ACTIONS].text, };
 	})
 </script>
 

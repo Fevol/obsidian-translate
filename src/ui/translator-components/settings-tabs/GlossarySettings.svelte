@@ -39,10 +39,10 @@
 	let new_row: string[] = ["", ""];
 
 	let filter_text = "";
-	let sort_direction = -1;
+	let sort_direction: number = -1;
 	let translator: DummyTranslate;
 
-	let sync_state = null;
+	let sync_state: boolean = null;
 
 	const available_services = Object.entries(SERVICES_INFO)
 		.filter(([key, value]) => value.online_glossary)
@@ -50,7 +50,7 @@
 		.sort((a, b) => a.text.localeCompare(b.text));
 
 	let sync_service = available_services[0].value;
-	
+
 	$: {
 		language_pair = source_language + '_' + target_language;
 		reverse_language_pair = target_language + '_' + source_language;
@@ -64,7 +64,7 @@
 	$: filter_text, filterTable();
 
 	function updateGlossary() {
-		glossary_pair = glossaries[language_pair];
+		glossary_pair = glossaries[language_pair as keyof typeof glossaries];
 		filterTable();
 		sortTable();
 	}
@@ -303,7 +303,7 @@
 		/>
 		<Button
 			class="translator-mobile-button"
-			icon="switch" size="20"
+			icon="switch" size={20}
 			onClick={() => {
 				[target_language, source_language] = [source_language, target_language];
 			}}

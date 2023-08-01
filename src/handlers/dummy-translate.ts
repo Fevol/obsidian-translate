@@ -5,8 +5,10 @@ import type {
 	TranslationResult,
 	ValidationResult,
 	ServiceOptions,
-	ServiceSettings
+	ServiceSettings,
 } from "./types";
+import type {ModelFileData} from "../types";
+
 import {get, writable, type Writable} from "svelte/store";
 import {DefaultDict, regexLastIndexOf} from "../util";
 import {globals, glossary, settings} from "../stores";
@@ -422,6 +424,11 @@ export class DummyTranslate {
 	has_autodetect_capability(): boolean {
 		return false;
 	}
+
+	update_data(available_models: ModelFileData): void {}
+
+	setup_service(available_models: ModelFileData): void {}
+
 
 	/**
 	 * Internal function to prettify error messages from the handlers and update failure count

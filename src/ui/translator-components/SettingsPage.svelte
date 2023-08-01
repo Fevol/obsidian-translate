@@ -58,7 +58,7 @@
 		}
 	}
 
-	async function changedTabs(index) {
+	async function changedTabs(index: number) {
 		tab_idx = index;
 		const new_tab = tabs[index].id;
 

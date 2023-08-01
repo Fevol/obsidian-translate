@@ -8,13 +8,13 @@
 		text: string;
 	}
 
-	export let onClick: (value: any, index: number = -1) => void;
+	export let onClick: (value: any, index: number) => void;
 	export let items: IOption[] = [];
 	export let value: string;
 	export let icon: string;
-	export let tooltip: string;
-	export let disabled: boolean;
-	export let size: number;
+	export let tooltip: string = null;
+	export let disabled: boolean = false;
+	export let size: number = null;
 </script>
 
 <div class="setting-command-hotkeys" transition:slide>
@@ -22,7 +22,7 @@
 		<span class="setting-hotkey translator-icon-text" in:horizontalSlide out:horizontalSlide>
 			{text}
 			{#if !disabled}
-				<span on:click={onClick(value, index)} class="setting-hotkey-icon" style="display: flex" aria-label={tooltip}>
+				<span on:click={() => onClick(value, index)} class="setting-hotkey-icon" style="display: flex" aria-label={tooltip}>
 					<Icon icon={icon} size={size} />
 				</span>
 			{/if}

@@ -2,8 +2,8 @@
 	import {getIcon} from "obsidian";
 
 	export let icon: string;
-	export let size: number | number[2] | string;
-	export let stroke_width: number;
+	export let size: number | [number, number] | string = null;
+	export let stroke_width: number = null;
 
 	let icon_element: SVGElement;
 

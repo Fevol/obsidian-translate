@@ -1,10 +1,10 @@
 <script lang="ts">
 	import {Icon} from "./index";
 
-	export let text: string;
-	export let icon: string = '';
-	export let tooltip: string;
-	export let size: number;
+	export let text: string = "";
+	export let icon: string = "";
+	export let tooltip: string = "";
+	export let size: number = null;
 	export let onClick: () => void = () => {};
 
 </script>

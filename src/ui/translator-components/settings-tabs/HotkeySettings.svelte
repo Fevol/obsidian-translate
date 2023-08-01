@@ -1,7 +1,7 @@
 <script lang="ts">
 	import TranslatorPlugin from "../../../main";
 	import SettingItem from "../../obsidian-components/SettingItem.svelte";
-	import {Hotkey, Modifier, Platform} from "obsidian";
+	import type {Modifier} from "obsidian";
 	import {Icon} from "../../components";
 	import {settings} from "stores";
 	import {onDestroy} from "svelte";
@@ -9,13 +9,13 @@
 	import {getHotKeyString} from "../../../util";
 
 	export let plugin: TranslatorPlugin;
-	let current_idx = null;
+	let current_idx: number = null;
 
 	onDestroy(() => {
 		document.removeEventListener("keydown", hotkeyMapper);
 	});
 
-	const hotkeyMapper = (e) => {
+	const hotkeyMapper = (e: KeyboardEvent) => {
 		if (current_idx !== null && e.key !== "Shift" && e.key !== "Control" && e.key !== "Meta" && e.key !== "Alt") {
 			let active_modifiers = [];
 			if (e.ctrlKey)

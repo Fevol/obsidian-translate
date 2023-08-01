@@ -3,13 +3,18 @@
 	import { slide } from 'svelte/transition';
 
 	export let name: string;
-	export let description: string;
+	export let description: string = null;
 
 	// Type can be: ["dropdown", "toggle", "heading"]
 	export let type: string = '';
 
 	// [ [ text, style: [classes], url, type: href|string ], ... ]
-	export let notices: string[] = [];
+	export let notices: {
+		url?: string;
+		type: string;
+		text: string;
+		style?: string;
+	}[] = [];
 </script>
 
 <div

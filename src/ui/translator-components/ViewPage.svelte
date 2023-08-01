@@ -68,7 +68,15 @@
 		'apply-glossary': !$settings.apply_glossary,
 	}
 
-	let top_button_states = {}
+	let top_button_states: {
+		"change-service"?: number,
+		"automatic-translation"?: number,
+		"apply-glossary"?: number,
+		"change-layout"?: number,
+		"apply-filter"?: number,
+		"open-settings"?: number,
+	} = {}
+
 	$: top_button_states = {
 		'change-service': 0,
 		'automatic-translation': auto_translate | 0,

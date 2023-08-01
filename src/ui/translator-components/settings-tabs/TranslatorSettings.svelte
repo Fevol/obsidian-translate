@@ -18,22 +18,25 @@
 	import {openGithubIssueLink, writeRecursive} from "../../../obsidian-util";
 
 	import t from "../../../l10n";
+	import type {LanguageModelData} from "../../../types";
 
 
 	export let plugin: TranslatorPlugin;
-	export let service: string;
+	export let service: "google_translate" | "azure_translator" | "yandex_translate" |
+        "libre_translate" | "deepl" | "fanyi_qq" | "fanyi_youdao" | "fanyi_baidu" |
+        "lingva_translate" | "bergamot" | "openai_translator";
 	$: service, changedService();
 
 	let translator: DummyTranslate;
 	let old_service = '';
 
-	let current_available_languages: string[] = [];
+	let current_available_languages: string[]|LanguageModelData[] = [];
 	let selectable_languages: any[];
 
 	let filtered_languages: any[];
 	let downloadable_models: any[];
 	let bergamot_update_available = $bergamot_data.models && $bergamot_data.version < $settings.service_settings.bergamot?.version;
-	let api_key = null;
+	let api_key: string = null;
 	let info: any = {};
 
 	let obfuscate_api_key = app.loadLocalStorage("obfuscate_keys") || false;

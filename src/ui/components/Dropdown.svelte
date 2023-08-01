@@ -1,12 +1,12 @@
 <!-- Copied over from obsidian-periodic-notes -->
 <script lang="ts">
 	interface IOption {
-		value: string;
+		value: string | number;
 		text: string;
 	}
 	export let onChange: (value: any) => void;
 	export let options: IOption[] = [];
-	export let value: string;
+	export let value: string | number;
 	export let disabled: boolean = false;
 	export let default_value: string = "";
 
