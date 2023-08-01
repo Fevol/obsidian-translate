@@ -51,7 +51,7 @@ export class LingvaTranslate extends DummyTranslate {
 	async service_translate(text: string, from: string, to: string, options: ServiceOptions = {}): Promise<TranslationResult> {
 		const response = await requestUrl({
 			throw: false,
-			url: `https://${this.#host}/api/v1/${from}/${to}/${text}`
+			url: `https://${this.#host}/api/v1/${from}/${to}/${encodeURIComponent(text)}`
 		});
 
 		// Data = {"translation": "...", "info": {
