@@ -805,7 +805,7 @@ export const DEFAULT_SETTINGS: TranslatorPluginSettings = {
 		},*/
 		lingva_translate: {
 			selected_languages: [],
-			host: "lingva.ml",
+			host: "translate.plausibility.cloud",
 			auto_translate: false,
 			auto_translate_interval: 500,
 			validated: null,
@@ -1041,15 +1041,16 @@ export let SERVICES_INFO: { [key: string]: any } = {
 		requires_host: true,
 		type: 'translation',
 		host_options: [
+			{text: "translate.plausibility.cloud", value: "translate.plausibility.cloud"},
+			{text: "lingva.lunar.icu", value: "lingva.lunar.icu"},
+			{text: "translate.dr460nf1r3.org", value: "translate.dr460nf1r3.org"},
+			{text: "lingva.opnxng.com", value: "lingva.opnxng.com"},
+			{text: "translate.projectsegfau.lt", value: "translate.projectsegfau.lt"},
+			{text: "lingva.garudalinux.org", value: "lingva.garudalinux.org"},
 			{text: "lingva.ml", value: "lingva.ml"},
 			{text: "translate.igna.ooo", value: "translate.igna.ooo"},
 			{text: "lingva.pussthecat.org", value: "lingva.pussthecat.org"},
-			{text: "translate.plausibility.cloud", value: "translate.plausibility.cloud"},
-			{text: "lingva.lunar.icu", value: "lingva.lunar.icu"},
-			{text: "lingva.opnxng.com", value: "lingva.opnxng.com"},
-			{text: "translate.projectsegfau.lt", value: "translate.projectsegfau.lt"},
-			{text: "translate.dr460nf1r3.org", value: "translate.dr460nf1r3.org"},
-			{text: "lingva.garudalinux.org", value: "lingva.garudalinux.org"}
+			{text: "custom domain", value: "http://YOURDOMAINHERE.com"}
 		]
 	},
 	openai_translator: {
