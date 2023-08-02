@@ -74,9 +74,9 @@ export class FanyiBaidu extends DummyTranslate {
 
 		const response = await requestUrl({
 			throw: false,
-			url: `http://api.fanyi.baidu.com/api/trans/vip/language/?` + new URLSearchParams(payload),
+			url: `http://api.fanyi.baidu.com/api/trans/vip/translate/?` + new URLSearchParams(payload),
 			method: 'POST',
-			headers: { 'Content-Type': 'application/json', }
+			headers: { 'Content-Type': 'application/x-www-form-urlencoded', }
 		});
 
 		const data = response.json;
@@ -108,7 +108,7 @@ export class FanyiBaidu extends DummyTranslate {
 			throw: false,
 			url: `http://api.fanyi.baidu.com/api/trans/vip/language/?` + new URLSearchParams(payload),
 			method: 'POST',
-			headers: { 'Content-Type': 'application/json', }
+			headers: { 'Content-Type': 'application/x-www-form-urlencoded', }
 		});
 
 		// Data = {"data":{"src": "en"} }
@@ -128,7 +128,6 @@ export class FanyiBaidu extends DummyTranslate {
 
 	async service_translate(text: string, from: string, to: string, options: ServiceOptions = {}): Promise<TranslationResult> {
 		const signature = await this.sign_message(text);
-
 		const payload = {
 			q: text,
 			from: from,
@@ -142,7 +141,7 @@ export class FanyiBaidu extends DummyTranslate {
 			throw: false,
 			url: `http://api.fanyi.baidu.com/api/trans/vip/translate/?` + new URLSearchParams(payload),
 			method: 'POST',
-			headers: { 'Content-Type': 'application/json', }
+			headers: { 'Content-Type': 'application/x-www-form-urlencoded', }
 		});
 
 		// Data = {"from":"en", "to":"zh", "trans_result":[{"src": "Hello", "dst": "你好"}] }
