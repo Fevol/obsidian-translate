@@ -67,6 +67,8 @@ export class FanyiBaidu extends DummyTranslate {
 		const signature = await this.sign_message('I');
 		const payload = {
 			q: 'I',
+			from: 'en',
+			to: 'zh',
 			appid: this.#app_id,
 			salt: signature.salt,
 			sign: signature.signature,
