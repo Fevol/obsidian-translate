@@ -4,23 +4,23 @@
 
 ---
 <div align="center">
-<a href="https://github.com/Fevol/obsidian-translate/">
+<a href="https://github.com/Fevol/obsidian-translate/" style="text-decoration: none">
 <img alt="Obsidian Translate downloads - latest release" src="https://img.shields.io/badge/dynamic/json?query=%24%5B%22translate%22%5D.downloads&url=https%3A%2F%2Fraw.githubusercontent.com%2Fobsidianmd%2Fobsidian-releases%2Fmaster%2Fcommunity-plugin-stats.json&label=Downloads:&logo=obsidian&color=8c79de&logoColor=8c79de">
 </a>
-<a href="https://github.com/Fevol/obsidian-translate/stargazers">
+<a href="https://github.com/Fevol/obsidian-translate/stargazers" style="text-decoration: none">
 <img alt="GitHub Repo stars" src="https://img.shields.io/github/stars/fevol/obsidian-translate?color=yellow&label=Stargazers%3A&logo=OpenTelemetry&logoColor=yellow">
 </a>
-<a href="https://github.com/Fevol/obsidian-translate/actions/workflows/release.yml">
+<a href="https://github.com/Fevol/obsidian-translate/actions/workflows/release.yml" style="text-decoration: none">
 <img alt="GitHub Workflow Status" src="https://img.shields.io/github/actions/workflow/status/fevol/obsidian-translate/.github/workflows/release.yml?label=Build%20status%3A&logo=buddy&logoColor=5cff1e">
 </a>
-<a href="https://github.com/Fevol/obsidian-translate/releases/latest">
+<a href="https://github.com/Fevol/obsidian-translate/releases/latest" style="text-decoration: none">
 <img alt="GitHub release (latest by date including pre-releases)" src="https://img.shields.io/github/v/release/fevol/obsidian-translate?color=%234e96af&display_name=tag&include_prereleases&label=Latest%20release%3A&logo=Dropbox&logoColor=%236abdd9">
 </a>
 <br>
-<a href="https://svelte.dev">
+<a href="https://svelte.dev" style="text-decoration: none">
 <img alt="Svelte" src="https://img.shields.io/badge/-Svelte-ff3e00?logo=Svelte&logoColor=white&style=flat&">
 </a>
-<a href="https://www.typescriptlang.org/">
+<a href="https://www.typescriptlang.org/" style="text-decoration: none">
 <img alt="Typescript" src="https://img.shields.io/badge/-Typescript-3178C6?logo=Typescript&logoColor=white&style=flat&">
 </a>
 </div>
