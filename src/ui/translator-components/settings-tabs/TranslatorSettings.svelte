@@ -37,7 +37,7 @@
 	let downloadable_models: any[];
 	let bergamot_update_available = $bergamot_data.models && $bergamot_data.version < $settings.service_settings.bergamot?.version;
 	let api_key: string = null;
-	let info: any = {};
+	let info: typeof SERVICES_INFO = {};
 
 	let obfuscate_api_key = app.loadLocalStorage("obfuscate_keys") || false;
 
@@ -537,6 +537,12 @@
 					plugin.message_queue(validation_results.message, !validation_results.valid ? 5000 : 3000);
 				if (validation_results.host)
 					$settings.service_settings[service].host = validation_results.host;
+				if (validation_results.valid && info.standard_languages) {
+					$settings.service_settings[service].premium = validation_results.premium;
+					$settings.service_settings[service].available_languages = (await translator.languages()).languages;
+					plugin.reactivity.updateAvailableLocales();
+				}
+
 				$settings.service_settings[service].validated = validation_results.valid;
 				return validation_results.valid;
 			}}
@@ -644,6 +650,7 @@
 				} else {
 					$settings.service_settings[service].available_languages = return_values.languages;
 				}
+				plugin.reactivity.updateAvailableLocales();
 				plugin.message_queue("Languages updated");
 			}
 		}}

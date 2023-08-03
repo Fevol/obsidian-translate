@@ -187,6 +187,16 @@
 		}
 	}
 
+    export function updateAvailableLocales() {
+        for (const service in active_services) {
+            $settings.service_settings[service].available_languages
+                .filter((locale: string) => !$all_languages.has(locale))
+                .forEach((locale: string) => {
+                    $all_languages.set(locale, formatLocale(locale))
+                });
+        }
+    }
+
 	/**
 	 * Get a translation service by name if it is already loaded, otherwise load it, manages active services
 	 * @param service - Translation service to get

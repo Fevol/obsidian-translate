@@ -184,6 +184,11 @@ export interface ValidationResult extends BaseResult {
 	 * Host that was determined to be used for the service, if applicable
 	 */
 	host?: string;
+
+	/**
+	 * Whether user has access to the premium tier of the service
+	 */
+	premium?: boolean;
 }
 
 /**

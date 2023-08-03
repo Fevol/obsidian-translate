@@ -11,7 +11,7 @@ import {MD5} from "./md5";
 
 import {requestUrl} from "obsidian";
 import {iso639_3to1, iso639_1to3} from "../util";
-import {DEFAULT_SETTINGS} from "../constants";
+import {DEFAULT_SETTINGS, SERVICES_INFO} from "../constants";
 
 export class FanyiBaidu extends DummyTranslate {
 	#api_key: string;
@@ -19,6 +19,8 @@ export class FanyiBaidu extends DummyTranslate {
 	id = "fanyi_baidu";
 
 	character_limit = 6000;
+
+	premium = false;
 
 	status_code_lookup: {[key: number]: {message: string, status_code: number}} = {
 		52000: {message: undefined, status_code: 200},
@@ -93,7 +95,14 @@ export class FanyiBaidu extends DummyTranslate {
 			if (output.status_code !== 200)
 				return {valid: false, ...(output || {status_code: data.error_code, message: data.error_msg})};
 		}
-		return {status_code: 200, valid: true};
+
+
+		// Determine whether user is a premium user
+		const output = await this.service_translate("I", "en", "sq");
+		this.premium = output.status_code === 200;
+
+
+		return {status_code: 200, valid: true, premium: this.premium};
 	}
 
 
@@ -165,7 +174,8 @@ export class FanyiBaidu extends DummyTranslate {
 	async service_languages(): Promise<LanguagesFetchResult> {
 		return {
 			status_code: 200,
-			languages: DEFAULT_SETTINGS.service_settings.fanyi_baidu.available_languages
+			languages: this.premium ? DEFAULT_SETTINGS.service_settings.fanyi_baidu.available_languages
+									: SERVICES_INFO["fanyi_baidu"].standard_languages
 		}
 	}
 

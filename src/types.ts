@@ -240,6 +240,11 @@ export interface APIServiceSettings extends ServiceOptions {
 	host?: string;
 
 	/**
+	 * Whether the user has access to the premium tier of the service
+	 */
+	premium?: boolean;
+
+	/**
 	 * If enabled, allow the user to automatically translate in the translation view
 	 * @remark The reason for the two-step procedure, is that automatically translating can use up your API quota very quickly
 	 */

@@ -771,19 +771,19 @@ export const DEFAULT_SETTINGS: TranslatorPluginSettings = {
 			auto_translate_interval: 500,
 			validated: null,
 			available_languages: [
-				"ach", "af", "ak", "am", "an", "ar", "arq", "as", "ast", "ay", "az", "ba", "bal", "be", "bem", "ber",
-				"bg", "bho", "bi", "bli", "bn", "br", "bs", "ca", "ceb", "chr", "cht", "co", "cr", "cri", "cs", "cv",
-				"da", "de", "dv", "el", "en", "eno", "eo", "es", "et", "eu", "fa", "fa", "ff", "fi", "fil", "fo",
-				"fr", "fr-CA", "frm", "fur", "fy", "ga", "gd", "gl", "gn", "gra", "gu", "gv", "ha", "hak", "haw",
-				"he", "hi", "hil", "hr", "ht", "hu", "hup", "hy", "ia", "id", "ig", "ing", "io", "is", "it", "iu",
-				"ja", "ka", "kab", "kah", "kg", "kli", "km", "kn", "ko", "kok", "kr", "ks", "ku", "kw", "ky", "la",
-				"lag", "lb", "lg", "li", "ln", "lo", "log", "loj", "los", "lt", "lv", "lzh", "mai", "mau", "mg",
-				"mh", "mi", "mk", "ml", "mot", "mr", "ms", "mt", "my", "nb", "ne", "nea", "nl", "nn", "no", "nqo",
-				"nr", "ny", "oc", "oj", "om", "or", "os", "pa", "pam", "pap", "ped", "pl", "pot", "ps", "pt", "qu",
-				"rm", "ro", "rom", "ru", "ruy", "rw", "sa", "sc", "sd", "se", "sec", "sha", "si", "sil", "sk", "sk",
-				"sm", "sn", "so", "sol", "sq", "sr", "src", "st", "su", "sv", "sw", "syr", "ta", "te", "tet", "tg",
-				"th", "ti", "tk", "tl", "tr", "ts", "tt", "tua", "tw", "uk", "ur", "ve", "vi", "wa", "wen", "wo",
-				"xh", "yi", "yo", "yue", "zh", "zu"
+				"ace", "aeb", "af", "ak", "am", "an", "ang", "ar", "arq", "as", "ast", "ay", "az", "ba", "bal", "be",
+				"bem", "ber", "bg", "bho", "bi", "bli", "bn", "br", "bs", "ca", "ceb", "chr", "cnh", "cnr", "co", "cr",
+				"crh", "cs", "csb", "cv", "cy", "da", "de", "dsb", "dv", "el", "en", "eo", "es", "et", "eu", "fa", "ff",
+				"fi", "fil", "fo", "fr", "fr-CA", "frm", "fur", "fy", "ga", "gd", "gl", "gn", "grc", "gu", "gv", "ha",
+				"haw", "he", "hi", "hil", "hmn", "hr", "hsb", "ht", "hu", "hup", "hy", "ia", "id", "ig", "inh", "io",
+				"is", "it", "iu", "ja", "jbo", "jv", "ka", "kab", "kg", "kl", "km", "kn", "ko", "kok", "kr", "ks", "ku",
+				"kw", "ky", "la", "lb", "lg", "li", "ln", "lo", "lt", "ltg", "lv", "lzh", "mai", "mfe", "mg", "mh",
+				"mi", "mk", "ml", "mr", "ms", "mt", "my", "nap", "nb", "nds", "ne", "nl", "nn", "no", "nqo", "nr",
+				"nso", "ny", "oc", "oj", "om", "or", "os", "pa", "pam", "pap", "pes", "pl", "ps", "pt", "pt-br", "qu",
+				"rm", "ro", "rom", "ru", "rue", "rw", "sa", "sc", "sd", "se", "sh", "shn", "si", "sk", "sl", "sli",
+				"sm", "sn", "so", "son", "sq", "sr", "sr-CYRL", "st", "su", "sv", "sw", "syr", "ta", "te", "tet", "tg",
+				"th", "ti", "tk", "tl", "tlh", "tr", "ts", "tt", "tw", "uk", "ur", "ve", "vi", "wa", "wo", "xh", "yi",
+				"yo", "yue", "zh", "zh-hant", "zu", "zza"
 			],
 			version: "1.0.0"
 		},
@@ -996,7 +996,11 @@ export let SERVICES_INFO: { [key: string]: any } = {
 		requires_app_id: true,
 		request_key: "https://passport.baidu.com/v2/?login&u=https%3A%2F%2Ffanyi-api.baidu.com%2Fapi%2Ftrans%2Fproduct%2Fdesktop",
 		url: "https://fanyi.baidu.com/",
-		type: 'translation'
+		type: 'translation',
+		standard_languages: [
+			"ar", "bg", "cs", "da", "de", "el", "en", "es", "et", "fi", "fr", "hu", "it", "ja", "ko", "lzh", "nl", "pl",
+			"pt", "ro", "ru", "sl", "sv", "th", "vi", "yue", "zh", "zh-hant"
+		]
 	},
 	/*amazon_translate: {
 		display_name: "Amazon Translate",
@@ -1187,4 +1191,4 @@ export const QUICK_ACTIONS_BUTTONS = Object.entries(QUICK_ACTIONS).map(([key, va
 });
 
 
-export const UNTESTED_SERVICES = ['yandex_translate', 'fanyi_qq', 'fanyi_baidu'];
+export const UNTESTED_SERVICES = ['yandex_translate', 'fanyi_qq'];

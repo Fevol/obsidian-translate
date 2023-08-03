@@ -202,11 +202,12 @@
 		}
 	}
 
+	$: available_language_observer = $settings.service_settings[$translation_service].available_languages.length;
 	$: selected_languages_observer = $settings.service_settings[$translation_service].selected_languages.length;
 	$: display_language_observer = $settings.display_language;
 	$: spellcheck_languages, selected_languages_observer, available_languages, filter_mode, display_language_observer, filterLanguages();
 
-	$: $bergamot_data, updateAvailableLanguages();
+	$: available_language_observer, $bergamot_data, updateAvailableLanguages();
 	$: $fasttext_data, autodetect_capability = translator && translator.has_autodetect_capability();
 
 
@@ -214,7 +215,7 @@
 		show_attribution, top_buttons, left_buttons, right_buttons, app.workspace.requestSaveLayout();
 
 	function updateAvailableLanguages() {
-		if (translator && $translation_service === 'bergamot') {
+		if (translator) {
 			available_languages = translator.available_languages;
 			filterLanguages();
 		}
