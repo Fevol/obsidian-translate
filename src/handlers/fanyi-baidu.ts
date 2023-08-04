@@ -42,11 +42,13 @@ export class FanyiBaidu extends DummyTranslate {
 		super();
 		this.#api_key = settings.api_key;
 		this.#app_id = settings.app_id;
+		this.premium = settings.premium;
 	}
 
 	update_settings(settings: ServiceSettings): void {
 		this.#api_key = settings.api_key ?? this.#api_key;
 		this.#app_id = settings.app_id ?? this.#app_id;
+		this.premium = settings.premium ?? this.premium;
 	}
 
 

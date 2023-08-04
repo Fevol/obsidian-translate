@@ -30,6 +30,12 @@ interface ServiceSettings {
 	 * <b>Used by:</b> OpenAI Translator
 	 */
 	model?: string;
+
+	/**
+	 * User has access to the premium tier<br>
+	 * <b>Used by:</b> Fanyi Baidu
+	 */
+	premium?: boolean;
 }
 
 /**
