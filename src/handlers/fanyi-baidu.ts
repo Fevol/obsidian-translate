@@ -148,6 +148,7 @@ export class FanyiBaidu extends DummyTranslate {
 			appid: this.#app_id,
 			salt: signature.salt,
 			sign: signature.signature,
+			action: options.apply_glossary ? "1" : "0",
 		}
 
 		const response = await requestUrl({
