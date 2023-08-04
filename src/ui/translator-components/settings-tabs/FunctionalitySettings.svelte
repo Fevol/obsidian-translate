@@ -35,7 +35,7 @@
 	type="toggle"
 	description="Translate sentences using provided glossary terms"
 	notices={[
-		{ type: 'text', text: 'Setting applies only to global commands (e.g. translating selections), enable separately for the translation view', style: 'translator-info-text' },
+		{ type: 'text', text: 'Setting applies to global commands (e.g. translating selections) and to newly opened translation views', style: 'translator-info-text' },
 		$fasttext_data.binary ? null : { type: 'text', text: `This option requires <b>FastText</b> to resolve the language of the input text`, style: 'translator-warning-text' },
 	]}
 >
