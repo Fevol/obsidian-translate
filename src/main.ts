@@ -131,7 +131,7 @@ export default class TranslatorPlugin extends Plugin {
 		// TODO: Version field was introduced in 1.4.5
 		//  (Changed loaded_settings to also filter fasttext, ensure that it is not immediately filtered away even if used,
 		//   this patch will only be here for a few versions)
-		if (loaded_settings && !loaded_settings?.version && loaded_settings.filtered_services) {
+		if (loaded_settings && !loaded_settings?.version && loaded_settings.filtered_services.length) {
 			loaded_settings.filtered_services = [...loaded_settings.filtered_services, 'fasttext']
 		}
 
