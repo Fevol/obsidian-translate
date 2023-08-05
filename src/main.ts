@@ -131,7 +131,7 @@ export default class TranslatorPlugin extends Plugin {
 		// TODO: Version field was introduced in 1.4.5
 		//  (Changed loaded_settings to also filter fasttext, ensure that it is not immediately filtered away even if used,
 		//   this patch will only be here for a few versions)
-		if (loaded_settings && !loaded_settings?.version && loaded_settings.filtered_services.length) {
+		if (loaded_settings && !loaded_settings?.version && loaded_settings.filtered_services?.length) {
 			loaded_settings.filtered_services = [...loaded_settings.filtered_services, 'fasttext']
 		}
 
@@ -139,21 +139,6 @@ export default class TranslatorPlugin extends Plugin {
 		 *  are forwards compatible with newer versions of the plugin
 		 */
 		loaded_settings = nested_object_assign(DEFAULT_SETTINGS, loaded_settings ? loaded_settings : {}, new Set(set_if_exists));
-
-		// TODO: (Changed bing_translator -> azure_translator in v1.4.0, this patch will only be here for a couple versions)
-		if (loaded_settings.translation_service === 'bing_translator')
-			loaded_settings.translation_service = 'azure_translator';
-		if (loaded_settings?.service_settings['bing_translator' as keyof APIServiceProviders]) {
-			loaded_settings.service_settings['azure_translator'] =
-				<APIServiceSettings>loaded_settings.service_settings['bing_translator' as keyof APIServiceProviders];
-			delete loaded_settings.service_settings['bing_translator' as keyof APIServiceProviders];
-		}
-
-		// TODO: (Changed local_glossary --> glossary_preference in v1.4.3, this patch will only be here for a couple versions)
-		if (loaded_settings.local_glossary !== undefined) {
-			loaded_settings.glossary_preference = loaded_settings.local_glossary ? 'both' : 'online';
-			loaded_settings.local_glossary = undefined;
-		}
 
 		// Update the version number in the data.json, only saved if the settings get changed
 		loaded_settings.version = DEFAULT_SETTINGS.version;
