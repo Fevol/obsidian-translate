@@ -326,7 +326,10 @@ export default class TranslatorPlugin extends Plugin {
 				icon: "search",
 				callback: () => {
 					const translator_views = this.app.workspace.getLeavesOfType("translator-view");
-					if (!translator_views.length) return;
+					if (!translator_views.length) {
+						this.activateTranslatorView();
+						return;
+					}
 					let most_recent_view = translator_views.reduce(
 						(prev, curr) => curr.activeTime > prev.activeTime ? curr : prev);
 					if (!most_recent_view) return;
