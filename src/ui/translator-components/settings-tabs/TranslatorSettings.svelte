@@ -495,7 +495,7 @@
 	{/if}
 {/if}
 
-{#if service === "openai_translator" && translator?.requires_api_key}
+{#if service === "openai_translator"}
 	<SettingItem
 		name="Model"
 		description="Select which model to use for translation"

@@ -1073,7 +1073,9 @@ export let SERVICES_INFO: { [key: string]: any } = {
 		],
 		model_options: [
 			{text: "GPT 3.5", value: "gpt-3.5-turbo"},
+			{text: "GPT 3.5 (16K context)", value: "gpt-3.5-turbo-16k"},
 			{text: "GPT 4", value: "gpt-4"},
+			{text: "GPT 4 (32K context)", value: "gpt-4-32k"},
 		]
 	},
 	fasttext: {

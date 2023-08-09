@@ -24,60 +24,63 @@ export class OpenaiTranslator extends DummyTranslate {
 		this.#api_key = settings.api_key;
 		this.#host = settings.host;
 		this.model = settings.model;
-
-		this.requires_api_key = this.#host === "api.openai.com" || this.#host === "api.pawan.krd";
+		if (!this.#host.startsWith("http")) this.#host = `https://${this.#host}`;
+		else this.#host = new URL(this.#host).origin;
 	}
 
 	update_settings(settings: ServiceSettings): void {
 		this.#api_key = settings.api_key ?? this.#api_key;
 		this.#host = settings.host ?? this.#host;
 		this.model = settings.model ?? "gpt-3.5-turbo";
-
-		this.requires_api_key = this.#host === "api.openai.com" || this.#host === "api.pawan.krd";
+        if (!this.#host.startsWith("http")) this.#host = `https://${this.#host}`;
+        else this.#host = new URL(this.#host).origin;
 	}
 
 	async service_validate(): Promise<ValidationResult> {
 		if (!this.#host)
 			return {status_code: 400, valid: false, message: "Host was not specified"};
 
-		if (!this.#api_key && this.requires_api_key)
+		if (this.#api_key === null)
 			return {status_code: 400, valid: false, message: "API key was not specified"};
 
-		if (this.requires_api_key) {
-			const response = await requestUrl({
-				throw: false,
-				method: "GET",
-				url: `https://${this.#host}/v1/engines`,
-				headers: {
-					"Content-Type": "application/json",
-					"Authorization": `Bearer ${this.#api_key}`
-				}
-			});
+		// Error type is sadly not shared across multiple host instances, so full request will have to be tested
+		// TODO: Map custom domains
 
-			if (response.status !== 200) {
-				const data = response.json;
-				if (data.error)
-					return {status_code: response.status, valid: false, message: data.error.message};
-				else
-					return {status_code: response.status, valid: false, message: "Invalid API key or host"};
+		const response = await requestUrl({
+			throw: false,
+			method: "POST",
+			url: `${this.#host}/v1/chat/completions`,
+			body: JSON.stringify({
+				"model": this.model,
+				"messages": [
+					// Token cost: 10
+					{ "role": "user", "content": "Say I" },
+				],
+				"temperature": this.temperature,
+			}),
+			headers: {
+				"Content-Type": "application/json",
+				"Authorization": `Bearer ${this.#api_key}`
 			}
+		});
 
-			return {status_code: response.status, valid: true};
 
-		} else {
-			const response = await requestUrl({
-				throw: false,
-				method: "GET",
-				url: `${this.#host}/languages`,
-			});
+		if (response.status !== 200) {
+			const data = response.json;
+			if (data.error)
+				return {status_code: response.status, valid: false, message: data.error.message};
+			else
+				return {status_code: response.status, valid: false, message: "Invalid API key or host"};
 		}
+
+		return {status_code: response.status, valid: true};
 	}
 
 	async service_detect(text: string): Promise<DetectionResult> {
 		const response = await requestUrl({
 			throw: false,
 			method: "POST",
-			url: `https://${this.#host}/v1/chat/completions`,
+			url: `${this.#host}/v1/chat/completions`,
 			body: JSON.stringify({
 				"model": this.model,
 				"messages": [
@@ -115,7 +118,7 @@ export class OpenaiTranslator extends DummyTranslate {
 		const response = await requestUrl({
 			throw: false,
 			method: "POST",
-			url: `https://${this.#host}/v1/chat/completions`,
+			url: `${this.#host}/v1/chat/completions`,
 			body: JSON.stringify({
 				"model": this.model,
 				"messages": [
