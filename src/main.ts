@@ -1,12 +1,6 @@
 import {
-	addIcon,
-	Editor,
-	MarkdownView,
-	Notice,
-	Plugin,
-	setIcon,
-	Platform,
-	moment,
+	addIcon, Editor, MarkdownView, Notice,
+	Plugin, Platform, moment,
 	TFile, TFolder, WorkspaceSplit, WorkspaceLeaf
 } from 'obsidian';
 
@@ -14,17 +8,14 @@ import {get} from "svelte/store";
 import {settings, globals, available_languages, all_languages, fasttext_data, bergamot_data, password} from "./stores";
 import {Reactivity} from "./ui/translator-components";
 
+import {TranslateAPI} from "./api";
 import {TranslatorSettingsTab} from "./settings";
 import {TranslatorView} from "./view";
 import {SwitchService, TranslateModal} from "./ui/modals";
 
 import {around} from 'monkey-around';
 
-import type {
-	APIServiceProviders,
-	APIServiceSettings, CommandI,
-	TranslatorPluginSettings
-} from "./types";
+import type { APIServiceProviders, CommandI, TranslatorPluginSettings } from "./types";
 
 import {ICONS, DEFAULT_SETTINGS, TRANSLATOR_VIEW_ID, SERVICES_INFO} from "./constants";
 import type {DummyTranslate} from "./handlers";
@@ -67,6 +58,12 @@ export default class TranslatorPlugin extends Plugin {
 	 */
 	settings_open: boolean = false;
 
+    /**
+     * Publicly accessible API for the plugin
+	 * @remark Handles access of settings, translating, detecting, etc.
+     */
+	api: TranslateAPI;
+
 	/**
 	 * Notice queue for the plugin, it can be configured to only show one message at a time, only show unique messages, etc.
 	 * @param limitCount - The number of messages that can be queued at a time, other messages will be discarded
@@ -78,6 +75,8 @@ export default class TranslatorPlugin extends Plugin {
 	message_queue: ((...args: any[]) => void)
 
 	async onload() {
+		this.api = new TranslateAPI(this);
+
 		this.current_language = moment.locale();
 
 		// Set up message queue for the plugin, this rate limits the number of messages the plugin can send at the same time,
