@@ -1,15 +1,14 @@
 <script>
-	import {Button, Toggle, Icon, Dropdown, TextArea, DragAndDrop} from "../components";
+	import {Button, Toggle, Icon, Dropdown} from "../components";
+	import {DragAndDrop, TranslatorTextArea} from "../translator-components";
 
 	import {createEventDispatcher} from "svelte";
 	import {slide} from "svelte/transition";
 
 	import {
-		FILTER_MODES,
-		SERVICES_INFO,
 		VIEW_MODES,
-		QUICK_ACTIONS, QUICK_ACTIONS_BUTTONS,
-		QUICK_SETTINGS, QUICK_SETTINGS_BUTTONS,
+		QUICK_ACTIONS_BUTTONS,
+		QUICK_SETTINGS_BUTTONS,
 	} from "../../constants";
 
 
@@ -84,13 +83,12 @@
 					<div class="setting-item-name">Layout</div>
 					<div class="setting-item-description">
 						Determine the layout of the translator<br>
-						<span class="translator-info-text">
+						<span class="svelcomlib-notice-info">
 						`Automatic` layout will adapt the layout<br>based on the width and height of the view
 						</span>
 					</div>
 				</div>
 				<Dropdown
-					class="translator-select"
 					value={view_mode}
 					options={[
 							{ value: 0, text: 'Automatic', },
@@ -98,9 +96,9 @@
 							{ value: 2, text: 'Mixed', },
 							{ value: 3, text: 'Horizontal', }
 						]}
-					onChange={(e) => {
-							view_mode = parseInt(e.target.value);
-						}}
+					onChange={(value) => {
+						view_mode = parseInt(value);
+					}}
 				/>
 			</div>
 		{:else if current_editing_mode === 2}
@@ -132,7 +130,7 @@
 				</div>
 				<Toggle
 					value={ show_attribution }
-					onChange={async (e) => { show_attribution = !show_attribution; }}
+					onChange={async (value) => { show_attribution = value; }}
 				/>
 			</div>
 		{:else}
@@ -160,12 +158,11 @@
 			<div class="translator-column translator-left-column">
 				<Dropdown
 					disabled={true}
-					class="translator-select"
 					value={"auto"}
 					options={[{"value": "auto", "text": "Detect Language (English)"}]}
 				/>
 				<div class="translator-textarea-column">
-				<TextArea
+				<TranslatorTextArea
 					placeholder="Type here..."
 					class="translator-textarea"
 					readonly={true}
@@ -191,12 +188,11 @@
 			<div class="translator-column translator-right-column">
 				<Dropdown
 					disabled={true}
-					class="translator-select"
 					value={"fr"}
 					options={[{"value": "fr", "text": "French"}]}
 				/>
 				<div class="translator-textarea-column">
-				<TextArea
+				<TranslatorTextArea
 					placeholder="Translation"
 					class="translator-textarea"
 					readonly={true}
@@ -228,7 +224,7 @@
 			Cancel
 		</button>
 
-		<button class="translator-success"
+		<button class="svelcomlib-success"
 			on:click={async () => {
 				dispatch("close", { view_mode, show_attribution, top_buttons, left_buttons, right_buttons });
 			}}>

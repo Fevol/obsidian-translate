@@ -1,12 +1,12 @@
 // @ts-ignore-file (Prevent build crash)
 
-import {ItemView, Platform, setIcon, WorkspaceLeaf} from "obsidian";
+import {ItemView, setIcon, WorkspaceLeaf} from "obsidian";
 import type {ViewStateResult} from "obsidian";
 
 import type TranslatorPlugin from "./main";
 
 import type {SvelteComponent} from "svelte";
-import {ViewPage} from "./ui/translator-components";
+import {ViewPage} from "./ui/pages";
 
 import {writable, type Writable} from "svelte/store";
 import {settings} from "./stores";

@@ -17,7 +17,7 @@
 		Cancel
 	</button>
 
-	<button class="translator-fail"
+	<button class="svelcomlib-fail"
 		on:click={async () => {
 			await callback();
 			dispatch("close");

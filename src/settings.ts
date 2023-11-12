@@ -1,7 +1,7 @@
 import {App, PluginSettingTab} from "obsidian";
 import type TranslatorPlugin from "./main";
 import type {SvelteComponent} from "svelte";
-import {SettingsPage} from "./ui/translator-components";
+import {SettingsPage} from "./ui/pages";
 
 
 export class TranslatorSettingsTab extends PluginSettingTab {

@@ -6,7 +6,7 @@ import {
 
 import {get} from "svelte/store";
 import {settings, globals, available_languages, all_languages, fasttext_data, bergamot_data, password} from "./stores";
-import {Reactivity} from "./ui/translator-components";
+import {Reactivity} from "./ui/pages";
 
 import {TranslateAPI} from "./api";
 import {TranslatorSettingsTab} from "./settings";

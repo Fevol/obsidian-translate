@@ -6,7 +6,7 @@
 
 	import {aesGcmEncrypt, aesGcmDecrypt} from "../../util";
 
-	let valid = null;
+	let valid: boolean | null = null;
 	let input_1 = "";
 	let input_2 = "";
 	let current_password = $password;
@@ -18,18 +18,18 @@
 <div class="translator-password-modal-inputs">
 	<b>Password:</b>
 	<Input
-		val={input_1}
+		value={input_1}
 		type="password"
 		placeholder={current_password ? '(unchanged)' : 'Type here...'}
-		onChange={(e) => { input_1 = e.target.value; }}
+		onChange={(value) => { input_1 = value; }}
 	/>
 
 	<b>Confirm password:</b>
 	<Input
-		val={input_2}
+		value={input_2}
 		type="password"
 		placeholder={current_password ? '(unchanged)' : 'Type here...'}
-		onChange={(e) => { input_2 = e.target.value; }}
+		onChange={(value) => { input_2 = value; }}
 		valid={valid}
 	/>
 </div>

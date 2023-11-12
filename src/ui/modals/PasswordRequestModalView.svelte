@@ -59,7 +59,7 @@
 		type="password"
 		value={input}
 		placeholder="Type here..."
-		class:translator-input-fail={invalid}
+		class:svelcomlib-input-fail={invalid}
 		on:keyup={(e) => {
 			invalid = false;
 			if (e.key === "Enter")

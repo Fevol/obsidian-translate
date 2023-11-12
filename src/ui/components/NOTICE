@@ -1,0 +1,8 @@
+This project contains software libraries of different projects, either as packages, added as submodules or -if permissible under their license- as a copy of the source code,
+which are not necessarily licensed under the MIT license.
+
+The licenses of these libraries are listed below.
+
+svelte-virtual-list-ce
+Source: https://github.com/gitbreaker222/svelte-virtual-list
+License: LIL (https://github.com/gitbreaker222/svelte-virtual-lis)

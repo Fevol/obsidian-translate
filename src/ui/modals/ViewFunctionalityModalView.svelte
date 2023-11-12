@@ -1,6 +1,5 @@
 <script>
-	import {Toggle, Dropdown} from "../components";
-	import {SettingItem} from "../obsidian-components";
+	import {Toggle, Dropdown, SettingItem} from "../components";
 
 	import {settings} from "stores";
 	import {createEventDispatcher} from "svelte";
@@ -32,7 +31,7 @@
 			})
 		}
 		value={ translation_service }
-		onChange={(e) => { translation_service = e.target.value; }}
+		onChange={(value) => { translation_service = value; }}
 	/>
 </SettingItem>
 
@@ -42,16 +41,16 @@
 	type="toggle"
 	notices={[
 		...($settings.service_settings[translation_service]?.auto_translate ? [] : [
-			{text: `The 'automatic translation' setting for ${SERVICES_INFO[translation_service].display_name} is not activated, enable it via the service's settings tab`, style: "translator-warning-text"}
+			{text: `The 'automatic translation' setting for ${SERVICES_INFO[translation_service].display_name} is not activated, enable it via the service's settings tab`, type: "warning"}
 		]),
-	 {text: "The delay for the automatic translation can be set in the global translation service settings", style: "translator-info-text"},
+	 	{text: "The delay for the automatic translation can be set in the global translation service settings", type: "info"},
 	]}
 >
 	<Toggle
 		slot="control"
 		value={ auto_translate }
-		disabled={ !$settings.service_settings[translation_service]?.auto_translate }
-		onChange={(val) => { auto_translate = val; }}
+		disabled={ !auto_translate && !$settings.service_settings[translation_service]?.auto_translate }
+		onChange={(value) => { auto_translate = value; }}
 	/>
 </SettingItem>
 
@@ -60,14 +59,14 @@
 	description="Replace words with their glossary translation"
 	type="toggle"
 	notices={$settings.apply_glossary ? [] :
-		[{text: "Global 'glossary' option has not been activated yet, you can enable it in the 'Functionality' settings tab", style: "translator-warning-text"}]
+		[{text: "Global 'glossary' option has not been activated yet, you can enable it in the 'Functionality' settings tab", type: "warning"}]
 	}
 >
 	<Toggle
 		slot="control"
 		disabled={ !$settings.apply_glossary }
 		value={ apply_glossary }
-		onChange={(val) => { apply_glossary = val; }}
+		onChange={(value) => { apply_glossary = value; }}
 	/>
 </SettingItem>
 
@@ -77,7 +76,7 @@
 	description="Set which languages are visible for this view"
 	type="dropdown"
 	notices={[
-		{text: "Manual language selection can be set in the service's settings", style: "translator-info-text"},
+		{text: "Manual language selection can be set in the service's settings", type: "info"},
 	]}
 >
 	<Dropdown
@@ -88,7 +87,7 @@
 			{"value": 2, "text": 'Manually selected languages'}
 		]}
 		value={ filter_mode }
-		onChange={(e) => { filter_mode = parseInt(e.target.value); }}
+		onChange={(value) => { filter_mode = parseInt(value); }}
 	/>
 </SettingItem>
 
@@ -97,7 +96,7 @@
 		Cancel
 	</button>
 
-	<button class="translator-success"
+	<button class="svelcomlib-success"
 			on:click={async () => {
 				dispatch("close", { translation_service, auto_translate, apply_glossary, filter_mode });
 			}}>
