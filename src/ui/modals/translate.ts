@@ -10,11 +10,11 @@ export default class TranslateModal extends FuzzySuggestModal<string>{
 	plugin: TranslatorPlugin;
 	options: Record<string, string>[];
 	translation_type: string;
-	file: TFile;
+	file: TFile | null;
 	settings: TranslatorPluginSettings;
 
 	// FIXME?: Pass the editor context if provided
-	constructor(app: App, plugin: TranslatorPlugin, translation_type: string, file: TFile = null) {
+	constructor(app: App, plugin: TranslatorPlugin, translation_type: string, file: TFile | null = null) {
 		super(app);
 		this.plugin = plugin;
 		this.translation_type = translation_type;
@@ -28,7 +28,7 @@ export default class TranslateModal extends FuzzySuggestModal<string>{
 		this.options = Array.from(loaded_available_languages).map(locale => {
 			return {
 				value: locale,
-				label: loaded_all_languages.get(locale),
+				label: loaded_all_languages.get(locale)!,
 			}
 		}).sort((a, b) => {
 			return a.label.localeCompare(b.label)
@@ -46,7 +46,7 @@ export default class TranslateModal extends FuzzySuggestModal<string>{
 		let top_languages = pinned_languages.map(x => {
 			return {
 				value: x,
-				label: loaded_all_languages.get(x),
+				label: loaded_all_languages.get(x)!,
 			}
 		});
 		this.options = [...top_languages, ...this.options.filter(x => !pinned_languages.contains(x.value))];
@@ -65,20 +65,20 @@ export default class TranslateModal extends FuzzySuggestModal<string>{
 	async onChooseItem(item: any): Promise<void> {
 		let output: TranslationResult;
 		if (this.translation_type.contains("file")) {
-			output = await translate_file(this.plugin, this.file || this.app.workspace.getActiveFile(), item.value,
+			output = await translate_file(this.plugin, this.file || this.app.workspace.getActiveFile()!, item.value,
 				this.translation_type === "file-current", {
 					apply_glossary: this.settings.apply_glossary
 				});
 		} else if (this.translation_type === "selection") {
 			const loaded_settings = get(settings);
 
-			let editor: Editor = this.app.workspace.getActiveViewOfType(MarkdownView).editor;
+			let editor: Editor = this.app.workspace.getActiveViewOfType(MarkdownView)!.editor;
 			output = await translate_selection(this.plugin, editor, item.value, {
 				apply_glossary: this.settings.apply_glossary
 			}, loaded_settings.translation_command_action);
 		}
 
-		if (output.status_code === 200) {
+		if (output!.status_code === 200) {
 			settings.update((x: TranslatorPluginSettings) => {
 				if (!x.last_used_target_languages.contains(item.value)) {
 					x.last_used_target_languages = [item.value, ...x.last_used_target_languages].slice(0, 3);
@@ -88,8 +88,8 @@ export default class TranslateModal extends FuzzySuggestModal<string>{
 				}
 				return x;
 			});
-		} else if (output.message) {
-			this.plugin.message_queue(output.message)
+		} else if (output!.message) {
+			this.plugin.message_queue(output!.message)
 		}
 	}
 }

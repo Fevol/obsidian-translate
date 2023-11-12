@@ -20,7 +20,7 @@ import ViewFunctionalityModal from "./ui/modals/view_functionality_modal";
 
 export class TranslatorView extends ItemView {
 	plugin: TranslatorPlugin;
-	view: SvelteComponent;
+	view!: SvelteComponent;
 
 	// Translation service store is shared with the View component
 	translation_service: Writable<string> = writable("dummy");
@@ -56,7 +56,7 @@ export class TranslatorView extends ItemView {
 
 
 	async onOpen() {
-		this.contentEl.id = this.leaf.id;
+		this.contentEl.id = this.leaf.id!;
 		this.contentEl.style.display = "flex";
 		this.contentEl.style.flexDirection = "column";
 	}

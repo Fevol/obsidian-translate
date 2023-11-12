@@ -11,13 +11,13 @@ import {requestUrl} from "obsidian";
 import {DEFAULT_SETTINGS} from "../constants";
 
 export class FanyiYoudao extends DummyTranslate {
-	#api_key: string;
-	#app_id: string;
+	#api_key?: string;
+	#app_id?: string;
 	id = "fanyi_youdao";
 
 	character_limit = 5000;
 
-	status_code_lookup: {[key: number]: {message: string, status_code: number}} = {
+	status_code_lookup: {[key: number]: {message?: string, status_code: number}} = {
 		0:   {message: undefined, status_code: 200},
 		101: {message: "Missing required parameter", status_code: 400},
 		102: {message: "Unsupported language type", status_code: 400},
@@ -135,7 +135,7 @@ export class FanyiYoudao extends DummyTranslate {
 			url: `https://openapi.youdao.com/api?` +
 				new URLSearchParams({
 					q: text,
-					appKey: this.#app_id,
+					appKey: this.#app_id!,
 					salt: signed_message.salt,
 					from: from,
 					to: to,

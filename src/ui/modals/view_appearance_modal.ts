@@ -6,7 +6,7 @@ import {QUICK_ACTIONS, QUICK_SETTINGS} from "../../constants";
 import {generateIdentifier} from "../../util";
 
 export default class ViewAppearanceModal extends Modal {
-	private view: SvelteComponent;
+	private view!: SvelteComponent;
 	translator_view: TranslatorView;
 
 
@@ -48,7 +48,9 @@ export default class ViewAppearanceModal extends Modal {
 				e.detail.left_buttons = e.detail.left_buttons.map((button: any) => button.id.split("_")[0]);
 				e.detail.right_buttons = e.detail.right_buttons.map((button: any) => button.id.split("_")[0]);
 
-				await this.translator_view.setState(Object.assign(state, e.detail), {});
+				await this.translator_view.setState(Object.assign(state, e.detail), {
+					history: true,
+				});
 			}
 
 			super.close();

@@ -11,10 +11,10 @@ import {requestUrl} from "obsidian";
 import {ALL_TRANSLATOR_LANGUAGES} from "../constants";
 
 export class OpenaiTranslator extends DummyTranslate {
-	#host: string;
-	#api_key: string;
+	#host?: string;
+	#api_key?: string;
 	id = "openai_translator";
-	model = "gpt-3.5-turbo"
+	model? = "gpt-3.5-turbo"
 	temperature = 0.3;
 
 	requires_api_key = false;
@@ -24,7 +24,10 @@ export class OpenaiTranslator extends DummyTranslate {
 		this.#api_key = settings.api_key;
 		this.#host = settings.host;
 		this.model = settings.model;
-		if (!this.#host.startsWith("http")) this.#host = `https://${this.#host}`;
+		if (!this.#host)
+			this.#host = "https://localhost:5000";
+		else if (!this.#host.startsWith("http"))
+			this.#host = `https://${this.#host}`;
 		else this.#host = new URL(this.#host).origin;
 	}
 
@@ -32,8 +35,11 @@ export class OpenaiTranslator extends DummyTranslate {
 		this.#api_key = settings.api_key ?? this.#api_key;
 		this.#host = settings.host ?? this.#host;
 		this.model = settings.model ?? "gpt-3.5-turbo";
-        if (!this.#host.startsWith("http")) this.#host = `https://${this.#host}`;
-        else this.#host = new URL(this.#host).origin;
+		if (!this.#host)
+			this.#host = "https://localhost:5000";
+		else if (!this.#host.startsWith("http"))
+			this.#host = `https://${this.#host}`;
+		else this.#host = new URL(this.#host).origin;
 	}
 
 	async service_validate(): Promise<ValidationResult> {

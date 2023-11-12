@@ -1,6 +1,7 @@
 // Add node to the global scope so that we can use it in the tests
 import { TextEncoder, TextDecoder } from 'util';
 global.TextEncoder = TextEncoder;
+// @ts-ignore
 global.TextDecoder = TextDecoder;
 
 import {Platform} from "obsidian";

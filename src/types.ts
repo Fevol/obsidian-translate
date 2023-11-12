@@ -237,7 +237,7 @@ export interface APIServiceSettings extends ServiceOptions {
 	 * Hostname for the service (if required)<br>
 	 * <b>Used by:</b> Lingva Translate, Libre Translate, DeepL
 	 */
-	host?: string;
+	host?: string | null;
 
 	/**
 	 * Whether the user has access to the premium tier of the service
@@ -258,7 +258,7 @@ export interface APIServiceSettings extends ServiceOptions {
 	/**
 	 * Whether the translation service is validated (current authentication settings are valid)
 	 */
-	validated: boolean;
+	validated: boolean | null;
 }
 
 /**

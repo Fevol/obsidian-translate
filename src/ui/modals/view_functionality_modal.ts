@@ -4,7 +4,7 @@ import ViewFunctionalityModalView from "./ViewFunctionalityModalView.svelte";
 import type {TranslatorView} from "../../view";
 
 export default class ViewFunctionalityModal extends Modal {
-	private view: SvelteComponent;
+	private view!: SvelteComponent;
 	translator_view: TranslatorView;
 
 
@@ -23,7 +23,9 @@ export default class ViewFunctionalityModal extends Modal {
 		});
 		this.view.$on("close", async (e) => {
 			if (e.detail)
-				await this.translator_view.setState(Object.assign(state, e.detail), {});
+				await this.translator_view.setState(Object.assign(state, e.detail), {
+					history: true,
+				});
 			super.close();
 		});
 

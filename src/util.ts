@@ -141,6 +141,7 @@ export function rateLimit(limitCount: number, interval: number, unique: boolean,
     }
 
     return function rate_limited_function() {
+		// @ts-ignore (This is fine)
         const ctx = this;
         const args = Array.prototype.slice.call(arguments);
 
@@ -248,7 +249,7 @@ export async function aesGcmDecrypt(ciphertext: string, password: string) {
         const pwUtf8 = new TextEncoder().encode(password);                                 // encode password as UTF-8
         const pwHash = await crypto.subtle.digest('SHA-256', pwUtf8);                      // hash the password
 
-        const iv = ciphertext.slice(0, 24).match(/.{2}/g).map(byte => parseInt(byte, 16));  // get iv from ciphertext
+        const iv = ciphertext.slice(0, 24).match(/.{2}/g)!.map(byte => parseInt(byte, 16));  // get iv from ciphertext
 
         const alg = {name: 'AES-GCM', iv: new Uint8Array(iv)};                           // specify algorithm to use
 

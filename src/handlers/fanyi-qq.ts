@@ -13,9 +13,9 @@ import {requestUrl} from "obsidian";
 import {DEFAULT_SETTINGS} from "../constants";
 
 export class FanyiQq extends DummyTranslate {
-	#api_key: string;
-	#app_id: string;
-	#region: string;
+	#api_key?: string;
+	#app_id?: string;
+	#region?: string;
 	id = "fanyi_qq";
 
 	character_limit = 2000;
@@ -103,9 +103,9 @@ export class FanyiQq extends DummyTranslate {
 		const payload = {
 			Action: 'LanguageDetect',
 			Version: '2018-03-21',
-			Region: this.#region,
+			Region: this.#region!,
 			Text: 'I',
-			ProjectId: this.#app_id,
+			ProjectId: this.#app_id!,
 		}
 		const signature = await this.sign_message(payload);
 
@@ -136,9 +136,9 @@ export class FanyiQq extends DummyTranslate {
 		const payload = {
 			Action: 'LanguageDetect',
 			Version: '2018-03-21',
-			Region: this.#region,
+			Region: this.#region!,
 			Text: text,
-			ProjectId: this.#app_id,
+			ProjectId: this.#app_id!,
 		}
 		const signature = await this.sign_message(payload);
 
@@ -170,11 +170,11 @@ export class FanyiQq extends DummyTranslate {
 		const payload = {
 			Action: 'TextTranslate',
 			Version: '2018-03-21',
-			Region: this.#region,
+			Region: this.#region!,
 			SourceText: sourceText,
 			Source: source,
 			Target: target,
-			ProjectId: this.#app_id,
+			ProjectId: this.#app_id!,
 		}
 		const signature = await this.sign_message(payload);
 

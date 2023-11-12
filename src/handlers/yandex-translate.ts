@@ -12,7 +12,7 @@ import {requestUrl} from "obsidian";
 // FIXME: Check what translate returns when no language_from was specified
 
 export class YandexTranslate extends DummyTranslate {
-	#api_key: string;
+	#api_key?: string;
 	id = "yandex_translate";
 
 	character_limit = 10000;
@@ -56,7 +56,7 @@ export class YandexTranslate extends DummyTranslate {
 			method: "POST",
 			url: `https://translate.yandex.net/api/v1.5/tr.json/detect?` +
 				new URLSearchParams({
-					key: this.#api_key,
+					key: this.#api_key!,
 					text: text
 				}),
 		});
@@ -79,7 +79,7 @@ export class YandexTranslate extends DummyTranslate {
 			method: "POST",
 			url: `https://translate.yandex.net/api/v1.5/tr.json/translate?` +
 				new URLSearchParams({
-					key: this.#api_key,
+					key: this.#api_key!,
 					text: text,
 					lang: from === 'auto' ? to : `${from}-${to}`,
 					format: "plain"
@@ -105,7 +105,7 @@ export class YandexTranslate extends DummyTranslate {
 			method: "POST",
 			url: `https://translate.yandex.net/api/v1.5/tr.json/getLangs?` +
 				new URLSearchParams({
-					key: this.#api_key,
+					key: this.#api_key!,
 					ui: "en"
 				}),
 		});

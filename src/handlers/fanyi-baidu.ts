@@ -14,15 +14,15 @@ import {iso639_3to1, iso639_1to3} from "../util";
 import {DEFAULT_SETTINGS, SERVICES_INFO} from "../constants";
 
 export class FanyiBaidu extends DummyTranslate {
-	#api_key: string;
-	#app_id: string;
+	#api_key?: string;
+	#app_id?: string;
 	id = "fanyi_baidu";
 
 	character_limit = 6000;
 
 	premium = false;
 
-	status_code_lookup: {[key: number]: {message: string, status_code: number}} = {
+	status_code_lookup: {[key: number]: {message?: string, status_code: number}} = {
 		52000: {message: undefined, status_code: 200},
 		52001: {message: "Request timed out, please try again later", status_code: 408},
 		52002: {message: "System error, please try again later", status_code: 500},
@@ -42,7 +42,7 @@ export class FanyiBaidu extends DummyTranslate {
 		super();
 		this.#api_key = settings.api_key;
 		this.#app_id = settings.app_id;
-		this.premium = settings.premium;
+		this.premium = settings.premium || false;
 	}
 
 	update_settings(settings: ServiceSettings): void {
@@ -112,7 +112,7 @@ export class FanyiBaidu extends DummyTranslate {
 		const signature = await this.sign_message(text);
 		const payload = {
 			q: text,
-			appid: this.#app_id,
+			appid: this.#app_id!,
 			salt: signature.salt,
 			sign: signature.signature,
 		}
@@ -145,7 +145,7 @@ export class FanyiBaidu extends DummyTranslate {
 			q: text,
 			from: from,
 			to: iso639_1to3[to] || to,
-			appid: this.#app_id,
+			appid: this.#app_id!,
 			salt: signature.salt,
 			sign: signature.signature,
 			action: options.apply_glossary ? "1" : "0",

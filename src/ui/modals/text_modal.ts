@@ -5,8 +5,8 @@ import TextModalView from "./TextModalView.svelte";
 import type TranslatorPlugin from "../../main";
 
 export default class TextModal extends Modal {
-	private view: SvelteComponent;
-	plugin: TranslatorPlugin;
+	private view!: SvelteComponent;
+	plugin!: TranslatorPlugin;
 
 	title: string;
 	description: string;

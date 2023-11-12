@@ -10,15 +10,15 @@ import t from "../l10n";
 
 
 export class BergamotTranslate extends DummyTranslate {
-	translator: Bergamot;
-	detector: DummyTranslate = null;
+	translator: Bergamot | null = null;
+	detector: DummyTranslate | null = null;
 	plugin: TranslatorPlugin;
 	available_languages = ['en'];
 	id = "bergamot";
 
 	update_data(available_models: ModelFileData) {
-		if (available_models) {
-			this.available_languages = ["en"].concat(available_models.models.map((x) => x.locale));
+		if (available_models && this.translator) {
+			this.available_languages = ["en"].concat(available_models.models!.map((x) => x.locale!));
 			this.translator.available_models = available_models;
 		}
 	}
@@ -29,9 +29,9 @@ export class BergamotTranslate extends DummyTranslate {
 				try {
 					this.translator = new Bergamot(available_models);
 					this.translator.loadTranslationEngine();
-					this.available_languages = ["en"].concat(available_models.models.map((x) => x.locale));
+					this.available_languages = ["en"].concat(available_models.models!.map((x) => x.locale!));
 					this.valid = true;
-				} catch (e) {
+				} catch (e: any) {
 					this.plugin.message_queue(`Error while loading Bergamot: ${e.message}`);
 					this.translator = null;
 					this.valid = false;
@@ -43,11 +43,11 @@ export class BergamotTranslate extends DummyTranslate {
 			}
 		} else {
 			this.valid = true;
-			this.available_languages = ["en"].concat(available_models.models.map((x) => x.locale));
+			this.available_languages = ["en"].concat(available_models.models!.map((x) => x.locale!));
 		}
 	}
 
-	constructor(detector: DummyTranslate = null, plugin: TranslatorPlugin, available_models: ModelFileData) {
+	constructor(detector: DummyTranslate | null = null, plugin: TranslatorPlugin, available_models: ModelFileData) {
 		super();
 		this.plugin = plugin;
 		this.detector = detector;
@@ -60,14 +60,14 @@ export class BergamotTranslate extends DummyTranslate {
 	}
 
 	async service_detect(text: string): Promise<DetectionResult> {
-		return this.detector.detect(text);
+		return this.detector!.detect(text);
 	}
 
 	async service_translate(text: string, from: string, to: string, options: ServiceOptions = {}): Promise<TranslationResult> {
 		let detected_language = '';
 		if (from === 'auto') {
 			if (this.has_autodetect_capability()) {
-				detected_language = (await this.detector.detect(text)).detected_languages.first()?.language;
+				detected_language = (await this.detector!.detect(text)).detected_languages!.first()?.language!;
 				if (detected_language && detected_language !== 'auto')
 					from = detected_language;
 				else
@@ -87,7 +87,7 @@ export class BergamotTranslate extends DummyTranslate {
 
 		return {
 			status_code: 200,
-			translation: await this.translator.translate(text, from, to),
+			translation: await this.translator!.translate(text, from, to),
 			detected_language: detected_language
 		};
 	}

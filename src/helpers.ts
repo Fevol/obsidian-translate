@@ -52,7 +52,7 @@ export async function translate_file(plugin: TranslatorPlugin, file: TFile, lang
 			: filename_translation;
 
 		const translated_document = translated_text.join("\n\n");
-		const translated_document_path = (file.parent.path === '/' ? '' : file.parent.path + '/') + translated_filename + ".md";
+		const translated_document_path = (file.parent!.path === '/' ? '' : file.parent!.path + '/') + translated_filename + ".md";
 
 		// If translation of file already exists, replace it by new translation
 		let existing_file = plugin.app.vault.getAbstractFileByPath(translated_document_path);
@@ -84,7 +84,7 @@ export async function translate_file(plugin: TranslatorPlugin, file: TFile, lang
 export async function translate_selection(plugin: TranslatorPlugin, editor: Editor, language_to: string, options: ServiceOptions, handle_text = "replace"): Promise<TranslationResult> {
 	if (editor.getSelection().length === 0) {
 		plugin.message_queue("Selection is empty");
-		return;
+		return {status_code: 400, message: "Selection is empty"};
 	}
 
 	let text = editor.getSelection();
@@ -127,13 +127,13 @@ export async function detect_selection(plugin: TranslatorPlugin, editor: Editor)
 		new Notice(results.message, 4000);
 
 	if (results.status_code === 200) {
-		const detected_languages = results.detected_languages.sort((a, b) => {
-			return b.confidence - a.confidence;
+		const detected_languages = results.detected_languages!.sort((a, b) => {
+			return b.confidence! - a.confidence!;
 		});
 
 		if (detected_languages) {
 			const alternatives = detected_languages.map((result) => {
-				return `${t(result.language)}` + (result.confidence !== undefined ? ` [${(result.confidence * 100).toFixed(2)}%]` : '');
+				return `${t(result.language!)}` + (result.confidence !== undefined ? ` [${(result.confidence * 100).toFixed(2)}%]` : '');
 			});
 
 			new Notice(`Detected languages:\n\t${alternatives.join('\n\t')}`, 0);

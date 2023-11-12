@@ -4,7 +4,7 @@ import PasswordModalView from "./PasswordModalView.svelte";
 import type TranslatorPlugin from "../../main";
 
 export default class PasswordModal extends Modal {
-	private view: SvelteComponent;
+	private view!: SvelteComponent;
 	plugin: TranslatorPlugin;
 
 	constructor(app: App, plugin: TranslatorPlugin) {

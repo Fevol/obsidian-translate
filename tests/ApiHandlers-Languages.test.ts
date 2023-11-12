@@ -8,6 +8,7 @@ test('Load correct-data.json (required for test)', () => {
 if (filled_settings) {
 	for (const [id, config] of Object.entries(services)) {
 		const service_settings = filled_settings?.service_settings[id as keyof APIServiceProviders] as APIServiceSettings;
+		// @ts-expect-error (Service settings differ between services)
 		const translator = new config.service(service_settings);
 
 		describe(config.name, () => {
@@ -34,7 +35,7 @@ if (filled_settings) {
 				test("languages", async () => {
 					let result = await translator.languages();
 					expect(result.status_code).toBe(200);
-					expect(result.languages.sort()).toEqual(service_settings.available_languages.sort());
+					expect(result.languages!.sort()).toEqual(service_settings.available_languages.sort());
 				});
 			});
 		});

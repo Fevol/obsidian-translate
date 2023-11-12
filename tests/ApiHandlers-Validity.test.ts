@@ -7,6 +7,7 @@ test('Load correct-data.json', () => {
 });
 
 for (const [id, config] of Object.entries(services)) {
+	// @ts-expect-error (Empty settings will result in a validation error)
 	const translator = new config.service(empty_settings);
 	const service_settings = filled_settings?.service_settings[id as keyof APIServiceProviders] as APIServiceSettings;
 
@@ -39,7 +40,7 @@ for (const [id, config] of Object.entries(services)) {
 
 				if (service_settings) {
 					test("validate (correct values)", async () => {
-						for (const setting of Object.values(config.inputs)) {
+						for (const setting of Object.values(config.inputs!)) {
 							// @ts-ignore
 							translator[setting] = service_settings[setting as keyof APIServiceSettings];
 						}

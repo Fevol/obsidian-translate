@@ -79,21 +79,21 @@ export class TranslateAPI {
      *  message: "Translation service is not available"
      * }
      */
-    async translate(text: string, from?: string, to?: string, options?: APIOptions): Promise<TranslationResult> {
+    async translate(text: string, from: string = "auto", to?: string, options?: APIOptions): Promise<TranslationResult> {
         if (!this.plugin.translator)
             return {status_code: 400, message: "Translation service is not available"};
 
 
         if (!to) {
             const loaded_settings = get(settings);
-            if (options.force_display) {
+            if (options?.force_display) {
                 to = this.plugin.current_language;
             } else {
                 if (loaded_settings.target_language_preference === "last")
                     to = loaded_settings.last_used_target_languages[0];
                 else if (loaded_settings.target_language_preference === "specific")
                     to = loaded_settings.default_target_language;
-                else if (loaded_settings.target_language_preference === "display")
+                else
                     to = this.plugin.current_language;
             }
         }

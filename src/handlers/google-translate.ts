@@ -10,7 +10,7 @@ import type {
 import {requestUrl} from "obsidian";
 
 export class GoogleTranslate extends DummyTranslate {
-	#api_key: string;
+	#api_key?: string;
 	id = "google_translate";
 
 	character_limit = 100000;
@@ -58,7 +58,7 @@ export class GoogleTranslate extends DummyTranslate {
 			method: 'POST',
 			url: `https://translation.googleapis.com/language/translate/v2/detect?` +
 				new URLSearchParams({
-					key: this.#api_key,
+					key: this.#api_key!,
 				}),
 			headers: {
 				'Content-Type': 'application/json',
@@ -89,7 +89,7 @@ export class GoogleTranslate extends DummyTranslate {
 			method: "POST",
 			url: `https://translation.googleapis.com/language/translate/v2?` +
 				new URLSearchParams({
-					key: this.#api_key,
+					key: this.#api_key!,
 				}),
 			headers: {
 				'Content-Type': 'application/json',
@@ -123,7 +123,7 @@ export class GoogleTranslate extends DummyTranslate {
 			method: "POST",
 			url: `https://translation.googleapis.com/language/translate/v2/languages?` +
 				new URLSearchParams({
-					key: this.#api_key,
+					key: this.#api_key!,
 					target: 'en',
 					model: 'nmt',
 				}),

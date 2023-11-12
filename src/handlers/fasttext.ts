@@ -9,10 +9,10 @@ import {FastText, FastTextModel} from "./fasttext/fasttext";
 import {Notice} from "obsidian";
 
 export class FastTextDetector extends DummyTranslate {
-	detector: FastTextModel;
+	detector?: FastTextModel;
 	id = "fasttext";
 
-	version: number;
+	version?: number;
 
 	status: string = '';
 	data: any = null;
@@ -27,9 +27,10 @@ export class FastTextDetector extends DummyTranslate {
 				try {
 					if (ft instanceof WebAssembly.RuntimeError) {
 						this.valid = false;
-						new Notice(ft.message.match(/\(([^)]+)\)/)[0].slice(1, -1), 4000);
+						new Notice(ft.message.match(/\(([^)]+)\)/)![0].slice(1, -1), 4000);
 					} else {
-						ft.loadModel(Object.values(available_models.models)[0].name).then((model: FastTextModel) => {
+						// @ts-expect-error (FastText model typings not available)
+						ft.loadModel(Object.values(available_models.models!)[0].name).then((model: FastTextModel) => {
 							this.detector = model;
 							this.validate().then((x) => {
 								this.valid = x.valid;
@@ -57,7 +58,7 @@ export class FastTextDetector extends DummyTranslate {
 	}
 
 	async service_detect(text: string): Promise<DetectionResult> {
-		let predictions: any = this.detector.predict(text, 5, 0.0);
+		let predictions: any = this.detector!.predict(text, 5, 0.0);
 		let results = [];
 
 		for (let i = 0; i < predictions.size(); i++)

@@ -11,8 +11,8 @@ import type {
 } from "./types";
 
 export class AmazonTranslate extends DummyTranslate {
-	#api_key: string;
-	#region: string;
+	#api_key?: string;
+	#region?: string;
 	id = "amazon_translate";
 
 	character_limit = 5000;

@@ -28,12 +28,12 @@ export default class TranslatorPlugin extends Plugin {
 	/**
 	 * Svelte component that handles all reactive interactions within the plugin
 	 */
-	reactivity: Reactivity;
+	reactivity!: Reactivity;
 
 	/**
 	 * Current display language of Obsidian
 	 */
-	current_language: string;
+	current_language!: string;
 
 	/**
 	 * This is a callback function that will be called on uninstallation of the plugin,
@@ -45,13 +45,13 @@ export default class TranslatorPlugin extends Plugin {
 	 * Plugin's default (global) translator, is used for all commands (translate file, ...)
 	 * @public
 	 * */
-	translator: DummyTranslate;
+	translator!: DummyTranslate;
 
 	/**
 	 * Plugin's default (global) language detector, is used for language detection commands and for glossary language determination
 	 * @public
 	 */
-	detector: DummyTranslate;
+	detector!: DummyTranslate;
 
 	/**
 	 * Used to prevent Translation View messages from appearing while settings are being changed
@@ -62,7 +62,7 @@ export default class TranslatorPlugin extends Plugin {
      * Publicly accessible API for the plugin
 	 * @remark Handles access of settings, translating, detecting, etc.
      */
-	api: TranslateAPI;
+	api!: TranslateAPI;
 
 	/**
 	 * Notice queue for the plugin, it can be configured to only show one message at a time, only show unique messages, etc.
@@ -72,7 +72,7 @@ export default class TranslatorPlugin extends Plugin {
 	 * @param defaultTimeout - The default time each message will be shown
 	 * @param fn - Message constructor: (text: string, timeout?: number, priority?: boolean) => { new Notice }, can be customized
 	 */
-	message_queue: ((...args: any[]) => void)
+	message_queue!: ((...args: any[]) => void)
 
 	async onload() {
 		this.api = new TranslateAPI(this);
@@ -161,7 +161,7 @@ export default class TranslatorPlugin extends Plugin {
 		 *    these settings may not be overwritten by the plugin
 		 */
 		for (const [key, value] of Object.entries(loaded_settings.service_settings as APIServiceProviders)) {
-			if (value.version < DEFAULT_SETTINGS.service_settings[key as keyof APIServiceProviders].version) {
+			if (value.version < DEFAULT_SETTINGS.service_settings[key as keyof APIServiceProviders].version!) {
 				// @ts-ignore (because this should never crash, and can't get add keyof APIServiceProvider to LHS)
 				loaded_settings.service_settings[key].available_languages = DEFAULT_SETTINGS.service_settings[key].available_languages;
 				// @ts-ignore (idem)
@@ -203,17 +203,17 @@ export default class TranslatorPlugin extends Plugin {
 		});
 
 
-		this.uninstall = around(app.plugins, {
+		this.uninstall = around(this.app.plugins, {
 			uninstallPlugin: (oldMethod) => {
-				return async (...args: string[]) => {
-					const result = oldMethod && oldMethod.apply(app.plugins, args);
-					if (args[0] === 'translate') {
+				return async (id: string) => {
+					const result = oldMethod && await oldMethod.apply(this.app.plugins, [id]);
+					if (id === 'translate') {
 						// Clean up local storage items on uninstallation
-						localStorage.removeItem(`${app.appId}-password`);
-						localStorage.removeItem(`${app.appId}-fasttext`);
-						localStorage.removeItem(`${app.appId}-bergamot`);
-						localStorage.removeItem(`${app.appId}-obfuscate_keys`);
-						localStorage.removeItem(`${app.appId}-hide_shortcut_tooltips_toggle`);
+						localStorage.removeItem(`${this.app.appId}-password`);
+						localStorage.removeItem(`${this.app.appId}-fasttext`);
+						localStorage.removeItem(`${this.app.appId}-bergamot`);
+						localStorage.removeItem(`${this.app.appId}-obfuscate_keys`);
+						localStorage.removeItem(`${this.app.appId}-hide_shortcut_tooltips_toggle`);
 
 						const loaded_settings = get(settings);
 						if (loaded_settings.security_setting === "local_only") {
@@ -296,7 +296,7 @@ export default class TranslatorPlugin extends Plugin {
 
 					let language = this.current_language;
 					if (loaded_settings.target_language_preference === "last") {
-						language = loaded_settings.last_used_target_languages?.first();
+						language = loaded_settings.last_used_target_languages.first()!;
 						if (!language) {
 							this.message_queue("No last language found, select language manually");
 							new TranslateModal(this.app, this, "selection").open()
@@ -330,7 +330,7 @@ export default class TranslatorPlugin extends Plugin {
 						return;
 					}
 					let most_recent_view = translator_views.reduce(
-						(prev, curr) => curr.activeTime > prev.activeTime ? curr : prev);
+						(prev, curr) => curr.activeTime! > prev.activeTime! ? curr : prev);
 					if (!most_recent_view) return;
 					if (<WorkspaceSplit>(most_recent_view.parent?.parent) === this.app.workspace.rightSplit)
 						this.app.workspace.rightSplit.expand();
@@ -413,14 +413,14 @@ export default class TranslatorPlugin extends Plugin {
 							item.callback = async () => {
 								menu.hide();
 								if (pinned_languages)
-									await translation_callback(pinned_languages.first());
+									await translation_callback(pinned_languages.first()!);
 								else
 									await translation_callback(this.current_language);
 							};
 
 							let dropdown_menu_items = Array.from(languages)
 								.map((locale) => {
-									return [locale, languages_dict.get(locale)];
+									return [locale, languages_dict.get(locale)!];
 								})
 								.sort((a, b) => a[1].localeCompare(b[1]));
 
@@ -428,7 +428,7 @@ export default class TranslatorPlugin extends Plugin {
 							if (pinned_languages) {
 								for (const locale of pinned_languages) {
 									subMenu.addItem((item) => {
-										item.setTitle(languages_dict.get(locale))
+										item.setTitle(languages_dict.get(locale)!)
 											.onClick(async (e) => {
 												await translation_callback(locale);
 											});
@@ -439,9 +439,9 @@ export default class TranslatorPlugin extends Plugin {
 
 							for (let [locale, name] of dropdown_menu_items) {
 								subMenu.addItem((item) => {
-									item.setTitle(name)
+									item.setTitle(name!)
 										.onClick(async (e) => {
-											await translation_callback(locale);
+											await translation_callback(locale!);
 										})
 								})
 							}

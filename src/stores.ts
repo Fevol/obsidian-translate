@@ -1,6 +1,6 @@
 import {writable, type Writable} from "svelte/store";
 import type {TranslatorPluginSettings, ModelFileData} from "./types";
-import type TranslatorPlugin from "./main";
+import TranslatorPlugin from "./main";
 import {ALL_DETECTOR_SERVICES, ALL_TRANSLATOR_SERVICES} from "./constants";
 
 /**
@@ -75,6 +75,7 @@ export const glossary = {
 }
 
 // FIXME: Is it better to access via app.plugins.plugins[plugin_id]?
-export const globals = {
-	plugin: null as TranslatorPlugin,
+export const globals: { plugin?: TranslatorPlugin } = {
+	plugin: undefined,
 }
+

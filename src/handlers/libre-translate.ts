@@ -10,7 +10,7 @@ import type {
 import {requestUrl} from "obsidian";
 
 export class LibreTranslate extends DummyTranslate {
-	#host: string;
+	#host?: string;
 	id = "libre_translate";
 
 	constructor(settings: ServiceSettings) {

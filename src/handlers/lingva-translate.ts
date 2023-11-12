@@ -10,7 +10,7 @@ import type {
 import {requestUrl} from "obsidian";
 
 export class LingvaTranslate extends DummyTranslate {
-	#host: string;
+	#host?: string;
 	id = "lingva_translate";
 
 	character_limit = 7500;
@@ -18,13 +18,18 @@ export class LingvaTranslate extends DummyTranslate {
 	constructor(settings: ServiceSettings) {
 		super();
 		this.#host = settings.host;
-		if (!this.#host.startsWith("http"))
+		if (!this.#host)
+			this.#host = "https://localhost:5000";
+		else if (!this.#host.startsWith("http"))
 			this.#host = `https://${this.#host}`;
 	}
 
 	update_settings(settings: ServiceSettings): void {
 		this.#host = settings.host ?? this.#host;
-		if (!this.#host.startsWith("http"))
+		this.#host = settings.host;
+		if (!this.#host)
+			this.#host = "https://localhost:5000";
+		else if (!this.#host.startsWith("http"))
 			this.#host = `https://${this.#host}`;
 	}
 

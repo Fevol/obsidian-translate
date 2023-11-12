@@ -5,7 +5,7 @@ import type TranslatorPlugin from "../../main";
 import ConfirmationModalView from "./ConfirmationModalView.svelte";
 
 export default class PasswordModal extends Modal {
-	private view: SvelteComponent;
+	private view!: SvelteComponent;
 	plugin: TranslatorPlugin;
 
 	callback: () => void;

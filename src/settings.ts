@@ -6,7 +6,7 @@ import {SettingsPage} from "./ui/pages";
 
 export class TranslatorSettingsTab extends PluginSettingTab {
 	plugin: TranslatorPlugin;
-	private view: SvelteComponent;
+	private view!: SvelteComponent;
 
 	constructor(app: App, plugin: TranslatorPlugin) {
 		super(app, plugin);
