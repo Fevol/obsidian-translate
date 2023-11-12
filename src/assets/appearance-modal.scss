@@ -1,0 +1,140 @@
+.translator-unfocused-element {
+  outline: 2px dashed transparent;
+  transition: outline-color 0.5s ease-in-out;
+}
+
+.translator-textarea-quickbuttons-editing {
+  @extend .translator-unfocused-element
+}
+
+.translator-dnd-trashcan {
+  height: 32px;
+  width: 80px;
+  border-radius: 50px;
+  background-color: var(--background-modifier-error);
+}
+
+.translator-dnd-trashcan-item {
+  display: none;
+}
+
+.translator-appearance-modal-header {
+  display: flex;
+  flex-wrap: wrap;
+  flex-direction: row;
+  justify-content: center;
+  gap: var(--size-4-2);
+}
+
+.translator-appearance-modal-header > * {
+  display: flex;
+  justify-content: space-between;
+}
+
+.translator-appearance-modal-attribution {
+  display: flex;
+  align-items: center;
+  width: fit-content;
+  height: fit-content;
+  padding: var(--size-2-2) var(--size-4-2);
+  border-radius: 16px;
+}
+
+.translator-dnd-header {
+  display: flex;
+  flex-direction: row;
+  gap: var(--size-4-8);
+  align-items: center;
+
+  width: min-content;
+  margin: var(--size-4-2) auto 0 auto;
+  padding: var(--size-4-1) var(--size-4-2);
+
+  background: var(--background-secondary);
+  border-radius: 40px;
+}
+
+.translator-dnd-source {
+  outline: unset !important;
+  gap: var(--size-4-2);
+}
+
+.translator-dnd-source-item {
+  color: var(--text-on-accent);
+  background-color: var(--color-green);
+  border-radius: 100%;
+  padding: var(--size-4-2);
+}
+
+.translator-appearance-modal {
+  display: flex;
+  flex-direction: column;
+}
+
+.translator-appearance-modal-confirmation {
+  position: absolute;
+  right: 20px;
+}
+
+.translator-appearance-modal-settings {
+  border-radius: 8px;
+  padding: var(--size-4-2);
+  margin: var(--size-4-2) 0;
+  transition: height 0.3s cubic-bezier(0.4, 0, 1, 1);
+  height: 0;
+}
+
+.translator-appearance-modal-settings-active {
+  height: 150px;
+}
+
+
+.translator-appearance-modal-contents {
+  background-color: var(--background-primary-alt);
+  border-radius: 10px;
+}
+
+.translator-appearance-modal-view {
+  height: 350px;
+  resize: vertical;
+  border-radius: 10px;
+  margin: var(--size-2-2) var(--size-4-2) var(--size-4-2) var(--size-4-2);
+  padding: var(--size-4-3);
+  @extend .translator-unfocused-element
+}
+
+.translator-appearance-modal-view-header {
+  min-width: 48px;
+  min-height: 36px;
+  width: fit-content;
+  padding: var(--size-2-2) var(--size-4-2);
+
+  gap: 4px;
+  border-radius: 40px;
+
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+}
+
+.translator-quicksetting-button {
+  min-height: 28px;
+  max-height: 28px;
+  min-width: 28px;
+  max-width: 28px;
+  padding: var(--size-2-2);
+  border-radius: 100%;
+  border: 1px solid var(--background-modifier-border);
+  background-color: var(--background-primary);
+}
+
+button.translator-focused-button {
+  background-color: var(--color-accent);
+  color: var(--text-on-accent);
+}
+
+div.translator-focused-element {
+  outline-color: var(--color-accent);
+}

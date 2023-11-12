@@ -1,0 +1,102 @@
+.translator-navigation-bar {
+  display: flex;
+  flex-direction: row;
+  overflow-x: auto;
+  overflow-y: hidden;
+  flex-wrap: wrap;
+  gap: 12px;
+
+  margin-bottom: var(--size-4-8);
+  //border-bottom: 1px solid var(--background-modifier-border);
+  background-color: var(--background-primary-alt);
+  padding: var(--size-4-3);
+  border-radius: var(--radius-l);
+}
+
+.translator-warning-message {
+  background-color: var(--background-modifier-error);
+  color: var(--text-on-accent);
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  padding: 10px;
+  margin: 8px;
+  border-radius: 10px;
+  gap: 16px;
+}
+
+.translator-selected-element {
+  color: var(--color-accent);
+  transition: color 0.5s ease-in-out;
+}
+
+.translator-navigation-item-selected .translator-selected-element {
+  color: var(--text-on-accent);
+}
+
+div.translator-navigation-item-selected {
+  outline: unset !important;
+  background-color: var(--text-accent);
+  color: var(--text-on-accent);
+  padding: 6px 9px;
+  max-width: 200px;
+  transition: color 0.25s ease-in-out,
+  padding 0.25s ease-in-out,
+  background-color 0.35s cubic-bezier(0.45, 0.25, 0.83, 0.67),
+  max-width 0.45s cubic-bezier(0.57, 0.04, 0.58, 1) 0.2s;
+}
+
+div.translator-navigation-item-selected:hover {
+  background-color: var(--text-accent-hover);
+}
+
+.translator-navigation-item:hover {
+  background-color: var(--background-primary);
+  outline: 3px solid var(--text-accent);
+}
+
+
+.translator-navigation-item-text {
+  height: 18px;
+}
+
+.translator-navigation-selected-item-text {
+  //display: none;
+  color: transparent;
+  overflow: clip;
+  flex: 0;
+  transition: flex 0.40s ease-in;
+}
+
+.translator-navigation-item-selected .translation-navigation-item-text {
+  flex: 1;
+}
+
+.translator-navigation-item {
+  cursor: pointer;
+  border-radius: 100px;
+
+  font-weight: bold;
+  display: flex;
+  flex-direction: row;
+  white-space: nowrap;
+  //padding: calc(var(--icon-size) / 3);
+  padding: 6px;
+  align-items: center;
+  gap: 4px;
+  outline: 0 solid transparent;
+
+  overflow: hidden;
+
+  background-color: var(--background-primary);
+  border: 1px solid var(--background-modifier-border-hover);
+
+  transition: color 0.25s ease-in-out,
+  padding 0.25s ease-in-out,
+  background-color 0.35s cubic-bezier(0.45, 0.25, 0.83, 0.67),
+  max-width 0.35s cubic-bezier(0.57, 0.04, 0.58, 1),
+  outline 0.15s ease-in-out;
+  //max-width: calc(var(--icon-size) * (5/3) + 2px);
+  max-width: 32px;
+  height: fit-content;
+}

@@ -1,0 +1,140 @@
+.translator-view {
+  display: grid;
+  /*margin: var(--size-4-2);*/
+  flex-grow: 1;
+  gap: 16px;
+}
+
+.is-phone .translator-view {
+  margin-bottom: var(--size-4-5);
+}
+
+.translator-column {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.translator-left-column {
+  grid-area: left;
+}
+
+.translator-center-column {
+  grid-area: center;
+}
+
+.translator-right-column {
+  grid-area: right;
+}
+
+.translator-attribution-column {
+  grid-area: bottom;
+  justify-content: space-between;
+  display: flex;
+  overflow: hidden;
+
+  flex-flow: row wrap;
+  height: calc(var(--font-text-size) * 1.5);
+}
+
+.translator-attribution-column-text {
+  display: flex;
+  flex-direction: row;
+  gap: 4px;
+  align-items: start;
+
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.translator-column {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  gap: 8px;
+  /* Prevents grid taking up more space than necessary */
+  min-width: 0;
+}
+
+.translator-button {
+  border-radius: 100%;
+  width: 50px;
+  max-width: 50px;
+
+  height: 50px;
+  background: var(--background-primary);
+  border: 1px solid var(--background-modifier-border);
+  display: grid;
+  justify-content: center;
+  align-content: center;
+  margin-right: 0;
+}
+
+.translator-rounded-button {
+  background-color: var(--background-secondary);
+  border: 1px solid var(--background-modifier-border);
+  border-radius: 100%;
+  padding: 8px;
+  width: 36px;
+  height: 36px;
+}
+
+.is-phone .translator-rounded-button, .is-tablet .translator-rounded-button {
+  background-color: var(--background-primary);
+  padding: 22px;
+  width: 0;
+}
+
+
+.translator-button-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+}
+
+.translator-service-text {
+  text-transform: capitalize;
+  font-style: italic;
+}
+
+.translator-vertical-layout {
+  grid-template-rows: 1fr auto 1fr auto;
+  grid-template-areas: "left" "center" "right" "bottom";
+}
+
+.translator-mixed-layout {
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr auto auto;
+  grid-template-areas: "left right" "center center" "bottom bottom";
+}
+
+.translator-horizontal-layout {
+  grid-template-columns: 1fr auto 1fr;
+  grid-template-rows: 1fr auto;
+  grid-template-areas: "left center right" "bottom bottom bottom";
+}
+
+.translator-textarea-column {
+  position: relative;
+  height: 100%;
+  width: 100%;
+}
+
+.translator-textarea-quickbuttons {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  margin: 8px 6px;
+  gap: 4px;
+  min-width: 52px;
+  min-height: 44px;
+  border-radius: 40px;
+  padding: var(--size-2-2) var(--size-4-2);
+}
