@@ -75,6 +75,7 @@
 		"change-layout"?: number,
 		"apply-filter"?: number,
 		"open-settings"?: number,
+		"clear-fields"?: number,
 	} = {}
 
 	$: top_button_states = {
@@ -84,6 +85,7 @@
 		'change-layout': view_mode,
 		'apply-filter': filter_mode,
 		'open-settings': 0,
+		'clear-fields': 0,
 	}
 
 	const top_button_actions = {
@@ -114,6 +116,7 @@
 			$settings_tab = $translation_service;
 			openSettingTab();
 		},
+		'clear-fields': clearFields,
 	}
 
 	const left_button_actions = {
@@ -181,6 +184,11 @@
 				} else if (hotkey.id === 'view-language-switch') {
 					view_scope.register(hotkey.modifiers, hotkey.key, () => {
 						switchLanguages();
+						return false;
+					});
+				} else if (hotkey.id === 'view-clear-fields') {
+					view_scope.register(hotkey.modifiers, hotkey.key, () => {
+						clearFields();
 						return false;
 					});
 				} else {
@@ -290,6 +298,12 @@
 			detected_language = return_values.detected_language;
 			text_to = return_values.translation;
 		}
+	}
+
+	function clearFields() {
+		detected_language = undefined;
+		text_from = '';
+		text_to = '';
 	}
 
 	async function switchLanguages() {
@@ -467,7 +481,7 @@
 					<div class="translator-textarea-quickbuttons">
 						{#each left_buttons as quick_button}
 							<Button class="translator-rounded-button clickable-icon" icon={QUICK_ACTIONS[quick_button].icon[0]}
-									tooltip={QUICK_ACTIONS[quick_button].tooltip[0] + ($hide_shortcut_tooltips || !$settings.hotkeys.find(x => x.id.endsWith(quick_button)).key
+									tooltip={QUICK_ACTIONS[quick_button].tooltip[0] + ($hide_shortcut_tooltips || !$settings.hotkeys.find(x => x.id.endsWith(quick_button))?.key
 												? '' : `\n[${getHotKeyString($settings.hotkeys.find(x => x.id.endsWith(quick_button)))}]`)}
 									onClick={() => left_button_actions[quick_button]()}/>
 						{/each}
@@ -478,7 +492,7 @@
 
 		<div class="translator-button-container translator-center-column">
 			<button class="translator-button"
-					aria-label={`Switch languages around${$hide_shortcut_tooltips || !$settings.hotkeys.find(x => x.id === 'view-language-switch').key ?
+					aria-label={`Switch languages around${$hide_shortcut_tooltips || !$settings.hotkeys.find(x => x.id === 'view-language-switch')?.key ?
 									'' : `\n[${getHotKeyString($settings.hotkeys.find(x => x.id === 'view-language-switch'))}]`}`}
 					on:click={async () => { await switchLanguages(); }}
 			>
@@ -488,7 +502,7 @@
 			{#if !auto_translate}
 				<button transition:horizontalSlide={{ duration: 300 }} class="translator-button"
 						on:click={async () => {await translate();}}
-						aria-label={`Translate${$hide_shortcut_tooltips || !$settings.hotkeys.find(x => x.id === 'view-language-switch').key ?
+						aria-label={`Translate${$hide_shortcut_tooltips || !$settings.hotkeys.find(x => x.id === 'view-language-switch')?.key ?
 									'' : `\n[${getHotKeyString($settings.hotkeys.find(x => x.id === 'view-translate'))}]`}`}>
 					<Icon icon="translate" size={20} />
 				</button>
@@ -568,7 +582,7 @@
 					<div class="translator-textarea-quickbuttons">
 						{#each right_buttons as quick_button}
 							<Button class="translator-rounded-button clickable-icon" icon={QUICK_ACTIONS[quick_button].icon[0]}
-									tooltip={QUICK_ACTIONS[quick_button].tooltip[0] + (($hide_shortcut_tooltips || !$settings.hotkeys.find(x => x.id.endsWith(quick_button)).key) ?
+									tooltip={QUICK_ACTIONS[quick_button].tooltip[0] + (($hide_shortcut_tooltips || !$settings.hotkeys.find(x => x.id.endsWith(quick_button))?.key) ?
 												'' : `\n[${getHotKeyString($settings.hotkeys.find(x => x.id.endsWith(quick_button)))}]`)}
 									onClick={() => right_button_actions[quick_button]()}/>
 						{/each}

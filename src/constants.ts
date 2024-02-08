@@ -1,4 +1,4 @@
-import type {TranslatorPluginSettings} from "./types";
+import type {TranslatorHotKey, TranslatorPluginSettings} from "./types";
 import {moment} from "obsidian";
 
 // Add list of icons
@@ -38,7 +38,35 @@ export let ALL_TRANSLATOR_SERVICES: string[] = [
 	"fanyi_baidu",
 	"lingva_translate",
 	"openai_translator"
-]
+];
+
+export const HOTKEY_ACTIONS: TranslatorHotKey[] = [
+	{
+		id: "view-translate",
+		modifiers: ["Mod"],
+		key: "Enter"
+	}, {
+		id: "view-language-switch",
+		modifiers: ["Mod"],
+		key: "S"
+	}, {
+		id: "view-action-copy",
+		modifiers: [],
+		key: ""
+	}, {
+		id: "view-action-clear",
+		modifiers: [],
+		key: ""
+	}, {
+		id: "view-action-paste",
+		modifiers: [],
+		key: ""
+	}, {
+		id: "view-clear-fields",
+		modifiers: [],
+		key: ""
+	}
+];
 
 
 /**
@@ -128,29 +156,7 @@ export const DEFAULT_SETTINGS: TranslatorPluginSettings = {
 	last_used_target_languages: [],
 	default_target_language: moment.locale(),
 	filtered_services: [],
-	hotkeys: [
-		{
-			id: "view-translate",
-			modifiers: ["Mod"],
-			key: "Enter"
-		}, {
-			id: "view-language-switch",
-			modifiers: ["Mod"],
-			key: "S"
-		}, {
-			id: "view-action-copy",
-			modifiers: [],
-			key: ""
-		}, {
-			id: "view-action-clear",
-			modifiers: [],
-			key: ""
-		}, {
-			id: "view-action-paste",
-			modifiers: [],
-			key: ""
-		}
-	],
+	hotkeys: HOTKEY_ACTIONS,
 	service_settings: {
 		fasttext: {
 			default_usage: false,
@@ -1184,6 +1190,7 @@ export const QUICK_SETTINGS = {
 		text: "Change Filter"
 	},
 	"open-settings": {tooltip: ["Open Settings"], icon: ["settings"], text: "Open Settings"},
+	"clear-fields": {tooltip: ["Clear all text fields"], icon: ["box-select"], text: "Clear Text Fields"},
 };
 
 export const QUICK_SETTINGS_BUTTONS = Object.entries(QUICK_SETTINGS).map(([key, value]) => {

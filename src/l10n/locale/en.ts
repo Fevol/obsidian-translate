@@ -23,6 +23,7 @@ export default {
 	"view-action-copy":				"Quickaction: Copy text in focused textarea",
 	"view-action-clear":			"Quickaction: Clear text in focused textarea",
 	"view-action-paste":			"Quickaction: Paste text in focused textarea",
+	"view-clear-fields":				"View: Clear all text fields",
 
 	// ------------------------------------------------------------------------------------------------
 

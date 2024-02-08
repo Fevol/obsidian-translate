@@ -381,7 +381,9 @@ const modifier_resolver: Record<Modifier, string> = Platform.isSafari ? {
  * @param hotkey - The hotkey to generate a display name for
  * @returns {string} - A display name for the hotkey
  */
-export function getHotKeyString(hotkey: TranslatorHotKey) {
+export function getHotKeyString(hotkey: TranslatorHotKey | undefined) {
+	if (!hotkey)
+		return '';
     return `${!hotkey.modifiers.length ? '' : `${hotkey.modifiers.map(mod => modifier_resolver[mod]).join(' + ')} + `}${hotkey.key}`
 }
 
