@@ -34,7 +34,7 @@ export class LingvaTranslate extends DummyTranslate {
 	#host?: string;
 	id = "lingva_translate";
 
-	character_limit = 7500;
+	byte_limit = 2500;
 
 	constructor(settings: ServiceSettings) {
 		super();

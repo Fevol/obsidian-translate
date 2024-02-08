@@ -10,7 +10,7 @@ import type {
 import type {ModelFileData} from "../types";
 
 import {get, writable, type Writable} from "svelte/store";
-import {DefaultDict, regexLastIndexOf} from "../util";
+import {DefaultDict, splitStringByBytes} from "../util";
 import {globals, glossary, settings} from "../stores";
 import t from "../l10n";
 
@@ -56,7 +56,7 @@ export class DummyTranslate {
 	/**
 	 * The maximum number of bytes that can be sent in a single translation request
 	 */
-	character_limit: number = Infinity;
+	byte_limit: number = Infinity;
 
 	/**
 	 * Amount of time service should wait between sending requests
@@ -261,48 +261,38 @@ export class DummyTranslate {
 			// Merges provided options with default service options, provided options take precedence
 			options = {...options, ...this.options};
 
-			if (text.length < this.character_limit) {
+
+			// Worst-case assumption about the length of the encoded text, avoid encoding the string if it's not necessary
+			if (text.length * 4 < this.byte_limit) {
 				output = await this.service_translate(text, from, to, options);
 				if (output.status_code !== 200)
 					return this.detected_error("Translation failed", output);
 				if (detecting_language && temp_detected_language)
 					output.detected_language = temp_detected_language;
 			} else {
-				let idx = 0;
+				const encoded_text = new TextEncoder().encode(text);
 				let translation = '';
 				const languages_occurrences = new DefaultDict({}, 0);
-
 
 				/** This does *not* preserve sentence meaning when translating, as it splits sentences at spaces.
 				 *  However, this is the best (most efficient in both space and time) approach, without having to
 				 *	perform sentence tokenization (aka: dreadful NLP processing).
 				 */
-				while (idx < text.length) {
-					let r_idx: number;
-					if (idx + this.character_limit >= text.length)
-						r_idx = Infinity;
-					else {
-						r_idx = regexLastIndexOf(text, /\p{Zs}/gu, idx + this.character_limit);
-						if (r_idx === -1 || r_idx < idx)
-							r_idx = idx + this.character_limit;
-					}
-
-
-					const chunk = text.slice(idx, r_idx).trim();
+				for (const chunk of splitStringByBytes(encoded_text, this.byte_limit)) {
 					const result = await this.service_translate(chunk, from, to, options);
 					if (result.status_code !== 200) {
 						return this.detected_error("Translation failed", result);
 					} else {
-						translation += (idx ? text.at(idx - 1) : '')! + result.translation;
+						translation += result.translation;
 						if (result.detected_language)
 							languages_occurrences[result.detected_language as keyof typeof languages_occurrences]++;
-						idx = r_idx + 1;
 					}
 				}
 
+				const observed_languages = Object.entries(languages_occurrences);
 				output = {
 					translation: translation,
-					detected_language: Object.entries(languages_occurrences).reduce((a, b) => a[1] > b[1] ? a : b)[0],
+					detected_language: observed_languages.length ? observed_languages.reduce((a, b) => a[1] > b[1] ? a : b)[0] : undefined,
 					status_code: 200
 				};
 			}

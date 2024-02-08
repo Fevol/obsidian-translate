@@ -37,7 +37,7 @@ export class FanyiBaidu extends DummyTranslate {
 	#app_id?: string;
 	id = "fanyi_baidu";
 
-	character_limit = 6000;
+	byte_limit = 6000;
 
 	premium = false;
 

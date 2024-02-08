@@ -33,7 +33,7 @@ export class FanyiQq extends DummyTranslate {
 	#region?: string;
 	id = "fanyi_qq";
 
-	character_limit = 2000;
+	byte_limit = 2000;
 
 	constructor(settings: ServiceSettings) {
 		super();

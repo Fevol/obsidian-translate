@@ -33,7 +33,7 @@ export class YandexTranslate extends DummyTranslate {
 	#api_key?: string;
 	id = "yandex_translate";
 
-	character_limit = 10000;
+	byte_limit = 10000;
 
 	constructor(settings: ServiceSettings) {
 		super();

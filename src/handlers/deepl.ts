@@ -43,7 +43,7 @@ export class Deepl extends DummyTranslate {
 	id = "deepl";
 
 	// Body size may maximally be 128KiB
-	character_limit = 130000;
+	byte_limit = 130000;
 
 	constructor(settings: ServiceSettings) {
 		super();

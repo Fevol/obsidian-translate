@@ -15,7 +15,7 @@ export class AmazonTranslate extends DummyTranslate {
 	#region?: string;
 	id = "amazon_translate";
 
-	character_limit = 5000;
+	byte_limit = 5000;
 
 	constructor(settings: ServiceSettings) {
 		super();

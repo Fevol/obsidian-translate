@@ -14,7 +14,7 @@ export class AzureTranslator extends DummyTranslate {
 	#region: string | undefined;
 	id = "azure_translator";
 
-	character_limit = 50000;
+	byte_limit = 50000;
 
 	// Maximum 33300 characters per minute for F0 tier
 	wait_time = 60000;

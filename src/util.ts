@@ -312,6 +312,34 @@ export function humanFileSize(bytes: number, si: boolean = false, dp = 1) {
 }
 
 
+function getIsWhiteSpace(buffer: Uint8Array, index: number) {
+	return buffer[index] === 32 || buffer[index] === 9 || buffer[index] === 10 || buffer[index] === 13;
+}
+
+
+/**
+ * Split a string encoded as UTF-8 byte array into compatible-sized byte chunks.
+ * @remark Taken from SO answer: https://stackoverflow.com/a/57071072/23278914
+ */
+export function * splitStringByBytes(buffer: Uint8Array, maxBytes: number) {
+	const decoder = new TextDecoder();
+	while (buffer.length) {
+		let i = buffer.length;
+		if (buffer.length >= maxBytes) {
+			for (let j = maxBytes + 1; j > 0; j--) {
+				if (getIsWhiteSpace(buffer, j)) {
+					i = j;
+					break;
+				}
+			}
+		}
+
+		yield decoder.decode(buffer.slice(0, i));
+		buffer = buffer.slice(i + 1);
+	}
+}
+
+
 /**
  * Generate a standard normal variate using the Box-Muller transform.
  * @returns {number} - A normally distributed random number.

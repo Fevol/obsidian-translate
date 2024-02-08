@@ -39,7 +39,7 @@ export class GoogleTranslate extends DummyTranslate {
 	#api_key?: string;
 	id = "google_translate";
 
-	character_limit = 100000;
+	byte_limit = 100000;
 
 	constructor(settings: ServiceSettings) {
 		super();

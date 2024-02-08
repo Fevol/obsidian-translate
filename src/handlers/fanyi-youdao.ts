@@ -24,7 +24,7 @@ export class FanyiYoudao extends DummyTranslate {
 	#app_id?: string;
 	id = "fanyi_youdao";
 
-	character_limit = 5000;
+	byte_limit = 5000;
 
 	status_code_lookup: {[key: number]: {message: string | undefined, status_code: number}} = {
 		0:   {message: undefined, status_code: 200},
