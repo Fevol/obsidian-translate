@@ -10,6 +10,15 @@ import type {
 import {requestUrl} from "obsidian";
 import {DEFAULT_SETTINGS} from "../constants";
 
+
+
+interface FanyiYoudaoTranslationResult {
+	translation: Array<string>
+	errorCode: string
+	l: string
+}
+
+
 export class FanyiYoudao extends DummyTranslate {
 	#api_key?: string;
 	#app_id?: string;
@@ -17,7 +26,7 @@ export class FanyiYoudao extends DummyTranslate {
 
 	character_limit = 5000;
 
-	status_code_lookup: {[key: number]: {message?: string, status_code: number}} = {
+	status_code_lookup: {[key: number]: {message: string | undefined, status_code: number}} = {
 		0:   {message: undefined, status_code: 200},
 		101: {message: "Missing required parameter", status_code: 400},
 		102: {message: "Unsupported language type", status_code: 400},
@@ -151,7 +160,7 @@ export class FanyiYoudao extends DummyTranslate {
 		// Data = {"errorCode":"0", "query":"good", "translation":["好"],
 		// 			"basic":{"us-phonetic":"good", "phonetic":"good", "uk-phonetic":"good", "explains":["好"]},
 		// 			"web":[{"key":"good", "value":["好"]}]}
-		const data = response.json;
+		const data: FanyiYoudaoTranslationResult = response.json;
 
 		const output = this.status_code_lookup[parseInt(data.errorCode)];
 		if (output) {
@@ -165,7 +174,7 @@ export class FanyiYoudao extends DummyTranslate {
 				return {...output};
 			}
 		} else {
-			return {status_code: data.errorCode};
+			return {status_code: parseInt(data.errorCode)};
 		}
 	}
 

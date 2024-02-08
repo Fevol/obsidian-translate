@@ -154,7 +154,7 @@ interface BaseResult {
 	/**
 	 * HTTP status code of the request
 	 */
-	status_code?: number;
+	status_code: number;
 }
 
 /**

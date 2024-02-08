@@ -24,22 +24,16 @@ export class OpenaiTranslator extends DummyTranslate {
 		this.#api_key = settings.api_key;
 		this.#host = settings.host;
 		this.model = settings.model;
-		if (!this.#host)
-			this.#host = "https://localhost:5000";
-		else if (!this.#host.startsWith("http"))
-			this.#host = `https://${this.#host}`;
-		else this.#host = new URL(this.#host).origin;
+		if (this.#host)
+			this.#host = !this.#host.startsWith("http") ? `https://${this.#host}` : new URL(this.#host).origin;
 	}
 
 	update_settings(settings: ServiceSettings): void {
 		this.#api_key = settings.api_key ?? this.#api_key;
 		this.#host = settings.host ?? this.#host;
 		this.model = settings.model ?? "gpt-3.5-turbo";
-		if (!this.#host)
-			this.#host = "https://localhost:5000";
-		else if (!this.#host.startsWith("http"))
-			this.#host = `https://${this.#host}`;
-		else this.#host = new URL(this.#host).origin;
+		if (this.#host)
+			this.#host = !this.#host.startsWith("http") ? `https://${this.#host}` : new URL(this.#host).origin;
 	}
 
 	async service_validate(): Promise<ValidationResult> {

@@ -9,10 +9,10 @@ import {FastText, FastTextModel} from "./fasttext/fasttext";
 import {Notice} from "obsidian";
 
 export class FastTextDetector extends DummyTranslate {
-	detector?: FastTextModel;
+	detector: FastTextModel | undefined;
 	id = "fasttext";
 
-	version?: number;
+	version: number = 0;
 
 	status: string = '';
 	data: any = null;
@@ -29,8 +29,7 @@ export class FastTextDetector extends DummyTranslate {
 						this.valid = false;
 						new Notice(ft.message.match(/\(([^)]+)\)/)![0].slice(1, -1), 4000);
 					} else {
-						// @ts-expect-error (FastText model typings not available)
-						ft.loadModel(Object.values(available_models.models!)[0].name).then((model: FastTextModel) => {
+						(ft as FastText).loadModel(Object.values(available_models.models!)[0].name!).then((model: FastTextModel) => {
 							this.detector = model;
 							this.validate().then((x) => {
 								this.valid = x.valid;
@@ -39,6 +38,7 @@ export class FastTextDetector extends DummyTranslate {
 					}
 				} catch (e) {
 					this.valid = false;
+					this.detector = undefined;
 					new Notice("Error loading model: " + e, 4000);
 				}
 			})
@@ -54,7 +54,10 @@ export class FastTextDetector extends DummyTranslate {
 	}
 
 	async service_validate(): Promise<ValidationResult> {
-		return {valid: this.has_autodetect_capability()};
+		if (this.has_autodetect_capability())
+			return {valid: true, status_code: 200};
+		else
+			return {valid: false, status_code: 400, message: "FastText service setup failed."};
 	}
 
 	async service_detect(text: string): Promise<DetectionResult> {
@@ -67,6 +70,6 @@ export class FastTextDetector extends DummyTranslate {
 	}
 
 	has_autodetect_capability(): boolean {
-		return this.detector != null;
+		return this.detector !== undefined;
 	}
 }

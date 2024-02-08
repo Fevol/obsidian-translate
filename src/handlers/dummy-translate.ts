@@ -124,8 +124,9 @@ export class DummyTranslate {
 				output.message = `Validation failed:\n\t${output.message || output.status_code}`;
 
 			return output;
-		} catch (e: any) {
-			output = {status_code: 400, valid: false, message: `Validation failed:\n\t${e.message}`};
+		} catch (e) {
+			const message = e instanceof Error ? e.message : e;
+			output = {status_code: 400, valid: false, message: `Validation failed:\n\t${message}`};
 			return output;
 		} finally {
 			this.valid = output!.valid;
@@ -161,7 +162,7 @@ export class DummyTranslate {
 			// Get first 20 words of text, not all words need to be included to get proper detection
 			output = await this.service_detect(text.split(/\s+/).slice(0, 20).join(" "));
 
-			if (output.status_code! > 200)
+			if (output.status_code > 200)
 				return this.detected_error("Language detection failed", output);
 
 			if (!output.detected_languages)
@@ -171,7 +172,8 @@ export class DummyTranslate {
 			this.success();
 			return output;
 		} catch (e: any) {
-			return this.detected_error("Language detection failed", {message: e.message});
+			const message: string = e instanceof Error ? e.message : e;
+			return this.detected_error("Language detection failed", {message, status_code: 400});
 		}
 	}
 
@@ -214,18 +216,18 @@ export class DummyTranslate {
 
 		let output: TranslationResult;
 		try {
-			let temp_detected_language: string | null = from;
+			let temp_detected_language: string | undefined = from;
 			let detecting_language = false;
 			if (options.apply_glossary && !options.glossary) {
 				detecting_language = from === 'auto' && !(globals.plugin!.detector == null ) && globals.plugin!.detector.valid;
 				// TODO: Give warning if globals.plugin.detector is null
 				if (detecting_language || from !== 'auto') {
 					if (detecting_language) {
-						const detection_results = await globals.plugin!.detector.detect(text);
+						const detection_results = await globals.plugin!.detector!.detect(text);
 						if (detection_results.detected_languages)
-							temp_detected_language = detection_results.detected_languages[0].language!;
+							temp_detected_language = detection_results.detected_languages[0].language;
 						else
-							temp_detected_language = null;
+							temp_detected_language = undefined;
 					}
 
 					if (temp_detected_language) {
@@ -248,8 +250,7 @@ export class DummyTranslate {
 										//  issue would be that the search would always have to be executed with case-insensitive matching
 										//  and then case-sensitivity check should happen here (by removing toLowerCase())
 										//  either way: heavy performance impact
-										// @ts-ignore
-										return glossary_pair.find(x => x[0].toLowerCase() === match.toLowerCase())[1] || match;
+										return glossary_pair.find(x => x[0].toLowerCase() === match.toLowerCase())![1] || match;
 									});
 							}
 						}
@@ -292,7 +293,7 @@ export class DummyTranslate {
 					if (result.status_code !== 200) {
 						return this.detected_error("Translation failed", result);
 					} else {
-						translation += (idx ? text.at(idx - 1)! : '') + result.translation;
+						translation += (idx ? text.at(idx - 1) : '')! + result.translation;
 						if (result.detected_language)
 							languages_occurrences[result.detected_language as keyof typeof languages_occurrences]++;
 						idx = r_idx + 1;
@@ -308,7 +309,8 @@ export class DummyTranslate {
 			this.success();
 			return output;
 		} catch (e: any) {
-			return this.detected_error("Translation failed", {message: e.message});
+			const message: string = e instanceof Error ? e.message : e;
+			return this.detected_error("Translation failed", {message, status_code: 400});
 		}
 	}
 
@@ -317,7 +319,7 @@ export class DummyTranslate {
 	 * @param text - The text to translate
 	 * @param from - The language to translate from
 	 * @param to - The language to translate to
-	 * @param [glossary_id=undefined] - The glossary ID of the online service to use (leave undefined if not applicable)
+	 * @param options - Additional options for the translation operation
 	 * @returns Object containing the translation and the detected language & confidence (if applicable), as well as the status code and message
 	 * @virtual
 	 */
@@ -344,7 +346,8 @@ export class DummyTranslate {
 				this.available_languages = <string[]>output.languages;
 			return output;
 		} catch (e: any) {
-			return this.detected_error("Languages fetching failed", {message: e.message});
+			const message: string = e instanceof Error ? e.message : e;
+			return this.detected_error("Languages fetching failed", {message, status_code: 400});
 		}
 	}
 
@@ -438,10 +441,10 @@ export class DummyTranslate {
 	 * @returns Object containing prettified status code and message
 	 * @private
 	 */
-	detected_error(prefix: string, response: {status_code?: number, message?: string}): { message: string, status_code: number } {
+	detected_error(prefix: string, response: {status_code: number, message?: string}): { message: string, status_code: number } {
 		// Attempt to create a more descriptive error message is no message was given
 		if (!response.message)
-			response.message = this.base_status_code_lookup[response.status_code!] ?? `Unknown error`;
+			response.message = this.base_status_code_lookup[response.status_code] ?? "Unknown error";
 		response.message += ` (${response.status_code})`;
 
 		this.failed();

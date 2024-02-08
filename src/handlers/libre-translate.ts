@@ -9,6 +9,22 @@ import type {
 } from "./types";
 import {requestUrl} from "obsidian";
 
+interface LibreBaseResult {
+	error?: string
+}
+
+interface LibreTranslationResult extends LibreBaseResult {
+	translatedText: string
+	detectedLanguage: {
+		language: string
+		confidence: number
+	}
+}
+
+type LibreDetectionResult = Array<{language: string, confidence: number}> & LibreBaseResult;
+type LibreLanguageResult = Array<{code: string, name: string}> & LibreBaseResult;
+
+
 export class LibreTranslate extends DummyTranslate {
 	#host?: string;
 	id = "libre_translate";
@@ -32,7 +48,7 @@ export class LibreTranslate extends DummyTranslate {
 			url: `${this.#host}/languages`,
 		});
 
-		const data = response.json;
+		const data: LibreBaseResult = response.json;
 		return {
 			status_code: response.status,
 			valid: response.status === 200,
@@ -50,7 +66,7 @@ export class LibreTranslate extends DummyTranslate {
 		});
 
 
-		const data = response.json;
+		const data: LibreDetectionResult = response.json;
 		if (response.status !== 200)
 			return {status_code: response.status, message: data.error}
 
@@ -76,7 +92,7 @@ export class LibreTranslate extends DummyTranslate {
 			headers: {"Content-Type": "application/json"}
 		});
 
-		const data = response.json;
+		const data: LibreTranslationResult = response.json;
 		if (response.status !== 200)
 			return {status_code: response.status, message: data.error}
 
@@ -94,7 +110,7 @@ export class LibreTranslate extends DummyTranslate {
 			url: `${this.#host}/languages`,
 		});
 
-		const data = response.json;
+		const data: LibreLanguageResult = response.json;
 		if (response.status !== 200)
 			return {status_code: response.status, message: data.error}
 

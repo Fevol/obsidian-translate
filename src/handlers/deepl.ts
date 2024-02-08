@@ -9,9 +9,37 @@ import type {
 } from "./types";
 import {requestUrl} from "obsidian";
 
+
+
+interface DeeplBaseResult {
+	message?: string
+}
+
+interface DeepLTranslationResult extends DeeplBaseResult {
+	translations: Array<{text: string, detected_source_language?: string}>
+}
+
+interface DeepLUsageResult extends DeeplBaseResult {
+	character_count: number
+	character_limit: number
+	document_count?: number
+	document_limit?: number
+	team_document_count?: number
+	team_document_limit?: number
+}
+
+// supports_formality only present for premium users
+type DeepLLanguageResult = Array<{language: string, name: string, supports_formality?: boolean}> & DeeplBaseResult;
+
+
+interface DeepLGlossaryPairsResult extends DeeplBaseResult {
+	supported_languages: Array<{source_lang: string, target_lang: string}>
+}
+
+
 export class Deepl extends DummyTranslate {
-	#api_key?: string;
-	#host?: string;
+	#api_key: string | undefined;
+	#host: string;
 	id = "deepl";
 
 	// Body size may maximally be 128KiB
@@ -47,7 +75,7 @@ export class Deepl extends DummyTranslate {
 		if (response.status !== 200)
 			return {status_code: response.status, valid: false, message: "Invalid API key"};
 
-		const data = response.json;
+		const data: DeepLUsageResult = response.json;
 		return {
 			status_code: response.status,
 			valid: response.status === 200,
@@ -74,14 +102,14 @@ export class Deepl extends DummyTranslate {
 		});
 
 		// Data = [{"text":"Hello", "detected_source_language":"en"}, ...]
-		const data = response.json;
+		const data: DeepLTranslationResult = response.json;
 
 		if (response.status !== 200)
 			return {status_code: response.status, message: data.message}
 
 		return {
 			status_code: response.status,
-			detected_languages: [{language: data.translations[0].detected_source_language.toLowerCase()}]
+			detected_languages: [{language: data.translations[0].detected_source_language!.toLowerCase()}]
 		};
 	}
 
@@ -120,7 +148,7 @@ export class Deepl extends DummyTranslate {
 
 
 		// Data = [{"text":"Hello", "detected_source_language":"en"}, ...]
-		const data = response.json;
+		const data: DeepLTranslationResult = response.json;
 
 		if (response.status !== 200)
 			return {status_code: response.status, message: data.message}
@@ -129,7 +157,7 @@ export class Deepl extends DummyTranslate {
 			status_code: response.status,
 			translation: data.translations[0].text,
 			detected_language: (from === "auto" && data.translations[0].detected_source_language) ?
-				data.translations[0].detected_source_language.toLowerCase() : null
+				data.translations[0].detected_source_language.toLowerCase() : undefined
 		}
 	}
 
@@ -145,10 +173,10 @@ export class Deepl extends DummyTranslate {
 		});
 
 		// Data = [{"language":"EN", "name":"English", supports_formality: true}, ...]
-		const data = response.json;
+		const data: DeepLLanguageResult = response.json;
 
 		if (response.status !== 200)
-			return {status_code: response.status, message: data.message}
+			return {status_code: response.status, message: data.message};
 
 		return {
 			status_code: response.status,
@@ -166,7 +194,7 @@ export class Deepl extends DummyTranslate {
 			}
 		});
 
-		const data = response.json;
+		const data: DeepLGlossaryPairsResult = response.json;
 
 		if (response.status !== 200)
 			return {status_code: response.status, message: data.message}

@@ -13,6 +13,25 @@ import {requestUrl} from "obsidian";
 import {iso639_3to1, iso639_1to3} from "../util";
 import {DEFAULT_SETTINGS, SERVICES_INFO} from "../constants";
 
+
+
+interface FanyiBaiduTranslationResult {
+	from?: string
+	to?: string
+	trans_result?: Array<{src: string, dst: string}>
+	error_code?: string
+	error_msg?: string
+}
+
+interface FanyiBaiduDetectResult {
+	data: {
+		src: string
+	}
+	error_code?: string
+	error_msg?: string
+}
+
+
 export class FanyiBaidu extends DummyTranslate {
 	#api_key?: string;
 	#app_id?: string;
@@ -22,7 +41,8 @@ export class FanyiBaidu extends DummyTranslate {
 
 	premium = false;
 
-	status_code_lookup: {[key: number]: {message?: string, status_code: number}} = {
+	status_code_lookup: {[key: number]: {message: string | undefined, status_code: number}} = {
+		0: {message: undefined, status_code: 200},
 		52000: {message: undefined, status_code: 200},
 		52001: {message: "Request timed out, please try again later", status_code: 408},
 		52002: {message: "System error, please try again later", status_code: 500},
@@ -42,7 +62,7 @@ export class FanyiBaidu extends DummyTranslate {
 		super();
 		this.#api_key = settings.api_key;
 		this.#app_id = settings.app_id;
-		this.premium = settings.premium || false;
+		this.premium = settings.premium ?? false;
 	}
 
 	update_settings(settings: ServiceSettings): void {
@@ -125,7 +145,7 @@ export class FanyiBaidu extends DummyTranslate {
 		});
 
 		// Data = {"data":{"src": "en"} }
-		const data = response.json;
+		const data: FanyiBaiduDetectResult = response.json;
 
 		if (data.error_code) {
 			const output = this.status_code_lookup[parseInt(data.error_code)];
@@ -135,7 +155,7 @@ export class FanyiBaidu extends DummyTranslate {
 
 		return {
 			status_code: 200,
-			detected_languages: [{language: iso639_3to1[data.src] || data.src}]
+			detected_languages: [{language: iso639_3to1[data.data.src] || data.data.src}]
 		};
 	}
 
@@ -159,7 +179,7 @@ export class FanyiBaidu extends DummyTranslate {
 		});
 
 		// Data = {"from":"en", "to":"zh", "trans_result":[{"src": "Hello", "dst": "你好"}] }
-		let data = response.json;
+		let data: FanyiBaiduTranslationResult = response.json;
 
 		if (data.error_code) {
 			const output = this.status_code_lookup[parseInt(data.error_code)];
@@ -169,8 +189,8 @@ export class FanyiBaidu extends DummyTranslate {
 
 		return {
 			status_code: 200,
-			translation: data.trans_result[0].dst,
-			detected_language: (from === "auto" &&  data.to) ? (iso639_3to1[data.to] || data.to) : null
+			translation: data.trans_result![0].dst,
+			detected_language: (from === "auto" &&  data.to) ? (iso639_3to1[data.to] || data.to) : undefined
 		};
 	}
 

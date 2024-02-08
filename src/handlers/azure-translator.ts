@@ -10,8 +10,8 @@ import type {
 import {requestUrl} from "obsidian";
 
 export class AzureTranslator extends DummyTranslate {
-	#api_key?: string;
-	#region?: string;
+	#api_key: string | undefined;
+	#region: string | undefined;
 	id = "azure_translator";
 
 	character_limit = 50000;
@@ -111,30 +111,32 @@ export class AzureTranslator extends DummyTranslate {
 		if (this.#region)
 			headers["Ocp-Apim-Subscription-Region"] = this.#region;
 
-		let params: any = {
-			from: from === "auto" ? "" : from,
-			to: to,
-			textType: "plain",
-			allowFallback: "true",
-		};
+		let profanity_action = "NoAction";
+		let profanity_mark = "";
 
 		if (options.profanity_filter) {
 			if (options.profanity_filter.action === "mark")
-				params["profanityAction"] = "Marked";
+				profanity_action = "Marked";
 			else if (options.profanity_filter.action === "delete")
-				params["profanityAction"] = "Deleted";
-
+				profanity_action = "Deleted";
 			if (options.profanity_filter.marker === "mask")
-				params["profanityMark"] = "Asterisk";
+				profanity_mark = "Asterisk";
 			else if (options.profanity_filter.marker === "html-tag")
-				params["profanityMark"] = "Tag";
+				profanity_mark = "Tag";
 		}
 
 		const response = await requestUrl({
 			throw: false,
 			method: "POST",
 			url:`https://api.cognitive.microsofttranslator.com/translate?api-version=3.0&` +
-				new URLSearchParams(params),
+				new URLSearchParams({
+					from: from === "auto" ? "" : from,
+					to: to,
+					textType: "plain",
+					allowFallback: "true",
+					profanityAction: profanity_action,
+					profanityMarker: profanity_mark
+				}),
 			headers: headers,
 			body: JSON.stringify([{Text: text}]),
 		});

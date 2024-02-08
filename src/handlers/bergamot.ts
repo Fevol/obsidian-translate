@@ -10,16 +10,17 @@ import t from "../l10n";
 
 
 export class BergamotTranslate extends DummyTranslate {
-	translator: Bergamot | null = null;
+	translator: Bergamot | undefined;
 	detector: DummyTranslate | null = null;
 	plugin: TranslatorPlugin;
 	available_languages = ['en'];
 	id = "bergamot";
 
 	update_data(available_models: ModelFileData) {
-		if (available_models && this.translator) {
+		if (available_models) {
 			this.available_languages = ["en"].concat(available_models.models!.map((x) => x.locale!));
-			this.translator.available_models = available_models;
+			if (this.translator)
+				this.translator.available_models = available_models;
 		}
 	}
 
@@ -32,13 +33,14 @@ export class BergamotTranslate extends DummyTranslate {
 					this.available_languages = ["en"].concat(available_models.models!.map((x) => x.locale!));
 					this.valid = true;
 				} catch (e: any) {
-					this.plugin.message_queue(`Error while loading Bergamot: ${e.message}`);
-					this.translator = null;
+					const message = e instanceof Error ? e.message : e;
+					this.plugin.message_queue(`Error while loading Bergamot: ${message}`);
+					this.translator = undefined;
 					this.valid = false;
 				}
 			} else {
 				this.plugin.message_queue("Bergamot binary is not installed");
-				this.translator = null;
+				this.translator = undefined;
 				this.valid = false;
 			}
 		} else {
@@ -56,11 +58,16 @@ export class BergamotTranslate extends DummyTranslate {
 	}
 
 	async service_validate(): Promise<ValidationResult> {
-		return {valid: this.translator != null};
+		if (this.translator !== undefined)
+			return {valid: true, status_code: 200};
+		else
+			return {valid: false, status_code: 400, message: "Bergamot service setup failed"};
 	}
 
 	async service_detect(text: string): Promise<DetectionResult> {
-		return this.detector!.detect(text);
+		if (!this.detector)
+			return {status_code: 400, message: "Automatic language detection is not supported"};
+		return this.detector.detect(text);
 	}
 
 	async service_translate(text: string, from: string, to: string, options: ServiceOptions = {}): Promise<TranslationResult> {

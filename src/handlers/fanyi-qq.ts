@@ -12,6 +12,21 @@ import type {RequestUrlResponse} from "obsidian";
 import {requestUrl} from "obsidian";
 import {DEFAULT_SETTINGS} from "../constants";
 
+
+interface FanyiQQTranslationResult {
+	Response: {
+		Source?: string
+		Target?: string
+		TargetText?: string
+		RequestId: string
+		Error?: {
+			Code: string
+			Message: string
+		}
+	}
+}
+
+
 export class FanyiQq extends DummyTranslate {
 	#api_key?: string;
 	#app_id?: string;
@@ -105,7 +120,7 @@ export class FanyiQq extends DummyTranslate {
 			Version: '2018-03-21',
 			Region: this.#region!,
 			Text: 'I',
-			ProjectId: this.#app_id!,
+			ProjectId: this.#app_id,
 		}
 		const signature = await this.sign_message(payload);
 
@@ -195,9 +210,9 @@ export class FanyiQq extends DummyTranslate {
 		let response = await this.attempt_translation(text, from, to);
 
 		// Data = {"Response": {"TargetText":"Hello", "Source":"en", "Target":"zh", "RequestId": "..." } }
-		let data = response.json;
+		let data: FanyiQQTranslationResult = response.json;
 		if (response.status !== 200 || data.Response.Error) {
-			if (data.Response.Error.Code === 'UnsupportedOperation.UnsupportedSourceLanguage') {
+			if (data.Response.Error!.Code === 'UnsupportedOperation.UnsupportedSourceLanguage') {
 				// TODO: Warn user of doubled character usage due to indirect translation via pivoting
 				// Use English as the pivot language (as QQ does not support translation between all language pairs)
 				response = await this.attempt_translation(text, from, 'en');
@@ -207,21 +222,21 @@ export class FanyiQq extends DummyTranslate {
 				if (response.status !== 200 || data.Response.Error)
 					return {
 						status_code: response.status !== 200 ? response.status : 400,
-						message: data.Response.Error.Message
+						message: data.Response.Error!.Message
 					};
 
-				response = await this.attempt_translation(data.Response.TargetText, 'en', to);
+				response = await this.attempt_translation(data.Response.TargetText!, 'en', to);
 				data = response.json;
 
 				if (response.status !== 200 || data.Response.Error)
 					return {
 						status_code: response.status !== 200 ? response.status : 400,
-						message: data.Response.Error.Message
+						message: data.Response.Error!.Message
 					};
 			} else {
 				return {
 					status_code: response.status !== 200 ? response.status : 400,
-					message: data.Response.Error.Message
+					message: data.Response.Error!.Message
 				};
 			}
 		}
@@ -230,7 +245,7 @@ export class FanyiQq extends DummyTranslate {
 		return {
 			status_code: response.status,
 			translation: data.Response.TargetText,
-			detected_language: (from === "auto" && detected_language) ? detected_language : null
+			detected_language: (from === "auto" && detected_language) ? detected_language : undefined
 		};
 	}
 

@@ -9,6 +9,32 @@ import type {
 } from "./types";
 import {requestUrl} from "obsidian";
 
+interface GoogleBaseResult {
+	error?: {
+		code: number,
+		message: string
+		// Also contains 'errors' and 'details' fields
+	}
+}
+
+interface GoogleTranslationResult extends GoogleBaseResult {
+	data: {
+		translations: Array<{ translatedText: string, detectedSourceLanguage?: string, model: "nmt" }>
+	}
+}
+
+interface GoogleDetectionResult extends GoogleBaseResult {
+	data: {
+		detections: Array<Array<{ language: string, confidence: number, isReliable: boolean }>>
+	}
+}
+
+interface GoogleLanguageResult extends GoogleBaseResult {
+	data: {
+		languages: Array<{ language: string, name: string }>
+	}
+}
+
 export class GoogleTranslate extends DummyTranslate {
 	#api_key?: string;
 	id = "google_translate";
@@ -42,7 +68,7 @@ export class GoogleTranslate extends DummyTranslate {
 			},
 		});
 
-		const data = response.json;
+		const data: GoogleLanguageResult = response.json;
 
 		return {
 			status_code: response.status,
@@ -69,10 +95,9 @@ export class GoogleTranslate extends DummyTranslate {
 			}),
 		});
 
-		// Data = {"detections":[[{"language":"en", "confidence":1}], ...], ...}
-		const data = response.json;
+		const data: GoogleDetectionResult = response.json;
 		if (response.status !== 200)
-			return {status_code: response.status, message: data.error.message}
+			return {status_code: response.status, message: data.error!.message}
 
 		return {
 			status_code: response.status,
@@ -105,15 +130,15 @@ export class GoogleTranslate extends DummyTranslate {
 		});
 
 		// Data = [{"text":"Hello", "detected_source_language":"en", "model":"nmt"}, ...]
-		const data = response.json;
+		const data: GoogleTranslationResult = response.json;
 		if (response.status !== 200)
-			return {status_code: response.status, message: data.error.message}
+			return {status_code: response.status, message: data.error!.message}
 
 		return {
 			status_code: response.status,
 			translation: data.data.translations[0].translatedText,
 			detected_language: (from === "auto" && data.data.translations[0].detectedSourceLanguage) ?
-				data.data.translations[0].detectedSourceLanguage : null
+				data.data.translations[0].detectedSourceLanguage : undefined
 		};
 	}
 
@@ -134,10 +159,10 @@ export class GoogleTranslate extends DummyTranslate {
 		});
 
 		// Data = [{"language":"en", "name":"English"}, ...]
-		const data = response.json;
+		const data: GoogleLanguageResult = response.json;
 
 		if (response.status !== 200)
-			return {status_code: response.status, message: data.error.message}
+			return {status_code: response.status, message: data.error!.message}
 
 		return {
 			status_code: response.status,

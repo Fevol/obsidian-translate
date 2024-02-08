@@ -9,6 +9,27 @@ import type {
 } from "./types";
 import {requestUrl} from "obsidian";
 
+
+interface LingvaBaseResult {
+	error?: string
+}
+
+interface LingvaTranslationResult extends LingvaBaseResult {
+	translation: string
+	info?: {
+		detectedSource: string
+		pronunciation: {query: string}
+		definition: {type: string, list: string[]}[]
+		similar: {text: string}[]
+		extraTranslations: string[]
+	}
+}
+
+interface LingvaLanguageResult extends LingvaBaseResult {
+	languages: Array<{code: string, name: string}>
+}
+
+
 export class LingvaTranslate extends DummyTranslate {
 	#host?: string;
 	id = "lingva_translate";
@@ -18,18 +39,13 @@ export class LingvaTranslate extends DummyTranslate {
 	constructor(settings: ServiceSettings) {
 		super();
 		this.#host = settings.host;
-		if (!this.#host)
-			this.#host = "https://localhost:5000";
-		else if (!this.#host.startsWith("http"))
+		if (this.#host && !this.#host.startsWith("http"))
 			this.#host = `https://${this.#host}`;
 	}
 
 	update_settings(settings: ServiceSettings): void {
 		this.#host = settings.host ?? this.#host;
-		this.#host = settings.host;
-		if (!this.#host)
-			this.#host = "https://localhost:5000";
-		else if (!this.#host.startsWith("http"))
+		if (!this.#host!.startsWith("http"))
 			this.#host = `https://${this.#host}`;
 	}
 
@@ -41,7 +57,7 @@ export class LingvaTranslate extends DummyTranslate {
 			throw: false,
 			url: `${this.#host}/api/v1/languages`
 		});
-		const data = response.json;
+		const data: LingvaLanguageResult = response.json;
 
 		return {
 			status_code: response.status,
@@ -71,14 +87,14 @@ export class LingvaTranslate extends DummyTranslate {
 		//      "extraTranslations": [...]
 		//      }
 		// }
-		const data = response.json;
+		const data: LingvaTranslationResult = response.json;
 		if (response.status !== 200)
 			return {status_code: response.status, message: data.error};
 
 		return {
 			status_code: response.status,
 			translation: data.translation,
-			detected_language: (from === "auto" && data.info?.detectedSource) ? data.info.detectedSource : null
+			detected_language: (from === "auto" && data.info?.detectedSource) ? data.info.detectedSource : undefined
 		};
 	}
 
@@ -88,7 +104,7 @@ export class LingvaTranslate extends DummyTranslate {
 			url: `${this.#host}/api/v1/languages`
 		});
 		// Data = {"languages": [{"code":"en", "name":"English"}, ...]}
-		const data = response.json;
+		const data: LingvaLanguageResult = response.json;
 		if (response.status !== 200)
 			return {status_code: response.status, message: data.error};
 
