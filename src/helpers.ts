@@ -9,17 +9,19 @@ import type {TranslationResult, ServiceOptions} from "./handlers/types";
  * @param file - The file to translate
  * @param language_to - The language to translate to
  * @param replace_original - Whether to replace the original file with the translated file
- * @param apply_glossary - Whether to apply the glossary to the translated file
+ * @param options - Options for the translation service (e.g.: apply glossary)
  */
-export async function translate_file(plugin: TranslatorPlugin, file: TFile, language_to: string, replace_original: boolean = false,
+export async function translate_file(plugin: TranslatorPlugin, file: TFile | null, language_to: string, replace_original: boolean = false,
 									 options: ServiceOptions): Promise<TranslationResult> {
 	if (!file)
 		return {status_code: 400, message: "No file was selected"};
 
 	const file_content = await plugin.app.vault.read(file);
-	if (!file_content.trim()) {
+	if (!file_content.trim())
 		return {status_code: 400, message: "Selected file is empty"};
-	}
+
+	if (!plugin.translator)
+		return {status_code: 400, message: "No translation service available"};
 
 	let paragraphs = file_content.split("\n\n");
 
@@ -84,25 +86,27 @@ export async function translate_file(plugin: TranslatorPlugin, file: TFile, lang
 export async function translate_selection(plugin: TranslatorPlugin, editor: Editor, language_to: string, options: ServiceOptions, handle_text = "replace"): Promise<TranslationResult> {
 	if (editor.getSelection().length === 0) {
 		plugin.message_queue("Selection is empty");
-		return {status_code: 400, message: "Selection is empty"};
+		return { status_code: 400, message: "Selection is empty" };
 	}
+	if (!plugin.translator)
+		return { status_code: 400, message: "No translation service available" };
 
 	let text = editor.getSelection();
 
-	let results = await plugin.translator.translate(text, "auto", language_to, options);
-	if (results.translation) {
+	let result = await plugin.translator.translate(text, "auto", language_to, options);
+	if (result.translation) {
 		if (handle_text === "replace")
-			editor.replaceSelection(results.translation);
+			editor.replaceSelection(result.translation);
 		else if (handle_text === "below")
-			editor.replaceSelection(text + "\n" + results.translation);
+			editor.replaceSelection(text + "\n" + result.translation);
 		else if (handle_text === "clipboard")
-			await navigator.clipboard.writeText(results.translation);
+			await navigator.clipboard.writeText(result.translation);
 	}
 
-	if (results.message)
-		plugin.message_queue(results.message);
+	if (result.message)
+		plugin.message_queue(result.message);
 
-	return results;
+	return result;
 }
 
 /**
@@ -120,8 +124,12 @@ export async function detect_selection(plugin: TranslatorPlugin, editor: Editor)
 	let results;
 	if (plugin.detector && plugin.detector.valid && plugin.detector.default)
 		results = await plugin.detector.detect(selection);
-	else
-		results = await plugin.translator.detect(selection);
+	else if (plugin.translator)
+		results = await plugin.translator!.detect(selection);
+	else {
+		plugin.message_queue("No translation service available");
+		return;
+	}
 
 	if (results.message)
 		new Notice(results.message, 4000);

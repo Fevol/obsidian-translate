@@ -1,10 +1,8 @@
 // Add node to the global scope so that we can use it in the tests
 import { TextEncoder, TextDecoder } from 'util';
 global.TextEncoder = TextEncoder;
-// @ts-ignore
+// @ts-ignore (TextDecoder is not defined in the NodeJS global scope)
 global.TextDecoder = TextDecoder;
-
-import {Platform} from "obsidian";
 
 // Add mock for SubtleCrypto
 const crypto = require('crypto');
@@ -22,32 +20,26 @@ export const filled_settings: TranslatorPluginSettings =
 	fs.existsSync('tests/correct-data.json') ? JSON.parse(fs.readFileSync('tests/correct-data.json').toString())
 											: undefined;
 
-// @ts-ignore (Add mock for Obsidian Platform (prevent part of code from crashing))
-Platform = {}
-
 import {
 	AzureTranslator,
 	Deepl,
-	DummyTranslate,
 	FanyiBaidu,
 	FanyiQq,
 	FanyiYoudao,
 	GoogleTranslate, LibreTranslate, LingvaTranslate, YandexTranslate
 } from "../src/handlers";
-import type {APIServiceSettings} from "../src/types";
+import type {APIServiceSettings, translatorType} from "../src/types";
 import type {TranslatorPluginSettings} from "../src/types";
 import {OpenaiTranslator} from "../src/handlers/openai-translator";
 
 /** @public Test config for a Translation Service */
 interface ServiceConfig {
 	/** @public Constructor for Translation Service object */
-	service: typeof GoogleTranslate | typeof AzureTranslator | typeof YandexTranslate | typeof FanyiBaidu |
-			 typeof FanyiQq | typeof FanyiYoudao | typeof Deepl | typeof DummyTranslate | typeof LibreTranslate |
-			 typeof LingvaTranslate | typeof OpenaiTranslator,
+	service: translatorType,
 	/** @public Display name for test output */
 	name: string,
 	/** @public Required inputs for the translation service */
-	inputs?: string[]
+	inputs: string[]
 }
 
 
@@ -100,6 +92,7 @@ export const services: Record<string, ServiceConfig> = {
 	},
 	"lingva_translate": {
 		"service": LingvaTranslate,
+		"inputs": [],
 		"name": "Lingva Translate"
 	},
 	"yandex_translate": {
@@ -125,10 +118,10 @@ export const empty_settings: APIServiceSettings = {
 	selected_languages: [],
 	available_languages: [],
 
-	api_key: "",
-	app_id: "",
-	region: "",
-	host: "",
+	api_key: undefined,
+	app_id: undefined,
+	region: undefined,
+	host: undefined,
 
 	validated: false,
 	auto_translate: false,

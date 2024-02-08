@@ -71,6 +71,9 @@ esbuild.build({
 						warning.code !== "a11y-no-noninteractive-tabindex";
 			},
 		}),
-		inlineWorkerPlugin(),
+		inlineWorkerPlugin({
+			workerName: "Translate Bergamot Worker",
+			external: ["obsidian"],
+		}),
 	]
 }).catch(() => process.exit(1));

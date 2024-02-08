@@ -21,7 +21,7 @@
 		available_detector_services
 	} from "../../stores";
 
-	import {SERVICES_INFO, DEFAULT_SETTINGS, ALL_TRANSLATOR_SERVICES, ALL_SERVICES} from "../../constants";
+	import {SERVICES_INFO, DEFAULT_SETTINGS, ALL_SERVICES} from "../../constants";
 	import ISO6391 from "iso-639-1";
 
 	import t from "../../l10n";
@@ -164,7 +164,7 @@
 	 * @returns Translator object is it was already loaded, otherwise null
 	 */
 	export function getExistingService(service: string) {
-		return active_services[service];
+		return active_services[service as keyof typeof active_services];
 	}
 
 	/**
@@ -180,7 +180,7 @@
 	 * @param service - Translation service to unload
 	 */
 	export function unloadService(service: string) {
-        if (service_uses.has(service)) service_uses.set(service, 0);
+		service_uses.set(service, service_uses.get(service)! - 1);
 		if (service_uses.get(service) === 0) {
             active_services.delete(service);
 			// console.log("UNLOADED SERVICE: " + service);
@@ -203,11 +203,10 @@
 	 * @param old_service - Previously set translation service (default: '')
 	 * @returns Translator object
 	 */
-	export async function getTranslationService(service: string, old_service: string = ''): Promise<DummyTranslate> {
+	export async function getTranslationService(service: string, old_service: string = ''): Promise<DummyTranslate | undefined> {
 		// Do not attempt to create a service if it does not exist
-		if (!service || !(service in SERVICES_INFO) || ($settings.filtered_services.length && !$settings.filtered_services.contains(service))) {
-			return null;
-		}
+		if (!service || !(service in SERVICES_INFO) || ($settings.filtered_services.length && !$settings.filtered_services.contains(service)))
+			return undefined;
 
 		let translator: DummyTranslate;
 
@@ -223,7 +222,7 @@
 			if ($settings.security_setting !== 'none' && SERVICES_INFO[service].requires_api_key)
 				service_settings.api_key = await getAPIKey(service, $settings.security_setting);
 
-			let translation_service: DummyTranslate = null;
+			let translation_service: DummyTranslate | undefined = undefined;
 
 			if (service === "google_translate")
 				translation_service = new GoogleTranslate(service_settings);
@@ -252,14 +251,16 @@
 				translation_service = new FanyiBaidu(service_settings);
 			else if (service === "openai_translator")
 				translation_service = new OpenaiTranslator(service_settings);
+			else
+				return undefined;
 
 			if (service !== 'bergamot' && service !== 'fasttext') {
-				translation_service.valid &&= $settings.service_settings[service].validated;
+				translation_service.valid &&= $settings.service_settings[service]!.validated;
 				translation_service.failure_count_watcher.subscribe(failure_count => {
 					// Automatically disable service if it fails too many times
 					if (failure_count >= 5) {
 						$settings.service_settings[service].validated = false;
-						translation_service.valid = false;
+						translation_service!.valid = false;
 						plugin.message_queue(`Too many failures: please revalidate ${SERVICES_INFO[service].display_name}`, 5000, true);
 					}
 				});
@@ -270,15 +271,15 @@
 			if (service === "bergamot") {
 				$all_languages.set("en", formatLocale("en"));
 				$settings.service_settings["bergamot"].downloadable_models
-					.map(m => m.locale)
+					.map(m => m.locale!)
 					.forEach(locale => {
 						$all_languages.set(locale, formatLocale(locale));
 					});
 				translation_service.available_languages = $bergamot_data.models ? ["en", ...$bergamot_data.models.map(m => m.locale)] : ["en"];
 			} else if ($settings.service_settings[service]?.available_languages) {
 				$settings.service_settings[service].available_languages
-					.filter(locale => !$all_languages.has(locale))
-					.forEach(locale => {
+					.filter((locale: string) => !$all_languages.has(locale))
+					.forEach((locale: string) => {
 						$all_languages.set(locale, formatLocale(locale))
 					});
 				translation_service.available_languages = $settings.service_settings[service].available_languages;
@@ -299,10 +300,10 @@
 
 		// Manage uses of old service and unload if necessary
 		if (old_service)
-			service_uses.set(old_service, service_uses.get(old_service) - 1);
-		if (old_service && old_service !== service && !service_uses.get(old_service)) {
+			service_uses.set(old_service, service_uses.get(old_service)! - 1);
+		if (old_service && old_service !== service && !service_uses.get(old_service))
 			active_services.delete(old_service);
-		}
+
 		return translator;
 	}
 
@@ -326,7 +327,7 @@
 	 * Update the spellchecker languages writable store by the new spellchecker languages setting
 	 */
 	function updateSpellcheckerLanguages() {
-		$spellcheck_languages = [...new Set(plugin.app.vault.config.spellcheckLanguages.map((x) => {
+		$spellcheck_languages = [...new Set(plugin.app.vault.config.spellcheckLanguages!.map((x) => {
 			return x.split('-')[0];
 		}))];
 	}
@@ -386,7 +387,7 @@
 					}
 				}
 			}
-		} else if ($settings.security_setting === 'dont_save') {
+		} else if ($settings.security_setting === 'no_save') {
 			for (let service in $settings.service_settings) {
 				// If API key is stored only for session, check if the API key still exists, if not, invalidate service
 				if (!sessionStorage.getItem(service + '_api_key'))

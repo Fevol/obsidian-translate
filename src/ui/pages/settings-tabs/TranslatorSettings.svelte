@@ -12,7 +12,7 @@
 	import {SERVICES_INFO, UNTESTED_SERVICES} from "../../../constants";
 	import {DummyTranslate} from "../../../handlers";
 
-	import {Notice, requestUrl, Platform} from "obsidian";
+	import {Notice, requestUrl} from "obsidian";
 	import {humanFileSize} from "../../../util";
 	import {openGithubIssueLink, writeRecursive} from "../../../obsidian-util";
 

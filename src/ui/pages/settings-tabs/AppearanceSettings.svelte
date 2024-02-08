@@ -7,8 +7,7 @@
 
 	import {
 		QUICK_ACTIONS, QUICK_ACTIONS_BUTTONS,
-		QUICK_SETTINGS, QUICK_SETTINGS_BUTTONS,
-		VIEW_MODES
+		QUICK_SETTINGS, QUICK_SETTINGS_BUTTONS
 	} from "../../../constants";
 
 	export let plugin: TranslatorPlugin;

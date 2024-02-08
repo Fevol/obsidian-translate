@@ -6,7 +6,7 @@ import {SettingsPage} from "./ui/pages";
 
 export class TranslatorSettingsTab extends PluginSettingTab {
 	plugin: TranslatorPlugin;
-	private view!: SvelteComponent;
+	private view: SvelteComponent | undefined;
 
 	constructor(app: App, plugin: TranslatorPlugin) {
 		super(app, plugin);
@@ -32,7 +32,7 @@ export class TranslatorSettingsTab extends PluginSettingTab {
 
 		this.plugin.settings_open = false;
 
-		this.view.$destroy();
+		this.view?.$destroy();
 	}
 }
 

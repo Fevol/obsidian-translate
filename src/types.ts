@@ -1,5 +1,9 @@
 import type {Modifier} from "obsidian";
 import type {ServiceOptions} from "./handlers/types";
+import {
+	AzureTranslator, GoogleTranslate, YandexTranslate, FanyiBaidu, FanyiQq, FanyiYoudao, Deepl,
+	DummyTranslate, LibreTranslate, LingvaTranslate, OpenaiTranslator
+} from "./handlers";
 
 /**
  * Object containing all plugin settings
@@ -400,3 +404,8 @@ export interface CommandI {
 
 	editorCallback?: (...args: any[]) => any;
 }
+
+export type translatorType = typeof GoogleTranslate | typeof AzureTranslator | typeof YandexTranslate |
+							 typeof FanyiBaidu | typeof FanyiQq | typeof FanyiYoudao | typeof Deepl |
+							 typeof DummyTranslate | typeof LibreTranslate | typeof LingvaTranslate |
+							 typeof OpenaiTranslator;

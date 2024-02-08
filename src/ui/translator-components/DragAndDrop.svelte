@@ -1,7 +1,7 @@
 <script>
     import {flip} from "svelte/animate";
     import {dndzone, SHADOW_ITEM_MARKER_PROPERTY_NAME, TRIGGERS} from "svelte-dnd-action";
-    import {Icon, Button} from "../components";
+    import {Icon} from "../components";
 
     export let items = [];
     export let itemstyle = "";

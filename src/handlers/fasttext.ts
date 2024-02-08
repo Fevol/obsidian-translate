@@ -1,4 +1,3 @@
-import type TranslatorPlugin from "../main";
 import {DummyTranslate} from "./dummy-translate";
 import type {
 	DetectionResult,

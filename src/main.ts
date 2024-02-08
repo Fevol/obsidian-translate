@@ -18,7 +18,7 @@ import {around} from 'monkey-around';
 import type { APIServiceProviders, CommandI, TranslatorPluginSettings } from "./types";
 
 import {ICONS, DEFAULT_SETTINGS, TRANSLATOR_VIEW_ID, SERVICES_INFO} from "./constants";
-import type {DummyTranslate} from "./handlers";
+import {DummyTranslate} from "./handlers";
 import {nested_object_assign, rateLimit} from "./util";
 
 import {detect_selection, translate_selection} from "./helpers";
@@ -28,12 +28,13 @@ export default class TranslatorPlugin extends Plugin {
 	/**
 	 * Svelte component that handles all reactive interactions within the plugin
 	 */
-	reactivity!: Reactivity;
+	// @ts-expect-error (Definitely constructed in the onload function)
+	reactivity: Reactivity;
 
 	/**
 	 * Current display language of Obsidian
 	 */
-	current_language!: string;
+	current_language: string = moment.locale();
 
 	/**
 	 * This is a callback function that will be called on uninstallation of the plugin,
@@ -45,13 +46,13 @@ export default class TranslatorPlugin extends Plugin {
 	 * Plugin's default (global) translator, is used for all commands (translate file, ...)
 	 * @public
 	 * */
-	translator!: DummyTranslate;
+	translator?: DummyTranslate;
 
 	/**
 	 * Plugin's default (global) language detector, is used for language detection commands and for glossary language determination
 	 * @public
 	 */
-	detector!: DummyTranslate;
+	detector?: DummyTranslate;
 
 	/**
 	 * Used to prevent Translation View messages from appearing while settings are being changed
@@ -62,7 +63,7 @@ export default class TranslatorPlugin extends Plugin {
      * Publicly accessible API for the plugin
 	 * @remark Handles access of settings, translating, detecting, etc.
      */
-	api!: TranslateAPI;
+	api: TranslateAPI | undefined;
 
 	/**
 	 * Notice queue for the plugin, it can be configured to only show one message at a time, only show unique messages, etc.
@@ -72,12 +73,10 @@ export default class TranslatorPlugin extends Plugin {
 	 * @param defaultTimeout - The default time each message will be shown
 	 * @param fn - Message constructor: (text: string, timeout?: number, priority?: boolean) => { new Notice }, can be customized
 	 */
-	message_queue!: ((...args: any[]) => void)
+	message_queue: ((...args: any[]) => void) = () => {};
 
 	async onload() {
 		this.api = new TranslateAPI(this);
-
-		this.current_language = moment.locale();
 
 		// Set up message queue for the plugin, this rate limits the number of messages the plugin can send at the same time,
 		// and allows for the messages to be ordered in a certain way
@@ -88,9 +87,9 @@ export default class TranslatorPlugin extends Plugin {
 
 
 		// TODO: Split up models into fasttext and bergamot data, will only be here for a few versions
-		const models_data = app.loadLocalStorage('models');
+		const models_data = this.app.loadLocalStorage('models');
 		if (models_data) {
-			localStorage.removeItem(`${app.appId}-models`);
+			localStorage.removeItem(`${this.app.appId}-models`);
 			const models = JSON.parse(models_data) || {};
 			fasttext_data.set(models.fasttext || {
 				binary: undefined,
@@ -103,19 +102,19 @@ export default class TranslatorPlugin extends Plugin {
 				version: undefined
 			});
 		} else {
-			fasttext_data.set(JSON.parse(app.loadLocalStorage('fasttext')) || {
+			fasttext_data.set(JSON.parse(this.app.loadLocalStorage('fasttext')) || {
 				binary: undefined,
 				models: undefined,
 				version: undefined
 			});
-			bergamot_data.set(JSON.parse(app.loadLocalStorage('bergamot')) || {
+			bergamot_data.set(JSON.parse(this.app.loadLocalStorage('bergamot')) || {
 				binary: undefined,
 				models: undefined,
 				version: undefined,
 			});
 		}
 
-		password.set(app.loadLocalStorage('password') || '');
+		password.set(this.app.loadLocalStorage('password') || '');
 
 
 		let loaded_settings: TranslatorPluginSettings = await this.loadData();
@@ -147,7 +146,7 @@ export default class TranslatorPlugin extends Plugin {
 		if (loaded_settings.storage_path) {
 			try {
 				// @ts-ignore (path exists in legacy versions)
-				await app.vault.adapter.rename(`${app.vault.configDir}/${loaded_settings.storage_path}`, `${app.vault.configDir}/plugins/translate/models`);
+				await this.app.vault.adapter.rename(`${this.app.vault.configDir}/${loaded_settings.storage_path}`, `${this.app.vault.configDir}/plugins/translate/models`);
 			} catch (e) {
 				console.error(e);
 			}
@@ -205,9 +204,9 @@ export default class TranslatorPlugin extends Plugin {
 
 		this.uninstall = around(this.app.plugins, {
 			uninstallPlugin: (oldMethod) => {
-				return async (id: string) => {
-					const result = oldMethod && await oldMethod.apply(this.app.plugins, [id]);
-					if (id === 'translate') {
+				return async (pluginId: string) => {
+					const result = oldMethod && oldMethod.apply(this.app.plugins, [pluginId]);
+					if (pluginId === 'translate') {
 						// Clean up local storage items on uninstallation
 						localStorage.removeItem(`${this.app.appId}-password`);
 						localStorage.removeItem(`${this.app.appId}-fasttext`);
@@ -218,22 +217,13 @@ export default class TranslatorPlugin extends Plugin {
 						const loaded_settings = get(settings);
 						if (loaded_settings.security_setting === "local_only") {
 							for (const service of Object.keys(SERVICES_INFO)) {
-								localStorage.removeItem(`${app.appId}-${service}_api_key`);
+								localStorage.removeItem(`${this.app.appId}-${service}_api_key`);
 							}
 						}
 					}
 				};
 			}
 		})
-
-
-		// -------------------------------- Register Commands --------------------------------
-
-
-		// Potential future plans for URI access, not sure if anyone'd be interested in this
-		// this.registerObsidianProtocolHandler("translation-view", async (params) => {
-		// 	console.log(params)
-		// })
 
 		this.addRibbonIcon("translate", "Open translation view", async () => {
 			await this.activateTranslatorView();
@@ -296,7 +286,7 @@ export default class TranslatorPlugin extends Plugin {
 
 					let language = this.current_language;
 					if (loaded_settings.target_language_preference === "last") {
-						language = loaded_settings.last_used_target_languages.first()!;
+						language = loaded_settings.last_used_target_languages?.first()!;
 						if (!language) {
 							this.message_queue("No last language found, select language manually");
 							new TranslateModal(this.app, this, "selection").open()
@@ -362,7 +352,7 @@ export default class TranslatorPlugin extends Plugin {
 						item.setTitle("Translate note to new file")
 							.setIcon("translate")
 							.onClick(async (a) => {
-								await new TranslateModal(this.app, this, "file-new", <TFile>file).open();
+								new TranslateModal(this.app, this, "file-new", <TFile>file).open();
 							});
 					})
 				}
@@ -371,7 +361,7 @@ export default class TranslatorPlugin extends Plugin {
 
 		this.registerEvent(
 			this.app.workspace.on("editor-menu", (menu, editor) => {
-				if (this.translator.has_autodetect_capability()) {
+				if (this.translator?.has_autodetect_capability()) {
 					const languages = get(available_languages);
 					const languages_dict = get(all_languages);
 					if (languages.length) {
@@ -407,7 +397,7 @@ export default class TranslatorPlugin extends Plugin {
 
 							item.setTitle("Translate")
 								.setIcon("translate")
-								.setDisabled(!this.translator.valid || !editor.getSelection())
+								.setDisabled(!this.translator!.valid || !editor.getSelection())
 								.setSection("translate");
 
 							item.callback = async () => {
@@ -453,7 +443,7 @@ export default class TranslatorPlugin extends Plugin {
 					menu.addItem((item) => {
 						item.setTitle("Detect Language")
 							.setIcon("detect-selection")
-							.setDisabled(!this.translator.valid || !editor.getSelection())
+							.setDisabled(!this.translator!.valid || !editor.getSelection())
 							.onClick(async () => {
 								await detect_selection(this, editor);
 							});
@@ -498,26 +488,21 @@ export default class TranslatorPlugin extends Plugin {
 		let translation_leaf: WorkspaceLeaf;
 		// Adds translation view to main body of the app if it currently is receiving focus
 		if (!(this.app.workspace.activeLeaf == null) && this.app.workspace.activeLeaf.getRoot() == this.app.workspace.rootSplit) {
-			translation_leaf = await this.app.workspace.getLeaf('split', 'vertical');
+			translation_leaf = this.app.workspace.getLeaf('split', 'vertical');
 		} else {
 			translation_leaf = this.app.workspace.getRightLeaf(false);
 			this.app.workspace.revealLeaf(translation_leaf);
 		}
 
 		await translation_leaf.setViewState(view_state);
-		await translation_leaf.setEphemeralState(empheral_state);
+		translation_leaf.setEphemeralState(empheral_state);
 
 	}
-
-	// --------------------------------------------------------------
-
 
 	async saveSettings(updatedSettings: any) {
 		await this.saveData(updatedSettings);
 	}
 
-
-	// ------------------------- External Interface -------------------------
 
 	async setTranslationService(service: string) {
 		if (service in SERVICES_INFO) {

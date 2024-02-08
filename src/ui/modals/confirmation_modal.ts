@@ -5,7 +5,7 @@ import type TranslatorPlugin from "../../main";
 import ConfirmationModalView from "./ConfirmationModalView.svelte";
 
 export default class PasswordModal extends Modal {
-	private view!: SvelteComponent;
+	private view: SvelteComponent | undefined;
 	plugin: TranslatorPlugin;
 
 	callback: () => void;
@@ -36,6 +36,6 @@ export default class PasswordModal extends Modal {
 	}
 
 	onClose() {
-		this.view.$destroy();
+		this.view?.$destroy();
 	}
 }

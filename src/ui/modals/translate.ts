@@ -8,7 +8,7 @@ import type {TranslationResult} from "../../handlers/types";
 
 export default class TranslateModal extends FuzzySuggestModal<string>{
 	plugin: TranslatorPlugin;
-	options: Record<string, string>[];
+	options: { label: string | undefined; value: string }[];
 	translation_type: string;
 	file: TFile | null;
 	settings: TranslatorPluginSettings;
@@ -28,10 +28,10 @@ export default class TranslateModal extends FuzzySuggestModal<string>{
 		this.options = Array.from(loaded_available_languages).map(locale => {
 			return {
 				value: locale,
-				label: loaded_all_languages.get(locale)!,
+				label: loaded_all_languages.get(locale),
 			}
 		}).sort((a, b) => {
-			return a.label.localeCompare(b.label)
+			return a.label!.localeCompare(b.label!)
 		});
 
 		let pinned_languages: string[] = [];
@@ -46,7 +46,7 @@ export default class TranslateModal extends FuzzySuggestModal<string>{
 		let top_languages = pinned_languages.map(x => {
 			return {
 				value: x,
-				label: loaded_all_languages.get(x)!,
+				label: loaded_all_languages.get(x),
 			}
 		});
 		this.options = [...top_languages, ...this.options.filter(x => !pinned_languages.contains(x.value))];
@@ -65,7 +65,7 @@ export default class TranslateModal extends FuzzySuggestModal<string>{
 	async onChooseItem(item: any): Promise<void> {
 		let output: TranslationResult;
 		if (this.translation_type.contains("file")) {
-			output = await translate_file(this.plugin, this.file || this.app.workspace.getActiveFile()!, item.value,
+			output = await translate_file(this.plugin, this.file || this.app.workspace.getActiveFile(), item.value,
 				this.translation_type === "file-current", {
 					apply_glossary: this.settings.apply_glossary
 				});
@@ -76,9 +76,11 @@ export default class TranslateModal extends FuzzySuggestModal<string>{
 			output = await translate_selection(this.plugin, editor, item.value, {
 				apply_glossary: this.settings.apply_glossary
 			}, loaded_settings.translation_command_action);
+		} else {
+			output = {status_code: 400, message: "Invalid translation type"};
 		}
 
-		if (output!.status_code === 200) {
+		if (output.status_code === 200) {
 			settings.update((x: TranslatorPluginSettings) => {
 				if (!x.last_used_target_languages.contains(item.value)) {
 					x.last_used_target_languages = [item.value, ...x.last_used_target_languages].slice(0, 3);
@@ -88,8 +90,8 @@ export default class TranslateModal extends FuzzySuggestModal<string>{
 				}
 				return x;
 			});
-		} else if (output!.message) {
-			this.plugin.message_queue(output!.message)
+		} else if (output.message) {
+			this.plugin.message_queue(output.message)
 		}
 	}
 }

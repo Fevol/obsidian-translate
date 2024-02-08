@@ -19,8 +19,7 @@ import ViewFunctionalityModal from "./ui/modals/view_functionality_modal";
 
 
 export class TranslatorView extends ItemView {
-	plugin: TranslatorPlugin;
-	view!: SvelteComponent;
+	view?: SvelteComponent;
 
 	// Translation service store is shared with the View component
 	translation_service: Writable<string> = writable("dummy");
@@ -28,17 +27,16 @@ export class TranslatorView extends ItemView {
 	// TODO: navigation causes notes to be replaced
 	// navigation = true;
 
-	constructor(leaf: WorkspaceLeaf, plugin: TranslatorPlugin) {
+	constructor(leaf: WorkspaceLeaf, public plugin: TranslatorPlugin) {
 		super(leaf);
-		this.plugin = plugin;
 
 		// Add view-specific settings modals to the tab title bar
 		this.addAction('palette', "Change the view's appearance", () => {
-			new ViewAppearanceModal(app, this).open();
+			new ViewAppearanceModal(plugin.app, this).open();
 		});
 
 		this.addAction('wrench', "Alter the view's functionality", () => {
-			new ViewFunctionalityModal(app, this).open();
+			new ViewFunctionalityModal(plugin.app, this).open();
 		});
 	}
 
@@ -81,7 +79,7 @@ export class TranslatorView extends ItemView {
 	}
 
 	async updateState(props: any) {
-		this.view.$set(props);
+		this.view?.$set(props);
 	}
 
 	async setState(state: any, result: ViewStateResult): Promise<void> {
@@ -150,12 +148,12 @@ export class TranslatorView extends ItemView {
 	}
 
 	async onClose() {
-		this.view.$destroy();
+		this.view?.$destroy();
 		this.containerEl.detach()
 	}
 
 	onResize() {
 		const rectangle = this.contentEl.getBoundingClientRect();
-		this.view.onResize(rectangle.width, rectangle.height);
+		this.view?.onResize(rectangle.width, rectangle.height);
 	}
 }

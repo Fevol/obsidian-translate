@@ -246,25 +246,30 @@ export async function aesGcmDecrypt(ciphertext: string, password: string) {
         if (!password || !ciphertext)
             return ciphertext;
 
-        const pwUtf8 = new TextEncoder().encode(password);                                 // encode password as UTF-8
-        const pwHash = await crypto.subtle.digest('SHA-256', pwUtf8);                      // hash the password
+		// Encode password as UTF-8 and hash
+        const pwUtf8 = new TextEncoder().encode(password);
+        const pwHash = await crypto.subtle.digest('SHA-256', pwUtf8);
 
-        const iv = ciphertext.slice(0, 24).match(/.{2}/g)!.map(byte => parseInt(byte, 16));  // get iv from ciphertext
+		// Get iv from ciphertext
+        const iv = ciphertext.slice(0, 24).match(/.{2}/g)!.map(byte => parseInt(byte, 16));
 
-        const alg = {name: 'AES-GCM', iv: new Uint8Array(iv)};                           // specify algorithm to use
+		// Specify algorithm to use
+        const alg = {name: 'AES-GCM', iv: new Uint8Array(iv)};
 
-        const key = await crypto.subtle.importKey('raw', pwHash, alg, false, ['decrypt']); // use pw to generate key
+		// Use password to generate key
+        const key = await crypto.subtle.importKey('raw', pwHash, alg, false, ['decrypt']);
 
-        const ctStr = atob(ciphertext.slice(24));                                          // decode base64 ciphertext
+        const ctStr = atob(ciphertext.slice(24));
         const ctUint8 = new Uint8Array(new ArrayBuffer(ctStr.length));
-        for (let i = 0; i < ctStr.length; i++) {
+
+		// Decode base64 ciphertext
+		for (let i = 0; i < ctStr.length; i++)
             ctUint8[i] = ctStr.charCodeAt(i);
-        }
 
-        const plainBuffer = await crypto.subtle.decrypt(alg, key, ctUint8);                // decrypt ciphertext using key
-        const plaintext = new TextDecoder().decode(plainBuffer);                           // decode password from UTF-8
+		// Decrypt ciphertext using key
+        const plainBuffer = await crypto.subtle.decrypt(alg, key, ctUint8);
 
-        return plaintext;                                                                  // return the plaintext
+        return new TextDecoder().decode(plainBuffer);
     } catch (e) {
         console.log("Error decrypting: password is incorrect");
         return ciphertext;

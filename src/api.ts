@@ -3,6 +3,7 @@ import {get} from "svelte/store";
 import {all_languages, available_languages, settings} from "./stores";
 
 import type {DetectionResult, LanguagesFetchResult, ServiceOptions, TranslationResult} from "./handlers/types";
+import {moment} from "obsidian";
 
 interface APIOptions extends ServiceOptions {
     /**
@@ -79,7 +80,7 @@ export class TranslateAPI {
      *  message: "Translation service is not available"
      * }
      */
-    async translate(text: string, from: string = "auto", to?: string, options?: APIOptions): Promise<TranslationResult> {
+    async translate(text: string, from?: string, to?: string, options?: APIOptions): Promise<TranslationResult> {
         if (!this.plugin.translator)
             return {status_code: 400, message: "Translation service is not available"};
 
@@ -93,12 +94,14 @@ export class TranslateAPI {
                     to = loaded_settings.last_used_target_languages[0];
                 else if (loaded_settings.target_language_preference === "specific")
                     to = loaded_settings.default_target_language;
-                else
+                else if (loaded_settings.target_language_preference === "display")
                     to = this.plugin.current_language;
+				else
+					to = moment.locale();
             }
         }
 
-        return this.plugin.translator.translate(text, from, to, options);
+        return this.plugin.translator.translate(text, from ?? "auto", to, options);
     }
 
     /**

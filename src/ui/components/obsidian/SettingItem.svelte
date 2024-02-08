@@ -1,8 +1,8 @@
 <script lang="ts">
 	export let name: string;
 	export let description: string | null = null;
-	export let type: "dropdown" | "toggle" | "slider" | "heading" | null = null;
-	export let subsetting: boolean = false;
+	export let type: "dropdown" | "toggle" | "slider" | "heading" | "subheading" | "subsubheading" | null = null;
+	export let depth: number = 0;
 
 	interface InformationField {
 		/**
@@ -26,12 +26,14 @@
 </script>
 
 <div
-	class={($$props.class ?? "") + " setting-item"}
+	class={($$props.class ?? "") + " setting-item" +
+		(depth ? ` svelcomlib-${'sub'.repeat(depth)}setting` : "") +
+		(type === "heading" ? ` svelcomlib-setting-${'sub'.repeat(depth)}heading` : "")
+	}
 	class:mod-dropdown={type === "dropdown"}
 	class:mod-toggle={type === "toggle"}
 	class:mod-slider={type === "slider"}
 	class:setting-item-heading={type === "heading"}
-	class:svelcomlib-subsetting={subsetting}
 >
 	<div class="setting-item-info">
 		<div class="setting-item-name">

@@ -1,5 +1,5 @@
 import {services, empty_settings, input_desc, filled_settings} from "./services";
-import type {APIServiceProviders, APIServiceSettings, TranslatorPluginSettings} from "../src/types";
+import type {APIServiceProviders, APIServiceSettings} from "../src/types";
 
 
 test('Load correct-data.json', () => {
@@ -7,9 +7,8 @@ test('Load correct-data.json', () => {
 });
 
 for (const [id, config] of Object.entries(services)) {
-	// @ts-expect-error (Empty settings will result in a validation error)
-	const translator = new config.service(empty_settings);
 	const service_settings = filled_settings?.service_settings[id as keyof APIServiceProviders] as APIServiceSettings;
+	const current_settings = empty_settings;
 
 	describe(config.name, () => {
 		test('Service settings loaded', () => {
@@ -20,18 +19,21 @@ for (const [id, config] of Object.entries(services)) {
 			if (config.inputs) {
 				for (const input of config?.inputs) {
 					test(`validate (${input} unset)`, async () => {
+						// @ts-expect-error (Generic settings object is compatible with class constructor)
+						const translator = new (config.service)(current_settings);
 						const result = await translator.validate();
 						expect(result.status_code).not.toBe(200);
 						expect(result.valid).toBe(false);
-						//@ts-ignore
-						expect(result.message).toBe(`Validation failed:\n\t${input_desc[input]} was not specified`);
+						expect(result.message).toBe(`Validation failed:\n\t${input_desc[input as keyof typeof input_desc]} was not specified`);
 
-						//@ts-ignore
-						translator[input] = "wrong-value";
+						// @ts-expect-error (Assigning to settings)
+						current_settings[input] = "wrong-value";
 					});
 				}
 
 				test("validate (wrong values)", async () => {
+					// @ts-expect-error (Generic settings object is compatible with class constructor
+					const translator = new (config.service)(current_settings);
 					const result = await translator.validate();
 					expect(result.status_code).not.toBe(200);
 					expect(result.valid).toBe(false);
@@ -40,11 +42,8 @@ for (const [id, config] of Object.entries(services)) {
 
 				if (service_settings) {
 					test("validate (correct values)", async () => {
-						for (const setting of Object.values(config.inputs!)) {
-							// @ts-ignore
-							translator[setting] = service_settings[setting as keyof APIServiceSettings];
-						}
-
+						// @ts-expect-error (Specified settings object is compatible with class constructor)
+						const translator = new (config.service)(service_settings);
 						const result = await translator.validate();
 						expect(result.status_code).toBe(200);
 						expect(result.valid).toBe(true);

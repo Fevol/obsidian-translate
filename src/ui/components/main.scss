@@ -160,3 +160,21 @@ button.svelcomlib-fail {
 	margin-left: var(--size-4-8);
 	border-color: var(--background-modifier-active-hover);
 }
+
+.svelcomlib-subsubsetting {
+	margin-left: var(--size-4-16);
+	border-color: var(--background-modifier-active-hover);
+}
+
+.svelcomlib-setting-subheading.svelcomlib-setting-subheading {
+	font-size: var(--h3-font);
+	margin-top: 0;
+	padding: 0.50em;
+}
+
+.svelcomlib-setting-subsubheading.svelcomlib-setting-subsubheading {
+	font-size: var(--h4-font);
+	margin-top: 0;
+	padding: 0.25em;
+	text-transform: uppercase;
+}

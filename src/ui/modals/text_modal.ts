@@ -5,13 +5,9 @@ import TextModalView from "./TextModalView.svelte";
 import type TranslatorPlugin from "../../main";
 
 export default class TextModal extends Modal {
-	private view!: SvelteComponent;
-	plugin!: TranslatorPlugin;
+	private view?: SvelteComponent;
 
-	title: string;
-	description: string;
-
-	constructor(plugin: TranslatorPlugin, title: string, description: string) {
+	constructor(public plugin: TranslatorPlugin, public title: string, public description: string) {
 		super(plugin.app);
 		this.title = title;
 		this.description = description;
@@ -28,6 +24,6 @@ export default class TextModal extends Modal {
 	}
 
 	onClose() {
-		this.view.$destroy();
+		this.view?.$destroy();
 	}
 }

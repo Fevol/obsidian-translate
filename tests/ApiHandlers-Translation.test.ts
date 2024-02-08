@@ -1,4 +1,4 @@
-import {empty_settings, filled_settings, input_desc, services} from "./services";
+import {filled_settings, input_desc, services} from "./services";
 import type {APIServiceProviders, APIServiceSettings} from "../src/types";
 import {DEFAULT_SETTINGS} from "../src/constants";
 
@@ -9,8 +9,8 @@ test('Load correct-data.json (required for test)', () => {
 if (filled_settings) {
 	for (const [id, config] of Object.entries(services)) {
 		const service_settings = filled_settings?.service_settings[id as keyof APIServiceProviders] as APIServiceSettings;
-		// @ts-expect-error (Service settings differ between services)
-		const translator = new config.service(service_settings);
+		// @ts-expect-error (Generic settings object is compatible with class constructor)
+		const translator = new (config.service)(service_settings);
 		translator.available_languages = <string[]>(<APIServiceSettings>DEFAULT_SETTINGS.service_settings[id as keyof typeof DEFAULT_SETTINGS.service_settings]).available_languages
 
 		describe(config.name, () => {

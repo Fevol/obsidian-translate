@@ -4,10 +4,9 @@ import PasswordRequestModalView from "./PasswordRequestModalView.svelte";
 import type TranslatorPlugin from "../../main";
 
 export default class PasswordModal extends Modal {
-	private view!: SvelteComponent;
-	plugin: TranslatorPlugin;
+	private view?: SvelteComponent;
 
-	constructor(plugin: TranslatorPlugin) {
+	constructor(public plugin: TranslatorPlugin) {
 		super(plugin.app);
 		this.plugin = plugin;
 	}
@@ -26,6 +25,6 @@ export default class PasswordModal extends Modal {
 	}
 
 	onClose() {
-		this.view.$destroy();
+		this.view?.$destroy();
 	}
 }

@@ -5,14 +5,17 @@
 	import {password, settings} from "../../stores";
 
 	import {aesGcmEncrypt, aesGcmDecrypt} from "../../util";
+	import type TranslatorPlugin from "../../main";
 
-	let valid: boolean | null = null;
+	export let plugin: TranslatorPlugin;
+
+	let valid: boolean | undefined = undefined;
 	let input_1 = "";
 	let input_2 = "";
 	let current_password = $password;
 	const dispatch = createEventDispatcher();
 
-	$: valid = (input_1 && input_2) ? input_1 === input_2 : null;
+	$: valid = (input_1 && input_2) ? input_1 === input_2 : undefined;
 </script>
 
 <div class="translator-password-modal-inputs">
@@ -47,7 +50,7 @@
 				$settings.service_settings[service].api_key = await aesGcmEncrypt(api_key, input_1);
 			}
 		}
-		app.saveLocalStorage("password", input_1);
+		plugin.app.saveLocalStorage("password", input_1);
 		$password = input_1;
 		dispatch("close");
 	} else if (current_password && !input_1 && !input_2) {
