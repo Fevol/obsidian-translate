@@ -11,6 +11,24 @@ import {requestUrl} from "obsidian";
 
 // FIXME: Check what translate returns when no language_from was specified
 
+interface YandexBaseResult {
+	code?: number
+	message?: string
+	// Also contains details field with @type and requestId
+}
+
+interface YandexTranslationResult extends YandexBaseResult {
+	translations: Array<{text: string, detectedLanguageCode?: string}>
+}
+
+interface YandexLanguageResult extends YandexBaseResult {
+	languages: Array<{code: string, name: string}>
+}
+
+interface YandexDetectionResult extends YandexBaseResult {
+	languageCode: string
+}
+
 export class YandexTranslate extends DummyTranslate {
 	#api_key?: string;
 	id = "yandex_translate";
@@ -33,18 +51,16 @@ export class YandexTranslate extends DummyTranslate {
 		const response = await requestUrl({
 			throw: false,
 			method: "POST",
-			url: `https://translate.yandex.net/api/v1.5/tr.json/getLangs?` +
-				new URLSearchParams({
-					key: this.#api_key,
-					ui: "en"
-				}),
+			url: `https://translate.api.cloud.yandex.net/translate/v2/languages`,
+			headers: {
+				"Authorization": `Api-Key ${this.#api_key}`
+			}
 		});
 
-		const data = response.json;
-		const status_code = data.code ? data.code : response.status;
+		const data: YandexLanguageResult = response.json;
 		return {
-			status_code: status_code,
-			valid: status_code === 200,
+			status_code: response.status,
+			valid: response.status === 200,
 			message: data.message
 		};
 	}
@@ -54,22 +70,23 @@ export class YandexTranslate extends DummyTranslate {
 		const response = await requestUrl({
 			throw: false,
 			method: "POST",
-			url: `https://translate.yandex.net/api/v1.5/tr.json/detect?` +
-				new URLSearchParams({
-					key: this.#api_key!,
-					text: text
-				}),
+			url: `https://translate.api.cloud.yandex.net/translate/v2/detect`,
+			// NOTE: Also supports the languageCodeHints setting (array of ISO 639-1 codes that give priority to a specific language)
+			body: JSON.stringify({text: text}),
+			headers: {
+				"Authorization": `Api-Key ${this.#api_key}`
+			}
 		});
 
 		// Data = {code: 200, lang: "en"}
-		const data = response.json;
+		const data: YandexDetectionResult = response.json;
 
 		if (response.status !== 200)
 			return {status_code: response.status, message: data.message};
 
 		return {
 			status_code: response.status,
-			detected_languages: [{language: data.language}]
+			detected_languages: [{language: data.languageCode}]
 		};
 	}
 
@@ -77,25 +94,26 @@ export class YandexTranslate extends DummyTranslate {
 		const response = await requestUrl({
 			throw: false,
 			method: "POST",
-			url: `https://translate.yandex.net/api/v1.5/tr.json/translate?` +
-				new URLSearchParams({
-					key: this.#api_key!,
-					text: text,
-					lang: from === 'auto' ? to : `${from}-${to}`,
-					format: "plain"
-				}),
+			url: `https://translate.api.cloud.yandex.net/translate/v2/translate`,
+			body: JSON.stringify({
+				texts: [text],
+				targetLanguageCode: to,
+			}),
+			headers: {
+				"Authorization": `Api-Key ${this.#api_key}`
+			}
 		});
 
 
 		// Data = {code: 200, lang: "ru-en", text: ["Good day comrade!"]}
-		const data = response.json;
+		const data: YandexTranslationResult = response.json;
 		if (response.status !== 200)
 			return {status_code: response.status, message: data.message};
 
 		return {
 			status_code: response.status,
-			translation: data.text[0],
-			detected_language: from === "auto" && data.lang ? data.lang : null
+			translation: data.translations[0].text,
+			detected_language: from === "auto" && data.translations[0].detectedLanguageCode ? data.translations[0].detectedLanguageCode : undefined
 		};
 	}
 
@@ -103,21 +121,20 @@ export class YandexTranslate extends DummyTranslate {
 		const response = await requestUrl({
 			throw: false,
 			method: "POST",
-			url: `https://translate.yandex.net/api/v1.5/tr.json/getLangs?` +
-				new URLSearchParams({
-					key: this.#api_key!,
-					ui: "en"
-				}),
+			url: `https://translate.api.cloud.yandex.net/translate/v2/languages`,
+			headers: {
+				"Authorization": `Api-Key ${this.#api_key}`
+			}
 		});
 
 		// Data = {langs: {en: "English", ...}}
-		const data = response.json;
+		const data: YandexLanguageResult = response.json;
 		if (response.status !== 200)
 			return {status_code: response.status, message: data.message};
 
 		return {
 			status_code: response.status,
-			languages: Object.keys(data.langs)
+			languages: data.languages.map(lang => lang.code)
 		};
 	}
 
