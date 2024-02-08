@@ -111,32 +111,29 @@ export class AzureTranslator extends DummyTranslate {
 		if (this.#region)
 			headers["Ocp-Apim-Subscription-Region"] = this.#region;
 
-		let profanity_action = "NoAction";
-		let profanity_mark = "";
+		const params: any = {
+			from: from === "auto" ? "" : from,
+			to: to,
+			textType: "plain",
+			allowFallback: "true",
+			profanityAction: "NoAction",
+		};
 
 		if (options.profanity_filter) {
 			if (options.profanity_filter.action === "mark")
-				profanity_action = "Marked";
+				params["profanityAction"] = "Marked";
 			else if (options.profanity_filter.action === "delete")
-				profanity_action = "Deleted";
+				params["profanityAction"] = "Deleted";
 			if (options.profanity_filter.marker === "mask")
-				profanity_mark = "Asterisk";
+				params["profanityMarker"] = "Asterisk";
 			else if (options.profanity_filter.marker === "html-tag")
-				profanity_mark = "Tag";
+				params["profanityMarker"] = "Tag";
 		}
 
 		const response = await requestUrl({
 			throw: false,
 			method: "POST",
-			url:`https://api.cognitive.microsofttranslator.com/translate?api-version=3.0&` +
-				new URLSearchParams({
-					from: from === "auto" ? "" : from,
-					to: to,
-					textType: "plain",
-					allowFallback: "true",
-					profanityAction: profanity_action,
-					profanityMarker: profanity_mark
-				}),
+			url:`https://api.cognitive.microsofttranslator.com/translate?api-version=3.0&` + new URLSearchParams(params),
 			headers: headers,
 			body: JSON.stringify([{Text: text}]),
 		});

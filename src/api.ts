@@ -37,6 +37,13 @@ export class TranslateAPI {
         return get(available_languages);
     }
 
+	/**
+	 * Get the object that translates ISO639 language codes to their names in the user's preferred language
+	 */
+	get language_names_map() {
+		return get(all_languages);
+	}
+
     /**
      * Get whether the translation service is available
      */
@@ -51,12 +58,6 @@ export class TranslateAPI {
         return this.plugin.detector && this.plugin.detector.valid;
     }
 
-    /**
-     * Get the object that translates ISO639 language codes to their names in the user's preferred language
-     */
-    get getLanguageNames() {
-        return get(all_languages);
-    }
 
     /**
      * Translate the given text from a source language to a target language

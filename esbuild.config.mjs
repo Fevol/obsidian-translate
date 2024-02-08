@@ -61,7 +61,7 @@ esbuild.build({
 	plugins: [
 		sassPlugin(),
 		esbuildSvelte({
-			compilerOptions: {css: true},
+			compilerOptions: {css: "injected"},
 			preprocess: sveltePreprocess(),
 			filterWarnings: (warning) => {
 				// Remove accessibility warnings (base Obsidian ignores these guidelines too) (non-interactive element <nav> should not have role="navigation")
