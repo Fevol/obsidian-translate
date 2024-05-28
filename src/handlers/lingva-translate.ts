@@ -68,9 +68,11 @@ export class LingvaTranslate extends DummyTranslate {
 
 
 	async service_detect(text: string): Promise<DetectionResult> {
-		let result: any = await this.service_translate(text, 'auto', 'en');
-		result.detected_languages = [{language: result.detected_language}];
-		return result;
+		const result = await this.service_translate(text, 'auto', 'en');
+		return {
+			...result,
+			detected_languages: [{language: result.detected_language}]
+		};
 	}
 
 	async service_translate(text: string, from: string, to: string, options: ServiceOptions = {}): Promise<TranslationResult> {
@@ -112,8 +114,8 @@ export class LingvaTranslate extends DummyTranslate {
 			status_code: response.status,
 			languages: response.status !== 200 ? undefined :
 				data.languages
-					.filter((l: { code: any; name: any; }) => l.code !== "auto")
-					.map((l: { code: any; name: any; }) => l.code.replace("_", "-"))
+					.filter((l) => l.code !== "auto")
+					.map((l) => l.code.replace("_", "-"))
 		};
 	}
 

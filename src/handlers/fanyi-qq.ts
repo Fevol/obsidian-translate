@@ -13,6 +13,8 @@ import {requestUrl} from "obsidian";
 import {DEFAULT_SETTINGS} from "../constants";
 
 
+const VERSION = '2018-03-21';
+
 interface FanyiQQTranslationResult {
 	Response: {
 		Source?: string
@@ -49,7 +51,7 @@ export class FanyiQq extends DummyTranslate {
 	}
 
 
-	async sign_message(payload: any) {
+	async sign_message(payload: Record<string, string>) {
 		// Returns hex string of SHA-256 hash of message
 		async function hash_string(str: string, encoding: string = 'hex') {
 			const digest = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
@@ -80,7 +82,6 @@ export class FanyiQq extends DummyTranslate {
 		const timestamp = (date.getTime() / 1000).toFixed(0);
 		const full_date = `${date.getUTCFullYear()}-${('0' + (date.getUTCMonth() + 1)).slice(-2)}-${('0' + date.getUTCDate()).slice(-2)}`;
 
-		const version = "2018-03-21";
 		const signed_headers = "content-type;host";
 		const hashed_payload = await hash_string(JSON.stringify(payload));
 		const http_request_method = 'POST';
@@ -117,7 +118,7 @@ export class FanyiQq extends DummyTranslate {
 
 		const payload = {
 			Action: 'LanguageDetect',
-			Version: '2018-03-21',
+			Version: VERSION,
 			Region: this.#region!,
 			Text: 'I',
 			ProjectId: this.#app_id,
@@ -132,7 +133,7 @@ export class FanyiQq extends DummyTranslate {
 				'Authorization': signature.authorization,
 				'X-TC-Timestamp': signature.timestamp,
 				'X-TC-Action': 'LanguageDetect',
-				'X-TC-Version': '2018-03-21',
+				'X-TC-Version': VERSION,
 			}
 		});
 
@@ -150,7 +151,7 @@ export class FanyiQq extends DummyTranslate {
 	async service_detect(text: string): Promise<DetectionResult> {
 		const payload = {
 			Action: 'LanguageDetect',
-			Version: '2018-03-21',
+			Version: VERSION,
 			Region: this.#region!,
 			Text: text,
 			ProjectId: this.#app_id!,
@@ -165,7 +166,7 @@ export class FanyiQq extends DummyTranslate {
 				'Authorization': signature.authorization,
 				'X-TC-Timestamp': signature.timestamp,
 				'X-TC-Action': 'LanguageDetect',
-				'X-TC-Version': '2018-03-21',
+				'X-TC-Version': VERSION,
 			}
 		});
 
@@ -184,7 +185,7 @@ export class FanyiQq extends DummyTranslate {
 		// const attempt_translation: (sourceText: string, target: string) => Promise<RequestUrlResponse> = async (sourceText: string, target: string) => {
 		const payload = {
 			Action: 'TextTranslate',
-			Version: '2018-03-21',
+			Version: VERSION,
 			Region: this.#region!,
 			SourceText: sourceText,
 			Source: source,
@@ -201,7 +202,7 @@ export class FanyiQq extends DummyTranslate {
 				'Authorization': signature.authorization,
 				'X-TC-Timestamp': signature.timestamp,
 				'X-TC-Action': 'TextTranslate',
-				'X-TC-Version': '2018-03-21',
+				'X-TC-Version': VERSION,
 			}
 		});
 	}
@@ -241,7 +242,7 @@ export class FanyiQq extends DummyTranslate {
 			}
 		}
 
-		let detected_language = data.Response.Source;
+		const detected_language = data.Response.Source;
 		return {
 			status_code: response.status,
 			translation: data.Response.TargetText,

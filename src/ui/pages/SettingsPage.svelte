@@ -8,9 +8,8 @@
 
 	import {Icon} from ".././components";
 
-
-	import {SERVICES_INFO, SETTINGS_TABS, ALL_SERVICES, ALL_TRANSLATOR_SERVICES} from "../../constants";
-	import {DummyTranslate} from "../../handlers";
+	import {ALL_SERVICES, ALL_TRANSLATOR_SERVICES} from "../../types";
+	import {SERVICES_INFO, SETTINGS_TABS} from "../../constants";
 
 	import {
 		GeneralSettings,
@@ -32,12 +31,18 @@
 	function generateTabs() {
 		return [
 			...SETTINGS_TABS,
-			...$available_translator_services.map(service => ({id: service, name: SERVICES_INFO[service].display_name, icon: service})),
-			...$available_detector_services.map(service => ({id: service, name: SERVICES_INFO[service].display_name, icon: service})),
+			...$available_translator_services.map(service => ({
+				id: service,
+				name: SERVICES_INFO[service].display_name,
+				icon: service
+			})),
+			...$available_detector_services.map(service => ({
+				id: service,
+				name: SERVICES_INFO[service].display_name,
+				icon: service
+			})),
 		];
 	}
-
-	let translator: DummyTranslate;
 
 	function getComponent() {
 		switch ($settings_tab) {
@@ -86,7 +91,7 @@
 				 aria-label={`${name} settings`} on:click={() => {
 					 changedTabs(index)}
 				 }
-				on:contextmenu={e => {
+				 on:contextmenu={e => {
 					if (ALL_SERVICES.includes(id)) {
 						let menu = new Menu();
 						if (ALL_TRANSLATOR_SERVICES.contains(id)) {
@@ -119,9 +124,11 @@
 				}}
 			>
 				<div style="display: flex">
-					<Icon icon="{icon}" class={id === $settings.translation_service ? 'translator-selected-element' : ''} />
+					<Icon icon="{icon}"
+						  class={id === $settings.translation_service ? 'translator-selected-element' : ''}/>
 				</div>
-				<div  class="translator-navigation-item-text" class:translator-navigation-selected-item-text={$settings_tab !== id}>{name}</div>
+				<div class="translator-navigation-item-text"
+					 class:translator-navigation-selected-item-text={$settings_tab !== id}>{name}</div>
 			</div>
 		{/each}
 	</nav>
@@ -129,9 +136,9 @@
 	{#key $settings_tab}
 		<div in:horizontalSlide={{duration: 400, delay: 400}} out:slide={{duration: 400}}>
 			<svelte:component this={getComponent()}
-				plugin={plugin}
-				settings={settings}
-				service={$settings_tab}
+							  plugin={plugin}
+							  settings={settings}
+							  service={$settings_tab}
 			/>
 		</div>
 	{/key}

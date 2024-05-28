@@ -1,7 +1,13 @@
 import {writable} from "svelte/store";
-import type {TranslatorPluginSettings, ModelFileData} from "./types";
+import {
+	type TranslatorPluginSettings,
+	type ModelFileData,
+	type TranslatorServiceType,
+	type DetectorServiceType,
+	ALL_DETECTOR_SERVICES,
+	ALL_TRANSLATOR_SERVICES
+} from "./types";
 import type TranslatorPlugin from "./main";
-import {ALL_DETECTOR_SERVICES, ALL_TRANSLATOR_SERVICES} from "./constants";
 
 /**
  * The store for the plugin settings.
@@ -21,12 +27,12 @@ export const available_languages = writable<string[]>([]);
 /**
  * Set of translator services that can be accessed in settings, commands, etc.
  */
-export const available_translator_services = writable<string[]>(ALL_TRANSLATOR_SERVICES);
+export const available_translator_services = writable<TranslatorServiceType[]>([...ALL_TRANSLATOR_SERVICES]);
 
 /**
  * Set of detector services that can be accessed in settings, commands, etc.
  */
-export const available_detector_services = writable<string[]>(ALL_DETECTOR_SERVICES);
+export const available_detector_services = writable<DetectorServiceType[]>([...ALL_DETECTOR_SERVICES]);
 
 /**
  * Set of languages that are used for spellchecking Obsidian
@@ -61,7 +67,7 @@ export const bergamot_data = writable<ModelFileData>();
 /**
  * Determines whether the shortcut tooltips should be hidden
  */
-export let hide_shortcut_tooltips = writable<boolean>(false);
+export const hide_shortcut_tooltips = writable<boolean>(false);
 
 /**
  * Globally accessible instance of glossary data

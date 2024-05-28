@@ -21,7 +21,8 @@
 		available_detector_services
 	} from "../../stores";
 
-	import {SERVICES_INFO, DEFAULT_SETTINGS, ALL_SERVICES} from "../../constants";
+	import {SERVICES_INFO, DEFAULT_SETTINGS} from "../../constants";
+	import {ALL_SERVICES} from "../../types";
 	import ISO6391 from "iso-639-1";
 
 	import t from "../../l10n";
@@ -39,10 +40,10 @@
 		AmazonTranslate,
 		LingvaTranslate,
 		FastTextDetector,
+		OpenaiTranslator
 	} from "../../handlers";
 	import {aesGcmDecrypt, aesGcmEncrypt, toTitleCase} from "../../util";
 	import {PasswordRequestModal} from "../modals";
-	import {OpenaiTranslator} from "../../handlers/openai-translator";
 
 
 	export let plugin: TranslatorPlugin;

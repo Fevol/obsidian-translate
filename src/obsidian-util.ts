@@ -1,12 +1,13 @@
-import {apiVersion, Platform} from "obsidian";
+import {apiVersion, type App, Platform} from "obsidian";
 
 /**
  * Helper function for overwriting a file if it exists, else saving it as a new file
+ * @param app - Obsidian app instance
  * @param path - Normalized path of the file
  * @param data - Binary data to write to the file
  * @private
  */
-export async function writeOrReplace(path: string, data: ArrayBuffer) {
+export async function writeOrReplace(app: App, path: string, data: ArrayBuffer) {
 	// getAbstractFileByPath will not find the file if it is inside a hidden folder (e.g. obsidian);
 	// it seems like createBinary does not care about hidden folders
 	if (await app.vault.adapter.exists(path))
@@ -17,11 +18,12 @@ export async function writeOrReplace(path: string, data: ArrayBuffer) {
 
 /**
  * Helper function for creating the directories of a file if they do not exist
+ * @param app - Obsidian app instance
  * @param path - Normalized path of the file
  * @param data - Binary data to write to the file
  * @private
  */
-export async function writeRecursive(path: string, data: any) {
+export async function writeRecursive(app: App, path: string, data: ArrayBuffer) {
 	await app.vault.adapter.mkdir(path.substring(0, path.lastIndexOf('/')));
 	await app.vault.adapter.writeBinary(path, data);
 }
@@ -29,9 +31,10 @@ export async function writeRecursive(path: string, data: any) {
 /**
  * Helper function for opening the settings tab of the plugin
  *
+ * @param app - Obsidian app instance
  * @remark prevents the plugin tab to be opened again, despite already being open (otherwise, some nasty bugs can occur due to onMount logic of settings page being executed twice)
  */
-export function openSettingTab() {
+export function openSettingTab(app: App) {
 	app.setting.open();
 	if (app.setting.lastTabId !== 'translate') {
 		app.setting.openTabById("translate");
@@ -41,9 +44,10 @@ export function openSettingTab() {
 /**
  * Helper function for getting debug information
  * @async
+ * @param app - Obsidian app instance
  * @returns \{platform: string, plugin_version: string, obsidian_version: string, framework_version: string}
  */
-export async function getObsidianData() {
+export async function getObsidianData(app: App) {
 	let framework_version;
 	if (Platform.isMobileApp) {
 		// @ts-ignore (Capacitor exists)
@@ -51,7 +55,7 @@ export async function getObsidianData() {
 		if (capacitor_info)
 			framework_version = capacitor_info.version + " (" + capacitor_info.build + ")";
 	} else {
-		framework_version = navigator.userAgent.match(/obsidian\/([\d\.]+\d+)/)?.[1] || "unknown"
+		framework_version = navigator.userAgent.match(/obsidian\/([\d.]+\d+)/)?.[1] || "unknown"
 	}
 
 	return {
@@ -67,14 +71,15 @@ export async function getObsidianData() {
 /**
  * Helper function for generating a pre-filled bug report for GitHub
  * @async
+ * @param app - Obsidian app instance
  * @param title - Title of the bug report
  * @param data - Debug information
  * @returns {string} - URL to create a new issue on GitHub
  */
-export async function generateGithubIssueLink(title: string, data: { [key: string]: any } = {}) {
+export async function generateGithubIssueLink(app: App, title: string, data: Record<string, string> = {}) {
 	const title_string = title ? `[BUG] ${title} – ADD A TITLE HERE` : '[BUG] ADD A TITLE HERE';
 	try {
-		const base_data = await getObsidianData();
+		const base_data = await getObsidianData(app);
 		const issue_data = {...base_data, ...data};
 		const data_string = Object.entries(issue_data).map(([key, value]) => `**${key}**: ${JSON.stringify(value)}`).join('\n');
 
@@ -98,10 +103,11 @@ export async function generateGithubIssueLink(title: string, data: { [key: strin
 /**
  * Helper function to open GitHub issue link for user
  * @async
+ * @param app - Obsidian app instance
  * @param title - Title of the bug report
  * @param data - Debug information
  * @returns {Promise<void>}
  */
-export async function openGithubIssueLink(title: string = '', data: { [key: string]: any } = {}) {
-	window.open(await generateGithubIssueLink(title, data), '_blank');
+export async function openGithubIssueLink(app: App, title: string = '', data: Record<string, string> = {}) {
+	window.open(await generateGithubIssueLink(app, title, data), '_blank');
 }

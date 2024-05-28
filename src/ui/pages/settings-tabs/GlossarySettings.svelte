@@ -93,13 +93,13 @@
 			glossary_pair = glossary_pair.filter((_, i) => indexes.has(i));
 	}
 
-	const view_scope = new Scope(app.scope);
+	const view_scope = new Scope(plugin.app.scope);
 	// TODO: Check if delete history would be possible to implement easily (with undo/redo)
 	view_scope.register(['Mod'], 'S', () => {
 		[target_language, source_language] = [source_language, target_language];
 		return false;
 	})
-	app.keymap.pushScope(view_scope);
+	plugin.app.keymap.pushScope(view_scope);
 
 	onMount(async () => {
 		if (sync_service)
@@ -110,7 +110,7 @@
 	onDestroy(() => {
 		let local_glossaries: Object = Object.assign({}, glossaries);
 
-		app.vault.adapter.write(`${app.vault.configDir}/plugins/translate/glossary.json`, JSON.stringify(local_glossaries, null, "\t"));
+		plugin.app.vault.adapter.write(`${plugin.app.vault.configDir}/plugins/translate/glossary.json`, JSON.stringify(local_glossaries, null, "\t"));
 		glossary.dicts = local_glossaries;
 		for (let key in glossary.dicts) {
 			glossary.replacements[key] = new RegExp(glossary.dicts[key].map((item) => item[0]).join("|"),

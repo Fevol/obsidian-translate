@@ -18,9 +18,9 @@
 	import {
 		SERVICES_INFO,
 		SECURITY_MODES,
-		ALL_SERVICES
 	} from "../../../constants";
 	import {openGithubIssueLink} from "../../../obsidian-util";
+	import {ALL_SERVICES} from "../../../types";
 
 	export let plugin: TranslatorPlugin;
 
@@ -28,7 +28,7 @@
 
 	// const example_languages = ['en', 'fr', 'zh']
 	// Fun aside, let's people learn what the name of a language looks like in the native languages
-	const example_languages = [...$all_languages.keys()].sort(() => 0.5 - Math.random()).slice(0, 3);
+	const example_languages: string[] = [...$all_languages.keys()].sort(() => 0.5 - Math.random()).slice(0, 3);
 	let display_language_example = generateLanguageExample();
 
 	function generateLanguageExample() {
@@ -45,9 +45,9 @@
 	 */
 	function clearAPIKey(service: string, old_mode: string, new_mode: string) {
 		if ((old_mode === "none" || old_mode === "password") && !(new_mode === "none" || new_mode === "password")) {
-			$settings.service_settings[service].api_key = undefined;
+			$settings.service_settings[service as keyof typeof $settings.service_settings].api_key = undefined;
 		} else if (old_mode === "local_only") {
-			localStorage.removeItem(`${app.appId}-${service}_api_key`);
+			localStorage.removeItem(`${plugin.app.appId}-${service}_api_key`);
 		} else if (old_mode === "dont_save") {
 			sessionStorage.removeItem(service + '_api_key');
 		}
@@ -61,7 +61,7 @@
 	 */
 	async function updateAPIKeys(old_mode: string, new_mode: string) {
 		for (let service in $settings.service_settings) {
-			if (SERVICES_INFO[service].requires_api_key) {
+			if (SERVICES_INFO[service as keyof typeof SERVICES_INFO].requires_api_key) {
 				await plugin.reactivity.setAPIKey(service, new_mode, (await plugin.reactivity.getAPIKey(service, old_mode)) || '');
 				clearAPIKey(service, old_mode, new_mode);
 			}
@@ -228,6 +228,7 @@
 		text="REPORT BUG"
 		icon="bug"
 		onClick={ () => openGithubIssueLink(
+			plugin.app,
 			undefined,
 			{
 				selected_service: $settings.translation_service,

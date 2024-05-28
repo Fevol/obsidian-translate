@@ -6,7 +6,7 @@ import type {Modifier} from "obsidian";
  * DefaultDict class, used to create an object where new keys are automatically created with a default value.
  */
 export class DefaultDict {
-    constructor(init: any = {}, value: any) {
+    constructor(init = {}, value: unknown) {
         return new Proxy(init, {
             get: (target, name) => name in target ? target[name as keyof typeof target] : value
         })
@@ -20,7 +20,7 @@ export class DefaultDict {
  */
 export function toTitleCase(str: string) {
     return str.replace(/\w\S*/g, (txt) => {
-        return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
+        return txt.charAt(0).toUpperCase() + txt.slice(1).toLowerCase();
     });
 }
 
@@ -31,7 +31,7 @@ export function toTitleCase(str: string) {
  */
 export function toSentenceCase(str: string) {
     return str.toLowerCase().replace(/(^\w|\.\s*\w)/gi, (txt) => {
-        return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
+        return txt.charAt(0).toUpperCase() + txt.slice(1).toLowerCase();
     });
 }
 
@@ -41,7 +41,7 @@ export function toSentenceCase(str: string) {
  * @param a2 - Second array.
  * @returns True if the arrays are strictly equal, false otherwise.
  */
-export function array_cmp(a1: Array<any>, a2: Array<any>) {
+export function array_cmp<T>(a1: Array<T>, a2: Array<T>) {
     if (a1 === a2) return true;
     if (a1 == null || a2 == null) return false;
     let i = a1.length;
@@ -103,20 +103,21 @@ export function regexLastIndexOf(searchString: string, regex: RegExp, position?:
  *
  * @remarks Adapted from https://github.com/wankdanker/node-function-rate-limit/
  *
+ * @param context - The context to bind the function to
  * @param limitCount - The number of calls allowed in the queue
  * @param interval - The time in milliseconds between every function call
  * @param unique - Whether to enforce unique arguments for function call
- * @param defaultTimeout - How long after the last call the next function call should be executed (equals the duration of function call)
+ * @param default_timeout - How long after the last call the next function call should be executed (equals the duration of function call)
  * @param fn - The function to rate limit
  */
 
-export function rateLimit(limitCount: number, interval: number, unique: boolean, default_timeout: number, fn: (...args: any) => void) {
+export function rateLimit<T>(context: T, limitCount: number, interval: number, unique: boolean, default_timeout: number, fn: (...args: any[]) => void) {
     // Contains set of function calls that need to be executed, limited by limitCount and executed every interval
-    const fifo: any[] = [];
-    const currently_running: any[] = [];
+    const fifo: [T, any[], number?][] = [];
+    const currently_running: unknown[][] = [];
     let running = false;
 
-    function next_call(args: any[] = []) {
+    function next_call(args: [] | [T, any[], number?] = []) {
         // Set up the next call to be executed after given interval
         setTimeout(function () {
             if (fifo.length)
@@ -137,32 +138,30 @@ export function rateLimit(limitCount: number, interval: number, unique: boolean,
         }
 
         // Execute the function
-        fn.apply(args[0], args[1]);
+        fn.apply(args[0], args[1]!);
     }
 
-    return function rate_limited_function() {
-		// @ts-ignore (This is fine)
-        const ctx = this;
-        const args = Array.prototype.slice.call(arguments);
+    return function rate_limited_function(...args: any[]) {
+        const parameters = Array.prototype.slice.call(args);
 
         // If queue is full, ignore incoming function call
         // LimitCount of 0 means that only one function call can be executed at a time
         if (!limitCount || fifo.length < limitCount) {
             // When call has priority, bypass FIFO queue and execute immediately (also disregards uniqueness property)
-            if (args[2]) {
-                fn.apply(ctx, args);
+            if (parameters[2]) {
+                fn.apply(context, parameters);
             } else {
                 // If limiter is unique, only one function call with the same arguments can be executed at a time
-                if ((unique && !currently_running.find(x => array_cmp(x, args))) || !unique) {
+                if ((unique && !currently_running.find(x => array_cmp(x, parameters))) || !unique) {
                     if (unique)
-                        currently_running.push(args);
-                    fifo.push([ctx, args]);
+                        currently_running.push(parameters);
+					fifo.push([context, parameters]);
                 }
 
                 // Start up rate limiter when not active
                 if (!running && fifo.length) {
                     running = true;
-                    next_call(fifo.shift());
+					next_call(fifo.shift());
                 }
             }
         }
@@ -361,24 +360,29 @@ export function randn_bm(): number {
  * @param ignored_keys - An array of keys to ignore
  * @returns {Object} - The target object with the new key-values
  */
-export function nested_object_assign(source: any, target: any, ignored_keys: Set<string>) {
+export function nested_object_assign<T>(source: Partial<T>, target: T, ignored_keys: Set<string>) {
+	if (!(source instanceof Object)) return target;
+	if (!(target instanceof Object)) return source;
+
+	const source_dict = source as Record<string, unknown>;
+	const target_dict = target as Record<string, unknown>;
+
     Object.keys(source)
         .forEach(key => {
-            const s_val = source[key]
-            const t_val = target[key]
+            const s_val = source_dict[key]
+            const t_val = target_dict[key]
             // Check if the key is in the ignored keys
             if (t_val && ignored_keys.has(key) || !ignored_keys.has(key)) {
                 if (t_val) {
                     // If target and source both are objects, recursively check for keys in source to add to target
-                    if (!Array.isArray(t_val) && t_val instanceof Object && s_val instanceof Object) {
-                        nested_object_assign(s_val, t_val, ignored_keys);
-                    }
+                    if (!Array.isArray(t_val) && t_val instanceof Object && s_val instanceof Object)
+                        nested_object_assign(s_val as Record<string, unknown>, t_val as Record<string, unknown>, ignored_keys);
                 } else {
                     // Filter out ignored keys in s_val object
                     if (s_val instanceof Object && !(s_val instanceof Array))
-                        target[key] = Object.fromEntries(Object.entries(s_val).filter(([k, v]) => !ignored_keys.has(k)));
+						target_dict[key] = Object.fromEntries(Object.entries(s_val).filter(([k, v]) => !ignored_keys.has(k)));
                     else
-                        target[key] = s_val;
+						target_dict[key] = s_val;
                 }
             }
         })

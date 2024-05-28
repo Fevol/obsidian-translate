@@ -36,7 +36,7 @@ export class AzureTranslator extends DummyTranslate {
 			return {status_code: 400, valid: false, message: "API key was not specified"};
 
 		// TODO: Check if there is a better way to validate the API key
-		const headers: any = {
+		const headers: Record<string, string> = {
 			"Content-Type": "application/json",
 			"Ocp-Apim-Subscription-Key": this.#api_key,
 		}
@@ -67,9 +67,9 @@ export class AzureTranslator extends DummyTranslate {
 	}
 
 	async service_detect(text: string): Promise<DetectionResult> {
-		const headers: any = {
+		const headers: Record<string, string> = {
 			"Content-Type": "application/json",
-			"Ocp-Apim-Subscription-Key": this.#api_key,
+			"Ocp-Apim-Subscription-Key": this.#api_key ?? "",
 		}
 		if (this.#region)
 			headers["Ocp-Apim-Subscription-Region"] = this.#region;
@@ -92,7 +92,7 @@ export class AzureTranslator extends DummyTranslate {
 
 		let results = [{language: data[0].language, confidence: data[0].score}];
 		if (data[0].alternatives)
-			results = results.concat(data[0].alternatives.map((alternative: any) => ({
+			results = results.concat(data[0].alternatives.map((alternative: { language: string; score: number; }) => ({
 				language: alternative.language,
 				confidence: alternative.score
 			})));
@@ -104,14 +104,14 @@ export class AzureTranslator extends DummyTranslate {
 	}
 
 	async service_translate(text: string, from: string, to: string, options: ServiceOptions = {}): Promise<TranslationResult> {
-		const headers: any = {
+		const headers: Record<string, string> = {
 			"Content-Type": "application/json",
-			"Ocp-Apim-Subscription-Key": this.#api_key,
+			"Ocp-Apim-Subscription-Key": this.#api_key ?? "",
 		}
 		if (this.#region)
 			headers["Ocp-Apim-Subscription-Region"] = this.#region;
 
-		const params: any = {
+		const params: Record<string, string> = {
 			from: from === "auto" ? "" : from,
 			to: to,
 			textType: "plain",

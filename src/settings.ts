@@ -27,7 +27,7 @@ export class TranslatorSettingsTab extends PluginSettingTab {
 		});
 	}
 
-	hide(): any {
+	hide(): void {
 		super.hide();
 
 		this.plugin.settings_open = false;

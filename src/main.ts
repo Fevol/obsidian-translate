@@ -15,7 +15,7 @@ import {SwitchService, TranslateModal} from "./ui/modals";
 
 import {around} from 'monkey-around';
 
-import type { APIServiceProviders, CommandI, TranslatorPluginSettings } from "./types";
+import type {APIServiceProviders, CommandI, TranslatorPluginSettings, TranslatorServiceType} from "./types";
 
 import {ICONS, DEFAULT_SETTINGS, TRANSLATOR_VIEW_ID, SERVICES_INFO} from "./constants";
 import {DummyTranslate} from "./handlers";
@@ -40,7 +40,7 @@ export default class TranslatorPlugin extends Plugin {
 	 * This is a callback function that will be called on uninstallation of the plugin,
 	 * using monkey-around to execute additional code after the Obsidian uninstallation process has finished.
 	 */
-	uninstall: any;
+	uninstall: () => void = () => {};
 
 	/**
 	 * Plugin's default (global) translator, is used for all commands (translate file, ...)
@@ -73,7 +73,7 @@ export default class TranslatorPlugin extends Plugin {
 	 * @param defaultTimeout - The default time each message will be shown
 	 * @param fn - Message constructor: (text: string, timeout?: number, priority?: boolean) => { new Notice }, can be customized
 	 */
-	message_queue: ((...args: any[]) => void) = () => {};
+	message_queue: ((...args: unknown[]) => void) = () => {};
 
 	async onload() {
 		this.api = new TranslateAPI(this);
@@ -81,10 +81,9 @@ export default class TranslatorPlugin extends Plugin {
 		// Set up message queue for the plugin, this rate limits the number of messages the plugin can send at the same time,
 		// and allows for the messages to be ordered in a certain way
 		const default_timeout = 4000;
-		this.message_queue = rateLimit(5, 3000, true, default_timeout, (text: string, timeout: number = default_timeout, priority: boolean = false) => {
+		this.message_queue = rateLimit(this,5, 3000, true, default_timeout, (text: string, timeout: number = default_timeout, priority: boolean = false) => {
 			new Notice(text, timeout);
 		});
-
 
 		// TODO: Split up models into fasttext and bergamot data, will only be here for a few versions
 		const models_data = this.app.loadLocalStorage('models');
@@ -136,7 +135,7 @@ export default class TranslatorPlugin extends Plugin {
 		/** Adds newly introduced settings to the data.json if they're not already there, this ensures that older settings
 		 *  are forwards compatible with newer versions of the plugin
 		 */
-		loaded_settings = nested_object_assign(DEFAULT_SETTINGS, loaded_settings ? loaded_settings : {}, new Set(set_if_exists));
+		loaded_settings = nested_object_assign(DEFAULT_SETTINGS, loaded_settings ? loaded_settings : {}, new Set(set_if_exists)) as TranslatorPluginSettings;
 
 		// Update the version number in the data.json, only saved if the settings get changed
 		loaded_settings.version = DEFAULT_SETTINGS.version;
@@ -159,15 +158,15 @@ export default class TranslatorPlugin extends Plugin {
 		 *    the 'update languages' button in the settings (and thus fetch a more recent version than default);
 		 *    these settings may not be overwritten by the plugin
 		 */
-		for (const [key, value] of Object.entries(loaded_settings.service_settings as APIServiceProviders)) {
-			if (value.version < DEFAULT_SETTINGS.service_settings[key as keyof APIServiceProviders].version!) {
-				// @ts-ignore (because this should never crash, and can't get add keyof APIServiceProvider to LHS)
+		for (const [key, value] of Object.entries(loaded_settings.service_settings)) {
+			if (value.version && DEFAULT_SETTINGS.service_settings[key as keyof APIServiceProviders].version && value.version < DEFAULT_SETTINGS.service_settings[key as keyof APIServiceProviders].version!) {
+				// @ts-expect-error (type error that is too difficult, can't add keyof APIServiceProvider to LHS -- yet)
 				loaded_settings.service_settings[key].available_languages = DEFAULT_SETTINGS.service_settings[key].available_languages;
-				// @ts-ignore (idem)
+				// @ts-expect-error (idem)
 				loaded_settings.service_settings[key].downloadable_models = DEFAULT_SETTINGS.service_settings[key].downloadable_models;
-				// @ts-ignore (idem)
+				// @ts-expect-error (idem)
 				loaded_settings.service_settings[key].glossary_languages = DEFAULT_SETTINGS.service_settings[key].glossary_languages;
-				// @ts-ignore (idem)
+				// @ts-expect-error (idem)
 				loaded_settings.service_settings[key].version = DEFAULT_SETTINGS.service_settings[key].version;
 			}
 		}
@@ -205,7 +204,7 @@ export default class TranslatorPlugin extends Plugin {
 		this.uninstall = around(this.app.plugins, {
 			uninstallPlugin: (oldMethod) => {
 				return async (pluginId: string) => {
-					const result = oldMethod && oldMethod.apply(this.app.plugins, [pluginId]);
+					oldMethod && await oldMethod.apply(this.app.plugins, [pluginId]);
 					if (pluginId === 'translate') {
 						// Clean up local storage items on uninstallation
 						localStorage.removeItem(`${this.app.appId}-password`);
@@ -284,20 +283,21 @@ export default class TranslatorPlugin extends Plugin {
 				callback: async (editor: Editor, view: MarkdownView) => {
 					const loaded_settings = get(settings);
 
-					let language = this.current_language;
+					let language: string | undefined = this.current_language;
 					if (loaded_settings.target_language_preference === "last") {
-						language = loaded_settings.last_used_target_languages?.first()!;
-						if (!language) {
-							this.message_queue("No last language found, select language manually");
-							new TranslateModal(this.app, this, "selection").open()
-							return;
-						}
-					} else if (loaded_settings.target_language_preference === "specific")
+						language = loaded_settings.last_used_target_languages?.first();
+					} else if (loaded_settings.target_language_preference === "specific") {
 						language = loaded_settings.default_target_language;
+					}
 
-					await translate_selection(this, editor, language, {
-						apply_glossary: loaded_settings.apply_glossary,
-					}, loaded_settings.translation_command_action);
+					if (!language) {
+						this.message_queue("No last language found, select language manually");
+						new TranslateModal(this.app, this, "selection").open()
+					} else {
+						await translate_selection(this, editor, language, {
+							apply_glossary: loaded_settings.apply_glossary,
+						}, loaded_settings.translation_command_action);
+					}
 				}
 			},
 			{
@@ -319,7 +319,7 @@ export default class TranslatorPlugin extends Plugin {
 						this.activateTranslatorView();
 						return;
 					}
-					let most_recent_view = translator_views.reduce(
+					const most_recent_view = translator_views.reduce(
 						(prev, curr) => curr.activeTime! > prev.activeTime! ? curr : prev);
 					if (!most_recent_view) return;
 					if (<WorkspaceSplit>(most_recent_view.parent?.parent) === this.app.workspace.rightSplit)
@@ -334,13 +334,11 @@ export default class TranslatorPlugin extends Plugin {
 			}
 		]
 
-
-		for (let command of commands) {
+		for (const command of commands) {
 			if (Platform.isMobile || command.editor_context) {
 				command.editorCallback = command.callback;
 				delete command.callback;
 			}
-
 			this.addCommand(command);
 		}
 
@@ -408,7 +406,7 @@ export default class TranslatorPlugin extends Plugin {
 									await translation_callback(this.current_language);
 							};
 
-							let dropdown_menu_items = Array.from(languages)
+							const dropdown_menu_items = Array.from(languages)
 								.map((locale) => {
 									return [locale, languages_dict.get(locale)!];
 								})
@@ -427,7 +425,7 @@ export default class TranslatorPlugin extends Plugin {
 								subMenu.addSeparator();
 							}
 
-							for (let [locale, name] of dropdown_menu_items) {
+							for (const [locale, name] of dropdown_menu_items) {
 								subMenu.addItem((item) => {
 									item.setTitle(name!)
 										.onClick(async (e) => {
@@ -480,15 +478,13 @@ export default class TranslatorPlugin extends Plugin {
 			},
 		};
 
-		const empheral_state = {
-			receive_focus: true,
-		}
-
+		const empheral_state = { receive_focus: true };
 
 		let translation_leaf: WorkspaceLeaf;
-		// Adds translation view to main body of the app if it currently is receiving focus
-		if (!(this.app.workspace.activeLeaf == null) && this.app.workspace.activeLeaf.getRoot() == this.app.workspace.rootSplit) {
-			translation_leaf = this.app.workspace.getLeaf('split', 'vertical');
+		// Usage activeLeaf: Check if the user is currently focusing the rootSplit (if so, then split the editor);
+		// 		otherwise, create a new tab in the right sidebar
+		if (this.app.workspace.activeLeaf?.getRoot() === this.app.workspace.rootSplit) {
+			translation_leaf = this.app.workspace.getLeaf("split");
 		} else {
 			translation_leaf = this.app.workspace.getRightLeaf(false)!;
 			this.app.workspace.revealLeaf(translation_leaf);
@@ -499,12 +495,12 @@ export default class TranslatorPlugin extends Plugin {
 
 	}
 
-	async saveSettings(updatedSettings: any) {
+	async saveSettings(updatedSettings: TranslatorPluginSettings) {
 		await this.saveData(updatedSettings);
 	}
 
 
-	async setTranslationService(service: string) {
+	async setTranslationService(service: TranslatorServiceType) {
 		if (service in SERVICES_INFO) {
 			settings.update((x: TranslatorPluginSettings) => {
 				x.translation_service = service;

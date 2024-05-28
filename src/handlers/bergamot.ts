@@ -32,8 +32,8 @@ export class BergamotTranslate extends DummyTranslate {
 					this.translator.loadTranslationEngine();
 					this.available_languages = ["en"].concat(available_models.models!.map((x) => x.locale!));
 					this.valid = true;
-				} catch (e: any) {
-					const message = e instanceof Error ? e.message : e;
+				} catch (error: unknown) {
+					const message = error instanceof Error ? error.message : error as string;
 					this.plugin.message_queue(`Error while loading Bergamot: ${message}`);
 					this.translator = undefined;
 					this.valid = false;
@@ -71,10 +71,10 @@ export class BergamotTranslate extends DummyTranslate {
 	}
 
 	async service_translate(text: string, from: string, to: string, options: ServiceOptions = {}): Promise<TranslationResult> {
-		let detected_language = '';
+		let detected_language: string | undefined = '';
 		if (from === 'auto') {
 			if (this.has_autodetect_capability()) {
-				detected_language = (await this.detector!.detect(text)).detected_languages!.first()?.language!;
+				detected_language = (await this.detector!.detect(text)).detected_languages!.first()?.language;
 				if (detected_language && detected_language !== 'auto')
 					from = detected_language;
 				else
@@ -100,20 +100,21 @@ export class BergamotTranslate extends DummyTranslate {
 	}
 
 	async service_languages(): Promise<LanguagesFetchResult> {
+		// TODO: switch out model provider to GH Mozilla repo
 		const rootURL = "https://storage.googleapis.com/bergamot-models-sandbox";
 
 		let response = await requestUrl({url: `${rootURL}/latest.txt`});
-		let version = response.text.trim();
+		const version = response.text.trim();
 		response = await requestUrl({url: `${rootURL}/${version}/registry.json`});
-		let registry = response.json;
+		const registry = response.json;
 
 
-		let all_language_pairs = Object.keys(registry);
+		const all_language_pairs = Object.keys(registry);
 
 		// TODO: Check if Bergamot will add bidirectional translation for all languages
 		//  If not, support one-directional translation (will require additional checks)
 		// Only support languages that support translation in both directions
-		let available_languages = all_language_pairs
+		const available_languages = all_language_pairs
 			.filter(x => {
 				return x.startsWith("en")
 			})
@@ -123,8 +124,8 @@ export class BergamotTranslate extends DummyTranslate {
 			.filter(x => {
 				return all_language_pairs.includes(`${x}en`)
 			});
-		let mapped_languages: Array<LanguageModelData> = available_languages.map(x => {
-			let duplicates = Object.values(registry[`${x}en`]).map((x: any) => x.name)
+		const mapped_languages: Array<LanguageModelData> = available_languages.map(x => {
+			const duplicates = Object.values(registry[`${x}en`]).map((x: any) => x.name)
 				.concat(Object.values(registry[`en${x}`]).map((x: any) => x.name))
 				.filter((e: any, i: any, a: any) => a.indexOf(e) !== i);
 
@@ -137,7 +138,7 @@ export class BergamotTranslate extends DummyTranslate {
 					return {name: x.name, size: x.size as number, usage: duplicates.includes(x.name) ? "both" : "to"}
 				});
 
-			let files = models_from.concat(models_to);
+			const files = models_from.concat(models_to);
 
 			return {
 				size: files.reduce((acc, x) => acc + x.size, 0),

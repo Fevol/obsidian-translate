@@ -44,13 +44,13 @@ export class AmazonTranslate extends DummyTranslate {
 				'Action': 'TranslateText',
 				'Version': '2017-07-01',
 				'X-Amz-Algorithm': 'AWS4-HMAC-SHA256',
-				'X-Amz-Date': new Date().toISOString().replace(/[:\-]|\.\d{3}/g, ''),
+				'X-Amz-Date': new Date().toISOString().replace(/[:-]|\.\d{3}/g, ''),
 				'Content-Type': 'application/x-amz-json-1.1',
 				'X-Amz-Target': `AWSShineFrontendService_20170701.TranslateText`,
 			},
 		});
 
-		const data = await response.json();
+		// const data = await response.json();
 		return {
 			valid: response.ok,
 			status_code: response.status
@@ -59,7 +59,7 @@ export class AmazonTranslate extends DummyTranslate {
 
 
 	async service_detect(text: string): Promise<DetectionResult> {
-		let result = await this.service_translate(text, 'auto', 'en');
+		const result = await this.service_translate(text, 'auto', 'en');
 		return {detected_languages: [{language: result.detected_language}], status_code: result.status_code};
 	}
 
@@ -107,7 +107,7 @@ export class AmazonTranslate extends DummyTranslate {
 
 		return {
 			status_code: response.status,
-			languages: data.Languages.map((l: { LanguageCode: any; LanguageName: any; }) => l.LanguageCode)
+			languages: data.Languages.map((l: { LanguageCode: unknown; LanguageName: unknown; }) => l.LanguageCode)
 		};
 	}
 

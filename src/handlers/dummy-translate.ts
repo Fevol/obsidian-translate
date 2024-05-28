@@ -124,8 +124,8 @@ export class DummyTranslate {
 				output.message = `Validation failed:\n\t${output.message || output.status_code}`;
 
 			return output;
-		} catch (e) {
-			const message = e instanceof Error ? e.message : e;
+		} catch (error: unknown) {
+			const message = error instanceof Error ? error.message : error as string;
 			output = {status_code: 400, valid: false, message: `Validation failed:\n\t${message}`};
 			return output;
 		} finally {
@@ -171,8 +171,8 @@ export class DummyTranslate {
 
 			this.success();
 			return output;
-		} catch (e: any) {
-			const message: string = e instanceof Error ? e.message : e;
+		} catch (error: unknown) {
+			const message = error instanceof Error ? error.message : error as string;
 			return this.detected_error("Language detection failed", {message, status_code: 400});
 		}
 	}
@@ -298,8 +298,8 @@ export class DummyTranslate {
 			}
 			this.success();
 			return output;
-		} catch (e: any) {
-			const message: string = e instanceof Error ? e.message : e;
+		} catch (error: unknown) {
+			const message = error instanceof Error ? error.message : error as string;
 			return this.detected_error("Translation failed", {message, status_code: 400});
 		}
 	}
@@ -313,7 +313,7 @@ export class DummyTranslate {
 	 * @returns Object containing the translation and the detected language & confidence (if applicable), as well as the status code and message
 	 * @virtual
 	 */
-	async service_translate(text: string, from: string, to: string, options: ServiceOptions = {} = {}): Promise<TranslationResult> {
+	async service_translate(text: string, from: string, to: string, options: ServiceOptions = {}): Promise<TranslationResult> {
 		// Perfect translation
 		return {status_code: 400, translation: text, detected_language: undefined};
 	}
@@ -335,8 +335,8 @@ export class DummyTranslate {
 			if (this.id !== 'bergamot')
 				this.available_languages = <string[]>output.languages;
 			return output;
-		} catch (e: any) {
-			const message: string = e instanceof Error ? e.message : e;
+		} catch (error: unknown) {
+			const message = error instanceof Error ? error.message : error as string;
 			return this.detected_error("Languages fetching failed", {message, status_code: 400});
 		}
 	}
@@ -382,7 +382,7 @@ export class DummyTranslate {
 	 * @param previous_glossaries_ids - The glossary IDs of the previous glossaries, will be removed and replaced by the new glossaries
 	 * @returns Object containing the list of new glossary IDs, the status code and message
 	 */
-	async glossary_upload(glossary: any, glossary_languages: Record<string, string[]>, previous_glossaries_ids: Record<string, string>): Promise<GlossaryUploadResult> {
+	async glossary_upload(glossary: Record<string, [string, string]>, glossary_languages: Record<string, string[]>, previous_glossaries_ids: Record<string, string>): Promise<GlossaryUploadResult> {
 		if (!this.valid)
 			return {status_code: 400, message: "Translation service is not validated"};
 		const output = await this.service_glossary_upload(glossary, glossary_languages, previous_glossaries_ids);
@@ -405,7 +405,7 @@ export class DummyTranslate {
 	 * @returns Object containing the list of new glossary IDs, the status code and message
 	 * @virtual
 	 */
-	async service_glossary_upload(glossary: any, glossary_languages: Record<string, string[]>, previous_glossaries_ids: Record<string, string>): Promise<GlossaryUploadResult> {
+	async service_glossary_upload(glossary: Record<string, [string, string]>, glossary_languages: Record<string, string[]>, previous_glossaries_ids: Record<string, string>): Promise<GlossaryUploadResult> {
 		return {status_code: 400, message: 'This should not ever be called'};
 	}
 

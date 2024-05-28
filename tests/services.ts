@@ -1,7 +1,9 @@
 // Add node to the global scope so that we can use it in the tests
+import { existsSync, readFileSync } from 'fs';
 import { TextEncoder, TextDecoder } from 'util';
+
 global.TextEncoder = TextEncoder;
-// @ts-ignore (TextDecoder is not defined in the NodeJS global scope)
+// @ts-ignore (TextDecoder is not defined in the Node.js global scope)
 global.TextDecoder = TextDecoder;
 
 // Add mock for SubtleCrypto
@@ -11,31 +13,32 @@ Object.defineProperty(global.self, "crypto", {
 });
 
 require('jest-fetch-mock').enableMocks()
-// @ts-ignore
+// @ts-expect-error (fetchMock is not defined in the global scope)
 fetchMock.dontMock()
 
-const fs = require('fs');
-// Load correct-data.json (warning, this contains secret API keys)
+
+
 export const filled_settings: TranslatorPluginSettings =
-	fs.existsSync('tests/correct-data.json') ? JSON.parse(fs.readFileSync('tests/correct-data.json').toString())
-											: undefined;
+	existsSync('tests/correct-data.json') ? JSON.parse(readFileSync('tests/correct-data.json').toString()) : undefined;
 
 import {
 	AzureTranslator,
-	Deepl,
+	Deepl, DummyTranslate,
 	FanyiBaidu,
 	FanyiQq,
 	FanyiYoudao,
-	GoogleTranslate, LibreTranslate, LingvaTranslate, YandexTranslate
+	GoogleTranslate, LibreTranslate, LingvaTranslate, YandexTranslate, OpenaiTranslator
 } from "../src/handlers";
-import type {APIServiceSettings, translatorType} from "../src/types";
+import type {APIServiceSettings} from "../src/types";
 import type {TranslatorPluginSettings} from "../src/types";
-import {OpenaiTranslator} from "../src/handlers/openai-translator";
+
+
+type Constructor<T> = abstract new (...args: never[]) => T;
 
 /** @public Test config for a Translation Service */
 interface ServiceConfig {
 	/** @public Constructor for Translation Service object */
-	service: translatorType,
+	service: Constructor<DummyTranslate>,
 	/** @public Display name for test output */
 	name: string,
 	/** @public Required inputs for the translation service */

@@ -3,13 +3,14 @@ import type TranslatorPlugin from "main";
 import {SERVICES_INFO} from "../../constants";
 import {available_translator_services} from "../../stores";
 import {get} from "svelte/store";
+import type {TranslatorServiceType} from "../../types";
 
-export default class SwitchService extends FuzzySuggestModal<string>{
+export default class SwitchService extends FuzzySuggestModal<{ value: TranslatorServiceType, label: string }> {
 	plugin: TranslatorPlugin;
-	options: Record<string, string>[];
-	callback: (service: string) => void;
+	options: { value: TranslatorServiceType, label: string }[];
+	callback: (service: TranslatorServiceType) => void;
 
-	constructor(app: App, plugin: TranslatorPlugin, callback: (service: string) => void) {
+	constructor(app: App, plugin: TranslatorPlugin, callback: (service: TranslatorServiceType) => void) {
 		super(app);
 		this.plugin = plugin;
 
@@ -22,17 +23,16 @@ export default class SwitchService extends FuzzySuggestModal<string>{
 		this.callback = callback;
 	}
 
-	getItems(): any[] {
+	getItems(): { value: TranslatorServiceType, label: string }[] {
 		return this.options;
 	}
 
-	getItemText(item: any): string {
+	getItemText(item: { value: TranslatorServiceType, label: string }): string {
 		return item.label;
 	}
 
-	async onChooseItem(item: any): Promise<void> {
+	async onChooseItem(item: { value: TranslatorServiceType, label: string }): Promise<void> {
 		this.callback(item.value);
 		this.close();
 	}
-
 }

@@ -1,9 +1,29 @@
 import type {Modifier} from "obsidian";
 import type {ServiceOptions} from "./handlers/types";
-import {
-	AzureTranslator, GoogleTranslate, YandexTranslate, FanyiBaidu, FanyiQq, FanyiYoudao, Deepl,
-	DummyTranslate, LibreTranslate, LingvaTranslate, OpenaiTranslator
-} from "./handlers";
+
+export const ALL_TRANSLATOR_SERVICES = [
+	"google_translate",
+	"azure_translator",
+	"yandex_translate",
+	"deepl",
+	"libre_translate",
+	"bergamot",
+	"fanyi_qq",
+	"fanyi_youdao",
+	"fanyi_baidu",
+	"lingva_translate",
+	"openai_translator"
+] as const;
+
+
+export const ALL_DETECTOR_SERVICES = [
+	"fasttext",
+] as const;
+export const ALL_SERVICES = [...ALL_TRANSLATOR_SERVICES, ...ALL_DETECTOR_SERVICES] as const;
+
+export type TranslatorServiceType = typeof ALL_TRANSLATOR_SERVICES[number] | "dummy";
+export type DetectorServiceType = typeof ALL_DETECTOR_SERVICES[number];
+export type ServiceType = TranslatorServiceType | DetectorServiceType;
 
 /**
  * Object containing all plugin settings
@@ -81,7 +101,7 @@ export interface TranslatorPluginSettings {
 	/**
 	 * The translation service that is used for the global translator, must exist in the services list
 	 */
-	translation_service: string;
+	translation_service: TranslatorServiceType;
 
 	/**
 	 * Object containing all services settings (API keys, etc.)
@@ -167,21 +187,11 @@ export interface TranslatorPluginSettings {
 /**
  * Object containing the settings for all API services
  */
-export interface APIServiceProviders {
-	google_translate: APIServiceSettings;
-	azure_translator: APIServiceSettings;
-	yandex_translate: APIServiceSettings;
-	libre_translate: APIServiceSettings;
-	deepl: APIServiceSettings;
-	fanyi_qq: APIServiceSettings;
-	fanyi_youdao: APIServiceSettings;
-	fanyi_baidu: APIServiceSettings;
-	/*amazon_translate: APIServiceSettings;*/
-	lingva_translate: APIServiceSettings;
-	bergamot: APIServiceSettings;
-	openai_translator: APIServiceSettings;
+export type APIServiceProviders = {
+	[service in typeof ALL_TRANSLATOR_SERVICES[number]]: APIServiceSettings;
+} & {
 	fasttext: FastTextData;
-}
+};
 
 /**
  * Object containing the settings for a single API service
@@ -190,7 +200,7 @@ export interface APIServiceSettings extends ServiceOptions {
 	/**
 	 * List of user-selected languages (locales) that will be available with the 'manually_selected' <i>(2)</i> filter mode
 	 */
-	selected_languages: Array<any>;
+	selected_languages: Array<string>;
 
 	/**
 	 * List of languages (locales) that are supported by the service
@@ -263,6 +273,93 @@ export interface APIServiceSettings extends ServiceOptions {
 	 * Whether the translation service is validated (current authentication settings are valid)
 	 */
 	validated: boolean | null;
+}
+
+/**
+ * Describe how the service should display, behave, settings that are required, etc.
+ */
+export type ServiceInfo = BaseServiceInfo & Partial<OptionalServiceInfo>;
+
+interface BaseServiceInfo {
+	/**
+	 * Display name of the service
+	 */
+	display_name: string;
+	/**
+	 * Determines the type of the service
+	 */
+	type: "translation" | "detection";
+}
+
+interface OptionalServiceInfo {
+	/**
+	 * Whether API key is required for the service to function
+	 */
+	requires_api_key: boolean;
+	/**
+	 * Whether App ID is required for the service to function
+	 */
+	requires_app_id: boolean;
+	/**
+	 * Whether a host address is required for the service to function
+	 */
+	requires_host: boolean;
+
+	/**
+	 * Whether the service is only available on desktop
+	 */
+	desktop_only: boolean;
+	/**
+	 * Whether the service has an online glossary offering available
+	 */
+	online_glossary: boolean;
+
+	/**
+	 * URL where the user can request an API key for the service
+	 */
+	request_key: string;
+	/**
+	 * URL where user can view the service homepage
+	 */
+	url: string;
+	/**
+	 * URL where user can find information for setting up the service for local hosting
+	 */
+	local_host: string;
+	/**
+	 * Attribution logo for the service, if required according to licensing agreements
+	 */
+	attribution: string;
+
+	/**
+	 * Regional servers available for the service
+	 */
+	region_options: { value: string, text: string }[];
+	/**
+	 * Specific host options available for the service
+	 */
+	host_options: { value: string, text: string }[];
+	/**
+	 * Specific model options available for the service
+	 */
+	model_options: { value: string, text: string }[];
+
+	/**
+	 * List of languages that are supported by the service
+	 * @remark Should be phased out, only used because fanyi baidu has two tiers of languages
+	 */
+	standard_languages: string[];
+	/**
+	 * Default custom host address for the service
+	 */
+	default_custom_host: string;
+
+	/**
+	 * Additional service-specific options
+	 *
+	 * @todo Should be separately specified too
+	 */
+	options: Record<string, unknown>;
 }
 
 /**
@@ -349,8 +446,6 @@ export interface FastTextData {
 }
 
 
-
-
 /**
  * Hotkey data for a single hotkey
  */
@@ -400,12 +495,7 @@ export interface CommandI {
 	 * Callback function for the command
 	 * @param args - Set of arguments passed to the command
 	 */
-	callback?: (...args: any[]) => any;
+	callback?: (...args: any[]) => void | Promise<void>;
 
-	editorCallback?: (...args: any[]) => any;
+	editorCallback?: (...args: any[]) => void | Promise<void>;
 }
-
-export type translatorType = typeof GoogleTranslate | typeof AzureTranslator | typeof YandexTranslate |
-							 typeof FanyiBaidu | typeof FanyiQq | typeof FanyiYoudao | typeof Deepl |
-							 typeof DummyTranslate | typeof LibreTranslate | typeof LingvaTranslate |
-							 typeof OpenaiTranslator;

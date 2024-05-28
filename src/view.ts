@@ -16,13 +16,31 @@ import {get} from "svelte/store";
 import {TRANSLATOR_VIEW_ID, SERVICES_INFO} from "./constants";
 import {ViewAppearanceModal} from "./ui/modals";
 import ViewFunctionalityModal from "./ui/modals/view_functionality_modal";
+import type {TranslatorServiceType} from "./types";
 
+interface TranslatorViewState {
+	language_from: string;
+	language_to: string;
+	translation_service: TranslatorServiceType;
+	auto_translate: boolean;
+	apply_glossary: boolean;
+	view_mode: number;
+	filter_mode: number;
+	show_attribution: boolean;
+	top_buttons: string[];
+	left_buttons: string[];
+	right_buttons: string[];
+}
+
+interface TranslatorViewEphemeralState {
+	receive_focus: boolean;
+}
 
 export class TranslatorView extends ItemView {
 	view?: SvelteComponent;
 
 	// Translation service store is shared with the View component
-	translation_service: Writable<string> = writable("dummy");
+	translation_service: Writable<TranslatorServiceType> = writable("dummy");
 
 	// TODO: navigation causes notes to be replaced
 	// navigation = true;
@@ -59,8 +77,8 @@ export class TranslatorView extends ItemView {
 		this.contentEl.style.flexDirection = "column";
 	}
 
-	getState(): any {
-		let state = super.getState();
+	getState() {
+		const state = super.getState();
 		if (this.view) {
 			// Get data straight from Svelte component context
 			state.language_from = this.view.$$.ctx[<number>this.view.$$.props.language_from];
@@ -78,11 +96,11 @@ export class TranslatorView extends ItemView {
 		return state;
 	}
 
-	async updateState(props: any) {
+	async updateState(props: Partial<TranslatorViewState>) {
 		this.view?.$set(props);
 	}
 
-	async setState(state: any, result: ViewStateResult): Promise<void> {
+	async setState(state: Partial<TranslatorViewState>, result: ViewStateResult): Promise<void> {
 		const current_settings = get(settings);
 		if (!this.view) {
 			this.translation_service.subscribe((value) => {
@@ -139,7 +157,7 @@ export class TranslatorView extends ItemView {
 		await super.setState(state, result);
 	}
 
-	async setEphemeralState(state: any): Promise<void> {
+	async setEphemeralState(state: Partial<TranslatorViewEphemeralState>): Promise<void> {
 		if (state.receive_focus) {
 			(<HTMLTextAreaElement>this.containerEl.find(".translator-left-column").children[1].children[0]).focus();
 		}

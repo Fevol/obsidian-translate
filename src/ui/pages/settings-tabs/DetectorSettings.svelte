@@ -44,11 +44,11 @@
 			on:click={async () => {
 				let model_path = `${plugin.app.vault.configDir}/plugins/translate/models/fasttext/lid.176.ftz`
 				let model_result = await requestUrl({url: "https://dl.fbaipublicfiles.com/fasttext/supervised-models/lid.176.ftz"});
-				await writeRecursive(model_path, model_result.arrayBuffer);
+				await writeRecursive(plugin.app, model_path, model_result.arrayBuffer);
 
 				let binary_path = `${plugin.app.vault.configDir}/plugins/translate/models/fasttext/fasttext_wasm.wasm`
 				let binary_result = await requestUrl({url: "https://github.com/Fevol/obsidian-translate/blob/master/models/fasttext_wasm.wasm?raw=true"});
-				await writeRecursive(binary_path, binary_result.arrayBuffer);
+				await writeRecursive(plugin.app, binary_path, binary_result.arrayBuffer);
 
 				plugin.message_queue("Successfully installed FastText data");
 

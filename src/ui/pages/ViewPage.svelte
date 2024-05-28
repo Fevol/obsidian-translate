@@ -114,7 +114,7 @@
 		},
 		'open-settings': () => {
 			$settings_tab = $translation_service;
-			openSettingTab();
+			openSettingTab(plugin.app);
 		},
 		'clear-fields': clearFields,
 	}
@@ -235,7 +235,7 @@
 		language_to;
 		if (auto_translate)
 			autoTranslate();
-	};
+	}
 
 	function autoTranslate() {
 		// This function exists for two reasons:
@@ -327,8 +327,6 @@
 		if (view_mode) {
 			current_layout = VIEW_MODES[view_mode].id;
 		} else {
-			let element = document.getElementById(id);
-
 			// On mount the width and height of element is not known, so do not attempt to guess configuration at this point
 			if (!width || !height)
 				return;
@@ -470,7 +468,7 @@
 										glossary.target_language = language_to;
 										glossary.text = [selection, ""];
 
-										openSettingTab();
+										openSettingTab(plugin.app);
 									})
 							});
 						}
@@ -571,7 +569,7 @@
 										}
 										glossary.target_language = language_to;
 										glossary.text = ["", selection];
-										openSettingTab();
+										openSettingTab(plugin.app);
 									})
 							});
 						}

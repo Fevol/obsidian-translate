@@ -23,10 +23,10 @@ export async function translate_file(plugin: TranslatorPlugin, file: TFile | nul
 	if (!plugin.translator)
 		return {status_code: 400, message: "No translation service available"};
 
-	let paragraphs = file_content.split("\n\n");
+	const paragraphs = file_content.split("\n\n");
 
-	let translated_text = [];
-	for (let paragraph of paragraphs) {
+	const translated_text = [];
+	for (const paragraph of paragraphs) {
 		// Paragraph only contains formatting
 		if (paragraph.trim().length === 0) {
 			translated_text.push(paragraph);
@@ -45,7 +45,7 @@ export async function translate_file(plugin: TranslatorPlugin, file: TFile | nul
 		await plugin.app.vault.modify(file, translated_text.join("\n\n"));
 	} else {
 		// Translate the filename as well, if possible
-		let filename = file?.name.replace(/\.[^/.]+$/, "");
+		const filename = file?.name.replace(/\.[^/.]+$/, "");
 
 		const filename_translation = (await plugin.translator.translate(filename, "auto", language_to, options)).translation;
 
@@ -86,14 +86,13 @@ export async function translate_file(plugin: TranslatorPlugin, file: TFile | nul
 export async function translate_selection(plugin: TranslatorPlugin, editor: Editor, language_to: string, options: ServiceOptions, handle_text = "replace"): Promise<TranslationResult> {
 	if (editor.getSelection().length === 0) {
 		plugin.message_queue("Selection is empty");
-		return { status_code: 400, message: "Selection is empty" };
+		return {status_code: 400, message: "Selection is empty"};
 	}
 	if (!plugin.translator)
-		return { status_code: 400, message: "No translation service available" };
+		return {status_code: 400, message: "No translation service available"};
 
-	let text = editor.getSelection();
-
-	let result = await plugin.translator.translate(text, "auto", language_to, options);
+	const text = editor.getSelection();
+	const result = await plugin.translator.translate(text, "auto", language_to, options);
 	if (result.translation) {
 		if (handle_text === "replace")
 			editor.replaceSelection(result.translation);
@@ -115,7 +114,7 @@ export async function translate_selection(plugin: TranslatorPlugin, editor: Edit
  * @param editor - Note editor instance
  */
 export async function detect_selection(plugin: TranslatorPlugin, editor: Editor): Promise<void> {
-	let selection = editor.getSelection();
+	const selection = editor.getSelection();
 	if (editor.getSelection().length === 0) {
 		plugin.message_queue("Selection is empty");
 		return;

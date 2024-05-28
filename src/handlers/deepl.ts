@@ -19,14 +19,17 @@ interface DeepLTranslationResult extends DeeplBaseResult {
 	translations: Array<{text: string, detected_source_language?: string}>
 }
 
-interface DeepLUsageResult extends DeeplBaseResult {
-	character_count: number
-	character_limit: number
-	document_count?: number
-	document_limit?: number
-	team_document_count?: number
-	team_document_limit?: number
-}
+/**
+ * @todo Add support for usage tracking
+ */
+// interface DeepLUsageResult extends DeeplBaseResult {
+// 	character_count: number
+// 	character_limit: number
+// 	document_count?: number
+// 	document_limit?: number
+// 	team_document_count?: number
+// 	team_document_limit?: number
+// }
 
 // supports_formality only present for premium users
 type DeepLLanguageResult = Array<{language: string, name: string, supports_formality?: boolean}> & DeeplBaseResult;
@@ -75,7 +78,7 @@ export class Deepl extends DummyTranslate {
 		if (response.status !== 200)
 			return {status_code: response.status, valid: false, message: "Invalid API key"};
 
-		const data: DeepLUsageResult = response.json;
+		// const data: DeepLUsageResult = response.json;
 		return {
 			status_code: response.status,
 			valid: response.status === 200,
@@ -121,7 +124,7 @@ export class Deepl extends DummyTranslate {
 		else if (options.split_sentences === "newline" || options.split_sentences === "both")
 			split_sentences = "0";
 
-		let preserve_formatting = options.preserve_formatting ? "1" : "0";
+		const preserve_formatting = options.preserve_formatting ? "1" : "0";
 
 		let formality = "default";
 		if (options.formality === "formal")
@@ -180,7 +183,7 @@ export class Deepl extends DummyTranslate {
 
 		return {
 			status_code: response.status,
-			languages: data.map((o: any) => o.language.toLowerCase())
+			languages: data.map((o) => o.language.toLowerCase())
 		};
 	}
 
@@ -216,10 +219,10 @@ export class Deepl extends DummyTranslate {
 	}
 
 
-	async service_glossary_upload(glossary: any, glossary_languages: Record<string, string[]>, previous_glossaries_ids: Record<string, string>): Promise<GlossaryUploadResult> {
+	async service_glossary_upload(glossary: Record<string, [string, string]>, glossary_languages: Record<string, string[]>, previous_glossaries_ids: Record<string, string>): Promise<GlossaryUploadResult> {
 		// TODO: Don't forget to rate limit this for the people who have like 8+ glossaries
 
-		for (const [language_pair, id] of Object.entries(previous_glossaries_ids)) {
+		for (const id of Object.values(previous_glossaries_ids)) {
 			const response = await requestUrl({
 				throw: false,
 				url: `${this.#host}/glossaries/${id}`,
@@ -244,7 +247,7 @@ export class Deepl extends DummyTranslate {
 							name: source_lang + '' + target_lang,
 							source_lang: source_lang,
 							target_lang: target_lang,
-							entries: glossary[source_lang + "_" + target_lang].map((entry: any) => entry[0] + '\t' + entry[1]).join('\n'),
+							entries: glossary[source_lang + "_" + target_lang].map((entry) => entry[0] + '\t' + entry[1]).join('\n'),
 							entries_format: "tsv"
 						}),
 						method: "POST",

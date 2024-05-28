@@ -6,7 +6,7 @@ import {settings, available_languages, all_languages} from "../../stores";
 import type {TranslatorPluginSettings} from "../../types";
 import type {TranslationResult} from "../../handlers/types";
 
-export default class TranslateModal extends FuzzySuggestModal<string>{
+export default class TranslateModal extends FuzzySuggestModal<{ label: string | undefined; value: string }>{
 	plugin: TranslatorPlugin;
 	options: { label: string | undefined; value: string }[];
 	translation_type: string;
@@ -22,8 +22,6 @@ export default class TranslateModal extends FuzzySuggestModal<string>{
 		const loaded_available_languages = get(available_languages);
 		const loaded_all_languages = get(all_languages);
 		this.settings = get(settings);
-
-
 
 		this.options = Array.from(loaded_available_languages).map(locale => {
 			return {
@@ -43,7 +41,7 @@ export default class TranslateModal extends FuzzySuggestModal<string>{
 			pinned_languages = [this.plugin.current_language];
 		}
 		pinned_languages = pinned_languages.filter(x => loaded_available_languages.contains(x));
-		let top_languages = pinned_languages.map(x => {
+		const top_languages = pinned_languages.map(x => {
 			return {
 				value: x,
 				label: loaded_all_languages.get(x),
@@ -54,15 +52,15 @@ export default class TranslateModal extends FuzzySuggestModal<string>{
 		this.setPlaceholder("Translate to...");
 	}
 
-	getItems(): any[] {
+	getItems(): { label: string | undefined; value: string }[] {
 		return this.options;
 	}
 
-	getItemText(item: any): string {
-		return item.label;
+	getItemText(item: { label: string | undefined; value: string }): string {
+		return item.label ?? "";
 	}
 
-	async onChooseItem(item: any): Promise<void> {
+	async onChooseItem(item: { label: string | undefined; value: string }): Promise<void> {
 		let output: TranslationResult;
 		if (this.translation_type.contains("file")) {
 			output = await translate_file(this.plugin, this.file || this.app.workspace.getActiveFile(), item.value,
@@ -72,7 +70,7 @@ export default class TranslateModal extends FuzzySuggestModal<string>{
 		} else if (this.translation_type === "selection") {
 			const loaded_settings = get(settings);
 
-			let editor: Editor = this.app.workspace.getActiveViewOfType(MarkdownView)!.editor;
+			const editor: Editor = this.app.workspace.getActiveViewOfType(MarkdownView)!.editor;
 			output = await translate_selection(this.plugin, editor, item.value, {
 				apply_glossary: this.settings.apply_glossary
 			}, loaded_settings.translation_command_action);

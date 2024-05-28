@@ -14,7 +14,7 @@ export class FastTextDetector extends DummyTranslate {
 	version: number = 0;
 
 	status: string = '';
-	data: any = null;
+	// data: any = null;
 
 	default: boolean = false;
 
@@ -60,8 +60,12 @@ export class FastTextDetector extends DummyTranslate {
 	}
 
 	async service_detect(text: string): Promise<DetectionResult> {
-		let predictions: any = this.detector!.predict(text, 5, 0.0);
-		let results = [];
+		// Converting WASM std::Pair<std::string, float> to TS typings
+		const predictions = (this.detector!.predict(text, 5, 0.0) as unknown as {
+			get: (i: number) => [number, string];
+			size: () => number;
+		});
+		const results = [];
 
 		for (let i = 0; i < predictions.size(); i++)
 			results.push({language: predictions.get(i)[1].replace("__label__", ""), confidence: predictions.get(i)[0]});

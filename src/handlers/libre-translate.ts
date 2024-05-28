@@ -116,7 +116,7 @@ export class LibreTranslate extends DummyTranslate {
 
 		return {
 			status_code: response.status,
-			languages: response.status === 200 ? Array.from(data).map((x: any) => x.code) : undefined
+			languages: response.status === 200 ? Array.from(data).map((x) => x.code) : undefined
 		};
 	}
 

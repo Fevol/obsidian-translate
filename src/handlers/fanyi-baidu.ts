@@ -72,7 +72,7 @@ export class FanyiBaidu extends DummyTranslate {
 	}
 
 
-	async sign_message(text: any) {
+	async sign_message(text: string) {
 		const salt = Date.now().toString();
 		const signature_text = `${this.#app_id}${text}${salt}${this.#api_key}`;
 		const signature = MD5(signature_text);
@@ -179,7 +179,7 @@ export class FanyiBaidu extends DummyTranslate {
 		});
 
 		// Data = {"from":"en", "to":"zh", "trans_result":[{"src": "Hello", "dst": "你好"}] }
-		let data: FanyiBaiduTranslationResult = response.json;
+		const data: FanyiBaiduTranslationResult = response.json;
 
 		if (data.error_code) {
 			const output = this.status_code_lookup[parseInt(data.error_code)];

@@ -65,7 +65,7 @@
 		          So to be safe, we will always download the latest version of Bergamot when an update is available. */
 		let binary_path = `${plugin.app.vault.configDir}/plugins/translate/models/bergamot/bergamot-translator-worker.wasm`
 		let binary_result = await requestUrl({url: "https://github.com/mozilla/firefox-translations/blob/main/extension/model/static/translation/bergamot-translator-worker.wasm?raw=true"});
-		await writeRecursive(binary_path, binary_result.arrayBuffer);
+		await writeRecursive(plugin.app, binary_path, binary_result.arrayBuffer);
 
 
 
@@ -168,7 +168,7 @@
 		<div>
 			<b>WARNING:</b> {info.display_name} has not been tested, so it is very likely that it does not work properly.<br><br>
 			If you encounter any issue, please open an issue over on
-				<a href="blank" on:click={() => {openGithubIssueLink(info.display_name, {})}}>GitHub</a>,
+				<a href="blank" on:click={() => {openGithubIssueLink(plugin.app, info.display_name, {})}}>GitHub</a>,
 			I will try to fix it as soon as possible.<br>
 			Likewise, if the service works properly, let me know!
 		</div>
@@ -205,7 +205,7 @@
 					} else {
 						let binary_path = `${plugin.app.vault.configDir}/plugins/translate/models/bergamot/bergamot-translator-worker.wasm`
 						let binary_result = await requestUrl({url: "https://github.com/mozilla/firefox-translations/blob/main/extension/model/static/translation/bergamot-translator-worker.wasm?raw=true"});
-						await writeRecursive(binary_path, binary_result.arrayBuffer);
+						await writeRecursive(plugin.app, binary_path, binary_result.arrayBuffer);
 
 						if (!$bergamot_data.models)
 							$bergamot_data = {binary: {}, models: [], version: $settings.service_settings.bergamot.version};
@@ -323,7 +323,7 @@
 										plugin.message_queue(`Failed to download ${t(model.locale)} language model`);
 										return;
 									}
-									await writeRecursive(path, file.arrayBuffer);
+									await writeRecursive(plugin.app, path, file.arrayBuffer);
 
 									if (progress_bar.noticeEl.isConnected) {
 										const progress = Math.round((index / model.files.length) * progress_bar_length);

@@ -166,7 +166,7 @@ export class GoogleTranslate extends DummyTranslate {
 
 		return {
 			status_code: response.status,
-			languages: data.data.languages.map((l: { language: any; name: any; }) => l.language)
+			languages: data.data.languages.map((l) => l.language)
 		};
 	}
 
