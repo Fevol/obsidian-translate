@@ -84,16 +84,14 @@ export class TranslatorView extends ItemView {
 
 	async setState(state: any, result: ViewStateResult): Promise<void> {
 		const current_settings = get(settings);
-
 		if (!this.view) {
 			this.translation_service.subscribe((value) => {
 				// Update the tab data whenever the translation service changes
-
 				setIcon(this.leaf.tabHeaderInnerIconEl, value);
 				const title = SERVICES_INFO[value].display_name;
 				this.leaf.tabHeaderEl.ariaLabel = title;
 				this.leaf.tabHeaderInnerTitleEl.innerText = title;
-				this.leaf.view.titleEl.innerText = title;
+				this.titleEl.innerText = title;
 			});
 
 			// If no translation service is set, use the global translation service

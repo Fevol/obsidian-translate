@@ -21,7 +21,8 @@
 		"types": [
 			"jest",
 			"svelte",
-			"node"
+			"node",
+			"obsidian-typings"
 		]
 	},
 	"include": [

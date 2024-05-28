@@ -490,7 +490,7 @@ export default class TranslatorPlugin extends Plugin {
 		if (!(this.app.workspace.activeLeaf == null) && this.app.workspace.activeLeaf.getRoot() == this.app.workspace.rootSplit) {
 			translation_leaf = this.app.workspace.getLeaf('split', 'vertical');
 		} else {
-			translation_leaf = this.app.workspace.getRightLeaf(false);
+			translation_leaf = this.app.workspace.getRightLeaf(false)!;
 			this.app.workspace.revealLeaf(translation_leaf);
 		}
 
