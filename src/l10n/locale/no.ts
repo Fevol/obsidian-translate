@@ -616,5 +616,5 @@ export default {
 	"zu": "zulu",
 	"zun": "zuni",
 	"zxx": "uten språklig innhold",
-	"zza": "zazaisk"
+	"zza": "zazaisk",
 };

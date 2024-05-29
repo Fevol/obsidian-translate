@@ -1,5 +1,5 @@
 import { Modal } from "obsidian";
-import type {SvelteComponent} from "svelte"
+import type { SvelteComponent } from "svelte";
 import TextModalView from "./TextModalView.svelte";
 
 import type TranslatorPlugin from "../../main";
@@ -19,7 +19,7 @@ export default class TextModal extends Modal {
 			props: {
 				title: this.title,
 				description: this.description,
-			}
+			},
 		});
 	}
 

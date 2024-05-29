@@ -1,4 +1,5 @@
 # Tutorial
+
 <div align="center">
 	<img src="images/translate.gif">
 </div>
@@ -28,8 +29,7 @@ To start using the plugin:
 	<img src="images/auto-translate.gif" width="800">
 </div>
 
-1. Open the Translation View by pressing the `Translate` button in the left ribbon or by executing the `Open
-   Translation View` command
+1. Open the Translation View by pressing the `Translate` button in the left ribbon or by executing the `Open Translation View` command
 2. Select the language you want to translate from and to
 3. Type/paste the text you want to translate
 
@@ -59,12 +59,10 @@ will also be translated, whenever possible
 	<img src="images/context-menus.gif" width="800">
 </div>
 
-
 The `Translate Selection` command will translate the selected text in the current file.
 You can also **right-click the selection**. On hovering the `Translate` button in the context menu, you can see a list
 of languages you can translate to. On clicking one of them, the selected text will be translated to that language.
 You can also translate immediately to your `default target language` by just clicking the `Translate` button.
-
 
 ## User Interface (Translation View)
 
@@ -78,16 +76,19 @@ of the translation view (! `Show tab title bar` must be activated first in `Sett
 All settings have a default value, but this too can be changed: to change them, open the `Appearance` tab in the plugin's settings.
 
 ### Layout
+
 There are four modes different layout modes available:
+
 - **Automatic:** Layout is automatically determined based on the container size
 - **Vertical:** Text areas and buttons are vertically aligned
 - **Mixed**: Text areas and buttons are vertically aligned, but the text area is split into two columns
 - **Horizontal:** Text areas and buttons are horizontally aligned
 
-
 ### Quick settings
+
 You can change the functionality of the translation view by using the quick settings on the top of the view.
 There are six different quick settings available:
+
 - **Change Translation Service:** Change the translation service of the currently selected view, the global translation service
   (used for translating via context menu's, etc.) can only be changed in the plugin settings or via the `Change Translation Service` command
 - **Auto Translate:** Enable/Disable automatic translation of text, needs to be enabled first in the service's settings
@@ -97,21 +98,26 @@ There are six different quick settings available:
 - **Apply Glossary:** Apply the glossary to the text, global glossary settings must be enabled first in the `Functionality` settings
 
 ### Quick actions
+
 In each of the text areas, there are quick access commands available. These apply only to the currently selected/hovered text area.
 Currently, there are three different quick access commands available:
+
 - **Copy:** Copy the text in the text area to the clipboard
 - **Clear:** Clear the text in the text area
 - **Paste:** Paste the text from the clipboard to the text area
 
 ### Hide/Show attribution
+
 If you wish to hide the attribution of the translation service, you can do so by clicking the `Hide attribution` button in the
 `Appearance Settings` modal.
 
-
 ## Translation Services
+
 ### Bergamot
+
 #### Description
-[Bergamot](https://browser.mt) is an open-source translation engine developed by the Bergamot Project Consortium, 
+
+[Bergamot](https://browser.mt) is an open-source translation engine developed by the Bergamot Project Consortium,
 consisting of Mozilla (Firefox), and the universities of Edinburgh, Sheffield, Tartu and Charles University in Prague; with funding by the EU.
 
 The translation happens completely locally using machine learning models, which also enables you to use the service when
@@ -137,13 +143,16 @@ as Bergamot does not include language detection functionality.
 </div>
 
 ### FastText
+
 #### Description
-[FastText](https://fasttext.cc/) is an open-source library for text classification (language detection) developed by 
+
+[FastText](https://fasttext.cc/) is an open-source library for text classification (language detection) developed by
 Facebook (now Meta). Due to the models used being very compressed, the size of the entire package is very small -- its full size is only 1.72MB.
 
-
 ## Translating
+
 ### Glossary
+
 <div align="center">
 	<img src="images/glossary.gif" width="800">
 </div>
@@ -160,13 +169,14 @@ Now that the glossary is fully enabled, you can start adding entries to it. Open
 and add your entry in the bottom-most row, press `Enter` or the `Add` button to finally append the entry to the glossary.
 
 Some important things to note:
+
 - You can enable case-insensitive matching by enabling the `Case insensitive glossary` option in the `Functionality` settings
 - The glossary table can be sorted by clicking on the column headers, and filtered with the `Filter` input field
 - The `Add & Update terms in both directions` option will add a glossary entry for both language pairs (e.g. `en -> nl` and `nl -> en`)
 - Glossaries are stored within the `glossary.json` file, and can be edited manually if you wish to do so
 
-
 #### Glossary Syncing
+
 It is possible to sync your glossary with your translation services, which can offer improved translation quality for your terminology.
 However, it is currently only available for `DeepL`.
 

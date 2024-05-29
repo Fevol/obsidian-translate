@@ -1,5 +1,5 @@
-import type {Modifier} from "obsidian";
-import type {ServiceOptions} from "./handlers/types";
+import type { Modifier } from "obsidian";
+import type { ServiceOptions } from "./handlers/types";
 
 export const ALL_TRANSLATOR_SERVICES = [
 	"google_translate",
@@ -12,9 +12,8 @@ export const ALL_TRANSLATOR_SERVICES = [
 	"fanyi_youdao",
 	"fanyi_baidu",
 	"lingva_translate",
-	"openai_translator"
+	"openai_translator",
 ] as const;
-
 
 export const ALL_DETECTOR_SERVICES = [
 	"fasttext",
@@ -72,7 +71,6 @@ export interface TranslatorPluginSettings {
 	 * - "below" - Insert the translated text below the input text
 	 */
 	translation_command_action: "replace" | "below" | "clipboard";
-
 
 	/**
 	 * If true, glossary operation is enabled
@@ -133,7 +131,6 @@ export interface TranslatorPluginSettings {
 	 */
 	last_used_target_languages: string[];
 
-
 	/**
 	 * Default target language that will be opened in the translation view and shown first for translation operations
 	 */
@@ -187,11 +184,13 @@ export interface TranslatorPluginSettings {
 /**
  * Object containing the settings for all API services
  */
-export type APIServiceProviders = {
-	[service in typeof ALL_TRANSLATOR_SERVICES[number]]: APIServiceSettings;
-} & {
-	fasttext: FastTextData;
-};
+export type APIServiceProviders =
+	& {
+		[service in typeof ALL_TRANSLATOR_SERVICES[number]]: APIServiceSettings;
+	}
+	& {
+		fasttext: FastTextData;
+	};
 
 /**
  * Object containing the settings for a single API service
@@ -211,13 +210,13 @@ export interface APIServiceSettings extends ServiceOptions {
 	/**
 	 * List of glossary pairs that are available for the service
 	 * @example
-	 * {"en": ["fr", "de", ...]}*/
+	 * {"en": ["fr", "de", ...]} */
 	glossary_languages?: Record<string, string[]>;
 
 	/**
 	 * Mapping of language locale to uploaded glossary ID, will be removed on upload of new set of glossaries
 	 * @example
-	 * {"en": "glossary_1", "fr": "glossary_2", ...}*/
+	 * {"en": "glossary_1", "fr": "glossary_2", ...} */
 	uploaded_glossaries?: Record<string, string>;
 
 	/**
@@ -334,15 +333,15 @@ interface OptionalServiceInfo {
 	/**
 	 * Regional servers available for the service
 	 */
-	region_options: { value: string, text: string }[];
+	region_options: { value: string; text: string }[];
 	/**
 	 * Specific host options available for the service
 	 */
-	host_options: { value: string, text: string }[];
+	host_options: { value: string; text: string }[];
 	/**
 	 * Specific model options available for the service
 	 */
-	model_options: { value: string, text: string }[];
+	model_options: { value: string; text: string }[];
 
 	/**
 	 * List of languages that are supported by the service
@@ -453,7 +452,6 @@ export interface FastTextData {
 	version: string;
 }
 
-
 /**
  * Hotkey data for a single hotkey
  */
@@ -474,7 +472,6 @@ export interface TranslatorHotKey {
 	key: string;
 }
 
-
 /**
  * Generic template for an Obsidian command
  */
@@ -482,22 +479,22 @@ export interface CommandI {
 	/**
 	 * Unique ID of the command
 	 */
-	id: string,
+	id: string;
 
 	/**
 	 * Display name of the command
 	 */
-	name: string,
+	name: string;
 
 	/**
 	 * Icon to be displayed next to the command (only used for mobile toolbar)
 	 */
-	icon: string,
+	icon: string;
 
 	/**
 	 * Whether the command requires editor context (active note)
 	 */
-	editor_context?: boolean
+	editor_context?: boolean;
 
 	/**
 	 * Callback function for the command
@@ -511,22 +508,22 @@ export interface CommandI {
 /**
  * Possible file types in Bergamot registry
  */
-type BergamotFileEntry = "model" | "lex" | "vocab"
+type BergamotFileEntry = "model" | "lex" | "vocab";
 /**
  * Determines string of fixed length
  */
-type FixedString<N extends number> = { 0: string, length: N } & string;
+type FixedString<N extends number> = { 0: string; length: N } & string;
 /**
  * Registry structure of all Bergamot models
  */
 export interface BergamotRegistry {
 	[x: FixedString<4>]: {
 		[file in BergamotFileEntry]: {
-			name: string,
-			size: number,
-			estimatedCompressedSize: number,
-			expectedSha256Hash: string,
-			modelType: string
-		}
-	}
+			name: string;
+			size: number;
+			estimatedCompressedSize: number;
+			expectedSha256Hash: string;
+			modelType: string;
+		};
+	};
 }

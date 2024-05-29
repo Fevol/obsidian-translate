@@ -1,8 +1,7 @@
-
 .translator-confirm-glossary {
   display: flex;
   justify-content: space-evenly;
-  font-size: var(--h5-size)
+  font-size: var(--h5-size);
 }
 
 .translator-confirm-glossary-change {
@@ -38,8 +37,9 @@ table.translator-table {
 
 .translator-table td {
   outline: 0 solid hsla(var(--interactive-accent-hsl), 0.55);
-  transition: outline-width 0.12s cubic-bezier(0.42, 0.11, 0.76, 0.79),
-  border-radius 0.15s ease-in-out;
+  transition:
+    outline-width 0.12s cubic-bezier(0.42, 0.11, 0.76, 0.79),
+    border-radius 0.15s ease-in-out;
 }
 
 .translator-table-wide-col {
@@ -88,7 +88,7 @@ table.translator-table.translator-table thead > tr > th {
 
 .translator-table th:first-of-type {
   border-top-left-radius: 6px;
-  border-left: unset
+  border-left: unset;
 }
 
 .translator-table td:first-of-type {
@@ -98,7 +98,6 @@ table.translator-table.translator-table thead > tr > th {
 table.translator-table th:last-of-type {
   border-right: unset;
 }
-
 
 table.translator-table tr:last-of-type td {
   border-bottom: unset;
@@ -128,7 +127,8 @@ table.translator-table-cell-temporary {
   font-style: italic;
 }
 
-table.translator-table-cell-temporary td:first-of-type:empty:not(:focus):before {
+table.translator-table-cell-temporary
+  td:first-of-type:empty:not(:focus):before {
   content: "Type here...";
 }
 
@@ -149,7 +149,6 @@ table.translator-table-cell-temporary td:first-of-type:empty:not(:focus):before 
   display: flex;
   justify-content: space-between;
 }
-
 
 .translator-filter-input-icon {
   display: flex;

@@ -1,18 +1,17 @@
-import SwitchService from "./switch-service";
-import TranslateModal from "./translate";
+import ConfirmationModal from "./confirmation_modal";
 import PasswordModal from "./password_modal";
 import PasswordRequestModal from "./password_request_modal";
-import ConfirmationModal from "./confirmation_modal";
-import ViewAppearanceModal from "./view_appearance_modal";
+import SwitchService from "./switch-service";
 import TextModal from "./text_modal";
-
+import TranslateModal from "./translate";
+import ViewAppearanceModal from "./view_appearance_modal";
 
 export {
-	SwitchService,
-	TranslateModal,
+	ConfirmationModal,
 	PasswordModal,
 	PasswordRequestModal,
-	ConfirmationModal,
-	ViewAppearanceModal,
+	SwitchService,
 	TextModal,
-}
+	TranslateModal,
+	ViewAppearanceModal,
+};

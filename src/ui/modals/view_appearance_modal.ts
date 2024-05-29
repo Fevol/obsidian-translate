@@ -1,9 +1,9 @@
-import { Modal, App } from "obsidian";
-import type {SvelteComponent} from "svelte"
+import { App, Modal } from "obsidian";
+import type { SvelteComponent } from "svelte";
+import { QUICK_ACTIONS, QUICK_SETTINGS } from "../../constants";
+import { generateIdentifier } from "../../util";
+import type { TranslatorView } from "../../view";
 import ViewAppearanceModalView from "./ViewAppearanceModalView.svelte";
-import type {TranslatorView} from "../../view";
-import {QUICK_ACTIONS, QUICK_SETTINGS} from "../../constants";
-import {generateIdentifier} from "../../util";
 
 export default class ViewAppearanceModal extends Modal {
 	private view?: SvelteComponent;
@@ -20,19 +20,19 @@ export default class ViewAppearanceModal extends Modal {
 		state.top_buttons = state.top_buttons.map((button: any) => {
 			return {
 				id: button + `_${generateIdentifier()}`,
-				...QUICK_SETTINGS[button as keyof typeof QUICK_SETTINGS]
+				...QUICK_SETTINGS[button as keyof typeof QUICK_SETTINGS],
 			};
 		});
 		state.left_buttons = state.left_buttons.map((button: any) => {
 			return {
 				id: button + `_${generateIdentifier()}`,
-				...QUICK_ACTIONS[button as keyof typeof QUICK_ACTIONS]
+				...QUICK_ACTIONS[button as keyof typeof QUICK_ACTIONS],
 			};
 		});
 		state.right_buttons = state.right_buttons.map((button: any) => {
 			return {
 				id: button + `_${generateIdentifier()}`,
-				...QUICK_ACTIONS[button as keyof typeof QUICK_ACTIONS]
+				...QUICK_ACTIONS[button as keyof typeof QUICK_ACTIONS],
 			};
 		});
 
@@ -46,12 +46,11 @@ export default class ViewAppearanceModal extends Modal {
 				e.detail.left_buttons = e.detail.left_buttons.map((button: any) => button.id.split("_")[0]);
 				e.detail.right_buttons = e.detail.right_buttons.map((button: any) => button.id.split("_")[0]);
 
-				await this.translator_view.setState(Object.assign(state, e.detail), {history: false});
+				await this.translator_view.setState(Object.assign(state, e.detail), { history: false });
 			}
 
 			super.close();
 		});
-
 	}
 
 	onClose() {

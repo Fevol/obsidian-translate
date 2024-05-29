@@ -1,18 +1,19 @@
+import type { ModelFileData } from "../types";
 import type {
 	DetectionResult,
-	GlossaryFetchResult, GlossaryUploadResult,
+	GlossaryFetchResult,
+	GlossaryUploadResult,
 	LanguagesFetchResult,
-	TranslationResult,
-	ValidationResult,
 	ServiceOptions,
 	ServiceSettings,
+	TranslationResult,
+	ValidationResult,
 } from "./types";
-import type {ModelFileData} from "../types";
 
-import {get, writable, type Writable} from "svelte/store";
-import {DefaultDict, splitStringByBytes} from "../util";
-import {globals, glossary, settings} from "../stores";
+import { get, type Writable, writable } from "svelte/store";
 import t from "../l10n";
+import { globals, glossary, settings } from "../stores";
+import { DefaultDict, splitStringByBytes } from "../util";
 
 export class DummyTranslate {
 	/**
@@ -63,7 +64,7 @@ export class DummyTranslate {
 	 */
 	wait_time: number = 0;
 
-	base_status_code_lookup: {[key: number]: string | undefined} = {
+	base_status_code_lookup: { [key: number]: string | undefined } = {
 		200: undefined,
 		400: "Bad request, query parameters missing [OPEN ISSUE ON GITHUB]",
 		401: "Unauthenticated request, check credentials",
@@ -126,7 +127,7 @@ export class DummyTranslate {
 			return output;
 		} catch (error: unknown) {
 			const message = error instanceof Error ? error.message : error as string;
-			output = {status_code: 400, valid: false, message: `Validation failed:\n\t${message}`};
+			output = { status_code: 400, valid: false, message: `Validation failed:\n\t${message}` };
 			return output;
 		} finally {
 			this.valid = output!.valid;
@@ -139,7 +140,7 @@ export class DummyTranslate {
 	 */
 	async service_validate(): Promise<ValidationResult> {
 		// Will always be valid
-		return {status_code: 400, valid: false, message: 'This should not ever be called'};
+		return { status_code: 400, valid: false, message: "This should not ever be called" };
 	}
 
 	/**
@@ -150,11 +151,11 @@ export class DummyTranslate {
 	async detect(text: string): Promise<DetectionResult> {
 		if (!this.valid) {
 			if (this.id === "fasttext")
-				return {status_code: 400, message: "FastText is not installed"};
-			return {status_code: 400, message: "Translation service is not validated"};
+				return { status_code: 400, message: "FastText is not installed" };
+			return { status_code: 400, message: "Translation service is not validated" };
 		}
 		if (!text.trim())
-			return {status_code: 400, message: "No text was provided"};
+			return { status_code: 400, message: "No text was provided" };
 
 		let output: DetectionResult;
 		try {
@@ -166,14 +167,13 @@ export class DummyTranslate {
 				return this.detected_error("Language detection failed", output);
 
 			if (!output.detected_languages)
-				output = {message: "Language detection failed:\n\t(Could not detect language)", status_code: 400};
-
+				output = { message: "Language detection failed:\n\t(Could not detect language)", status_code: 400 };
 
 			this.success();
 			return output;
 		} catch (error: unknown) {
 			const message = error instanceof Error ? error.message : error as string;
-			return this.detected_error("Language detection failed", {message, status_code: 400});
+			return this.detected_error("Language detection failed", { message, status_code: 400 });
 		}
 	}
 
@@ -183,7 +183,7 @@ export class DummyTranslate {
 	 * @virtual
 	 */
 	async service_detect(text: string): Promise<DetectionResult> {
-		return {status_code: 400, detected_languages: [], message: 'This should not ever be called'};
+		return { status_code: 400, detected_languages: [], message: "This should not ever be called" };
 	}
 
 	/**
@@ -198,19 +198,19 @@ export class DummyTranslate {
 	async translate(text: string, from: string, to: string, options: ServiceOptions = {}): Promise<TranslationResult> {
 		if (!this.valid) {
 			if (this.id === "bergamot")
-				return {status_code: 400, message: "Bergamot is not installed"};
-			return {status_code: 400, message: "Translation service is not validated"};
+				return { status_code: 400, message: "Bergamot is not installed" };
+			return { status_code: 400, message: "Translation service is not validated" };
 		}
 		if (!text.trim())
-			return {status_code: 400, message: "No text was provided"};
+			return { status_code: 400, message: "No text was provided" };
 		if (!to)
-			return {status_code: 400, message: "No target language was provided"};
+			return { status_code: 400, message: "No target language was provided" };
 		if (from === to)
-			return {status_code: 200, translation: text};
-		if (from && from !== 'auto' && !this.available_languages.includes(from))
-			return {status_code: 400, message: `Source language "${t(from)}" is not supported`};
+			return { status_code: 200, translation: text };
+		if (from && from !== "auto" && !this.available_languages.includes(from))
+			return { status_code: 400, message: `Source language "${t(from)}" is not supported` };
 		if (!this.available_languages.includes(to))
-			return {status_code: 400, message: `Target language "${t(to)}" is not supported`};
+			return { status_code: 400, message: `Target language "${t(to)}" is not supported` };
 		if (!from)
 			from = "auto";
 
@@ -219,9 +219,10 @@ export class DummyTranslate {
 			let temp_detected_language: string | undefined = from;
 			let detecting_language = false;
 			if (options.apply_glossary && !options.glossary) {
-				detecting_language = from === 'auto' && !(globals.plugin!.detector == null ) && globals.plugin!.detector.valid;
+				detecting_language = from === "auto" && !(globals.plugin!.detector == null) &&
+					globals.plugin!.detector.valid;
 				// TODO: Give warning if globals.plugin.detector is null
-				if (detecting_language || from !== 'auto') {
+				if (detecting_language || from !== "auto") {
 					if (detecting_language) {
 						const detection_results = await globals.plugin!.detector!.detect(text);
 						if (detection_results.detected_languages)
@@ -232,26 +233,36 @@ export class DummyTranslate {
 
 					if (temp_detected_language) {
 						from = temp_detected_language;
-						const language_pair = from + '_' + to;
+						const language_pair = from + "_" + to;
 						const loaded_settings = get(settings);
 
 						// First, check if online glossary is available, always prefer this
-						if (loaded_settings.glossary_preference !== 'local') {
+						if (loaded_settings.glossary_preference !== "local") {
 							// @ts-ignore (service is always in service_settings)
-							options.glossary_id = loaded_settings.service_settings[this.id].uploaded_glossaries?.[language_pair];
+							options.glossary_id = loaded_settings.service_settings[this.id].uploaded_glossaries
+								?.[language_pair];
 						}
 
-						if (loaded_settings.glossary_preference === 'local' || (loaded_settings.glossary_preference === 'online' && !options.glossary)) {
-							const glossary_pair: string[][] = glossary.dicts[language_pair as keyof typeof glossary.dicts];
+						if (
+							loaded_settings.glossary_preference === "local" ||
+							(loaded_settings.glossary_preference === "online" && !options.glossary)
+						) {
+							const glossary_pair: string[][] =
+								glossary.dicts[language_pair as keyof typeof glossary.dicts];
 							if (from && glossary_pair) {
-								text = text.replace(glossary.replacements[language_pair as keyof typeof glossary.replacements],
+								text = text.replace(
+									glossary.replacements[language_pair as keyof typeof glossary.replacements],
 									(match) => {
 										// TODO: Check if case insensitivity per word is also feasible,
 										//  issue would be that the search would always have to be executed with case-insensitive matching
 										//  and then case-sensitivity check should happen here (by removing toLowerCase())
 										//  either way: heavy performance impact
-										return glossary_pair.find(x => x[0].toLowerCase() === match.toLowerCase())![1] || match;
-									});
+										return glossary_pair.find(x =>
+											x[0].toLowerCase() === match.toLowerCase()
+										)![1] ||
+											match;
+									},
+								);
 							}
 						}
 					}
@@ -259,8 +270,7 @@ export class DummyTranslate {
 			}
 
 			// Merges provided options with default service options, provided options take precedence
-			options = {...options, ...this.options};
-
+			options = { ...options, ...this.options };
 
 			// Worst-case assumption about the length of the encoded text, avoid encoding the string if it's not necessary
 			if (text.length * 4 < this.byte_limit) {
@@ -271,18 +281,18 @@ export class DummyTranslate {
 					output.detected_language = temp_detected_language;
 			} else {
 				const encoded_text = new TextEncoder().encode(text);
-				let translation = '';
+				let translation = "";
 				const languages_occurrences = new DefaultDict({}, 0);
 
 				/** This does *not* preserve sentence meaning when translating, as it splits sentences at spaces.
 				 *  However, this is the best (most efficient in both space and time) approach, without having to
-				 *	perform sentence tokenization (aka: dreadful NLP processing).
+				 * 	perform sentence tokenization (aka: dreadful NLP processing).
 				 */
 				for (const chunk of splitStringByBytes(encoded_text, this.byte_limit)) {
 					const result = await this.service_translate(chunk, from, to, options);
-					if (result.status_code !== 200) {
+					if (result.status_code !== 200)
 						return this.detected_error("Translation failed", result);
-					} else {
+					else {
 						translation += result.translation;
 						if (result.detected_language)
 							languages_occurrences[result.detected_language as keyof typeof languages_occurrences]++;
@@ -292,15 +302,17 @@ export class DummyTranslate {
 				const observed_languages = Object.entries(languages_occurrences);
 				output = {
 					translation: translation,
-					detected_language: observed_languages.length ? observed_languages.reduce((a, b) => a[1] > b[1] ? a : b)[0] : undefined,
-					status_code: 200
+					detected_language: observed_languages.length ?
+						observed_languages.reduce((a, b) => a[1] > b[1] ? a : b)[0] :
+						undefined,
+					status_code: 200,
 				};
 			}
 			this.success();
 			return output;
 		} catch (error: unknown) {
 			const message = error instanceof Error ? error.message : error as string;
-			return this.detected_error("Translation failed", {message, status_code: 400});
+			return this.detected_error("Translation failed", { message, status_code: 400 });
 		}
 	}
 
@@ -313,9 +325,14 @@ export class DummyTranslate {
 	 * @returns Object containing the translation and the detected language & confidence (if applicable), as well as the status code and message
 	 * @virtual
 	 */
-	async service_translate(text: string, from: string, to: string, options: ServiceOptions = {}): Promise<TranslationResult> {
+	async service_translate(
+		text: string,
+		from: string,
+		to: string,
+		options: ServiceOptions = {},
+	): Promise<TranslationResult> {
 		// Perfect translation
-		return {status_code: 400, translation: text, detected_language: undefined};
+		return { status_code: 400, translation: text, detected_language: undefined };
 	}
 
 	/**
@@ -324,7 +341,7 @@ export class DummyTranslate {
 	 */
 	async languages(): Promise<LanguagesFetchResult> {
 		if (!this.valid)
-			return {status_code: 400, message: "Translation service is not validated"};
+			return { status_code: 400, message: "Translation service is not validated" };
 
 		let output: LanguagesFetchResult;
 		try {
@@ -332,12 +349,12 @@ export class DummyTranslate {
 			if (output.status_code !== 200)
 				return this.detected_error("Languages fetching failed", output);
 			this.success();
-			if (this.id !== 'bergamot')
-				this.available_languages = <string[]>output.languages;
+			if (this.id !== "bergamot")
+				this.available_languages = <string[]> output.languages;
 			return output;
 		} catch (error: unknown) {
 			const message = error instanceof Error ? error.message : error as string;
-			return this.detected_error("Languages fetching failed", {message, status_code: 400});
+			return this.detected_error("Languages fetching failed", { message, status_code: 400 });
 		}
 	}
 
@@ -348,7 +365,7 @@ export class DummyTranslate {
 	 */
 	async service_languages(): Promise<LanguagesFetchResult> {
 		// All languages
-		return {status_code: 400, message: 'This should not ever be called'};
+		return { status_code: 400, message: "This should not ever be called" };
 	}
 
 	/**
@@ -358,7 +375,7 @@ export class DummyTranslate {
 	 */
 	async glossary_languages(): Promise<GlossaryFetchResult> {
 		if (!this.valid)
-			return {status_code: 400, message: "Translation service is not validated"};
+			return { status_code: 400, message: "Translation service is not validated" };
 		const output = await this.service_glossary_languages();
 		if (output.status_code !== 200)
 			return this.detected_error("Glossary languages fetching failed", output);
@@ -372,7 +389,7 @@ export class DummyTranslate {
 	 * @virtual
 	 */
 	async service_glossary_languages(): Promise<GlossaryFetchResult> {
-		return {status_code: 400, message: 'This should not ever be called'};
+		return { status_code: 400, message: "This should not ever be called" };
 	}
 
 	/**
@@ -382,13 +399,17 @@ export class DummyTranslate {
 	 * @param previous_glossaries_ids - The glossary IDs of the previous glossaries, will be removed and replaced by the new glossaries
 	 * @returns Object containing the list of new glossary IDs, the status code and message
 	 */
-	async glossary_upload(glossary: Record<string, [string, string]>, glossary_languages: Record<string, string[]>, previous_glossaries_ids: Record<string, string>): Promise<GlossaryUploadResult> {
+	async glossary_upload(
+		glossary: Record<string, [string, string]>,
+		glossary_languages: Record<string, string[]>,
+		previous_glossaries_ids: Record<string, string>,
+	): Promise<GlossaryUploadResult> {
 		if (!this.valid)
-			return {status_code: 400, message: "Translation service is not validated"};
+			return { status_code: 400, message: "Translation service is not validated" };
 		const output = await this.service_glossary_upload(glossary, glossary_languages, previous_glossaries_ids);
 		if (!output.message) {
 			if (output.status_code === 200) {
-				output.message = 'Glossary uploaded successfully';
+				output.message = "Glossary uploaded successfully";
 				this.success();
 			}
 		} else {
@@ -405,10 +426,13 @@ export class DummyTranslate {
 	 * @returns Object containing the list of new glossary IDs, the status code and message
 	 * @virtual
 	 */
-	async service_glossary_upload(glossary: Record<string, [string, string]>, glossary_languages: Record<string, string[]>, previous_glossaries_ids: Record<string, string>): Promise<GlossaryUploadResult> {
-		return {status_code: 400, message: 'This should not ever be called'};
+	async service_glossary_upload(
+		glossary: Record<string, [string, string]>,
+		glossary_languages: Record<string, string[]>,
+		previous_glossaries_ids: Record<string, string>,
+	): Promise<GlossaryUploadResult> {
+		return { status_code: 400, message: "This should not ever be called" };
 	}
-
 
 	/**
 	 * Function to determine whether service is capable of auto-detecting the language of the text and translating from it
@@ -423,7 +447,6 @@ export class DummyTranslate {
 
 	setup_service(available_models: ModelFileData): void {}
 
-
 	/**
 	 * Internal function to prettify error messages from the handlers and update failure count
 	 * @param prefix - The prefix to add to the error message (e.g. "Translation failed")
@@ -431,7 +454,10 @@ export class DummyTranslate {
 	 * @returns Object containing prettified status code and message
 	 * @private
 	 */
-	detected_error(prefix: string, response: {status_code: number, message?: string}): { message: string, status_code: number } {
+	detected_error(
+		prefix: string,
+		response: { status_code: number; message?: string },
+	): { message: string; status_code: number } {
 		// Attempt to create a more descriptive error message is no message was given
 		if (!response.message)
 			response.message = this.base_status_code_lookup[response.status_code] ?? "Unknown error";

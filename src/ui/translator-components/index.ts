@@ -4,4 +4,4 @@ import TranslatorTextArea from "./TranslatorTextArea.svelte";
 export {
 	DragAndDrop,
 	TranslatorTextArea,
-}
+};

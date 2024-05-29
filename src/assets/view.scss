@@ -81,12 +81,12 @@
   height: 36px;
 }
 
-.is-phone .translator-rounded-button, .is-tablet .translator-rounded-button {
+.is-phone .translator-rounded-button,
+.is-tablet .translator-rounded-button {
   background-color: var(--background-primary);
   padding: 22px;
   width: 0;
 }
-
 
 .translator-button-container {
   display: flex;

@@ -12,11 +12,14 @@
 		"importHelpers": true,
 		"isolatedModules": false,
 		"paths": {
-			"src": ["src/*", "tests/*"]
+			"src": [
+				"src/*",
+				"tests/*"
+			]
 		},
 		"lib": [
 			"DOM",
-				"ESNext"
+			"ESNext"
 		],
 		"types": [
 			"jest",

@@ -1,8 +1,7 @@
-import {App, PluginSettingTab} from "obsidian";
+import { App, PluginSettingTab } from "obsidian";
+import type { SvelteComponent } from "svelte";
 import type TranslatorPlugin from "./main";
-import type {SvelteComponent} from "svelte";
-import {SettingsPage} from "./ui/pages";
-
+import { SettingsPage } from "./ui/pages";
 
 export class TranslatorSettingsTab extends PluginSettingTab {
 	plugin: TranslatorPlugin;
@@ -16,14 +15,14 @@ export class TranslatorSettingsTab extends PluginSettingTab {
 	display(): void {
 		this.plugin.settings_open = true;
 
-		const {containerEl} = this;
+		const { containerEl } = this;
 		containerEl.empty();
 
 		this.view = new SettingsPage({
 			target: containerEl,
 			props: {
 				plugin: this.plugin,
-			}
+			},
 		});
 	}
 
@@ -35,4 +34,3 @@ export class TranslatorSettingsTab extends PluginSettingTab {
 		this.view?.$destroy();
 	}
 }
-

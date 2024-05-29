@@ -1,22 +1,21 @@
 // @ts-ignore-file (Prevent build crash)
 
-import {ItemView, setIcon, WorkspaceLeaf} from "obsidian";
-import type {ViewStateResult} from "obsidian";
+import { ItemView, setIcon, WorkspaceLeaf } from "obsidian";
+import type { ViewStateResult } from "obsidian";
 
 import type TranslatorPlugin from "./main";
 
-import type {SvelteComponent} from "svelte";
-import {ViewPage} from "./ui/pages";
+import type { SvelteComponent } from "svelte";
+import { ViewPage } from "./ui/pages";
 
-import {writable, type Writable} from "svelte/store";
-import {settings} from "./stores";
-import {get} from "svelte/store";
+import { type Writable, writable } from "svelte/store";
+import { get } from "svelte/store";
+import { settings } from "./stores";
 
-
-import {TRANSLATOR_VIEW_ID, SERVICES_INFO} from "./constants";
-import {ViewAppearanceModal} from "./ui/modals";
+import { SERVICES_INFO, TRANSLATOR_VIEW_ID } from "./constants";
+import type { TranslatorServiceType } from "./types";
+import { ViewAppearanceModal } from "./ui/modals";
 import ViewFunctionalityModal from "./ui/modals/view_functionality_modal";
-import type {TranslatorServiceType} from "./types";
 
 interface TranslatorViewState {
 	language_from: string;
@@ -49,11 +48,11 @@ export class TranslatorView extends ItemView {
 		super(leaf);
 
 		// Add view-specific settings modals to the tab title bar
-		this.addAction('palette', "Change the view's appearance", () => {
+		this.addAction("palette", "Change the view's appearance", () => {
 			new ViewAppearanceModal(plugin.app, this).open();
 		});
 
-		this.addAction('wrench', "Alter the view's functionality", () => {
+		this.addAction("wrench", "Alter the view's functionality", () => {
 			new ViewFunctionalityModal(plugin.app, this).open();
 		});
 	}
@@ -70,7 +69,6 @@ export class TranslatorView extends ItemView {
 		return get(this.translation_service);
 	}
 
-
 	async onOpen() {
 		this.contentEl.id = this.leaf.id!;
 		this.contentEl.style.display = "flex";
@@ -81,17 +79,17 @@ export class TranslatorView extends ItemView {
 		const state = super.getState();
 		if (this.view) {
 			// Get data straight from Svelte component context
-			state.language_from = this.view.$$.ctx[<number>this.view.$$.props.language_from];
-			state.language_to = this.view.$$.ctx[<number>this.view.$$.props.language_to];
+			state.language_from = this.view.$$.ctx[<number> this.view.$$.props.language_from];
+			state.language_to = this.view.$$.ctx[<number> this.view.$$.props.language_to];
 			state.translation_service = get(this.translation_service);
-			state.auto_translate = this.view.$$.ctx[<number>this.view.$$.props.auto_translate];
-			state.apply_glossary = this.view.$$.ctx[<number>this.view.$$.props.apply_glossary];
-			state.view_mode = this.view.$$.ctx[<number>this.view.$$.props.view_mode];
-			state.filter_mode = this.view.$$.ctx[<number>this.view.$$.props.filter_mode];
-			state.show_attribution = this.view.$$.ctx[<number>this.view.$$.props.show_attribution];
-			state.top_buttons = this.view.$$.ctx[<number>this.view.$$.props.top_buttons];
-			state.left_buttons = this.view.$$.ctx[<number>this.view.$$.props.left_buttons];
-			state.right_buttons = this.view.$$.ctx[<number>this.view.$$.props.right_buttons];
+			state.auto_translate = this.view.$$.ctx[<number> this.view.$$.props.auto_translate];
+			state.apply_glossary = this.view.$$.ctx[<number> this.view.$$.props.apply_glossary];
+			state.view_mode = this.view.$$.ctx[<number> this.view.$$.props.view_mode];
+			state.filter_mode = this.view.$$.ctx[<number> this.view.$$.props.filter_mode];
+			state.show_attribution = this.view.$$.ctx[<number> this.view.$$.props.show_attribution];
+			state.top_buttons = this.view.$$.ctx[<number> this.view.$$.props.top_buttons];
+			state.left_buttons = this.view.$$.ctx[<number> this.view.$$.props.left_buttons];
+			state.right_buttons = this.view.$$.ctx[<number> this.view.$$.props.right_buttons];
 		}
 		return state;
 	}
@@ -133,7 +131,7 @@ export class TranslatorView extends ItemView {
 					top_buttons: state.top_buttons ?? [...current_settings.quicksettings_default],
 					left_buttons: state.left_buttons ?? [...current_settings.left_quickactions_default],
 					right_buttons: state.right_buttons ?? [...current_settings.right_quickactions_default],
-				}
+				},
 			});
 		} else {
 			this.translation_service.set(state.translation_service || current_settings.translation_service);
@@ -158,14 +156,13 @@ export class TranslatorView extends ItemView {
 	}
 
 	async setEphemeralState(state: Partial<TranslatorViewEphemeralState>): Promise<void> {
-		if (state.receive_focus) {
-			(<HTMLTextAreaElement>this.containerEl.find(".translator-left-column").children[1].children[0]).focus();
-		}
+		if (state.receive_focus)
+			(<HTMLTextAreaElement> this.containerEl.find(".translator-left-column").children[1].children[0]).focus();
 	}
 
 	async onClose() {
 		this.view?.$destroy();
-		this.containerEl.detach()
+		this.containerEl.detach();
 	}
 
 	onResize() {

@@ -1,11 +1,11 @@
-import {DummyTranslate} from "./dummy-translate";
+import { Notice } from "obsidian";
+import type { ModelFileData } from "../types";
+import { DummyTranslate } from "./dummy-translate";
+import { FastText, FastTextModel } from "./fasttext/fasttext";
 import type {
 	DetectionResult,
 	ValidationResult,
 } from "./types";
-import type {ModelFileData} from "../types";
-import {FastText, FastTextModel} from "./fasttext/fasttext";
-import {Notice} from "obsidian";
 
 export class FastTextDetector extends DummyTranslate {
 	detector: FastTextModel | undefined;
@@ -13,7 +13,7 @@ export class FastTextDetector extends DummyTranslate {
 
 	version: number = 0;
 
-	status: string = '';
+	status: string = "";
 	// data: any = null;
 
 	default: boolean = false;
@@ -28,19 +28,21 @@ export class FastTextDetector extends DummyTranslate {
 						this.valid = false;
 						new Notice(ft.message.match(/\(([^)]+)\)/)![0].slice(1, -1), 4000);
 					} else {
-						(ft as FastText).loadModel(Object.values(available_models.models!)[0].name!).then((model: FastTextModel) => {
-							this.detector = model;
-							this.validate().then((x) => {
-								this.valid = x.valid;
-							});
-						});
+						(ft as FastText).loadModel(Object.values(available_models.models!)[0].name!).then(
+							(model: FastTextModel) => {
+								this.detector = model;
+								this.validate().then((x) => {
+									this.valid = x.valid;
+								});
+							},
+						);
 					}
 				} catch (e) {
 					this.valid = false;
 					this.detector = undefined;
 					new Notice("Error loading model: " + e, 4000);
 				}
-			})
+			});
 		} else {
 			this.valid = false;
 			// this.plugin.message_queue("FastText is not installed, automatic detection of language is disabled.");
@@ -54,22 +56,26 @@ export class FastTextDetector extends DummyTranslate {
 
 	async service_validate(): Promise<ValidationResult> {
 		if (this.has_autodetect_capability())
-			return {valid: true, status_code: 200};
+			return { valid: true, status_code: 200 };
 		else
-			return {valid: false, status_code: 400, message: "FastText service setup failed."};
+			return { valid: false, status_code: 400, message: "FastText service setup failed." };
 	}
 
 	async service_detect(text: string): Promise<DetectionResult> {
 		// Converting WASM std::Pair<std::string, float> to TS typings
-		const predictions = (this.detector!.predict(text, 5, 0.0) as unknown as {
+		const predictions = this.detector!.predict(text, 5, 0.0) as unknown as {
 			get: (i: number) => [number, string];
 			size: () => number;
-		});
+		};
 		const results = [];
 
-		for (let i = 0; i < predictions.size(); i++)
-			results.push({language: predictions.get(i)[1].replace("__label__", ""), confidence: predictions.get(i)[0]});
-		return { status_code: 200, detected_languages: results};
+		for (let i = 0; i < predictions.size(); i++) {
+			results.push({
+				language: predictions.get(i)[1].replace("__label__", ""),
+				confidence: predictions.get(i)[0],
+			});
+		}
+		return { status_code: 200, detected_languages: results };
 	}
 
 	has_autodetect_capability(): boolean {

@@ -1,22 +1,22 @@
-import {DummyTranslate} from "./dummy-translate";
+import { requestUrl } from "obsidian";
+import { DummyTranslate } from "./dummy-translate";
 import type {
-	ServiceSettings,
-	DetectionResult, GlossaryFetchResult, GlossaryUploadResult,
+	DetectionResult,
+	GlossaryFetchResult,
+	GlossaryUploadResult,
 	LanguagesFetchResult,
+	ServiceOptions,
+	ServiceSettings,
 	TranslationResult,
 	ValidationResult,
-	ServiceOptions
 } from "./types";
-import {requestUrl} from "obsidian";
-
-
 
 interface DeeplBaseResult {
-	message?: string
+	message?: string;
 }
 
 interface DeepLTranslationResult extends DeeplBaseResult {
-	translations: Array<{text: string, detected_source_language?: string}>
+	translations: Array<{ text: string; detected_source_language?: string }>;
 }
 
 /**
@@ -32,13 +32,11 @@ interface DeepLTranslationResult extends DeeplBaseResult {
 // }
 
 // supports_formality only present for premium users
-type DeepLLanguageResult = Array<{language: string, name: string, supports_formality?: boolean}> & DeeplBaseResult;
-
+type DeepLLanguageResult = Array<{ language: string; name: string; supports_formality?: boolean }> & DeeplBaseResult;
 
 interface DeepLGlossaryPairsResult extends DeeplBaseResult {
-	supported_languages: Array<{source_lang: string, target_lang: string}>
+	supported_languages: Array<{ source_lang: string; target_lang: string }>;
 }
-
 
 export class Deepl extends DummyTranslate {
 	#api_key: string | undefined;
@@ -51,7 +49,7 @@ export class Deepl extends DummyTranslate {
 	constructor(settings: ServiceSettings) {
 		super();
 		this.#api_key = settings.api_key;
-		this.#host = settings.host || 'https://api-free.deepl.com/v2';
+		this.#host = settings.host || "https://api-free.deepl.com/v2";
 	}
 
 	update_settings(settings: ServiceSettings): void {
@@ -59,10 +57,9 @@ export class Deepl extends DummyTranslate {
 		this.#host = settings.host ?? this.#host;
 	}
 
-
 	async service_validate(): Promise<ValidationResult> {
 		if (!this.#api_key)
-			return {status_code: 400, valid: false, message: "API key was not specified"};
+			return { status_code: 400, valid: false, message: "API key was not specified" };
 
 		this.#host = this.#api_key.endsWith(":fx") ? "https://api-free.deepl.com/v2" : "https://api.deepl.com/v2";
 
@@ -71,12 +68,12 @@ export class Deepl extends DummyTranslate {
 			url: `${this.#host}/usage`,
 			method: "GET",
 			headers: {
-				"Authorization": "DeepL-Auth-Key " + this.#api_key
-			}
+				"Authorization": "DeepL-Auth-Key " + this.#api_key,
+			},
 		});
 
 		if (response.status !== 200)
-			return {status_code: response.status, valid: false, message: "Invalid API key"};
+			return { status_code: response.status, valid: false, message: "Invalid API key" };
 
 		// const data: DeepLUsageResult = response.json;
 		return {
@@ -84,7 +81,6 @@ export class Deepl extends DummyTranslate {
 			valid: response.status === 200,
 			host: this.#host,
 		};
-
 	}
 
 	// DeepL doesn't actually support language detection, so the text is being auto-translated to English in order
@@ -96,28 +92,32 @@ export class Deepl extends DummyTranslate {
 			throw: false,
 			url: `${this.#host}/translate?` + new URLSearchParams({
 				text: text,
-				target_lang: "en"
+				target_lang: "en",
 			}),
 			method: "POST",
 			headers: {
-				"Authorization": "DeepL-Auth-Key " + this.#api_key
-			}
+				"Authorization": "DeepL-Auth-Key " + this.#api_key,
+			},
 		});
 
 		// Data = [{"text":"Hello", "detected_source_language":"en"}, ...]
 		const data: DeepLTranslationResult = response.json;
 
 		if (response.status !== 200)
-			return {status_code: response.status, message: data.message}
+			return { status_code: response.status, message: data.message };
 
 		return {
 			status_code: response.status,
-			detected_languages: [{language: data.translations[0].detected_source_language!.toLowerCase()}]
+			detected_languages: [{ language: data.translations[0].detected_source_language!.toLowerCase() }],
 		};
 	}
 
-	async service_translate(text: string, from: string, to: string, options: ServiceOptions = {}): Promise<TranslationResult> {
-
+	async service_translate(
+		text: string,
+		from: string,
+		to: string,
+		options: ServiceOptions = {},
+	): Promise<TranslationResult> {
 		let split_sentences = "1";
 		if (options.split_sentences === "punctuation")
 			split_sentences = "nonewlines";
@@ -141,29 +141,28 @@ export class Deepl extends DummyTranslate {
 				glossary_id: options.glossary || "",
 				split_sentences: split_sentences,
 				preserve_formatting: preserve_formatting,
-				formality: formality
+				formality: formality,
 			}),
 			method: "POST",
 			headers: {
-				"Authorization": "DeepL-Auth-Key " + this.#api_key
-			}
+				"Authorization": "DeepL-Auth-Key " + this.#api_key,
+			},
 		});
-
 
 		// Data = [{"text":"Hello", "detected_source_language":"en"}, ...]
 		const data: DeepLTranslationResult = response.json;
 
 		if (response.status !== 200)
-			return {status_code: response.status, message: data.message}
+			return { status_code: response.status, message: data.message };
 
 		return {
 			status_code: response.status,
 			translation: data.translations[0].text,
 			detected_language: (from === "auto" && data.translations[0].detected_source_language) ?
-				data.translations[0].detected_source_language.toLowerCase() : undefined
-		}
+				data.translations[0].detected_source_language.toLowerCase() :
+				undefined,
+		};
 	}
-
 
 	async service_languages(): Promise<LanguagesFetchResult> {
 		const response = await requestUrl({
@@ -171,19 +170,19 @@ export class Deepl extends DummyTranslate {
 			url: `${this.#host}/languages`,
 			method: "POST",
 			headers: {
-				"Authorization": "DeepL-Auth-Key " + this.#api_key
-			}
+				"Authorization": "DeepL-Auth-Key " + this.#api_key,
+			},
 		});
 
 		// Data = [{"language":"EN", "name":"English", supports_formality: true}, ...]
 		const data: DeepLLanguageResult = response.json;
 
 		if (response.status !== 200)
-			return {status_code: response.status, message: data.message};
+			return { status_code: response.status, message: data.message };
 
 		return {
 			status_code: response.status,
-			languages: data.map((o) => o.language.toLowerCase())
+			languages: data.map((o) => o.language.toLowerCase()),
 		};
 	}
 
@@ -193,33 +192,34 @@ export class Deepl extends DummyTranslate {
 			url: `${this.#host}/glossary-language-pairs`,
 			method: "GET",
 			headers: {
-				"Authorization": "DeepL-Auth-Key " + this.#api_key
-			}
+				"Authorization": "DeepL-Auth-Key " + this.#api_key,
+			},
 		});
 
 		const data: DeepLGlossaryPairsResult = response.json;
 
 		if (response.status !== 200)
-			return {status_code: response.status, message: data.message}
-
+			return { status_code: response.status, message: data.message };
 
 		const glossary_pairs: Record<string, string[]> = {};
-		for (const pair of data['supported_languages']) {
-			if (pair['source_lang'] in glossary_pairs) {
-				glossary_pairs[pair['source_lang']].push(pair['target_lang']);
-			} else {
-				glossary_pairs[pair['source_lang']] = [pair['target_lang']];
-			}
+		for (const pair of data["supported_languages"]) {
+			if (pair["source_lang"] in glossary_pairs)
+				glossary_pairs[pair["source_lang"]].push(pair["target_lang"]);
+			else
+				glossary_pairs[pair["source_lang"]] = [pair["target_lang"]];
 		}
 		return {
 			status_code: response.status,
 			message: data.message,
-			languages: glossary_pairs
+			languages: glossary_pairs,
 		};
 	}
 
-
-	async service_glossary_upload(glossary: Record<string, [string, string]>, glossary_languages: Record<string, string[]>, previous_glossaries_ids: Record<string, string>): Promise<GlossaryUploadResult> {
+	async service_glossary_upload(
+		glossary: Record<string, [string, string]>,
+		glossary_languages: Record<string, string[]>,
+		previous_glossaries_ids: Record<string, string>,
+	): Promise<GlossaryUploadResult> {
 		// TODO: Don't forget to rate limit this for the people who have like 8+ glossaries
 
 		for (const id of Object.values(previous_glossaries_ids)) {
@@ -228,51 +228,52 @@ export class Deepl extends DummyTranslate {
 				url: `${this.#host}/glossaries/${id}`,
 				method: "DELETE",
 				headers: {
-					"Authorization": "DeepL-Auth-Key " + this.#api_key
-				}
+					"Authorization": "DeepL-Auth-Key " + this.#api_key,
+				},
 			});
 			if (response.status > 400)
-				return {status_code: response.status, message: response.json?.message};
+				return { status_code: response.status, message: response.json?.message };
 		}
 
 		const identifiers: Record<string, string> = {};
 
 		for (const source_lang in glossary_languages) {
 			for (const target_lang of glossary_languages[source_lang]) {
-				if (glossary[source_lang + '_' + target_lang]) {
+				if (glossary[source_lang + "_" + target_lang]) {
 					const response = await requestUrl({
 						throw: false,
 						url: `${this.#host}/glossaries?`,
-						body: ''+ new URLSearchParams({
-							name: source_lang + '' + target_lang,
+						body: "" + new URLSearchParams({
+							name: source_lang + "" + target_lang,
 							source_lang: source_lang,
 							target_lang: target_lang,
-							entries: glossary[source_lang + "_" + target_lang].map((entry) => entry[0] + '\t' + entry[1]).join('\n'),
-							entries_format: "tsv"
+							entries: glossary[source_lang + "_" + target_lang].map((entry) =>
+								entry[0] + "\t" + entry[1]
+							).join("\n"),
+							entries_format: "tsv",
 						}),
 						method: "POST",
 						headers: {
 							"Authorization": "DeepL-Auth-Key " + this.#api_key,
-							"Content-Type": "application/x-www-form-urlencoded"
-						}
+							"Content-Type": "application/x-www-form-urlencoded",
+						},
 					});
 
 					const data = response.json;
 
 					if (response.status > 400)
-						return {status_code: response.status, message: data.detail || data.message}
+						return { status_code: response.status, message: data.detail || data.message };
 
-					identifiers[source_lang + "_" + target_lang] = data['glossary_id'];
+					identifiers[source_lang + "_" + target_lang] = data["glossary_id"];
 				}
 			}
 		}
 
 		return {
 			status_code: 200,
-			identifiers: identifiers
-		}
+			identifiers: identifiers,
+		};
 	}
-
 
 	has_autodetect_capability(): boolean {
 		return true;

@@ -7,12 +7,12 @@
 		"quoteStyle": "alwaysDouble",
 		"quoteProps": "preserve",
 		"newLineKind": "crlf",
-		"useBraces": "whenNotSingleLine",
+		"useBraces": "preferNone",
 		"bracePosition": "sameLineUnlessHanging",
 		"singleBodyPosition": "maintain",
 		"nextControlFlowPosition": "sameLine",
 		"trailingCommas": "onlyMultiLine",
-		"operatorPosition": "nextLine",
+		"operatorPosition": "sameLine",
 		"preferHanging": false,
 		"preferSingleLine": false,
 		"arrowFunction.useParentheses": "maintain",
@@ -37,12 +37,21 @@
 		"exportDeclaration.sortNamedExports": "caseInsensitive",
 		"importDeclaration.sortNamedImports": "caseInsensitive"
 	},
+	"json": {
+		"indentWidth": 4,
+		"useTabs": true,
+		"preferSingleLine": false,
+		"trailingCommas": "never"
+	},
 	"excludes": [
-		"**/node_modules"
+		"**/node_modules",
+		"**/*.js",
+		"**/*.wasm"
 	],
-  "plugins": [
-    "https://plugins.dprint.dev/typescript-0.91.0.wasm",
-    "https://plugins.dprint.dev/json-0.19.3.wasm",
-    "https://plugins.dprint.dev/markdown-0.17.1.wasm"
-  ]
+	"plugins": [
+		"https://plugins.dprint.dev/typescript-0.91.0.wasm",
+		"https://plugins.dprint.dev/json-0.19.3.wasm",
+		"https://plugins.dprint.dev/markdown-0.17.1.wasm",
+		"https://plugins.dprint.dev/prettier-0.40.0.json@68c668863ec834d4be0f6f5ccaab415df75336a992aceb7eeeb14fdf096a9e9c"
+	]
 }

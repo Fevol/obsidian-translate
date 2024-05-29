@@ -1,5 +1,4 @@
-import type {LanguageModelData} from "../types";
-
+import type { LanguageModelData } from "../types";
 
 interface ServiceSettings {
 	/**
@@ -73,7 +72,6 @@ interface ServiceOptions {
 	 */
 	formality?: "default" | "formal" | "informal";
 
-
 	/**
 	 * Document type of input text
 	 * @todo Add support for HTML/XML-like text
@@ -91,7 +89,7 @@ interface ServiceOptions {
 	profanity_filter?: {
 		action: "none" | "mark" | "delete";
 		marker?: "mask" | "html-tag";
-	}
+	};
 
 	/**
 	 * From script of the input text
@@ -107,7 +105,6 @@ interface ServiceOptions {
 	 */
 	to_script?: "Latn" | "Cyrl" | "Arab" | "Hebr" | "Hans" | "Hant" | "Jpan" | "Kore" | "Thaa";
 
-
 	/**
 	 * Include word alignment of source - translation
 	 * @remark Supported by Azure
@@ -121,7 +118,6 @@ interface ServiceOptions {
 	 * @todo Add support for sentence alignment in output
 	 */
 	sentence_alignment?: boolean;
-
 
 	// TODO: DeepL has five more options, these will be added in once I figure out how to properly integrate XML parsing into
 	//  the translation process (i.e.: markdown -> html/xml -> translation -> translated html/xml -> translated markdown)
@@ -140,7 +136,6 @@ interface ServiceOptions {
 	// - splitting_tags
 	// - ignore_tags
 }
-
 
 /**
  * Base output of the translation services' API calls
@@ -208,7 +203,6 @@ export interface LanguagesFetchResult extends BaseResult {
 	languages?: Array<string> | Array<LanguageModelData>;
 }
 
-
 /**
  * Output of the language detection function
  */
@@ -229,7 +223,6 @@ export interface DetectionResult extends BaseResult {
 	}>;
 }
 
-
 /**
  * Output of the glossary language pair fetching function
  */
@@ -237,7 +230,7 @@ export interface GlossaryFetchResult extends BaseResult {
 	/**
 	 * List of language pairs that are supported by the service
 	 * @example
-	 * {"en": ["de", "fr"], "de": ["en", "fr"], "fr": ["en", "de"]}*/
+	 * {"en": ["de", "fr"], "de": ["en", "fr"], "fr": ["en", "de"]} */
 	languages?: Record<string, string[]>;
 }
 
@@ -248,6 +241,6 @@ export interface GlossaryUploadResult extends BaseResult {
 	/**
 	 * IDs of the uploaded glossaries
 	 * @example
-	 * {"en": "glossary_1", "fr": "glossary_2", ...}*/
+	 * {"en": "glossary_1", "fr": "glossary_2", ...} */
 	identifiers?: Record<string, string>;
 }

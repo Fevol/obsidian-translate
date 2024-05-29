@@ -1,13 +1,13 @@
-import {writable} from "svelte/store";
-import {
-	type TranslatorPluginSettings,
-	type ModelFileData,
-	type TranslatorServiceType,
-	type DetectorServiceType,
-	ALL_DETECTOR_SERVICES,
-	ALL_TRANSLATOR_SERVICES
-} from "./types";
+import { writable } from "svelte/store";
 import type TranslatorPlugin from "./main";
+import {
+	ALL_DETECTOR_SERVICES,
+	ALL_TRANSLATOR_SERVICES,
+	type DetectorServiceType,
+	type ModelFileData,
+	type TranslatorPluginSettings,
+	type TranslatorServiceType,
+} from "./types";
 
 /**
  * The store for the plugin settings.
@@ -78,9 +78,9 @@ export const glossary = {
 	source_language: "",
 	target_language: "",
 	text: ["", ""],
-}
+};
 
 // FIXME: Is it better to access via app.plugins.plugins[plugin_id]?
 export const globals = {
-	plugin: null as null | TranslatorPlugin ,
-}
+	plugin: null as null | TranslatorPlugin,
+};

@@ -1,20 +1,20 @@
-import {DummyTranslate} from "./dummy-translate";
+import { requestUrl } from "obsidian";
+import { ALL_TRANSLATOR_LANGUAGES } from "../constants";
+import { DummyTranslate } from "./dummy-translate";
 import type {
-	ServiceSettings,
 	DetectionResult,
 	LanguagesFetchResult,
+	ServiceOptions,
+	ServiceSettings,
 	TranslationResult,
 	ValidationResult,
-	ServiceOptions
 } from "./types";
-import {requestUrl} from "obsidian";
-import {ALL_TRANSLATOR_LANGUAGES} from "../constants";
 
 export class OpenaiTranslator extends DummyTranslate {
 	#host?: string;
 	#api_key?: string;
 	id = "openai_translator";
-	model? = "gpt-3.5-turbo"
+	model? = "gpt-3.5-turbo";
 	temperature = 0.3;
 
 	requires_api_key = false;
@@ -38,10 +38,10 @@ export class OpenaiTranslator extends DummyTranslate {
 
 	async service_validate(): Promise<ValidationResult> {
 		if (!this.#host)
-			return {status_code: 400, valid: false, message: "Host was not specified"};
+			return { status_code: 400, valid: false, message: "Host was not specified" };
 
 		if (this.#api_key === null)
-			return {status_code: 400, valid: false, message: "API key was not specified"};
+			return { status_code: 400, valid: false, message: "API key was not specified" };
 
 		// Error type is sadly not shared across multiple host instances, so full request will have to be tested
 		// TODO: Map custom domains
@@ -60,20 +60,19 @@ export class OpenaiTranslator extends DummyTranslate {
 			}),
 			headers: {
 				"Content-Type": "application/json",
-				"Authorization": `Bearer ${this.#api_key}`
-			}
+				"Authorization": `Bearer ${this.#api_key}`,
+			},
 		});
-
 
 		if (response.status !== 200) {
 			const data = response.json;
 			if (data.error)
-				return {status_code: response.status, valid: false, message: data.error.message};
+				return { status_code: response.status, valid: false, message: data.error.message };
 			else
-				return {status_code: response.status, valid: false, message: "Invalid API key or host"};
+				return { status_code: response.status, valid: false, message: "Invalid API key or host" };
 		}
 
-		return {status_code: response.status, valid: true};
+		return { status_code: response.status, valid: true };
 	}
 
 	async service_detect(text: string): Promise<DetectionResult> {
@@ -84,36 +83,48 @@ export class OpenaiTranslator extends DummyTranslate {
 			body: JSON.stringify({
 				"model": this.model,
 				"messages": [
-					{ "role": "user", "content": "Identify the language of the input, please ONLY output its ISO639-1 code:" + "\n" + text },
+					{
+						"role": "user",
+						"content": "Identify the language of the input, please ONLY output its ISO639-1 code:" + "\n" +
+							text,
+					},
 				],
 				"temperature": this.temperature,
 			}),
 			headers: {
 				"Content-Type": "application/json",
-				"Authorization": `Bearer ${this.#api_key}`
-			}
+				"Authorization": `Bearer ${this.#api_key}`,
+			},
 		});
-
 
 		const data = response.json;
 		if (response.status !== 200)
-			return {status_code: response.status, message: data.error.message}
+			return { status_code: response.status, message: data.error.message };
 
 		return {
 			status_code: response.status,
-			detected_languages: response.status === 200 ? [{
-				language: data.choices[0].message['content'].toLowerCase(),
-				confidence: 1
-			}] : undefined
+			detected_languages: response.status === 200 ?
+				[{
+					language: data.choices[0].message["content"].toLowerCase(),
+					confidence: 1,
+				}] :
+				undefined,
 		};
 	}
 
-	async service_translate(text: string, from: string, to: string, options: ServiceOptions = {}): Promise<TranslationResult> {
+	async service_translate(
+		text: string,
+		from: string,
+		to: string,
+		options: ServiceOptions = {},
+	): Promise<TranslationResult> {
 		let prompt;
-		if (from === "auto")
-			prompt = `Translate following text to '${to}' without explanation, include ISO639-1 locale of the input in the first line:`;
-		else
+		if (from === "auto") {
+			prompt =
+				`Translate following text to '${to}' without explanation, include ISO639-1 locale of the input in the first line:`;
+		} else {
 			prompt = `Translate following text from '${from}' to '${to}' without explanation:`;
+		}
 
 		const response = await requestUrl({
 			throw: false,
@@ -128,15 +139,15 @@ export class OpenaiTranslator extends DummyTranslate {
 			}),
 			headers: {
 				"Content-Type": "application/json",
-				"Authorization": `Bearer ${this.#api_key}`
-			}
+				"Authorization": `Bearer ${this.#api_key}`,
+			},
 		});
 
 		const data = response.json;
 		if (response.status !== 200)
-			return {status_code: response.status, message: data.error.message}
+			return { status_code: response.status, message: data.error.message };
 
-		const output = data.choices[0].message['content'];
+		const output = data.choices[0].message["content"];
 
 		if (from === "auto") {
 			const first_newline = output.indexOf("\n");
@@ -144,27 +155,27 @@ export class OpenaiTranslator extends DummyTranslate {
 				return {
 					status_code: response.status,
 					translation: output,
-					detected_language: "Detection failed"
-				}
+					detected_language: "Detection failed",
+				};
 			} else {
 				return {
 					status_code: response.status,
 					translation: output.substring(first_newline + 1).trimStart(),
-					detected_language: output.substring(0, first_newline).toLowerCase()
-				}
+					detected_language: output.substring(0, first_newline).toLowerCase(),
+				};
 			}
 		} else {
 			return {
 				status_code: response.status,
-				translation: output
-			}
+				translation: output,
+			};
 		}
 	}
 
 	async service_languages(): Promise<LanguagesFetchResult> {
 		return {
 			status_code: 200,
-			languages: ALL_TRANSLATOR_LANGUAGES
+			languages: ALL_TRANSLATOR_LANGUAGES,
 		};
 	}
 

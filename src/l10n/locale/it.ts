@@ -610,5 +610,5 @@ export default {
 	"zu": "zulu",
 	"zun": "zuni",
 	"zxx": "nessun contenuto linguistico",
-	"zza": "zaza"
+	"zza": "zaza",
 };

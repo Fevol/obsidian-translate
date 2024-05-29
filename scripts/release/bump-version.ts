@@ -3,12 +3,14 @@
  * 	- https://github.com/Enveloppe/obsidian-enveloppe/blob/master/commit-and-tag-version.js
  * 	- https://github.com/mProjectsCode/obsidian-meta-bind-plugin/blob/master/automation/release.ts
  */
-import {Command, Option} from "commander";
-import {format} from "../utils/formatting";
 import * as Bun from "bun";
+import { Command, Option } from "commander";
+import { format } from "../utils/formatting";
 
 const program = new Command()
-	.addOption(new Option("-t, --type <type>", "Version bump type").choices(["patch", "minor", "major"]).default("patch"))
+	.addOption(
+		new Option("-t, --type <type>", "Version bump type").choices(["patch", "minor", "major"]).default("patch"),
+	)
 	.addOption(new Option("-T, --testRun", "Run without commiting changes").default(false))
 	.addOption(new Option("-r, --rc", "Create a release candidate version").default(false))
 	.parse();
@@ -17,7 +19,7 @@ const versionType = program.opts().type as "patch" | "minor" | "major";
 const testRun = program.opts().testRun;
 
 const currentVersion = process.env.npm_package_version!;
-const latestTag = Bun.spawnSync(['git', 'describe', '--tags', '--abbrev=0']).stdout.toString().trim();
+const latestTag = Bun.spawnSync(["git", "describe", "--tags", "--abbrev=0"]).stdout.toString().trim();
 const wasRC = latestTag.includes("rc");
 const isRC = program.opts().rc;
 
@@ -52,10 +54,13 @@ if (wasRC && isRC) {
 }
 
 if (testRun) {
-	console.log(`${format(" Test run ", "bg_blue")} | Bumped plugin version ${format(`${currentVersion} -> ${newVersion}`, "fg_blue")} | ${format(`[${versionType}]${(isRC ? " [release candidate]" : "")}`, "fg_yellow")}`);
+	console.log(
+		`${format(" Test run ", "bg_blue")} | Bumped plugin version ${
+			format(`${currentVersion} -> ${newVersion}`, "fg_blue")
+		} | ${format(`[${versionType}]${(isRC ? " [release candidate]" : "")}`, "fg_yellow")}`,
+	);
 	process.exit(0);
 }
-
 
 package_json.version = newVersion;
 if (!isRC)
@@ -67,9 +72,13 @@ await Bun.write(manifest_file, JSON.stringify(manifest, null, 4).replace(/\n/g, 
 await Bun.write("manifest-beta.json", JSON.stringify(manifest_beta, null, 4).replace(/\n/g, "\r\n"));
 
 try {
-	Bun.spawnSync(['git', 'commit', '-m', `chore(release): ${newVersion}`]);
-	Bun.spawnSync(['git', 'tag', '-a', newVersion, '-m', `chore(release): ${newVersion}`]);
-	console.log(`${format(" Success ", "bg_green")} | Bumped plugin version ${format(`${currentVersion} -> ${newVersion}`, "fg_blue")} | ${format(`[${versionType}]${(isRC ? " [release candidate]" : "")}`, "fg_yellow")}`);
+	Bun.spawnSync(["git", "commit", "-m", `chore(release): ${newVersion}`]);
+	Bun.spawnSync(["git", "tag", "-a", newVersion, "-m", `chore(release): ${newVersion}`]);
+	console.log(
+		`${format(" Success ", "bg_green")} | Bumped plugin version ${
+			format(`${currentVersion} -> ${newVersion}`, "fg_blue")
+		} | ${format(`[${versionType}]${(isRC ? " [release candidate]" : "")}`, "fg_yellow")}`,
+	);
 } catch (error) {
 	console.log(`${format(" Error ", "bg_red")} | ${format("Failed when running git commands", "fg_red")}`);
 }

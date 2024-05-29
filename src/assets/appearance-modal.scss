@@ -4,7 +4,7 @@
 }
 
 .translator-textarea-quickbuttons-editing {
-  @extend .translator-unfocused-element
+  @extend .translator-unfocused-element;
 }
 
 .translator-dnd-trashcan {
@@ -88,7 +88,6 @@
   height: 150px;
 }
 
-
 .translator-appearance-modal-contents {
   background-color: var(--background-primary-alt);
   border-radius: 10px;
@@ -100,7 +99,7 @@
   border-radius: 10px;
   margin: var(--size-2-2) var(--size-4-2) var(--size-4-2) var(--size-4-2);
   padding: var(--size-4-3);
-  @extend .translator-unfocused-element
+  @extend .translator-unfocused-element;
 }
 
 .translator-appearance-modal-view-header {

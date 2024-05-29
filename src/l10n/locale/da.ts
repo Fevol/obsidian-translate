@@ -535,5 +535,5 @@ export default {
 	"zu": "zulu",
 	"zun": "zuni",
 	"zxx": "intet sprogligt indhold",
-	"zza": "zaza"
+	"zza": "zaza",
 };

@@ -1,6 +1,7 @@
 # API service overview
 
 There are as of writing 11 translation services implemented in code (but not necessarily included with the plugin):
+
 - Amazon Translate (partially implemented, not included)
 - Azure Translator
 - Bergamot
@@ -14,11 +15,11 @@ There are as of writing 11 translation services implemented in code (but not nec
 - Lingva Translate
 - Yandex Translate
 
-
 Every service inherits from the `DummyTranslate` base class. Services functionality can be accessed
 via `app.plugins.plugins['translate'].translator`.
 
 ## Methods
+
 Every method prefixed by `service_` is an implementation of the `DummyTranslate` base class method.
 They implement the service-specific logic for executing a particular action, and are responsible for
 converting the API output of a service into a unified format.
@@ -26,18 +27,21 @@ converting the API output of a service into a unified format.
 If you call a method without the `service_` prefix (i.e. `translate` vs `service_translate`), additional
 input and output processing is performed (implemented in base class `DummyTranslate`).
 
-It is _recommended_ that you **always** use the non-prefixed methods (`validate()`, `translate()`, ...), 
-as these will check if the correct inputs were provided, the service is validated, automatic request splitting, etc. 
+It is _recommended_ that you **always** use the non-prefixed methods (`validate()`, `translate()`, ...),
+as these will check if the correct inputs were provided, the service is validated, automatic request splitting, etc.
 
 ### failed() and success()
+
 These functions update the internal failure counter, used to invalidate (block functionality) the service
 after a certain number of failures.
 
 ### validate()
+
 Validate that the service has been set up correctly, given API key, hostname, etc. If `output.validate` is true,
 the service is guaranteed to work correctly.
 
-Returns: 
+Returns:
+
 ```json
 {
   "valid": Translation service is valid & ready to use, 				[BOOLEAN] 
@@ -48,10 +52,12 @@ Returns:
 ```
 
 ### translate()
+
 Translate a given text from a source language to a target language. If `from` input parameter is not provided,
 it will default to `auto`, and leave it up to the service to determine the source language.
 
 Input:
+
 ```json
 {
   "text": Text to translate, 	[STRING]
@@ -61,6 +67,7 @@ Input:
 ```
 
 Returns:
+
 ```json
 {
   "translation": Translated text, undefined if text was not translated, 		[STRING?]
@@ -72,9 +79,11 @@ Returns:
 ```
 
 ### detect()
+
 Detect the language of a given text.
 
 Input:
+
 ```json
 {
   "text": Text to detect language of, 	[STRING]
@@ -82,6 +91,7 @@ Input:
 ```
 
 Returns:
+
 ```json
 {
   "detected_languages": Detected languages plus their confidence, [{language: STRING, confidence: NUMBER}]
@@ -90,11 +100,12 @@ Returns:
 }
 ```
 
-
 ### languages()
+
 Get a list of languages supported by the service.
 
 Returns:
+
 ```json
 {
   "languages": List of languages, 					[STRING[]?]
@@ -105,9 +116,11 @@ Returns:
 ```
 
 ### glossary_languages()
+
 Get a list of languages supported by the service for glossaries.
 
 Returns:
+
 ```json
 {
   "languages": List of target languages supported per source language, 	[{STRING, STRING[]}?]

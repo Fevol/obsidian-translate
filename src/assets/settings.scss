@@ -40,10 +40,11 @@ div.translator-navigation-item-selected {
   color: var(--text-on-accent);
   padding: 6px 9px;
   max-width: 200px;
-  transition: color 0.25s ease-in-out,
-  padding 0.25s ease-in-out,
-  background-color 0.35s cubic-bezier(0.45, 0.25, 0.83, 0.67),
-  max-width 0.45s cubic-bezier(0.57, 0.04, 0.58, 1) 0.2s;
+  transition:
+    color 0.25s ease-in-out,
+    padding 0.25s ease-in-out,
+    background-color 0.35s cubic-bezier(0.45, 0.25, 0.83, 0.67),
+    max-width 0.45s cubic-bezier(0.57, 0.04, 0.58, 1) 0.2s;
 }
 
 div.translator-navigation-item-selected:hover {
@@ -55,7 +56,6 @@ div.translator-navigation-item-selected:hover {
   outline: 3px solid var(--text-accent);
 }
 
-
 .translator-navigation-item-text {
   height: 18px;
 }
@@ -65,7 +65,7 @@ div.translator-navigation-item-selected:hover {
   color: transparent;
   overflow: clip;
   flex: 0;
-  transition: flex 0.40s ease-in;
+  transition: flex 0.4s ease-in;
 }
 
 .translator-navigation-item-selected .translation-navigation-item-text {
@@ -91,11 +91,12 @@ div.translator-navigation-item-selected:hover {
   background-color: var(--background-primary);
   border: 1px solid var(--background-modifier-border-hover);
 
-  transition: color 0.25s ease-in-out,
-  padding 0.25s ease-in-out,
-  background-color 0.35s cubic-bezier(0.45, 0.25, 0.83, 0.67),
-  max-width 0.35s cubic-bezier(0.57, 0.04, 0.58, 1),
-  outline 0.15s ease-in-out;
+  transition:
+    color 0.25s ease-in-out,
+    padding 0.25s ease-in-out,
+    background-color 0.35s cubic-bezier(0.45, 0.25, 0.83, 0.67),
+    max-width 0.35s cubic-bezier(0.57, 0.04, 0.58, 1),
+    outline 0.15s ease-in-out;
   //max-width: calc(var(--icon-size) * (5/3) + 2px);
   max-width: 32px;
   height: fit-content;

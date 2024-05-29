@@ -1,7 +1,7 @@
 import { Modal } from "obsidian";
-import type {SvelteComponent} from "svelte"
-import PasswordRequestModalView from "./PasswordRequestModalView.svelte";
+import type { SvelteComponent } from "svelte";
 import type TranslatorPlugin from "../../main";
+import PasswordRequestModalView from "./PasswordRequestModalView.svelte";
 
 export default class PasswordModal extends Modal {
 	private view?: SvelteComponent;
@@ -16,12 +16,11 @@ export default class PasswordModal extends Modal {
 			target: this.contentEl,
 			props: {
 				plugin: this.plugin,
-			}
+			},
 		});
 		this.view.$on("close", async (e) => {
 			super.close();
 		});
-
 	}
 
 	onClose() {

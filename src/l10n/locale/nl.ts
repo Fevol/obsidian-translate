@@ -616,5 +616,5 @@ export default {
 	"zu": "Zoeloe",
 	"zun": "Zuni",
 	"zxx": "geen linguïstische inhoud",
-	"zza": "Zaza"
+	"zza": "Zaza",
 };

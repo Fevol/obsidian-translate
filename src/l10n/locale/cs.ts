@@ -616,5 +616,5 @@ export default {
 	"zu": "zuluština",
 	"zun": "zunijština",
 	"zxx": "žádný jazykový obsah",
-	"zza": "zaza"
+	"zza": "zaza",
 };

@@ -44,7 +44,7 @@ import zhCN from "./locale/zh-cn";
 import zhTW from "./locale/zh-tw";
 
 // Supported Obsidian languages
-const locales : { [key: string]: Partial<typeof en> } = {
+const locales: { [key: string]: Partial<typeof en> } = {
 	ar,
 	be,
 	bg,
@@ -54,7 +54,7 @@ const locales : { [key: string]: Partial<typeof en> } = {
 	de,
 	el,
 	en,
-	'en-gb': enGB,
+	"en-gb": enGB,
 	es,
 	eu,
 	fa,
@@ -70,7 +70,7 @@ const locales : { [key: string]: Partial<typeof en> } = {
 	no,
 	pl,
 	pt,
-	'pt-br': ptBR,
+	"pt-br": ptBR,
 	ro,
 	ru,
 	se,
@@ -83,11 +83,11 @@ const locales : { [key: string]: Partial<typeof en> } = {
 	uk,
 	ur,
 	vi,
-	'zh-cn': zhCN,
-	'zh-tw': zhTW,
+	"zh-cn": zhCN,
+	"zh-tw": zhTW,
 };
 
-const locale: {[key: string]: string} = locales[moment.locale()];
+const locale: { [key: string]: string } = locales[moment.locale()];
 
 export default function t(str: string): string {
 	if (!locale)

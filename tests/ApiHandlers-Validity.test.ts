@@ -1,8 +1,7 @@
-import {services, empty_settings, input_desc, filled_settings} from "./services";
-import type {APIServiceProviders, APIServiceSettings} from "../src/types";
+import type { APIServiceProviders, APIServiceSettings } from "../src/types";
+import { empty_settings, filled_settings, input_desc, services } from "./services";
 
-
-test('Load correct-data.json', () => {
+test("Load correct-data.json", () => {
 	expect(filled_settings).not.toBe(undefined);
 });
 
@@ -11,7 +10,7 @@ for (const [id, config] of Object.entries(services)) {
 	const current_settings = empty_settings;
 
 	describe(config.name, () => {
-		test('Service settings loaded', () => {
+		test("Service settings loaded", () => {
 			expect(service_settings).not.toBe(undefined);
 		});
 
@@ -24,7 +23,9 @@ for (const [id, config] of Object.entries(services)) {
 						const result = await translator.validate();
 						expect(result.status_code).not.toBe(200);
 						expect(result.valid).toBe(false);
-						expect(result.message).toBe(`Validation failed:\n\t${input_desc[input as keyof typeof input_desc]} was not specified`);
+						expect(result.message).toBe(
+							`Validation failed:\n\t${input_desc[input as keyof typeof input_desc]} was not specified`,
+						);
 
 						// @ts-expect-error (Assigning to settings)
 						current_settings[input] = "wrong-value";

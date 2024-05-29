@@ -564,5 +564,5 @@ export default {
 	"zu": "Tiếng Zulu",
 	"zun": "Tiếng Zuni",
 	"zxx": "Không có nội dung ngôn ngữ",
-	"zza": "Tiếng Zaza"
+	"zza": "Tiếng Zaza",
 };

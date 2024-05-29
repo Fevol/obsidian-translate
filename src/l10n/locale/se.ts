@@ -274,5 +274,5 @@ export default {
 	"zh-Hans": "álki kiinágiella",
 	"zh-Hant": "árbevirolaš kiinnágiella",
 	"zu": "zu",
-	"zxx": "zxx"
+	"zxx": "zxx",
 };

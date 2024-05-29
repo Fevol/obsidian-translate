@@ -406,5 +406,5 @@ export default {
 	"zu": "zuluisht",
 	"zun": "zunisht",
 	"zxx": "nuk ka përmbajtje gjuhësore",
-	"zza": "zazaisht"
+	"zza": "zazaisht",
 };

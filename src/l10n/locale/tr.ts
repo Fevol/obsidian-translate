@@ -617,5 +617,5 @@ export default {
 	"zu": "Zuluca",
 	"zun": "Zunice",
 	"zxx": "Dilbilim içeriği yok",
-	"zza": "Zazaca"
+	"zza": "Zazaca",
 };

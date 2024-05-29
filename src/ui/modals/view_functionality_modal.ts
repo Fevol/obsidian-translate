@@ -1,7 +1,7 @@
-import { Modal, App } from "obsidian";
-import type {SvelteComponent} from "svelte"
+import { App, Modal } from "obsidian";
+import type { SvelteComponent } from "svelte";
+import type { TranslatorView } from "../../view";
 import ViewFunctionalityModalView from "./ViewFunctionalityModalView.svelte";
-import type {TranslatorView} from "../../view";
 
 export default class ViewFunctionalityModal extends Modal {
 	private view?: SvelteComponent;
@@ -21,10 +21,9 @@ export default class ViewFunctionalityModal extends Modal {
 		});
 		this.view.$on("close", async (e) => {
 			if (e.detail)
-				await this.translator_view.setState(Object.assign(state, e.detail), {history: false});
+				await this.translator_view.setState(Object.assign(state, e.detail), { history: false });
 			super.close();
 		});
-
 	}
 
 	onClose() {

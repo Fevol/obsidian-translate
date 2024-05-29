@@ -1,38 +1,38 @@
-import {DummyTranslate} from "./dummy-translate";
+import { requestUrl } from "obsidian";
+import { DummyTranslate } from "./dummy-translate";
 import type {
-	ServiceSettings,
 	DetectionResult,
 	LanguagesFetchResult,
+	ServiceOptions,
+	ServiceSettings,
 	TranslationResult,
 	ValidationResult,
-	ServiceOptions
 } from "./types";
-import {requestUrl} from "obsidian";
 
 interface GoogleBaseResult {
 	error?: {
-		code: number,
-		message: string
+		code: number;
+		message: string;
 		// Also contains 'errors' and 'details' fields
-	}
+	};
 }
 
 interface GoogleTranslationResult extends GoogleBaseResult {
 	data: {
-		translations: Array<{ translatedText: string, detectedSourceLanguage?: string, model: "nmt" }>
-	}
+		translations: Array<{ translatedText: string; detectedSourceLanguage?: string; model: "nmt" }>;
+	};
 }
 
 interface GoogleDetectionResult extends GoogleBaseResult {
 	data: {
-		detections: Array<Array<{ language: string, confidence: number, isReliable: boolean }>>
-	}
+		detections: Array<Array<{ language: string; confidence: number; isReliable: boolean }>>;
+	};
 }
 
 interface GoogleLanguageResult extends GoogleBaseResult {
 	data: {
-		languages: Array<{ language: string, name: string }>
-	}
+		languages: Array<{ language: string; name: string }>;
+	};
 }
 
 export class GoogleTranslate extends DummyTranslate {
@@ -52,19 +52,19 @@ export class GoogleTranslate extends DummyTranslate {
 
 	async service_validate(): Promise<ValidationResult> {
 		if (!this.#api_key)
-			return {status_code: 400, valid: false, message: "API key was not specified"};
+			return { status_code: 400, valid: false, message: "API key was not specified" };
 
 		const response = await requestUrl({
 			throw: false,
 			url: `https://translation.googleapis.com/language/translate/v2/languages?` +
 				new URLSearchParams({
 					key: this.#api_key,
-					target: 'en',
-					model: 'nmt',
+					target: "en",
+					model: "nmt",
 				}),
 			headers: {
-				'Content-Type': 'application/json',
-				'Accept': 'application/json',
+				"Content-Type": "application/json",
+				"Accept": "application/json",
 			},
 		});
 
@@ -73,22 +73,21 @@ export class GoogleTranslate extends DummyTranslate {
 		return {
 			status_code: response.status,
 			valid: response.status === 200,
-			message: data.error?.message
+			message: data.error?.message,
 		};
 	}
-
 
 	async service_detect(text: string): Promise<DetectionResult> {
 		const response = await requestUrl({
 			throw: false,
-			method: 'POST',
+			method: "POST",
 			url: `https://translation.googleapis.com/language/translate/v2/detect?` +
 				new URLSearchParams({
 					key: this.#api_key!,
 				}),
 			headers: {
-				'Content-Type': 'application/json',
-				'Accept': 'application/json',
+				"Content-Type": "application/json",
+				"Accept": "application/json",
 			},
 			body: JSON.stringify({
 				q: text,
@@ -97,18 +96,23 @@ export class GoogleTranslate extends DummyTranslate {
 
 		const data: GoogleDetectionResult = response.json;
 		if (response.status !== 200)
-			return {status_code: response.status, message: data.error!.message}
+			return { status_code: response.status, message: data.error!.message };
 
 		return {
 			status_code: response.status,
 			detected_languages: [{
 				language: data.data.detections[0][0].language,
-				confidence: data.data.detections[0][0].confidence
-			}]
+				confidence: data.data.detections[0][0].confidence,
+			}],
 		};
 	}
 
-	async service_translate(text: string, from: string, to: string, options: ServiceOptions = {}): Promise<TranslationResult> {
+	async service_translate(
+		text: string,
+		from: string,
+		to: string,
+		options: ServiceOptions = {},
+	): Promise<TranslationResult> {
 		const response = await requestUrl({
 			throw: false,
 			method: "POST",
@@ -117,28 +121,29 @@ export class GoogleTranslate extends DummyTranslate {
 					key: this.#api_key!,
 				}),
 			headers: {
-				'Content-Type': 'application/json',
-				'Accept': 'application/json',
+				"Content-Type": "application/json",
+				"Accept": "application/json",
 			},
 			body: JSON.stringify({
 				q: text,
-				source: from === 'auto' ? undefined : from,
+				source: from === "auto" ? undefined : from,
 				target: to,
-				format: 'text',
-				model: 'nmt',
+				format: "text",
+				model: "nmt",
 			}),
 		});
 
 		// Data = [{"text":"Hello", "detected_source_language":"en", "model":"nmt"}, ...]
 		const data: GoogleTranslationResult = response.json;
 		if (response.status !== 200)
-			return {status_code: response.status, message: data.error!.message}
+			return { status_code: response.status, message: data.error!.message };
 
 		return {
 			status_code: response.status,
 			translation: data.data.translations[0].translatedText,
 			detected_language: (from === "auto" && data.data.translations[0].detectedSourceLanguage) ?
-				data.data.translations[0].detectedSourceLanguage : undefined
+				data.data.translations[0].detectedSourceLanguage :
+				undefined,
 		};
 	}
 
@@ -149,12 +154,12 @@ export class GoogleTranslate extends DummyTranslate {
 			url: `https://translation.googleapis.com/language/translate/v2/languages?` +
 				new URLSearchParams({
 					key: this.#api_key!,
-					target: 'en',
-					model: 'nmt',
+					target: "en",
+					model: "nmt",
 				}),
 			headers: {
-				'Content-Type': 'application/json',
-				'Accept': 'application/json',
+				"Content-Type": "application/json",
+				"Accept": "application/json",
 			},
 		});
 
@@ -162,11 +167,11 @@ export class GoogleTranslate extends DummyTranslate {
 		const data: GoogleLanguageResult = response.json;
 
 		if (response.status !== 200)
-			return {status_code: response.status, message: data.error!.message}
+			return { status_code: response.status, message: data.error!.message };
 
 		return {
 			status_code: response.status,
-			languages: data.data.languages.map((l) => l.language)
+			languages: data.data.languages.map((l) => l.language),
 		};
 	}
 

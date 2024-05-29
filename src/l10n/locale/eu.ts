@@ -406,5 +406,5 @@ export default {
 	"zu": "zuluera",
 	"zun": "zuñia",
 	"zxx": "ez dago eduki linguistikorik",
-	"zza": "zazera"
+	"zza": "zazera",
 };

@@ -1,5 +1,5 @@
 import { Modal } from "obsidian";
-import type {SvelteComponent} from "svelte"
+import type { SvelteComponent } from "svelte";
 
 import type TranslatorPlugin from "../../main";
 import ConfirmationModalView from "./ConfirmationModalView.svelte";
@@ -27,12 +27,11 @@ export default class PasswordModal extends Modal {
 				callback: this.callback,
 				title: this.title,
 				description: this.description,
-			}
+			},
 		});
 		this.view.$on("close", async (e) => {
 			super.close();
 		});
-
 	}
 
 	onClose() {

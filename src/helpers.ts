@@ -1,7 +1,7 @@
-import {TFile, Editor, Notice} from "obsidian";
-import type TranslatorPlugin from "./main";
+import { Editor, Notice, TFile } from "obsidian";
+import type { ServiceOptions, TranslationResult } from "./handlers/types";
 import t from "./l10n";
-import type {TranslationResult, ServiceOptions} from "./handlers/types";
+import type TranslatorPlugin from "./main";
 
 /**
  * Helper function for translating a file, making a new file or replacing the original one with the translation.
@@ -11,29 +11,34 @@ import type {TranslationResult, ServiceOptions} from "./handlers/types";
  * @param replace_original - Whether to replace the original file with the translated file
  * @param options - Options for the translation service (e.g.: apply glossary)
  */
-export async function translate_file(plugin: TranslatorPlugin, file: TFile | null, language_to: string, replace_original: boolean = false,
-									 options: ServiceOptions): Promise<TranslationResult> {
+export async function translate_file(
+	plugin: TranslatorPlugin,
+	file: TFile | null,
+	language_to: string,
+	replace_original: boolean = false,
+	options: ServiceOptions,
+): Promise<TranslationResult> {
 	if (!file)
-		return {status_code: 400, message: "No file was selected"};
+		return { status_code: 400, message: "No file was selected" };
 
 	const file_content = await plugin.app.vault.read(file);
 	if (!file_content.trim())
-		return {status_code: 400, message: "Selected file is empty"};
+		return { status_code: 400, message: "Selected file is empty" };
 
 	if (!plugin.translator)
-		return {status_code: 400, message: "No translation service available"};
+		return { status_code: 400, message: "No translation service available" };
 
 	const paragraphs = file_content.split("\n\n");
 
 	const translated_text = [];
 	for (const paragraph of paragraphs) {
 		// Paragraph only contains formatting
-		if (paragraph.trim().length === 0) {
+		if (paragraph.trim().length === 0)
 			translated_text.push(paragraph);
-		} else {
-			const output = (await plugin.translator.translate(paragraph, "auto", language_to, options));
+		else {
+			const output = await plugin.translator.translate(paragraph, "auto", language_to, options);
 			if (output.status_code !== 200) {
-				output.translation = translated_text.join('\n\n');
+				output.translation = translated_text.join("\n\n");
 				return output;
 			}
 
@@ -41,38 +46,39 @@ export async function translate_file(plugin: TranslatorPlugin, file: TFile | nul
 		}
 	}
 
-	if (replace_original) {
+	if (replace_original)
 		await plugin.app.vault.modify(file, translated_text.join("\n\n"));
-	} else {
+	else {
 		// Translate the filename as well, if possible
 		const filename = file?.name.replace(/\.[^/.]+$/, "");
 
-		const filename_translation = (await plugin.translator.translate(filename, "auto", language_to, options)).translation;
+		const filename_translation =
+			(await plugin.translator.translate(filename, "auto", language_to, options)).translation;
 
-		const translated_filename = (!filename_translation || filename_translation === filename)
-			? `[${language_to}] ${filename}`
-			: filename_translation;
+		const translated_filename = (!filename_translation || filename_translation === filename) ?
+			`[${language_to}] ${filename}` :
+			filename_translation;
 
 		const translated_document = translated_text.join("\n\n");
-		const translated_document_path = (file.parent!.path === '/' ? '' : file.parent!.path + '/') + translated_filename + ".md";
+		const translated_document_path = (file.parent!.path === "/" ? "" : file.parent!.path + "/") +
+			translated_filename + ".md";
 
 		// If translation of file already exists, replace it by new translation
 		let existing_file = plugin.app.vault.getAbstractFileByPath(translated_document_path);
 
-		if (existing_file && existing_file instanceof TFile) {
+		if (existing_file && existing_file instanceof TFile)
 			await plugin.app.vault.modify(existing_file, translated_document);
-		} else {
+		else
 			existing_file = await plugin.app.vault.create(translated_document_path, translated_document);
-		}
 		const leaf = plugin.app.workspace.getLeaf(false);
-		plugin.app.workspace.setActiveLeaf(leaf, {focus: true});
-		await leaf.openFile(existing_file as TFile, {eState: {focus: true}});
+		plugin.app.workspace.setActiveLeaf(leaf, { focus: true });
+		await leaf.openFile(existing_file as TFile, { eState: { focus: true } });
 	}
 
 	return {
 		status_code: 200,
 		translation: translated_text.join("\n\n"),
-	}
+	};
 }
 
 /**
@@ -83,13 +89,19 @@ export async function translate_file(plugin: TranslatorPlugin, file: TFile | nul
  * @param options - Options for the translation service (e.g.: apply glossary)
  * @param handle_text - What to do with the translation (replace input, append below, copy to clipboard, ...)
  */
-export async function translate_selection(plugin: TranslatorPlugin, editor: Editor, language_to: string, options: ServiceOptions, handle_text = "replace"): Promise<TranslationResult> {
+export async function translate_selection(
+	plugin: TranslatorPlugin,
+	editor: Editor,
+	language_to: string,
+	options: ServiceOptions,
+	handle_text = "replace",
+): Promise<TranslationResult> {
 	if (editor.getSelection().length === 0) {
 		plugin.message_queue("Selection is empty");
-		return {status_code: 400, message: "Selection is empty"};
+		return { status_code: 400, message: "Selection is empty" };
 	}
 	if (!plugin.translator)
-		return {status_code: 400, message: "No translation service available"};
+		return { status_code: 400, message: "No translation service available" };
 
 	const text = editor.getSelection();
 	const result = await plugin.translator.translate(text, "auto", language_to, options);
@@ -140,10 +152,11 @@ export async function detect_selection(plugin: TranslatorPlugin, editor: Editor)
 
 		if (detected_languages) {
 			const alternatives = detected_languages.map((result) => {
-				return `${t(result.language!)}` + (result.confidence !== undefined ? ` [${(result.confidence * 100).toFixed(2)}%]` : '');
+				return `${t(result.language!)}` +
+					(result.confidence !== undefined ? ` [${(result.confidence * 100).toFixed(2)}%]` : "");
 			});
 
-			new Notice(`Detected languages:\n\t${alternatives.join('\n\t')}`, 0);
+			new Notice(`Detected languages:\n\t${alternatives.join("\n\t")}`, 0);
 		}
 	}
 }

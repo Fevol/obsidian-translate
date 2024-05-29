@@ -1,4 +1,4 @@
-import {apiVersion, type App, Platform} from "obsidian";
+import { apiVersion, type App, Platform } from "obsidian";
 
 /**
  * Helper function for overwriting a file if it exists, else saving it as a new file
@@ -24,7 +24,7 @@ export async function writeOrReplace(app: App, path: string, data: ArrayBuffer) 
  * @private
  */
 export async function writeRecursive(app: App, path: string, data: ArrayBuffer) {
-	await app.vault.adapter.mkdir(path.substring(0, path.lastIndexOf('/')));
+	await app.vault.adapter.mkdir(path.substring(0, path.lastIndexOf("/")));
 	await app.vault.adapter.writeBinary(path, data);
 }
 
@@ -36,9 +36,8 @@ export async function writeRecursive(app: App, path: string, data: ArrayBuffer) 
  */
 export function openSettingTab(app: App) {
 	app.setting.open();
-	if (app.setting.lastTabId !== 'translate') {
+	if (app.setting.lastTabId !== "translate")
 		app.setting.openTabById("translate");
-	}
 }
 
 /**
@@ -51,22 +50,22 @@ export async function getObsidianData(app: App) {
 	let framework_version;
 	if (Platform.isMobileApp) {
 		// @ts-ignore (Capacitor exists)
-		const capacitor_info = await Capacitor.nativePromise('App', 'getInfo');
+		const capacitor_info = await Capacitor.nativePromise("App", "getInfo");
 		if (capacitor_info)
 			framework_version = capacitor_info.version + " (" + capacitor_info.build + ")";
 	} else {
-		framework_version = navigator.userAgent.match(/obsidian\/([\d.]+\d+)/)?.[1] || "unknown"
+		framework_version = navigator.userAgent.match(/obsidian\/([\d.]+\d+)/)?.[1] || "unknown";
 	}
 
 	return {
-		plugin_version: app.plugins.plugins['translate'].manifest.version,
-		platform: Platform.isMobileApp ? (Platform.isAndroidApp ? 'Android' : Platform.isIosApp ? 'iOS' : 'mobile') :
-			(Platform.isMacOS ? 'macOS' : 'Desktop'),
+		plugin_version: app.plugins.plugins["translate"].manifest.version,
+		platform: Platform.isMobileApp ?
+			(Platform.isAndroidApp ? "Android" : Platform.isIosApp ? "iOS" : "mobile") :
+			(Platform.isMacOS ? "macOS" : "Desktop"),
 		framework_version,
 		obsidian_version: apiVersion,
-	}
+	};
 }
-
 
 /**
  * Helper function for generating a pre-filled bug report for GitHub
@@ -77,28 +76,30 @@ export async function getObsidianData(app: App) {
  * @returns {string} - URL to create a new issue on GitHub
  */
 export async function generateGithubIssueLink(app: App, title: string, data: Record<string, string> = {}) {
-	const title_string = title ? `[BUG] ${title} – ADD A TITLE HERE` : '[BUG] ADD A TITLE HERE';
+	const title_string = title ? `[BUG] ${title} – ADD A TITLE HERE` : "[BUG] ADD A TITLE HERE";
 	try {
 		const base_data = await getObsidianData(app);
-		const issue_data = {...base_data, ...data};
-		const data_string = Object.entries(issue_data).map(([key, value]) => `**${key}**: ${JSON.stringify(value)}`).join('\n');
+		const issue_data = { ...base_data, ...data };
+		const data_string = Object.entries(issue_data).map(([key, value]) => `**${key}**: ${JSON.stringify(value)}`)
+			.join("\n");
 
 		return `https://github.com/Fevol/obsidian-translate/issues/new?` +
 			new URLSearchParams({
 				title: title_string,
-				body: `# User report\n**Description:** ADD A SHORT DESCRIPTION HERE \n\n\n\n---\n# Debugger data (do not alter)\n${data_string}`,
-				labels: `bug`
+				body:
+					`# User report\n**Description:** ADD A SHORT DESCRIPTION HERE \n\n\n\n---\n# Debugger data (do not alter)\n${data_string}`,
+				labels: `bug`,
 			});
 	} catch (e) {
-		return 'https://github.com/Fevol/obsidian-translate/issues/new?' +
+		return "https://github.com/Fevol/obsidian-translate/issues/new?" +
 			new URLSearchParams({
 				title: title_string,
-				body: `# User report\n**Description:** ADD A SHORT DESCRIPTION HERE \n\n\n\n---\n# Debugger data (do not alter)\n**Error while generating debugger data:** ${e}`,
-				labels: `bug`
+				body:
+					`# User report\n**Description:** ADD A SHORT DESCRIPTION HERE \n\n\n\n---\n# Debugger data (do not alter)\n**Error while generating debugger data:** ${e}`,
+				labels: `bug`,
 			});
 	}
 }
-
 
 /**
  * Helper function to open GitHub issue link for user
@@ -108,6 +109,6 @@ export async function generateGithubIssueLink(app: App, title: string, data: Rec
  * @param data - Debug information
  * @returns {Promise<void>}
  */
-export async function openGithubIssueLink(app: App, title: string = '', data: Record<string, string> = {}) {
-	window.open(await generateGithubIssueLink(app, title, data), '_blank');
+export async function openGithubIssueLink(app: App, title: string = "", data: Record<string, string> = {}) {
+	window.open(await generateGithubIssueLink(app, title, data), "_blank");
 }

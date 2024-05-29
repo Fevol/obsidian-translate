@@ -447,5 +447,5 @@ export default {
 	"zu": "Zulu",
 	"zun": "Zuni",
 	"zxx": "Tiada kandungan linguistik",
-	"zza": "Zaza"
+	"zza": "Zaza",
 };

@@ -1,13 +1,13 @@
-import {DummyTranslate} from "./dummy-translate";
+import { requestUrl } from "obsidian";
+import { DummyTranslate } from "./dummy-translate";
 import type {
-	ServiceSettings,
 	DetectionResult,
 	LanguagesFetchResult,
+	ServiceOptions,
+	ServiceSettings,
 	TranslationResult,
 	ValidationResult,
-	ServiceOptions
 } from "./types";
-import {requestUrl} from "obsidian";
 
 export class AzureTranslator extends DummyTranslate {
 	#api_key: string | undefined;
@@ -30,30 +30,29 @@ export class AzureTranslator extends DummyTranslate {
 		this.#region = settings.region ?? this.#region;
 	}
 
-
 	async service_validate(): Promise<ValidationResult> {
 		if (!this.#api_key)
-			return {status_code: 400, valid: false, message: "API key was not specified"};
+			return { status_code: 400, valid: false, message: "API key was not specified" };
 
 		// TODO: Check if there is a better way to validate the API key
 		const headers: Record<string, string> = {
 			"Content-Type": "application/json",
 			"Ocp-Apim-Subscription-Key": this.#api_key,
-		}
+		};
 		if (this.#region)
 			headers["Ocp-Apim-Subscription-Region"] = this.#region;
 
 		const response = await requestUrl({
 			throw: false,
 			method: "POST",
-			url:`https://api.cognitive.microsofttranslator.com/translate?api-version=3.0&` +
+			url: `https://api.cognitive.microsofttranslator.com/translate?api-version=3.0&` +
 				new URLSearchParams({
 					from: "",
 					to: "en",
-					textType: "plain"
+					textType: "plain",
 				}),
 			headers: headers,
-			body: JSON.stringify([{Text: ''}]),
+			body: JSON.stringify([{ Text: "" }]),
 		});
 
 		const data = response.json;
@@ -61,53 +60,57 @@ export class AzureTranslator extends DummyTranslate {
 		return {
 			status_code: response.status,
 			valid: response.status === 200,
-			message: data.error?.message
+			message: data.error?.message,
 		};
-
 	}
 
 	async service_detect(text: string): Promise<DetectionResult> {
 		const headers: Record<string, string> = {
 			"Content-Type": "application/json",
 			"Ocp-Apim-Subscription-Key": this.#api_key ?? "",
-		}
+		};
 		if (this.#region)
 			headers["Ocp-Apim-Subscription-Region"] = this.#region;
 
 		const response = await requestUrl({
 			throw: false,
 			method: "POST",
-			url:`https://api.cognitive.microsofttranslator.com/detect?api-version=3.0&scope=text` +
+			url: `https://api.cognitive.microsofttranslator.com/detect?api-version=3.0&scope=text` +
 				new URLSearchParams({
-					textType: "plain"
+					textType: "plain",
 				}),
 			headers: headers,
-			body: JSON.stringify([{Text: text}]),
+			body: JSON.stringify([{ Text: text }]),
 		});
-
 
 		const data = response.json;
 		if (response.status !== 200)
-			return {status_code: response.status, message: data.error.message}
+			return { status_code: response.status, message: data.error.message };
 
-		let results = [{language: data[0].language, confidence: data[0].score}];
-		if (data[0].alternatives)
-			results = results.concat(data[0].alternatives.map((alternative: { language: string; score: number; }) => ({
+		let results = [{ language: data[0].language, confidence: data[0].score }];
+		if (data[0].alternatives) {
+			results = results.concat(data[0].alternatives.map((alternative: { language: string; score: number }) => ({
 				language: alternative.language,
-				confidence: alternative.score
+				confidence: alternative.score,
 			})));
+		}
 
 		return {
 			status_code: response.status,
-			detected_languages: results
+			detected_languages: results,
 		};
 	}
 
-	async service_translate(text: string, from: string, to: string, options: ServiceOptions = {}): Promise<TranslationResult> {
+	async service_translate(
+		text: string,
+		from: string,
+		to: string,
+		options: ServiceOptions = {},
+	): Promise<TranslationResult> {
 		const headers: Record<string, string> = {
 			"Content-Type": "application/json",
 			"Ocp-Apim-Subscription-Key": this.#api_key ?? "",
-		}
+		};
 		if (this.#region)
 			headers["Ocp-Apim-Subscription-Region"] = this.#region;
 
@@ -133,14 +136,15 @@ export class AzureTranslator extends DummyTranslate {
 		const response = await requestUrl({
 			throw: false,
 			method: "POST",
-			url:`https://api.cognitive.microsofttranslator.com/translate?api-version=3.0&` + new URLSearchParams(params),
+			url: `https://api.cognitive.microsofttranslator.com/translate?api-version=3.0&` +
+				new URLSearchParams(params),
 			headers: headers,
-			body: JSON.stringify([{Text: text}]),
+			body: JSON.stringify([{ Text: text }]),
 		});
 
 		const data = response.json;
 		if (response.status !== 200)
-			return {status_code: response.status, message: data.error.message};
+			return { status_code: response.status, message: data.error.message };
 
 		const detected_language = from === "auto" && data[0].detectedLanguage.language;
 
@@ -148,7 +152,7 @@ export class AzureTranslator extends DummyTranslate {
 			status_code: response.status,
 			translation: data[0].translations[0].text,
 			detected_language: detected_language ? data[0].detectedLanguage.language : null,
-			confidence: detected_language ? data[0].detectedLanguage.score : null
+			confidence: detected_language ? data[0].detectedLanguage.score : null,
 		};
 	}
 
@@ -157,23 +161,22 @@ export class AzureTranslator extends DummyTranslate {
 		const response = await requestUrl({
 			throw: false,
 			method: "GET",
-			url:`https://api.cognitive.microsofttranslator.com/languages?api-version=3.0&scope=translation`,
+			url: `https://api.cognitive.microsofttranslator.com/languages?api-version=3.0&scope=translation`,
 			headers: { "Content-Type": "application/json" },
 		});
 
 		const data = response.json;
 
 		if (response.status !== 200)
-			return {status_code: response.status, message: data.error.message}
+			return { status_code: response.status, message: data.error.message };
 
 		return {
 			status_code: response.status,
-			languages: Object.keys(data.translation)
+			languages: Object.keys(data.translation),
 		};
 	}
 
 	has_autodetect_capability(): boolean {
 		return true;
 	}
-
 }
