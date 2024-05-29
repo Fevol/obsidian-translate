@@ -10,7 +10,11 @@
 		"version": "bun version-bump.mjs && git add manifest.json versions.json",
 		"lint": "bun eslint src/",
 		"test": "jest --verbose",
-		"test-coverage": "jest --coverage"
+		"test-coverage": "jest --coverage",
+		"release-patch": "bun run scripts/bump-version.ts --type patch",
+		"release-minor": "bun run scripts/bump-version.ts --type minor",
+		"release-major": "bun run scripts/bump-version.ts --type major",
+		"release-rc": "bun run scripts/bump-version.ts --rc"
 	},
 	"keywords": [],
 	"author": "Fevol",
@@ -23,6 +27,7 @@
 		"@types/obsidian-typings": "npm:obsidian-typings@^1.1.5",
 		"@typescript-eslint/eslint-plugin": "^6.10.0",
 		"@typescript-eslint/parser": "^6.10.0",
+		"commander": "^12.1.0",
 		"esbuild-jest": "^0.5.0",
 		"eslint-plugin-deprecation": "^2.0.0",
 		"eslint-plugin-svelte": "^2.39.0",
