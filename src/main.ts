@@ -178,21 +178,6 @@ export default class TranslatorPlugin extends Plugin {
 		// Update the version number in the data.json, only saved if the settings get changed
 		loaded_settings.version = DEFAULT_SETTINGS.version;
 
-		// @ts-ignore (path exists in legacy versions)
-		if (loaded_settings.storage_path) {
-			try {
-				// @ts-ignore (path exists in legacy versions)
-				await this.app.vault.adapter.rename(
-					`${this.app.vault.configDir}/${loaded_settings.storage_path}`,
-					`${this.app.vault.configDir}/plugins/translate/models`,
-				);
-			} catch (e) {
-				console.error(e);
-			}
-			// @ts-ignore (path exists in legacy versions)
-			delete loaded_settings.storage_path;
-		}
-
 		/** Check for any updates on the translation services
 		 *  In order to improve future compatibility, the user can manually update the available_languages/... with
 		 *    the 'update languages' button in the settings (and thus fetch a more recent version than default);
@@ -203,17 +188,13 @@ export default class TranslatorPlugin extends Plugin {
 				value.version && DEFAULT_SETTINGS.service_settings[key as keyof APIServiceProviders].version &&
 				value.version < DEFAULT_SETTINGS.service_settings[key as keyof APIServiceProviders].version!
 			) {
-				// @ts-expect-error (type error that is too difficult, can't add keyof APIServiceProvider to LHS -- yet)
-				loaded_settings.service_settings[key].available_languages =
-					DEFAULT_SETTINGS.service_settings[key].available_languages;
-				// @ts-expect-error (idem)
-				loaded_settings.service_settings[key].downloadable_models =
-					DEFAULT_SETTINGS.service_settings[key].downloadable_models;
-				// @ts-expect-error (idem)
-				loaded_settings.service_settings[key].glossary_languages =
-					DEFAULT_SETTINGS.service_settings[key].glossary_languages;
-				// @ts-expect-error (idem)
-				loaded_settings.service_settings[key].version = DEFAULT_SETTINGS.service_settings[key].version;
+				const ls_key = key as keyof APIServiceProviders;
+				if (ls_key !== "fasttext") {
+					loaded_settings.service_settings[ls_key].available_languages = DEFAULT_SETTINGS.service_settings[ls_key].available_languages;
+					loaded_settings.service_settings[ls_key].downloadable_models = DEFAULT_SETTINGS.service_settings[ls_key].downloadable_models;
+					loaded_settings.service_settings[ls_key].glossary_languages = DEFAULT_SETTINGS.service_settings[ls_key].glossary_languages;
+				}
+				loaded_settings.service_settings[ls_key].version = DEFAULT_SETTINGS.service_settings[ls_key].version;
 			}
 		}
 		settings.set(loaded_settings);
