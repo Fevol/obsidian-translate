@@ -30,7 +30,6 @@ export const FMT = {
 	bg_crimson: '\x1b[48m',
 }
 
-// Styles if keyof FMT
 export const format = (str: string, ...styles: (keyof typeof FMT)[]) => {
 	return styles.reduce((acc, style) => FMT[style] + acc, str) + FMT.reset;
 }

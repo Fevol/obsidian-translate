@@ -4,9 +4,8 @@
  * 	- https://github.com/mProjectsCode/obsidian-meta-bind-plugin/blob/master/automation/release.ts
  */
 import {Command, Option} from "commander";
+import {format} from "../utils/formatting";
 import * as Bun from "bun";
-import {FMT, format} from "./utils/formatting";
-
 
 const program = new Command()
 	.addOption(new Option("-t, --type <type>", "Version bump type").choices(["patch", "minor", "major"]).default("patch"))

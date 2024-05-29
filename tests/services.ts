@@ -2,8 +2,9 @@
 import { existsSync, readFileSync } from 'fs';
 import { TextEncoder, TextDecoder } from 'util';
 
+// @ts-expect-error (TextEncoder is not defined in the Node.js global scope)
 global.TextEncoder = TextEncoder;
-// @ts-ignore (TextDecoder is not defined in the Node.js global scope)
+// @ts-expect-error (TextDecoder is not defined in the Node.js global scope)
 global.TextDecoder = TextDecoder;
 
 // Add mock for SubtleCrypto

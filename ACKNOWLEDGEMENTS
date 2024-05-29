@@ -1,5 +1,5 @@
 
-Externally maintained libaries with modified source code used by this software are:
+Externally maintained libraries with modified source code used by this software are:
 
 - FastText, located at https://github.com/facebookresearch/fastText, is licensed as follows:
 	"""
