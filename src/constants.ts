@@ -6,7 +6,17 @@ import type {
 } from "./types";
 import {moment} from "obsidian";
 
-// Add list of icons
+export const BERGAMOT_REPOSITORY = "https://raw.githubusercontent.com/mozilla/firefox-translations-models/main";
+export const BERGAMOT_LFS_REPOSITORY = "https://github.com/mozilla/firefox-translations-models/raw/main";
+/**
+ * @remark This was changed from archived firefox-translations repository on account of the binary not being up-to-date anymore.
+ *     I tried determining whether it could be found in the firefox source code, but it doesn't seem to be distributed there either.
+ *     Old link: https://github.com/mozilla/firefox-translations/blob/main/extension/model/static/translation/bergamot-translator-worker.wasm?raw=true
+ */
+export const BERGAMOT_WORKER_LOCATION = "https://raw.githubusercontent.com/Fevol/obsidian-translate/main/dist/bergamot-translator-worker.wasm";
+export const FASTTEXT_WORKER_LOCATION = "https://raw.githubusercontent.com/Fevol/obsidian-translate/main/dist/fasttext_wasm.wasm";
+
+
 export const ICONS = {
 	"translate": "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"100\" height=\"100\" viewBox=\"0 0 32 32\"><path fill=\"currentColor\" d=\"M32 28.8h-2.304c-0.017 0.001-0.037 0.002-0.056 0.002-0.22 0-0.423-0.073-0.586-0.195l0.003 0.002c-0.158-0.132-0.284-0.298-0.365-0.488l-0.003-0.008-1.488-4.112h-8l-1.6 4.064c-0.080 0.192-0.2 0.353-0.35 0.478l-0.002 0.002c-0.164 0.14-0.377 0.224-0.611 0.224-0.010 0-0.020-0-0.030-0l0.001 0h-2.208l7.28-18.352h3.024zM26.352 21.904l-2.528-6.704c-0.205-0.517-0.419-1.178-0.595-1.855l-0.029-0.129q-0.144 0.592-0.304 1.104l-0.304 0.896-2.528 6.704zM16.272 19.376c-1.779-0.618-3.317-1.38-4.739-2.307l0.083 0.051c2.172-2.328 3.749-5.238 4.473-8.47l0.023-0.122h3.088v-2.128h-7.504c-0.098-0.352-0.207-0.65-0.336-0.936l0.016 0.040c-0.384-1.040-0.816-2.304-0.816-2.304l-2.352 0.8s0.64 1.424 0.96 2.4h-9.168v2.128h3.44c0.747 3.364 2.349 6.278 4.566 8.599l-0.006-0.007c-2.3 1.453-4.968 2.607-7.81 3.32l-0.19 0.040q0.896 1.312 1.392 2.208c3.188-1.083 5.949-2.442 8.495-4.104l-0.143 0.088c1.64 1.111 3.522 2.068 5.521 2.778l0.175 0.054zM5.808 8.528h7.856c-0.542 2.834-1.941 5.276-3.912 7.113l-0.008 0.007c-1.905-1.896-3.288-4.314-3.917-7.022l-0.019-0.098z\"></path></svg>",
 	"translate-file": "<svg width=\"100\" height=\"100\" viewBox=\"0 0 100 100\" xmlns=\"http://www.w3.org/2000/svg\"> <g fill=\"currentColor\" transform=\"matrix(7.8236 0 0 7.8236 -635.72 -585.41)\"><path transform=\"scale(.26458)\" d=\"m319.31 282.81c-3.3349 0-6.0371 2.7041-6.0371 6.0391v36.227c0 3.3302 2.7022 6.0371 6.0371 6.0371h24.152c3.3302 0 6.0371-2.7069 6.0371-6.0371v-27.17h-12.076c-1.6698 0-3.0176-1.3497-3.0176-3.0195v-12.076zm18.113 0v12.076h12.076zm-10.145 17.254s0.35346 1.0397 0.67383 1.9102c0.10885 0.24131 0.20051 0.49402 0.2832 0.79101h6.332v1.7949h-2.6055l-0.0195 0.10351c-0.61086 2.7269-1.9409 5.1823-3.7734 7.1465 1.1805 0.7619 2.4555 1.3909 3.9277 1.9023l-0.70117 1.7949-0.14844-0.0449c-1.6857-0.59872-3.273-1.4051-4.6562-2.3418-2.1152 1.3673-4.4085 2.4898-7.0488 3.3867-0.279-0.50398-0.66984-1.1253-1.1738-1.8633l0.16015-0.0332c2.3979-0.60158 4.6493-1.5748 6.5898-2.8008-1.8681-1.9575-3.2179-4.4141-3.8477-7.25h-2.9023v-1.7949h7.7344c-0.26999-0.82347-0.80859-2.0254-0.80859-2.0254zm-4.0098 4.4961 0.0156 0.082c0.53071 2.2848 1.6974 4.3261 3.3047 5.9258l8e-3 -6e-3c1.663-1.5499 2.8435-3.6108 3.3008-6.002zm13.393 1.5938h2.5508l6.1562 15.51h-1.9453c-0.0144 8.4e-4 -0.031 2e-3 -0.0469 2e-3 -0.18463 0-0.35503-0.0602-0.49219-0.16211l-2e-3 -2e-3c-0.13231-0.11109-0.23672-0.25072-0.30469-0.41015l-4e-3 -6e-3 -1.2539-3.4707h-6.75l-1.3516 3.4297c-0.0675 0.16199-0.16839 0.29687-0.29493 0.40235l-2e-3 2e-3c-0.13837 0.11811-0.31819 0.18945-0.51562 0.18945h-1.8867zm1.2812 2.3613c-0.081 0.333-0.16589 0.64365-0.25586 0.93165l-0.25782 0.75585-2.1328 5.6563 5.3066-0.0137-2.1328-5.6562c-0.17295-0.4362-0.35347-0.99325-0.50195-1.5644z\" stroke-width=\".09434\"/> </g></svg>",
@@ -240,11 +250,9 @@ export const DEFAULT_SETTINGS: TranslatorPluginSettings = {
 		bergamot: {
 			selected_languages: [],
 			validated: null,
-
 			auto_translate: false,
 			auto_translate_interval: 500,
 			available_languages: [],
-			version: "0.3.3",
 			downloadable_models: [
 				{
 					"size": 46992539,
@@ -276,44 +284,8 @@ export const DEFAULT_SETTINGS: TranslatorPluginSettings = {
 							"usage": "to"
 						}
 					],
-					"dev": false
-				},
-				{
-					"size": 43143255,
-					"locale": "cs",
-					"files": [
-						{
-							"name": "model.csen.intgemm.alphas.bin",
-							"size": 17140756,
-							"usage": "from"
-						},
-						{
-							"name": "lex.50.50.csen.s2t.bin",
-							"size": 4535788,
-							"usage": "from"
-						},
-						{
-							"name": "vocab.csen.spm",
-							"size": 769763,
-							"usage": "both"
-						},
-						{
-							"name": "model.encs.intgemm.alphas.bin",
-							"size": 17140756,
-							"usage": "to"
-						},
-						{
-							"name": "lex.50.50.encs.s2t.bin",
-							"size": 3556124,
-							"usage": "to"
-						},
-						{
-							"name": "qualityModel.encs.bin",
-							"size": 68,
-							"usage": "to"
-						}
-					],
-					"dev": false
+					"dev_from": false,
+					"dev_to": false
 				},
 				{
 					"size": 44057153,
@@ -345,7 +317,8 @@ export const DEFAULT_SETTINGS: TranslatorPluginSettings = {
 							"usage": "to"
 						}
 					],
-					"dev": false
+					"dev_from": false,
+					"dev_to": false
 				},
 				{
 					"size": 42315033,
@@ -382,7 +355,8 @@ export const DEFAULT_SETTINGS: TranslatorPluginSettings = {
 							"usage": "to"
 						}
 					],
-					"dev": false
+					"dev_from": false,
+					"dev_to": false
 				},
 				{
 					"size": 41785726,
@@ -419,7 +393,8 @@ export const DEFAULT_SETTINGS: TranslatorPluginSettings = {
 							"usage": "to"
 						}
 					],
-					"dev": false
+					"dev_from": false,
+					"dev_to": false
 				},
 				{
 					"size": 51818572,
@@ -451,7 +426,8 @@ export const DEFAULT_SETTINGS: TranslatorPluginSettings = {
 							"usage": "to"
 						}
 					],
-					"dev": false
+					"dev_from": false,
+					"dev_to": false
 				},
 				{
 					"size": 45379864,
@@ -488,118 +464,8 @@ export const DEFAULT_SETTINGS: TranslatorPluginSettings = {
 							"usage": "to"
 						}
 					],
-					"dev": false
-				},
-				{
-					"size": 44467108,
-					"locale": "pl",
-					"files": [
-						{
-							"name": "model.plen.intgemm.alphas.bin",
-							"size": 17140899,
-							"usage": "from"
-						},
-						{
-							"name": "lex.50.50.plen.s2t.bin",
-							"size": 4898024,
-							"usage": "from"
-						},
-						{
-							"name": "vocab.plen.spm",
-							"size": 822587,
-							"usage": "from"
-						},
-						{
-							"name": "model.enpl.intgemm.alphas.bin",
-							"size": 17140899,
-							"usage": "to"
-						},
-						{
-							"name": "lex.50.50.enpl.s2t.bin",
-							"size": 3642112,
-							"usage": "to"
-						},
-						{
-							"name": "vocab.enpl.spm",
-							"size": 822587,
-							"usage": "to"
-						}
-					],
-					"dev": false
-				},
-				{
-					"size": 45063626,
-					"locale": "pt",
-					"files": [
-						{
-							"name": "model.pten.intgemm.alphas.bin",
-							"size": 17140899,
-							"usage": "from"
-						},
-						{
-							"name": "lex.50.50.pten.s2t.bin",
-							"size": 4801740,
-							"usage": "from"
-						},
-						{
-							"name": "vocab.pten.spm",
-							"size": 817234,
-							"usage": "from"
-						},
-						{
-							"name": "model.enpt.intgemm.alphas.bin",
-							"size": 17140899,
-							"usage": "to"
-						},
-						{
-							"name": "lex.50.50.enpt.s2t.bin",
-							"size": 4345620,
-							"usage": "to"
-						},
-						{
-							"name": "vocab.enpt.spm",
-							"size": 817234,
-							"usage": "to"
-						}
-					],
-					"dev": false
-				},
-				{
-					"size": 47215849,
-					"locale": "fa",
-					"files": [
-						{
-							"name": "model.faen.intgemm.alphas.bin",
-							"size": 17140837,
-							"usage": "from"
-						},
-						{
-							"name": "lex.50.50.faen.s2t.bin",
-							"size": 6197320,
-							"usage": "from"
-						},
-						{
-							"name": "vocab.faen.spm",
-							"size": 845020,
-							"usage": "from"
-						},
-						{
-							"name": "model.enfa.intgemm.alphas.bin",
-							"size": 17140835,
-							"usage": "to"
-						},
-						{
-							"name": "lex.50.50.enfa.s2t.bin",
-							"size": 5097656,
-							"usage": "to"
-						},
-						{
-							"name": "vocab.enfa.spm",
-							"size": 794181,
-							"usage": "to"
-						}
-					],
-					"dev": true
+					"dev_from": false,
+					"dev_to": false
 				},
 				{
 					"size": 45332265,
@@ -636,20 +502,249 @@ export const DEFAULT_SETTINGS: TranslatorPluginSettings = {
 							"usage": "to"
 						}
 					],
-					"dev": true
+					"dev_from": false,
+					"dev_to": false
+				},
+				{
+					"size": 44467108,
+					"locale": "pl",
+					"files": [
+						{
+							"name": "model.plen.intgemm.alphas.bin",
+							"size": 17140899,
+							"usage": "from"
+						},
+						{
+							"name": "lex.50.50.plen.s2t.bin",
+							"size": 4898024,
+							"usage": "from"
+						},
+						{
+							"name": "vocab.plen.spm",
+							"size": 822587,
+							"usage": "from"
+						},
+						{
+							"name": "model.enpl.intgemm.alphas.bin",
+							"size": 17140899,
+							"usage": "to"
+						},
+						{
+							"name": "lex.50.50.enpl.s2t.bin",
+							"size": 3642112,
+							"usage": "to"
+						},
+						{
+							"name": "vocab.enpl.spm",
+							"size": 822587,
+							"usage": "to"
+						}
+					],
+					"dev_from": false,
+					"dev_to": false
+				},
+				{
+					"size": 45063626,
+					"locale": "pt",
+					"files": [
+						{
+							"name": "lex.50.50.pten.s2t.bin",
+							"size": 4801740,
+							"usage": "from"
+						},
+						{
+							"name": "model.pten.intgemm.alphas.bin",
+							"size": 17140899,
+							"usage": "from"
+						},
+						{
+							"name": "vocab.pten.spm",
+							"size": 817234,
+							"usage": "from"
+						},
+						{
+							"name": "model.enpt.intgemm.alphas.bin",
+							"size": 17140899,
+							"usage": "to"
+						},
+						{
+							"name": "lex.50.50.enpt.s2t.bin",
+							"size": 4345620,
+							"usage": "to"
+						},
+						{
+							"name": "vocab.enpt.spm",
+							"size": 817234,
+							"usage": "to"
+						}
+					],
+					"dev_from": false,
+					"dev_to": false
+				},
+				{
+					"size": 44706399,
+					"locale": "ca",
+					"files": [
+						{
+							"name": "model.caen.intgemm.alphas.bin",
+							"size": 17140899,
+							"usage": "from"
+						},
+						{
+							"name": "lex.50.50.caen.s2t.bin",
+							"size": 5244644,
+							"usage": "from"
+						},
+						{
+							"name": "vocab.caen.spm",
+							"size": 811443,
+							"usage": "from"
+						},
+						{
+							"name": "model.enca.intgemm.alphas.bin",
+							"size": 17140898,
+							"usage": "to"
+						},
+						{
+							"name": "lex.50.50.enca.s2t.bin",
+							"size": 3576936,
+							"usage": "to"
+						},
+						{
+							"name": "vocab.enca.spm",
+							"size": 791579,
+							"usage": "to"
+						}
+					],
+					"dev_from": true,
+					"dev_to": true
+				},
+				{
+					"size": 43758200,
+					"locale": "cs",
+					"files": [
+						{
+							"name": "model.csen.intgemm.alphas.bin",
+							"size": 17140756,
+							"usage": "from"
+						},
+						{
+							"name": "lex.50.50.csen.s2t.bin",
+							"size": 4535788,
+							"usage": "from"
+						},
+						{
+							"name": "vocab.csen.spm",
+							"size": 769763,
+							"usage": "from"
+						},
+						{
+							"name": "model.encs.intgemm.alphas.bin",
+							"size": 17140898,
+							"usage": "to"
+						},
+						{
+							"name": "lex.50.50.encs.s2t.bin",
+							"size": 3365784,
+							"usage": "to"
+						},
+						{
+							"name": "vocab.encs.spm",
+							"size": 805211,
+							"usage": "to"
+						}
+					],
+					"dev_from": true,
+					"dev_to": true
+				},
+				{
+					"size": 47215849,
+					"locale": "fa",
+					"files": [
+						{
+							"name": "model.faen.intgemm.alphas.bin",
+							"size": 17140837,
+							"usage": "from"
+						},
+						{
+							"name": "lex.50.50.faen.s2t.bin",
+							"size": 6197320,
+							"usage": "from"
+						},
+						{
+							"name": "vocab.faen.spm",
+							"size": 845020,
+							"usage": "from"
+						},
+						{
+							"name": "model.enfa.intgemm.alphas.bin",
+							"size": 17140835,
+							"usage": "to"
+						},
+						{
+							"name": "lex.50.50.enfa.s2t.bin",
+							"size": 5097656,
+							"usage": "to"
+						},
+						{
+							"name": "vocab.enfa.spm",
+							"size": 794181,
+							"usage": "to"
+						}
+					],
+					"dev_from": true,
+					"dev_to": true
+				},
+				{
+					"size": 45255740,
+					"locale": "hu",
+					"files": [
+						{
+							"name": "model.huen.intgemm.alphas.bin",
+							"size": 17140899,
+							"usage": "from"
+						},
+						{
+							"name": "lex.50.50.huen.s2t.bin",
+							"size": 5162428,
+							"usage": "from"
+						},
+						{
+							"name": "vocab.huen.spm",
+							"size": 820746,
+							"usage": "from"
+						},
+						{
+							"name": "model.enhu.intgemm.alphas.bin",
+							"size": 17140898,
+							"usage": "to"
+						},
+						{
+							"name": "lex.50.50.enhu.s2t.bin",
+							"size": 4167800,
+							"usage": "to"
+						},
+						{
+							"name": "vocab.enhu.spm",
+							"size": 822969,
+							"usage": "to"
+						}
+					],
+					"dev_from": false,
+					"dev_to": true
 				},
 				{
 					"size": 44295337,
 					"locale": "ru",
 					"files": [
 						{
-							"name": "model.ruen.intgemm.alphas.bin",
-							"size": 17140836,
+							"name": "lex.50.50.ruen.s2t.bin",
+							"size": 5090836,
 							"usage": "from"
 						},
 						{
-							"name": "lex.50.50.ruen.s2t.bin",
-							"size": 5090836,
+							"name": "model.ruen.intgemm.alphas.bin",
+							"size": 17140836,
 							"usage": "from"
 						},
 						{
@@ -673,20 +768,21 @@ export const DEFAULT_SETTINGS: TranslatorPluginSettings = {
 							"usage": "to"
 						}
 					],
-					"dev": true
+					"dev_from": false,
+					"dev_to": true
 				},
 				{
 					"size": 74267492,
 					"locale": "uk",
 					"files": [
 						{
-							"name": "model.uken.intgemm8.bin",
-							"size": 25315747,
+							"name": "lex.uken.s2t.bin",
+							"size": 9761460,
 							"usage": "from"
 						},
 						{
-							"name": "lex.uken.s2t.bin",
-							"size": 9761460,
+							"name": "model.uken.intgemm8.bin",
+							"size": 25315747,
 							"usage": "from"
 						},
 						{
@@ -720,9 +816,11 @@ export const DEFAULT_SETTINGS: TranslatorPluginSettings = {
 							"usage": "to"
 						}
 					],
-					"dev": true
+					"dev_from": false,
+					"dev_to": true
 				}
-			]
+			],
+			version: "0.3.4"
 		},
 		fanyi_qq: {
 			selected_languages: [],
@@ -1119,10 +1217,22 @@ export const VIEW_MODES = {
 }
 
 export const SECURITY_MODES = [
-	{ value: 'none', text: 'Plaintext (no security)', info: "API keys are currently stored as plaintext strings in data.json" },
-	{ value: 'password', text: 'Encrypt with password', info: "API keys are currently stored as encrypted strings in data.json" },
-	{ value: 'local_only', text: 'Stored in local storage', info: "API keys will not be saved to data.json, keys are only stored locally" },
-	{ value: 'dont_save', text: "Stored for single session", info: "API keys will be cleared when Obsidian is closed" },
+	{
+		value: 'none',
+		text: 'Plaintext (no security)',
+		info: "API keys are currently stored as plaintext strings in data.json"
+	},
+	{
+		value: 'password',
+		text: 'Encrypt with password',
+		info: "API keys are currently stored as encrypted strings in data.json"
+	},
+	{
+		value: 'local_only',
+		text: 'Stored in local storage',
+		info: "API keys will not be saved to data.json, keys are only stored locally"
+	},
+	{value: 'dont_save', text: "Stored for single session", info: "API keys will be cleared when Obsidian is closed"},
 ]
 
 export const TRANSLATOR_VIEW_ID = "translator-view";
@@ -1157,15 +1267,23 @@ export const SETTINGS_TABS = [
 ];
 
 export const QUICK_ACTIONS = {
-	"copy": {tooltip: ["Copy"], icon: ["copy"], text: "Copy" },
-	"paste": {tooltip: ["Paste"], icon: ["clipboard-check"], text: "Paste" },
-	"clear": {tooltip: ["Clear"], icon: ["x"], text: "Clear" },
+	"copy": {tooltip: ["Copy"], icon: ["copy"], text: "Copy"},
+	"paste": {tooltip: ["Paste"], icon: ["clipboard-check"], text: "Paste"},
+	"clear": {tooltip: ["Clear"], icon: ["x"], text: "Clear"},
 };
 
 export const QUICK_SETTINGS = {
-	"change-service": {tooltip: ["Change Translation Service"], icon: ["cloud"], text: "Change Service" },
-	"automatic-translation": {tooltip: ["Translating manually", "Automatically translating"], icon: ["hand", "zap"], text: "Toggle Auto-Translate" },
-	"apply-glossary": {tooltip: ["Don't apply glossary", "Apply glossary"], icon: ["book", "book-open"], text: "Toggle Glossary" },
+	"change-service": {tooltip: ["Change Translation Service"], icon: ["cloud"], text: "Change Service"},
+	"automatic-translation": {
+		tooltip: ["Translating manually", "Automatically translating"],
+		icon: ["hand", "zap"],
+		text: "Toggle Auto-Translate"
+	},
+	"apply-glossary": {
+		tooltip: ["Don't apply glossary", "Apply glossary"],
+		icon: ["book", "book-open"],
+		text: "Toggle Glossary"
+	},
 	"change-layout": {
 		tooltip: Object.values(VIEW_MODES).map((mode) => mode.tooltip),
 		icon: Object.values(VIEW_MODES).map((mode) => mode.icon),
@@ -1181,11 +1299,11 @@ export const QUICK_SETTINGS = {
 };
 
 export const QUICK_SETTINGS_BUTTONS = Object.entries(QUICK_SETTINGS).map(([key, value]) => {
-	return { id: key, ...value };
+	return {id: key, ...value};
 });
 
 export const QUICK_ACTIONS_BUTTONS = Object.entries(QUICK_ACTIONS).map(([key, value]) => {
-	return { id: key, ...value };
+	return {id: key, ...value};
 });
 
 

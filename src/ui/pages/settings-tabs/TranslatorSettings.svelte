@@ -5,11 +5,27 @@
 	import {settings, bergamot_data, all_languages, available_languages, spellcheck_languages} from "../../../stores";
 	import {slide} from "svelte/transition";
 
-	import {Button, Dropdown, Toggle, Input, Icon, ToggleButton, ButtonList, Slider, SettingItem} from "../../components";
+	import {
+		Button,
+		Dropdown,
+		Toggle,
+		Input,
+		Icon,
+		ToggleButton,
+		ButtonList,
+		Slider,
+		SettingItem
+	} from "../../components";
 
 	import {ConfirmationModal} from "../../modals";
 
-	import {SERVICES_INFO, UNTESTED_SERVICES} from "../../../constants";
+	import {
+		BERGAMOT_LFS_REPOSITORY,
+		BERGAMOT_REPOSITORY,
+		BERGAMOT_WORKER_LOCATION,
+		SERVICES_INFO,
+		UNTESTED_SERVICES
+	} from "../../../constants";
 	import {DummyTranslate} from "../../../handlers";
 
 	import {Notice, requestUrl} from "obsidian";
@@ -17,24 +33,24 @@
 	import {openGithubIssueLink, writeRecursive} from "../../../obsidian-util";
 
 	import t from "../../../l10n";
-	import type {LanguageModelData} from "../../../types";
-
+	import type {FileData, LanguageModelData, ModelFileData} from "../../../types";
+	import * as zlib from "zlib";
 
 	export let plugin: TranslatorPlugin;
 	export let service: "google_translate" | "azure_translator" | "yandex_translate" |
-        "libre_translate" | "deepl" | "fanyi_qq" | "fanyi_youdao" | "fanyi_baidu" |
-        "lingva_translate" | "bergamot" | "openai_translator";
+		"libre_translate" | "deepl" | "fanyi_qq" | "fanyi_youdao" | "fanyi_baidu" |
+		"lingva_translate" | "bergamot" | "openai_translator";
 	$: service, changedService();
 
 	let translator: DummyTranslate;
 	let old_service = '';
 
-	let current_available_languages: string[]|LanguageModelData[] = [];
+	let current_available_languages: string[] | LanguageModelData[] = [];
 	let selectable_languages: any[];
 
 	let filtered_languages: any[];
 	let downloadable_models: any[];
-	let bergamot_update_available = $bergamot_data.models && $bergamot_data.version < $settings.service_settings.bergamot?.version;
+	let bergamot_update_available = $bergamot_data.models && bergamotUpdateAvailable();
 	let api_key: string = null;
 	let info: typeof SERVICES_INFO = {};
 
@@ -53,56 +69,73 @@
 		old_service = service;
 	}
 
+	function bergamotModelEqual(model: LanguageModelData, other: LanguageModelData) {
+		return model.locale === other.locale && model.size === other.size && model.files.length === other.files.length
+			&& model.dev_from === other.dev_from && model.dev_to === other.dev_to;
+	}
+
+	function bergamotFileUrl(model: LanguageModelData, file: FileData) {
+		return `${BERGAMOT_REPOSITORY}/models/${(file.usage === 'from' ? model.dev_from : model.dev_to) ? "dev" : "prod"}/${file.usage === 'from' ? `${model.locale}en` : `en${model.locale}`}/${file.name}.gz`;
+	}
+
+	function bergamotUpdateAvailable() {
+		return service === "bergamot" && $bergamot_data.models?.some(model => {
+			const other = $settings.service_settings.bergamot.downloadable_models.find(x => x.locale === model.locale);
+			return other && !bergamotModelEqual(model, other);
+		});
+	}
+
 	async function updateBergamot() {
-		let updatable_models = $settings.service_settings.bergamot.downloadable_models.filter(model => {
-			const other = $bergamot_data.models.find(x => x.locale === model.locale);
-			return other && model.size !== other.size;
-		})
+		try {
+			let updatable_models = $settings.service_settings.bergamot.downloadable_models.filter(model => {
+				const other = $bergamot_data.models.find(x => x.locale === model.locale);
+				return other && !bergamotModelEqual(model, other);
+			});
 
-		/*  TODO: To my knowledge, it is not possible to check the filesize of a file on Github without downloading it
-		          but the wasm could change between versions of Bergamot, with older models being incompatible with the newer binary
-		          or vice versa; plus new features could be introduced (such as support for mobile platforms).
-		          So to be safe, we will always download the latest version of Bergamot when an update is available. */
-		let binary_path = `${plugin.app.vault.configDir}/plugins/translate/models/bergamot/bergamot-translator-worker.wasm`
-		let binary_result = await requestUrl({url: "https://github.com/mozilla/firefox-translations/blob/main/extension/model/static/translation/bergamot-translator-worker.wasm?raw=true"});
-		await writeRecursive(plugin.app, binary_path, binary_result.arrayBuffer);
-
-
-
-		const rootURL = "https://storage.googleapis.com/bergamot-models-sandbox";
-
-		let current_models = $bergamot_data.models;
-
-		for (let model of updatable_models) {
-			for (let modelfile of model.files) {
-				const path = `${plugin.app.vault.configDir}/plugins/translate/models/bergamot/${model.locale}/${modelfile.name}`;
-				const stats = await plugin.app.vault.adapter.stat(path);
-				// If file does not exist (new file of model), or filesizes differ (updated file of model), download new version
-				if (!stats || stats.size !== modelfile.size) {
-					const file = await requestUrl({url: `${rootURL}/${$settings.service_settings.bergamot.version}/${modelfile.usage === 'from' ? `${model.locale}en` : `en${model.locale}`}/${modelfile.name}`});
-					if (file.status !== 200) {
-						plugin.message_queue(`Failed to update ${t(model.locale)} language model, aborting update`);
-						return;
-					}
-					await plugin.app.vault.adapter.writeBinary(path, file.arrayBuffer);
-				}
+			const binary_path = `${plugin.app.vault.configDir}/plugins/translate/models/bergamot/bergamot-translator-worker.wasm`
+			const binary_prefetch = await requestUrl({url: BERGAMOT_WORKER_LOCATION, method: 'HEAD'});
+			const original_binary_size = (await plugin.app.vault.adapter.stat(binary_path))?.size;
+			if (original_binary_size !== Number(binary_prefetch.headers['content-length'])) {
+				const file = await requestUrl({url: BERGAMOT_WORKER_LOCATION});
+				await writeRecursive(plugin.app, `${plugin.app.vault.configDir}/plugins/translate/models/bergamot/bergamot-translator-worker.wasm`, file.arrayBuffer);
+				$bergamot_data.binary.size = Number(binary_prefetch.headers['content-length']);
 			}
-			const model_index = current_models.findIndex(x => x.locale === model.locale);
 
-			// Remove files that are no longer included in the model
-			let to_remove = current_models[model_index].files.filter(x => !model.files.find(y => y.name === x.name));
-			for (let file of to_remove)
-				await plugin.app.vault.adapter.remove(`${plugin.app.vault.configDir}/plugins/translate/models/bergamot/${model.locale}/${file.name}`);
+			let current_models = $bergamot_data.models;
+			for (let model of updatable_models) {
+				// Update or install file for the model, if necessary
+				for (let modelfile of model.files) {
+					const path = `${plugin.app.vault.configDir}/plugins/translate/models/bergamot/${model.locale}/${modelfile.name}`;
+					const stats = await plugin.app.vault.adapter.stat(path);
+					if (!stats || stats.size !== modelfile.size) {
+						const file = await requestUrl({url: bergamotFileUrl(model, modelfile)});
+						if (file.status !== 200) {
+							plugin.message_queue(`Failed to update ${t(model.locale)} language model, aborting update`);
+							return;
+						}
+						await plugin.app.vault.adapter.writeBinary(path, zlib.gunzipSync(file.arrayBuffer).buffer as ArrayBuffer);
+					}
+				}
+				const model_index = current_models.findIndex(x => x.locale === model.locale);
 
-			current_models[model_index] = model;
+				// Remove files that are no longer included in the model
+				let to_remove = current_models[model_index].files.filter(x => !model.files.find(y => y.name === x.name));
+				for (let file of to_remove)
+					await plugin.app.vault.adapter.remove(`${plugin.app.vault.configDir}/plugins/translate/models/bergamot/${model.locale}/${file.name}`);
+
+				current_models[model_index] = model;
+			}
+			$bergamot_data = {
+				binary: $bergamot_data.binary,
+				version: $settings.service_settings.bergamot.version,
+				models: current_models
+			}
+			bergamot_update_available = false;
+			plugin.message_queue(`Bergamot language models updated successfully`);
+		} catch (e) {
+			console.error("Updating Bergamot failed: ", e);
+			plugin.message_queue(`Failed to update Bergamot language models: ${e.message}`);
 		}
-		$bergamot_data = {
-			binary: $bergamot_data.binary,
-			version: $settings.service_settings.bergamot.version,
-			models: current_models
-		}
-		bergamot_update_available = false;
-		plugin.message_queue(`Bergamot language models updated successfully`);
 	}
 
 	function invalidateService() {
@@ -118,23 +151,35 @@
 	function filterLanguages(languages: any[]) {
 		if (service in SERVICES_INFO && SERVICES_INFO[service].type === 'translation') {
 			selectable_languages = languages
-				.filter(locale => { return !$settings.service_settings[service].selected_languages.includes(locale); })
-				.map(locale => { return {'value': locale, 'text': $all_languages.get(locale) || locale } })
-				.sort((a, b) => { return a.text.localeCompare(b.text);});
+				.filter(locale => {
+					return !$settings.service_settings[service].selected_languages.includes(locale);
+				})
+				.map(locale => {
+					return {'value': locale, 'text': $all_languages.get(locale) || locale}
+				})
+				.sort((a, b) => {
+					return a.text.localeCompare(b.text);
+				});
 			selectable_languages.unshift({'value': '', 'text': '+'});
 
 			filtered_languages = $settings.service_settings[service].selected_languages
 				.filter(locale => languages.includes(locale))
-				.map(locale => {return {'value': locale, 'text': $all_languages.get(<string>locale) || locale}})
+				.map(locale => {
+					return {'value': locale, 'text': $all_languages.get(<string>locale) || locale}
+				})
 				.sort((a, b) => a.text.localeCompare(b.text));
 
 			if (service === $settings.translation_service) {
 				if ($settings.filter_mode === '0')
 					$available_languages = languages;
 				else if ($settings.filter_mode === '1')
-					$available_languages = languages.filter(locale => { return $spellcheck_languages.includes(locale); });
+					$available_languages = languages.filter(locale => {
+						return $spellcheck_languages.includes(locale);
+					});
 				else if ($settings.filter_mode === '2')
-					$available_languages = languages.filter(locale => { return $settings.service_settings[service].selected_languages.includes(locale); });
+					$available_languages = languages.filter(locale => {
+						return $settings.service_settings[service].selected_languages.includes(locale);
+					});
 			}
 		}
 	}
@@ -150,9 +195,14 @@
 						});
 					})
 					.map(model => {
-						return {'value': model.locale, 'text': `${$all_languages.get(model.locale)} (${humanFileSize(model.size, false)})${model.dev ? ' [DEV]' : ''}`};
+						return {
+							'value': model.locale,
+							'text': `${$all_languages.get(model.locale)} (${humanFileSize(model.size, false)})${(model.dev_from || model.dev_to) ? ' [DEV]' : ''}`
+						};
 					})
-					.sort((a, b) => { return a.text.localeCompare(b.text);});
+					.sort((a, b) => {
+						return a.text.localeCompare(b.text);
+					});
 				downloadable_models.unshift({'value': '', 'text': '+'});
 			}
 		}
@@ -166,9 +216,10 @@
 	<div class="translator-warning-message">
 		<Icon icon="alert-triangle" size={50}/>
 		<div>
-			<b>WARNING:</b> {info.display_name} has not been tested, so it is very likely that it does not work properly.<br><br>
+			<b>WARNING:</b> {info.display_name} has not been tested, so it is very likely that it does not work
+			properly.<br><br>
 			If you encounter any issue, please open an issue over on
-				<a href="blank" on:click={() => {openGithubIssueLink(plugin.app, info.display_name, {})}}>GitHub</a>,
+			<a href="blank" on:click={() => {openGithubIssueLink(plugin.app, info.display_name, {})}}>GitHub</a>,
 			I will try to fix it as soon as possible.<br>
 			Likewise, if the service works properly, let me know!
 		</div>
@@ -184,10 +235,11 @@
 {#if service === 'bergamot'}
 	<SettingItem
 		name="Setup local translation"
-		description="Install Bergamot translation engine (size: 5.05MiB)"
+		description="Install Bergamot translation engine (size: 5.00MiB)"
 		type="button"
-		notices={translator?.has_autodetect_capability() ? [] : [
-			{ text: `Automatic language detection is <b>disabled</b>, install FastText to enable this feature`, type: 'info' }
+		notices={[
+			!translator?.has_autodetect_capability() ? { text: `Automatic language detection is <b>disabled</b>, install FastText to enable this feature`, type: 'info' } : undefined,
+			{ text: "<b>Disclaimer:</b> The engine was recompiled by me to a newer version, as no up-to-date official binary is available"}
 		]}
 	>
 		<div slot="control" class="setting-item-control">
@@ -204,7 +256,7 @@
 						translator.update_data($bergamot_data);
 					} else {
 						let binary_path = `${plugin.app.vault.configDir}/plugins/translate/models/bergamot/bergamot-translator-worker.wasm`
-						let binary_result = await requestUrl({url: "https://github.com/mozilla/firefox-translations/blob/main/extension/model/static/translation/bergamot-translator-worker.wasm?raw=true"});
+						let binary_result = await requestUrl({url: BERGAMOT_WORKER_LOCATION});
 						await writeRecursive(plugin.app, binary_path, binary_result.arrayBuffer);
 
 						if (!$bergamot_data.models)
@@ -221,7 +273,7 @@
 					}
 				}}
 			>
-				<Icon icon={bergamot_update_available ? "refresh-cw" : "download"} />
+				<Icon icon={bergamot_update_available ? "refresh-cw" : "download"}/>
 			</button>
 
 			{#if $bergamot_data.binary}
@@ -250,14 +302,14 @@
 	</SettingItem>
 
 	{#if $bergamot_data.binary }
-		<SettingItem name="Manage Bergamot models" 	subsetting={true}>
+		<SettingItem name="Manage Bergamot models" subsetting={true}>
 			<div slot="control" class="setting-item-control">
 				<!-- TODO: Removal should consider whether model was already removed via FS  -->
 				<ButtonList
 					items={ $bergamot_data?.models.map((model) => {
 						return {
 							'value': model.locale,
-							'text': `${$all_languages.get(model.locale)} (${humanFileSize(model.size, false)})${model.dev ? ' [DEV]' : ''}`
+							'text': `${$all_languages.get(model.locale)} (${humanFileSize(model.size, false)})${(model.dev_from || model.dev_to) ? ' [DEV]' : ''}`
 						}
 					}) }
 					icon="cross"
@@ -287,7 +339,6 @@
 					onChange={async (value) => {
 						if (value) {
 							const model = $settings.service_settings[service].downloadable_models.find(x => x.locale === value);
-							const rootURL = "https://storage.googleapis.com/bergamot-models-sandbox";
 
 							// If there are already models installed, use the same Bergamot version as all other models,
 							// otherwise use the most up-to-date version (given in data.json)
@@ -308,7 +359,7 @@
 									const stats = await plugin.app.vault.adapter.stat(path);
 									if (stats && stats.size === modelfile.size)
 										continue;
-									const file = await requestUrl({url: `${rootURL}/${version}/${modelfile.usage === 'from' ? `${model.locale}en` : `en${model.locale}`}/${modelfile.name}`});
+									const file = await requestUrl({url: bergamotFileUrl(model, modelfile)});
 
 
 									let execution_time = (Date.now() - start_time) / 1000;
@@ -323,7 +374,7 @@
 										plugin.message_queue(`Failed to download ${t(model.locale)} language model`);
 										return;
 									}
-									await writeRecursive(plugin.app, path, file.arrayBuffer);
+									await writeRecursive(plugin.app, path, zlib.gunzipSync(file.arrayBuffer).buffer);
 
 									if (progress_bar.noticeEl.isConnected) {
 										const progress = Math.round((index / model.files.length) * progress_bar_length);
@@ -354,7 +405,7 @@
 								if (progress_bar.noticeEl.isConnected) {
 									progress_bar.setMessage(`Installation of ${t(model.locale)} model failed\nProgress:\t\t   [${'↯'.repeat(progress_bar_length)}]\nRemaining time:\t\t   Failed!\n$Reason: ${e.message}`);
 								} else {
-									plugin.message_queue(`Installation of ${t(model.locale)} model failed\nReason: ${e.message}`, 0);
+									plugin.message_queue(`Installation of ${t(model.locale)} model failed\nReason: ${e.message}\nIf you get a 404, try updating the languages using the button below, if that still does not work, open an issue on GitHub`, 0);
 								}
 							}
 						}
@@ -637,11 +688,11 @@
 			if (return_values.message)
 				plugin.message_queue(return_values.message);
 			if (return_values.languages) {
-				if (return_values.data) {
-					if (return_values.data > $bergamot_data?.version)
-						bergamot_update_available = true;
+				if (return_values.languages[0] instanceof Object) {
 					$settings.service_settings[service].downloadable_models = return_values.languages;
-					$settings.service_settings[service].version = return_values.data;
+					if (bergamotUpdateAvailable())
+						bergamot_update_available = true;
+					// $settings.service_settings[service].version = DEFAULT_SETTINGS.service_settings.bergamot.version;
 				} else {
 					$settings.service_settings[service].available_languages = return_values.languages;
 				}
@@ -675,10 +726,10 @@
 {/if}
 
 {#if info.options}
-<SettingItem
-	name="Service-specific options"
-	type="heading"
-/>
+	<SettingItem
+		name="Service-specific options"
+		type="heading"
+	/>
 
 	{#if info.options.split_sentences}
 		<SettingItem

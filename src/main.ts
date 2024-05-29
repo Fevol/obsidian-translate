@@ -15,7 +15,13 @@ import {SwitchService, TranslateModal} from "./ui/modals";
 
 import {around} from 'monkey-around';
 
-import type {APIServiceProviders, CommandI, TranslatorPluginSettings, TranslatorServiceType} from "./types";
+import {
+	ALL_TRANSLATOR_SERVICES,
+	type APIServiceProviders,
+	type CommandI,
+	type TranslatorPluginSettings,
+	type TranslatorServiceType
+} from "./types";
 
 import {ICONS, DEFAULT_SETTINGS, TRANSLATOR_VIEW_ID, SERVICES_INFO} from "./constants";
 import {DummyTranslate} from "./handlers";
@@ -79,7 +85,7 @@ export default class TranslatorPlugin extends Plugin {
 		this.api = new TranslateAPI(this);
 
 		// Set up message queue for the plugin, this rate limits the number of messages the plugin can send at the same time,
-		// and allows for the messages to be ordered in a certain way
+		// 	and allows for the messages to be ordered in a certain way
 		const default_timeout = 4000;
 		this.message_queue = rateLimit(this,5, 3000, true, default_timeout, (text: string, timeout: number = default_timeout, priority: boolean = false) => {
 			new Notice(text, timeout);
@@ -123,7 +129,7 @@ export default class TranslatorPlugin extends Plugin {
 		 *  set_if_exists will be used in the nested_object_assign function to only add updated service settings
 		 *  to loaded_settings
 		 */
-		const set_if_exists = Object.keys(SERVICES_INFO).filter(key => translation_service !== key);
+		const set_if_exists = ALL_TRANSLATOR_SERVICES.filter(key => translation_service !== key);
 
 		// TODO: Version field was introduced in 1.4.5
 		//  (Changed loaded_settings to also filter fasttext, ensure that it is not immediately filtered away even if used,

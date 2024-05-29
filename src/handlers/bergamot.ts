@@ -1,13 +1,13 @@
 import type TranslatorPlugin from "../main";
 import {DummyTranslate} from "./dummy-translate";
 import type {DetectionResult, ValidationResult, TranslationResult, LanguagesFetchResult, ServiceOptions} from "./types";
-import type {ModelFileData, LanguageModelData} from "../types";
+import type {ModelFileData, LanguageModelData, BergamotRegistry} from "../types";
 
 import {Bergamot} from "./bergamot/bergamot";
 
 import {requestUrl} from "obsidian";
 import t from "../l10n";
-
+import {BERGAMOT_REPOSITORY} from "../constants";
 
 export class BergamotTranslate extends DummyTranslate {
 	translator: Bergamot | undefined;
@@ -100,42 +100,32 @@ export class BergamotTranslate extends DummyTranslate {
 	}
 
 	async service_languages(): Promise<LanguagesFetchResult> {
-		// TODO: switch out model provider to GH Mozilla repo
-		const rootURL = "https://storage.googleapis.com/bergamot-models-sandbox";
-
-		let response = await requestUrl({url: `${rootURL}/latest.txt`});
-		const version = response.text.trim();
-		response = await requestUrl({url: `${rootURL}/${version}/registry.json`});
-		const registry = response.json;
-
-
+		const response = await requestUrl({url: `${BERGAMOT_REPOSITORY}/registry.json`});
+		const registry = response.json as BergamotRegistry;
+		// https://raw.githubusercontent.com/mozilla/firefox-translations-models/main/registry.json
 		const all_language_pairs = Object.keys(registry);
 
 		// TODO: Check if Bergamot will add bidirectional translation for all languages
 		//  If not, support one-directional translation (will require additional checks)
 		// Only support languages that support translation in both directions
 		const available_languages = all_language_pairs
-			.filter(x => {
-				return x.startsWith("en")
-			})
-			.map(x => {
-				return x.substring(2)
-			})
-			.filter(x => {
-				return all_language_pairs.includes(`${x}en`)
-			});
-		const mapped_languages: Array<LanguageModelData> = available_languages.map(x => {
-			const duplicates = Object.values(registry[`${x}en`]).map((x: any) => x.name)
-				.concat(Object.values(registry[`en${x}`]).map((x: any) => x.name))
-				.filter((e: any, i: any, a: any) => a.indexOf(e) !== i);
+			.filter(x => x.startsWith("en"))
+			.map(x => x.substring(2))
+			.filter(x => all_language_pairs.includes(`${x}en`));
 
-			const models_from = Object.values(registry[`${x}en`]).map((x: any) => {
-				return {name: x.name, size: x.size as number, usage: duplicates.includes(x.name) ? "both" : "from"}
+		const mapped_languages: LanguageModelData[] = available_languages.map(x => {
+			const duplicate_files = Object.values(registry[`${x}en` as keyof typeof registry])
+				.map(y => y.name)
+				.concat(Object.values(registry[`en${x}` as keyof typeof registry]).map((x: any) => x.name))
+				.filter((lang, i, other) => other.indexOf(lang) !== i);
+
+			const models_from = Object.values(registry[`${x}en` as keyof typeof registry]).map(x => {
+				return {name: x.name, size: x.size as number, usage: duplicate_files.includes(x.name) ? "both" : "from"}
 			});
-			const models_to = Object.values(registry[`en${x}`])
-				.filter((x: any) => !duplicates.includes(x.name))
-				.map((x: any) => {
-					return {name: x.name, size: x.size as number, usage: duplicates.includes(x.name) ? "both" : "to"}
+			const models_to = Object.values(registry[`en${x}` as keyof typeof registry])
+				.filter(x => !duplicate_files.includes(x.name))
+				.map(x => {
+					return {name: x.name, size: x.size as number, usage: duplicate_files.includes(x.name) ? "both" : "to"}
 				});
 
 			const files = models_from.concat(models_to);
@@ -144,10 +134,12 @@ export class BergamotTranslate extends DummyTranslate {
 				size: files.reduce((acc, x) => acc + x.size, 0),
 				locale: x,
 				files: models_from.concat(models_to),
-				dev: registry[`en${x}`].lex.modelType === 'dev',
+				dev_from: registry[`${x}en` as keyof typeof registry].model.modelType === 'dev',
+				dev_to: registry[`en${x}` as keyof typeof registry].model.modelType === 'dev',
 			};
 		});
-		return {status_code: 200, languages: mapped_languages, data: version};
+
+		return {status_code: 200, languages: mapped_languages};
 	}
 
 	has_autodetect_capability(): boolean {

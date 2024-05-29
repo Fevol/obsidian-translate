@@ -387,27 +387,35 @@ export interface FileData {
  * Object containg the model data for a single language model
  */
 export interface LanguageModelData {
+	/**
+	 * Filename of the language model
+	 */
 	name?: string;
 
 	/**
 	 * Locale associated with the language model
 	 */
-	locale?: string;
+	locale: string;
 
 	/**
 	 * List of model files associated with the language model
 	 */
-	files?: Array<FileData>;
+	files: FileData[];
 
 	/**
-	 * Whether the language model is in beta (according to Bergamot developers)
+	 * Whether the translation model for language pair `fren` is considered to be in beta
 	 */
-	dev?: boolean;
+	dev_from: boolean;
+
+	/**
+	 * Whether the translation model for language pair `enfr` is considered to be in beta
+	 */
+	dev_to: boolean;
 
 	/**
 	 * The total size of the language model in bytes (sum of all files)
 	 */
-	size?: number;
+	size: number;
 }
 
 /**
@@ -417,17 +425,17 @@ export interface ModelFileData {
 	/**
 	 * Current version of downloaded model files
 	 */
-	version?: string;
+	version: string;
 
 	/**
 	 * Worker binary of the service (FastText/Bergamot)
 	 */
-	binary?: FileData;
+	binary: FileData;
 
 	/**
 	 * Installed model files as supplementary files for the worker binary
 	 */
-	models?: Array<LanguageModelData>;
+	models: Array<LanguageModelData>;
 }
 
 /**
@@ -498,4 +506,27 @@ export interface CommandI {
 	callback?: (...args: any[]) => void | Promise<void>;
 
 	editorCallback?: (...args: any[]) => void | Promise<void>;
+}
+
+/**
+ * Possible file types in Bergamot registry
+ */
+type BergamotFileEntry = "model" | "lex" | "vocab"
+/**
+ * Determines string of fixed length
+ */
+type FixedString<N extends number> = { 0: string, length: N } & string;
+/**
+ * Registry structure of all Bergamot models
+ */
+export interface BergamotRegistry {
+	[x: FixedString<4>]: {
+		[file in BergamotFileEntry]: {
+			name: string,
+			size: number,
+			estimatedCompressedSize: number,
+			expectedSha256Hash: string,
+			modelType: string
+		}
+	}
 }

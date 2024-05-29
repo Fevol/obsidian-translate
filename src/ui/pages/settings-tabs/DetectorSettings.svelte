@@ -11,7 +11,7 @@
 
 	import {requestUrl} from "obsidian";
 	import {writeRecursive} from "../../../obsidian-util";
-	import {DEFAULT_SETTINGS} from "../../../constants";
+	import {DEFAULT_SETTINGS, FASTTEXT_WORKER_LOCATION} from "../../../constants";
 	import {DummyTranslate} from "../../../handlers";
 
 
@@ -47,7 +47,7 @@
 				await writeRecursive(plugin.app, model_path, model_result.arrayBuffer);
 
 				let binary_path = `${plugin.app.vault.configDir}/plugins/translate/models/fasttext/fasttext_wasm.wasm`
-				let binary_result = await requestUrl({url: "https://github.com/Fevol/obsidian-translate/blob/master/models/fasttext_wasm.wasm?raw=true"});
+				let binary_result = await requestUrl({url: FASTTEXT_WORKER_LOCATION});
 				await writeRecursive(plugin.app, binary_path, binary_result.arrayBuffer);
 
 				plugin.message_queue("Successfully installed FastText data");

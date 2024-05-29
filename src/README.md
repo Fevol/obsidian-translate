@@ -8,9 +8,9 @@ Below you can find a brief description of the general code structure, files/fold
 ```bash
 /src/
 ├── README.md		You are here!
-├── assets		SCSS file containing all of the plugins styles + classes
+├── /assets/		SCSS file containing all of the plugins styles + classes
 ├── constants.ts	Has all constant values used by the plugin
-├── handlers (!)	API wrappers of all translation services
+├── /handlers/ (!)	API wrappers of all translation services
 ├── helpers.ts		Helper functions used throughout the plugin
 ├── l10n		Localisation files
 ├── main.ts (!)		Main plugin file	
@@ -18,18 +18,16 @@ Below you can find a brief description of the general code structure, files/fold
 ├── settings.ts		Settings page constructor
 ├── stores.ts (!)	Global stores that are used throughout the plugin
 ├── types.ts		All types of the plugin
-├── typings		
-│   └── obsidian-ex.d.ts 	Mock typings of undocumented Obsidian functions
-├── ui
-│   ├── animations	Svelte animations
-│   ├── components	Basic components (buttons, inputs, etc.)
-│   ├── modals		Modals used by the plugin
-│   ├── obsidian-components	Obsidian-specific components (SettingItem, ...)
-│   └── translator-components 	Main plugin components
+├── /ui/
+│   ├── /animations/	Svelte animations
+│   ├── /components/	Basic components (buttons, inputs, etc.)
+│   ├── /modals/	Modals used by the plugin
+│   ├── /obsidian-components/	Obsidian-specific components (SettingItem, ...)
+│   └── /translator-components/ Main plugin components
 │       ├── Reactivity.svelte (!)	Handles all reactive actions	
 │       ├── SettingsPage.svelte		Settings page + navbar component
 │       ├── ViewPage.svelte (!)		Translator View component
-│       └── settings-tabs (!)	 	Setting tabs components	
+│       └── /settings-tabs/ (!)	 	Setting tabs components	
 ├── util.ts		General utility functions
 └── view.ts		View constructor
 ```

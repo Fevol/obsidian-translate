@@ -206,11 +206,6 @@ export interface LanguagesFetchResult extends BaseResult {
 	 * @remark For Bergamot: this is the list of models that can be downloaded
 	 */
 	languages?: Array<string> | Array<LanguageModelData>;
-
-	/**
-	 * Extra data that is returned by the service (only used by Bergamot to return the most recent version of the model files)
-	 */
-	data?: string;
 }
 
 
