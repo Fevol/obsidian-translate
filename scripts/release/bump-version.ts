@@ -72,6 +72,7 @@ await Bun.write(manifest_file, JSON.stringify(manifest, null, 4).replace(/\n/g, 
 await Bun.write("manifest-beta.json", JSON.stringify(manifest_beta, null, 4).replace(/\n/g, "\r\n"));
 
 try {
+	Bun.spawnSync(["git", "add", "package.json", "manifest.json", "manifest-beta.json"]);
 	Bun.spawnSync(["git", "commit", "-m", `chore(release): ${newVersion}`]);
 	Bun.spawnSync(["git", "tag", "-a", newVersion, "-m", `chore(release): ${newVersion}`]);
 	console.log(
@@ -82,5 +83,3 @@ try {
 } catch (error) {
 	console.log(`${format(" Error ", "bg_red")} | ${format("Failed when running git commands", "fg_red")}`);
 }
-
-process.exit(0);
