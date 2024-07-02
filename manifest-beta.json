@@ -1,7 +1,7 @@
 {
     "id": "translate",
     "name": "Translate",
-    "version": "1.4.8",
+    "version": "1.4.9",
     "minAppVersion": "1.0.0",
     "description": "Translate text and notes with Google Translate, DeepL, Azure, and more.",
     "author": "Fevol",
