@@ -7,7 +7,7 @@ import type {
 } from "./types";
 
 export const BERGAMOT_REPOSITORY = "https://raw.githubusercontent.com/mozilla/firefox-translations-models/main";
-export const BERGAMOT_LFS_REPOSITORY = "https://github.com/mozilla/firefox-translations-models/raw/main";
+export const BERGAMOT_LFS_REPOSITORY = "https://github.com/mozilla/firefox-translations-models.git/info/lfs/objects/batch";
 /**
  * @remark This was changed from archived firefox-translations repository on account of the binary not being up-to-date anymore.
  *     I tried determining whether it could be found in the firefox source code, but it doesn't seem to be distributed there either.

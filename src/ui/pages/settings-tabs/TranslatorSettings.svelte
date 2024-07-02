@@ -494,9 +494,34 @@
                   const path = `${plugin.app.vault.configDir}/plugins/translate/models/bergamot/${model.locale}/${modelfile.name}`;
                   const stats = await plugin.app.vault.adapter.stat(path);
                   if (stats && stats.size === modelfile.size) continue;
-                  const file = await requestUrl({
+                  let file = await requestUrl({
                     url: bergamotFileUrl(model, modelfile),
                   });
+                  if (file.text) {
+                    const lfs_data = {
+                      operation: "download",
+                      transfer: ["basic"],
+                      objects: [
+                        {
+                          oid: file.text.match(/oid sha256:(.*)/)[1],
+                          size: parseInt(file.text.match(/size (.*)/)[1]),
+                        },
+                      ],
+                    };
+                    const lfs_location = await requestUrl({
+                      url: BERGAMOT_LFS_REPOSITORY,
+                      method: "POST",
+                      headers: {
+                        "Content-Type": "application/json",
+                        "Accept": "application/vnd.git-lfs+json",
+                      },
+                      body: JSON.stringify(lfs_data),
+                    });
+
+					file = await requestUrl({
+					  url: lfs_location.json.objects[0].actions.download.href,
+					});
+                  }
 
                   let execution_time = (Date.now() - start_time) / 1000;
 
