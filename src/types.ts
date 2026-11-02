@@ -225,6 +225,11 @@ export interface APIServiceSettings extends ServiceOptions {
 	downloadable_models?: Array<LanguageModelData>;
 
 	/**
+	 * Only used for OpenAI: the model used for translation
+	 */
+	model?: string;
+
+	/**
 	 * Version of the translation service settings, if the stored version is lower than the default version, new defaults will be added to the settings
 	 */
 	version?: string;

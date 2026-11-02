@@ -744,7 +744,7 @@
     notices={[
       {
         type: "info",
-        text: "ⓘ GPT-4 can be more expensive but result in more accurate translations",
+        text: "ⓘ GPT-6 Astra is more expensive but can result in more accurate translations",
       },
     ]}
   >

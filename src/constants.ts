@@ -2396,6 +2396,7 @@ export const DEFAULT_SETTINGS: TranslatorPluginSettings = {
 			selected_languages: [],
 			api_key: "",
 			host: "api.openai.com",
+			model: "gpt-6.1-terra",
 			auto_translate: false,
 			auto_translate_interval: 500,
 			validated: null,
@@ -2673,10 +2674,10 @@ export const SERVICES_INFO: {
 			{ text: "custom domain", value: "https://YOURDOMAINHERE.com" },
 		],
 		model_options: [
-			{ text: "GPT 3.5", value: "gpt-3.5-turbo" },
-			{ text: "GPT 3.5 (16K context)", value: "gpt-3.5-turbo-16k" },
-			{ text: "GPT 4", value: "gpt-4" },
-			{ text: "GPT 4 (32K context)", value: "gpt-4-32k" },
+			{ text: "GPT-6.1 Terra (fast)", value: "gpt-6.1-terra" },
+			{ text: "GPT-6.1 Sol (balanced)", value: "gpt-6.1-sol" },
+			{ text: "GPT-6 Astra (most capable)", value: "gpt-6-astra" },
+			{ text: "GPT-6 Luna (lowest cost)", value: "gpt-6-luna" },
 		],
 	},
 	fasttext: {

@@ -197,6 +197,11 @@ export default class TranslatorPlugin extends Plugin {
 				loaded_settings.service_settings[ls_key].version = DEFAULT_SETTINGS.service_settings[ls_key].version;
 			}
 		}
+		// Replace OpenAI models that were retired from the API with the current default
+		const openai_settings = loaded_settings.service_settings.openai_translator;
+		if (openai_settings && !SERVICES_INFO.openai_translator.model_options!.some((x) => x.value === openai_settings.model))
+			openai_settings.model = DEFAULT_SETTINGS.service_settings.openai_translator.model;
+
 		settings.set(loaded_settings);
 
 		// On any change of the settings writable, settings will be saved to the data.json
